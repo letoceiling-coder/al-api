@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import trendAgentAPI from '../services/api'
+import { trendAgentAPI } from '../services/api'
 import ObjectHeader from '../components/detail/ObjectHeader'
 import ObjectApartments from '../components/detail/ObjectApartments'
 import ObjectParkings from '../components/detail/ObjectParkings'

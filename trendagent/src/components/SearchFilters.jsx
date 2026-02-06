@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import trendAgentAPI from '../services/api'
+import { trendAgentAPI } from '../services/api'
 import './SearchFilters.css'
 
 const SearchFilters = ({ objectType, filters, onFilterChange, onSearch }) => {

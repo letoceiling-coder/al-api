@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import trendAgentAPI from '../services/api'
+import { trendAgentAPI } from '../services/api'
 import SearchFilters from '../components/SearchFilters'
 import ObjectCard from '../components/ObjectCard'
 import ObjectTypeFilter from '../components/ObjectTypeFilter'
