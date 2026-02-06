@@ -324,6 +324,169 @@ class AIProxyController extends Controller
     }
 
     /**
+     * Process AI request with streaming (Server-Sent Events)
+     *
+     * @param AIProcessRequest $request
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function stream(AIProcessRequest $request)
+    {
+        $user = $request->user();
+        $requestId = Str::uuid()->toString();
+        $traceId = $request->header('X-Trace-ID') ?? Str::uuid()->toString();
+
+        // Check rate limits before starting stream
+        if (config('ai.features.rate_limiting')) {
+            $this->checkRateLimits($user);
+        }
+
+        // Validate and resolve API key
+        $this->keyResolver->validateProvider($request->provider);
+        $apiKeyInfo = $this->keyResolver->resolve(
+            $request->provider,
+            $user,
+            $request->all()
+        );
+
+        // Validate model capabilities
+        $this->validateModelCapabilities(
+            $request->provider,
+            $request->model,
+            !empty($request->files)
+        );
+
+        return response()->stream(function () use ($request, $user, $requestId, $traceId, $apiKeyInfo) {
+            // Set headers for SSE
+            header('Content-Type: text/event-stream');
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no');
+            header('X-Trace-ID: ' . $traceId);
+            header('X-Request-ID: ' . $requestId);
+
+            $startTime = microtime(true);
+            $totalTokens = 0;
+            $completionText = '';
+
+            try {
+                // Send initial event
+                echo "event: start\n";
+                echo "data: " . json_encode([
+                    'request_id' => $requestId,
+                    'trace_id' => $traceId,
+                    'provider' => $request->provider,
+                    'model' => $request->model,
+                    'timestamp' => now()->toIso8601String(),
+                ]) . "\n\n";
+                ob_flush();
+                flush();
+
+                // Simulate streaming (TODO: Implement real AI provider streaming)
+                $mockResponse = $this->executeAIRequest(
+                    $request->provider,
+                    $request->model,
+                    $apiKeyInfo['key'],
+                    $request->all()
+                );
+
+                // Split response into chunks for streaming simulation
+                $words = explode(' ', $mockResponse['text']);
+                foreach ($words as $index => $word) {
+                    $completionText .= ($index > 0 ? ' ' : '') . $word;
+                    
+                    echo "event: token\n";
+                    echo "data: " . json_encode([
+                        'content' => $word . ' ',
+                        'index' => $index,
+                    ]) . "\n\n";
+                    
+                    ob_flush();
+                    flush();
+                    
+                    // Small delay to simulate streaming
+                    usleep(50000); // 50ms
+                }
+
+                $processingTime = microtime(true) - $startTime;
+                $estimatedCost = $this->costCalculator->calculate(
+                    $request->provider,
+                    $request->model,
+                    $mockResponse['usage']['prompt_tokens'] ?? 0,
+                    $mockResponse['usage']['completion_tokens'] ?? 0
+                );
+
+                // Send completion event
+                echo "event: done\n";
+                echo "data: " . json_encode([
+                    'request_id' => $requestId,
+                    'usage' => [
+                        'prompt_tokens' => $mockResponse['usage']['prompt_tokens'] ?? 0,
+                        'completion_tokens' => $mockResponse['usage']['completion_tokens'] ?? 0,
+                        'total_tokens' => $mockResponse['usage']['total_tokens'] ?? 0,
+                        'estimated_cost' => $estimatedCost,
+                    ],
+                    'metadata' => [
+                        'processing_time' => round($processingTime, 3),
+                        'timestamp' => now()->toIso8601String(),
+                        'api_key_source' => $apiKeyInfo['source'],
+                    ],
+                    'finish_reason' => $mockResponse['finish_reason'] ?? 'stop',
+                ]) . "\n\n";
+                ob_flush();
+                flush();
+
+                // Track usage
+                if (config('ai.features.logging')) {
+                    $this->trackRequest([
+                        'user_id' => $user->id,
+                        'request_id' => $requestId,
+                        'provider' => $request->provider,
+                        'model' => $request->model,
+                        'prompt_length' => strlen($request->prompt),
+                        'has_files' => !empty($request->files),
+                        'file_count' => count($request->files ?? []),
+                        'prompt_tokens' => $mockResponse['usage']['prompt_tokens'] ?? null,
+                        'completion_tokens' => $mockResponse['usage']['completion_tokens'] ?? null,
+                        'total_tokens' => $mockResponse['usage']['total_tokens'] ?? null,
+                        'processing_time' => $processingTime,
+                        'status' => 'success',
+                        'api_key_source' => $apiKeyInfo['source'],
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                    ]);
+                }
+
+            } catch (\Exception $e) {
+                // Send error event
+                echo "event: error\n";
+                echo "data: " . json_encode([
+                    'type' => 'https://api.siteaccess.ru/docs/errors/' . kebab_case(class_basename($e)),
+                    'title' => class_basename($e),
+                    'status' => $e->getCode() ?: 500,
+                    'detail' => $e->getMessage(),
+                    'trace_id' => $traceId,
+                    'timestamp' => now()->toIso8601String(),
+                ]) . "\n\n";
+                ob_flush();
+                flush();
+
+                // Track failed request
+                $this->trackFailedRequest($user->id, $requestId, $request, 'error', $e->getMessage());
+            }
+
+            // Update user limits
+            $limits = UserLimit::getForUser($user->id);
+            $limits->incrementTodayRequests();
+
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    /**
      * Execute AI request through appropriate service
      */
     protected function executeAIRequest(

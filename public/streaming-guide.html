@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API Gateway - Streaming Guide (SSE)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; 
+            color: #333; 
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        h3 { color: #34495e; margin: 30px 0 15px; }
+        .subtitle { color: #7f8c8d; font-size: 1.1em; margin-bottom: 30px; }
+        .badge { display: inline-block; background: #3498db; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+        .badge.new { background: #27ae60; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 4px; overflow-x: auto; margin: 15px 0; }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .info-box { background: #e8f4f8; border-left: 4px solid #3498db; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        .event-type { background: #e8f4f8; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Streaming Guide (SSE)</h1>
+        <p class="subtitle">
+            Real-time AI responses with Server-Sent Events
+            <span class="badge new">NEW</span>
+            <span class="badge">v1</span>
+        </p>
+
+        <h2>Overview</h2>
+        <p>
+            The streaming endpoint allows you to receive AI responses in real-time as they are generated, 
+            instead of waiting for the complete response. This is perfect for:
+        </p>
+        <ul>
+            <li>✅ <strong>Better UX</strong> - Users see immediate feedback</li>
+            <li>✅ <strong>Long responses</strong> - Progress indication for lengthy generations</li>
+            <li>✅ <strong>Reduced latency</strong> - Start processing results immediately</li>
+            <li>✅ <strong>Interactive applications</strong> - Chat interfaces, live editors</li>
+        </ul>
+
+        <div class="info-box">
+            <strong>🔑 Key Differences:</strong><br>
+            • <code>/api/v1/ai/process</code> - Returns complete response at once (JSON)<br>
+            • <code>/api/v1/ai/stream</code> - Streams response token-by-token (SSE)
+        </div>
+
+        <h2>Endpoint</h2>
+        <pre><code>POST https://api.siteaccess.ru/api/v1/ai/stream</code></pre>
+
+        <h3>Headers</h3>
+        <table>
+            <tr>
+                <th>Header</th>
+                <th>Value</th>
+                <th>Required</th>
+            </tr>
+            <tr>
+                <td><code>Authorization</code></td>
+                <td><code>Bearer {token}</code></td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td><code>Content-Type</code></td>
+                <td><code>application/json</code></td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td><code>X-Trace-ID</code></td>
+                <td>Custom trace ID (optional)</td>
+                <td>❌ No</td>
+            </tr>
+        </table>
+
+        <h3>Request Body</h3>
+        <p>Same as <code>/api/v1/ai/process</code>:</p>
+        <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Write a short story about AI",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 1000
+  }
+}</code></pre>
+
+        <h2>Response Format (Server-Sent Events)</h2>
+
+        <h3>Event Types</h3>
+        <table>
+            <tr>
+                <th>Event</th>
+                <th>Description</th>
+                <th>When</th>
+            </tr>
+            <tr>
+                <td><span class="event-type">start</span></td>
+                <td>Stream started</td>
+                <td>Beginning of response</td>
+            </tr>
+            <tr>
+                <td><span class="event-type">token</span></td>
+                <td>New token received</td>
+                <td>Each word/token generated</td>
+            </tr>
+            <tr>
+                <td><span class="event-type">done</span></td>
+                <td>Stream completed</td>
+                <td>End of response</td>
+            </tr>
+            <tr>
+                <td><span class="event-type">error</span></td>
+                <td>Error occurred</td>
+                <td>On any error</td>
+            </tr>
+        </table>
+
+        <h3>Example Stream</h3>
+        <pre><code>event: start
+data: {"request_id":"550e8400-...","trace_id":"...","provider":"gemini","model":"gemini-1.5-pro","timestamp":"2026-02-06T16:00:00Z"}
+
+event: token
+data: {"content":"Once ","index":0}
+
+event: token
+data: {"content":"upon ","index":1}
+
+event: token
+data: {"content":"a ","index":2}
+
+event: token
+data: {"content":"time...","index":3}
+
+event: done
+data: {"request_id":"550e8400-...","usage":{"prompt_tokens":10,"completion_tokens":50,"total_tokens":60,"estimated_cost":0.00075},"metadata":{"processing_time":2.345,"timestamp":"2026-02-06T16:00:10Z","api_key_source":"internal"},"finish_reason":"stop"}
+</code></pre>
+
+        <h2>Client Examples</h2>
+
+        <h3>JavaScript (Browser)</h3>
+        <pre><code>const token = 'your-bearer-token';
+
+const eventSource = new EventSource(
+  'https://api.siteaccess.ru/api/v1/ai/stream',
+  {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    body: JSON.stringify({
+      provider: 'gemini',
+      model: 'gemini-1.5-pro',
+      prompt: 'Write a short story about AI'
+    })
+  }
+);
+
+// Handle start event
+eventSource.addEventListener('start', (e) => {
+  const data = JSON.parse(e.data);
+  console.log('Stream started:', data.request_id);
+});
+
+// Handle token events
+eventSource.addEventListener('token', (e) => {
+  const data = JSON.parse(e.data);
+  document.getElementById('output').innerHTML += data.content;
+});
+
+// Handle completion
+eventSource.addEventListener('done', (e) => {
+  const data = JSON.parse(e.data);
+  console.log('Stream completed:', data.usage);
+  eventSource.close();
+});
+
+// Handle errors
+eventSource.addEventListener('error', (e) => {
+  const data = JSON.parse(e.data);
+  console.error('Stream error:', data.detail);
+  eventSource.close();
+});</code></pre>
+
+        <h3>JavaScript (Fetch API)</h3>
+        <pre><code>async function streamAI() {
+  const response = await fetch('https://api.siteaccess.ru/api/v1/ai/stream', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      provider: 'gemini',
+      model: 'gemini-1.5-pro',
+      prompt: 'Write a short story about AI'
+    })
+  });
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.substring(6));
+        
+        if (data.content) {
+          // Token received
+          document.getElementById('output').innerHTML += data.content;
+        } else if (data.usage) {
+          // Stream completed
+          console.log('Usage:', data.usage);
+        }
+      }
+    }
+  }
+}</code></pre>
+
+        <h3>Python</h3>
+        <pre><code>import requests
+import json
+
+def stream_ai():
+    url = 'https://api.siteaccess.ru/api/v1/ai/stream'
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        'provider': 'gemini',
+        'model': 'gemini-1.5-pro',
+        'prompt': 'Write a short story about AI'
+    }
+
+    with requests.post(url, headers=headers, json=data, stream=True) as response:
+        for line in response.iter_lines():
+            if line:
+                line = line.decode('utf-8')
+                
+                if line.startswith('event: '):
+                    event = line.split(': ')[1]
+                    
+                elif line.startswith('data: '):
+                    data = json.loads(line[6:])
+                    
+                    if event == 'start':
+                        print(f"Stream started: {data['request_id']}")
+                    
+                    elif event == 'token':
+                        print(data['content'], end='', flush=True)
+                    
+                    elif event == 'done':
+                        print(f"\n\nUsage: {data['usage']}")
+                    
+                    elif event == 'error':
+                        print(f"\nError: {data['detail']}")
+                        break
+
+stream_ai()</code></pre>
+
+        <h3>cURL</h3>
+        <pre><code>curl -N -X POST https://api.siteaccess.ru/api/v1/ai/stream \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "Write a short story about AI"
+  }'</code></pre>
+        <div class="info-box">
+            <strong>Note:</strong> The <code>-N</code> flag disables buffering to see streaming output in real-time.
+        </div>
+
+        <h2>Best Practices</h2>
+
+        <h3>1. Handle Connection Timeouts</h3>
+        <p>SSE connections can stay open for up to 1 hour. Implement reconnection logic:</p>
+        <pre><code>eventSource.onerror = () => {
+  console.log('Connection lost, reconnecting...');
+  setTimeout(() => connectStream(), 5000);
+};</code></pre>
+
+        <h3>2. Buffer Incomplete Text</h3>
+        <p>Tokens may arrive mid-word. Buffer until you receive a complete sentence:</p>
+        <pre><code>let buffer = '';
+eventSource.addEventListener('token', (e) => {
+  buffer += JSON.parse(e.data).content;
+  if (buffer.endsWith('.') || buffer.endsWith('!') || buffer.endsWith('?')) {
+    renderSentence(buffer);
+    buffer = '';
+  }
+});</code></pre>
+
+        <h3>3. Close Connections Properly</h3>
+        <p>Always close the EventSource when done:</p>
+        <pre><code>eventSource.addEventListener('done', () => {
+  eventSource.close();
+});
+
+// Also handle component unmount (React example)
+useEffect(() => {
+  return () => eventSource.close();
+}, []);</code></pre>
+
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong><br>
+            • Streaming uses more server resources - use only when needed<br>
+            • Rate limits still apply to streaming requests<br>
+            • Connection timeout is 3600 seconds (1 hour)<br>
+            • For short responses, consider using <code>/api/v1/ai/process</code> instead
+        </div>
+
+        <h2>Error Handling</h2>
+
+        <p>Errors are sent as RFC 7807 Problem Details:</p>
+        <pre><code>event: error
+data: {"type":"https://api.siteaccess.ru/docs/errors/rate-limit-exceeded","title":"Rate Limit Exceeded","status":429,"detail":"Daily request limit of 100 exceeded","trace_id":"550e8400-...","timestamp":"2026-02-06T16:00:00Z"}</code></pre>
+
+        <h2>Response Headers</h2>
+        <table>
+            <tr>
+                <th>Header</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>Content-Type</code></td>
+                <td><code>text/event-stream</code></td>
+            </tr>
+            <tr>
+                <td><code>Cache-Control</code></td>
+                <td><code>no-cache</code></td>
+            </tr>
+            <tr>
+                <td><code>Connection</code></td>
+                <td><code>keep-alive</code></td>
+            </tr>
+            <tr>
+                <td><code>X-Trace-ID</code></td>
+                <td>Request trace ID</td>
+            </tr>
+            <tr>
+                <td><code>X-Request-ID</code></td>
+                <td>Unique request identifier</td>
+            </tr>
+        </table>
+
+        <h2>Performance Considerations</h2>
+
+        <ul>
+            <li><strong>Bandwidth:</strong> Streaming may use more bandwidth due to event overhead</li>
+            <li><strong>Server Resources:</strong> Keeps connection open longer</li>
+            <li><strong>Client Processing:</strong> Requires handling partial responses</li>
+            <li><strong>Use Case:</strong> Best for responses > 200 tokens or interactive UIs</li>
+        </ul>
+
+        <h2>When to Use Streaming vs. Standard</h2>
+
+        <table>
+            <tr>
+                <th>Use Streaming When...</th>
+                <th>Use Standard When...</th>
+            </tr>
+            <tr>
+                <td>• Long responses (> 500 tokens)</td>
+                <td>• Short responses (< 100 tokens)</td>
+            </tr>
+            <tr>
+                <td>• Chat interfaces</td>
+                <td>• API integrations</td>
+            </tr>
+            <tr>
+                <td>• Real-time editing</td>
+                <td>• Batch processing</td>
+            </tr>
+            <tr>
+                <td>• User feedback is critical</td>
+                <td>• Complete response needed immediately</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 40px;">
+            <a href="/api/documentation">← Back to API Documentation</a> |
+            <a href="/errors.html">Error Reference →</a>
+        </div>
+    </div>
+</body>
+</html>

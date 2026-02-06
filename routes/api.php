@@ -57,10 +57,13 @@ Route::prefix('v1')->middleware(['api-version:v1'])->group(function () {
         });
 
         // ============================================
-        // AI Processing (Main endpoint)
+        // AI Processing (Main endpoints)
         // ============================================
         Route::post('/ai/process', [AIProxyController::class, 'process'])
             ->name('v1.ai.process');
+        
+        Route::post('/ai/stream', [AIProxyController::class, 'stream'])
+            ->name('v1.ai.stream');
 
         // ============================================
         // User API Keys Management
