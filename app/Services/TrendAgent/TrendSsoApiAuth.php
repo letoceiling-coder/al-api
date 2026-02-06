@@ -3039,9 +3039,22 @@ class TrendSsoApiAuth
                 throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
             }
 
+            // Логирование для отладки поселков
+            $unifiedData = $data['data'] ?? $data;
+            if (is_array($unifiedData)) {
+                Log::info('getBlockUnified - получены данные', [
+                    'block_id' => $blockId,
+                    'has_name' => isset($unifiedData['name']),
+                    'has_min_prices' => isset($unifiedData['min_prices']),
+                    'min_prices_count' => is_array($unifiedData['min_prices'] ?? null) ? count($unifiedData['min_prices']) : 0,
+                    'has_plots_count' => isset($unifiedData['plots_count']),
+                    'keys' => array_keys($unifiedData),
+                ]);
+            }
+
             return [
                 'success' => true,
-                'data' => $data['data'] ?? $data,
+                'data' => $unifiedData,
                 'raw_response' => $data,
             ];
         } catch (GuzzleException $e) {
