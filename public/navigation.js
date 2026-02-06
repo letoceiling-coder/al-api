@@ -187,20 +187,97 @@ class LanguageSwitcher {
   }
 
   applyLanguage(lang) {
+    // Translate elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const ruText = el.getAttribute('data-i18n-ru');
       const enText = el.getAttribute('data-i18n-en');
       
       if (lang === 'en' && enText) {
-        el.textContent = enText;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.placeholder = enText;
+        } else {
+          el.innerHTML = enText;
+        }
       } else if (lang === 'ru' && ruText) {
-        el.textContent = ruText;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.placeholder = ruText;
+        } else {
+          el.innerHTML = ruText;
+        }
       }
     });
 
+    // Auto-translate common elements
+    this.autoTranslate(lang);
+
     // Update document language attribute
     document.documentElement.lang = lang;
+  }
+
+  autoTranslate(lang) {
+    const translations = {
+      ru: {
+        'Quick Start': 'Быстрый старт',
+        'Authentication': 'Аутентификация',
+        'Example': 'Пример',
+        'Examples': 'Примеры',
+        'Request': 'Запрос',
+        'Response': 'Ответ',
+        'Parameters': 'Параметры',
+        'Models': 'Модели',
+        'Provider': 'Провайдер',
+        'Description': 'Описание',
+        'Required': 'Обязательно',
+        'Optional': 'Опционально',
+        'Type': 'Тип',
+        'Default': 'По умолчанию',
+        'Documentation': 'Документация',
+        'API Reference': 'Справочник API',
+        'Error Handling': 'Обработка ошибок',
+        'Rate Limiting': 'Ограничение запросов',
+        'File Upload': 'Загрузка файлов',
+        'Streaming': 'Потоковая передача',
+        'Code Example': 'Пример кода',
+        'Try it': 'Попробовать',
+        'Back to top': 'Наверх'
+      },
+      en: {
+        'Быстрый старт': 'Quick Start',
+        'Аутентификация': 'Authentication',
+        'Пример': 'Example',
+        'Примеры': 'Examples',
+        'Запрос': 'Request',
+        'Ответ': 'Response',
+        'Параметры': 'Parameters',
+        'Модели': 'Models',
+        'Провайдер': 'Provider',
+        'Описание': 'Description',
+        'Обязательно': 'Required',
+        'Опционально': 'Optional',
+        'Тип': 'Type',
+        'По умолчанию': 'Default',
+        'Документация': 'Documentation',
+        'Справочник API': 'API Reference',
+        'Обработка ошибок': 'Error Handling',
+        'Ограничение запросов': 'Rate Limiting',
+        'Загрузка файлов': 'File Upload',
+        'Потоковая передача': 'Streaming',
+        'Пример кода': 'Code Example',
+        'Попробовать': 'Try it',
+        'Наверх': 'Back to top'
+      }
+    };
+
+    // Auto-translate common terms in h1, h2, h3
+    document.querySelectorAll('h1, h2, h3, h4, th, td, button, a').forEach(el => {
+      if (el.hasAttribute('data-i18n')) return; // Skip already marked
+      
+      const text = el.textContent.trim();
+      if (translations[lang][text]) {
+        el.textContent = translations[lang][text];
+      }
+    });
   }
 }
 
