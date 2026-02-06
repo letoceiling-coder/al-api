@@ -109,9 +109,12 @@ class TrendAgentApiTest
             
             $data = json_decode($response->getBody()->getContents(), true);
             
-            if (isset($data['data']) && is_array($data['data'])) {
-                echo "   ✓ Cities retrieved: " . count($data['data']) . " cities\n";
-                $this->results['cities'] = ['status' => 'success', 'count' => count($data['data']), 'data' => $data];
+            // Проверяем оба формата ответа (старый и новый)
+            $citiesData = $data['data'] ?? $data;
+            if (is_array($citiesData) && count($citiesData) > 0) {
+                $count = count($citiesData);
+                echo "   ✓ Cities retrieved: {$count} cities\n";
+                $this->results['cities'] = ['status' => 'success', 'count' => $count, 'data' => $data];
             } else {
                 echo "   ✗ Failed to retrieve cities\n";
                 $this->results['cities'] = ['status' => 'failed', 'data' => $data];
@@ -151,6 +154,9 @@ class TrendAgentApiTest
                 $objectsCount = count($data['data']['objects'] ?? []);
                 echo "   ✓ Apartments list retrieved: {$objectsCount} objects\n";
                 $this->results['apartments_list'] = ['status' => 'success', 'count' => $objectsCount, 'data' => $data];
+                
+                // Проверяем фотографии в списке объектов
+                $this->checkPhotosInList($data, 'apartments');
                 
                 // Тест детальной информации для первого объекта
                 if ($objectsCount > 0) {
@@ -410,70 +416,8 @@ class TrendAgentApiTest
     {
         $photos = [];
         
-        // Проверяем unified данные
-        if (isset($data['data']['unified']['data']['renderer'])) {
-            foreach ($data['data']['unified']['data']['renderer'] as $image) {
-                $url = $image['url'] ?? null;
-                if ($url) {
-                    $photos[] = [
-                        'type' => 'unified_renderer',
-                        'url' => $url,
-                        'object_id' => $objectId,
-                        'object_type' => $type,
-                    ];
-                }
-            }
-        }
-        
-        // Проверяем изображения в apartments
-        if (isset($data['data']['apartments']['data'])) {
-            foreach ($data['data']['apartments']['data'] as $apartment) {
-                if (isset($apartment['plan'])) {
-                    $planUrl = $this->buildImageUrl($apartment['plan']);
-                    if ($planUrl) {
-                        $photos[] = [
-                            'type' => 'apartment_plan',
-                            'url' => $planUrl,
-                            'object_id' => $objectId,
-                            'object_type' => $type,
-                            'apartment_id' => $apartment['_id'] ?? null,
-                        ];
-                    }
-                }
-            }
-        }
-        
-        // Проверяем plans
-        if (isset($data['data']['plans']['data'])) {
-            foreach ($data['data']['plans']['data'] as $plan) {
-                $planUrl = $this->buildImageUrl($plan);
-                if ($planUrl) {
-                    $photos[] = [
-                        'type' => 'plan',
-                        'url' => $planUrl,
-                        'object_id' => $objectId,
-                        'object_type' => $type,
-                    ];
-                }
-            }
-        }
-        
-        // Проверяем изображения в списке объектов
-        if (isset($data['data']['objects'])) {
-            foreach ($data['data']['objects'] as $object) {
-                if (isset($object['image'])) {
-                    $imageUrl = $object['image']['url'] ?? $object['image']['url_full'] ?? null;
-                    if ($imageUrl) {
-                        $photos[] = [
-                            'type' => 'object_image',
-                            'url' => $imageUrl,
-                            'object_id' => $object['_id'] ?? $object['guid'] ?? null,
-                            'object_type' => $type,
-                        ];
-                    }
-                }
-            }
-        }
+        // Рекурсивная функция для поиска всех URL изображений
+        $this->extractImageUrls($data, $photos, $type, $objectId);
         
         // Проверяем доступность каждой фотографии
         foreach ($photos as $photo) {
@@ -481,18 +425,169 @@ class TrendAgentApiTest
         }
     }
     
+    private function extractImageUrls($data, array &$photos, string $type, string $objectId, string $path = ''): void
+    {
+        if (!is_array($data)) {
+            return;
+        }
+        
+        foreach ($data as $key => $value) {
+            $currentPath = $path ? "{$path}.{$key}" : $key;
+            
+            // Проверяем различные форматы URL изображений
+            if (is_string($value) && $this->isImageUrl($value)) {
+                $photos[] = [
+                    'type' => $this->determinePhotoType($currentPath),
+                    'url' => $value,
+                    'object_id' => $objectId,
+                    'object_type' => $type,
+                    'path' => $currentPath,
+                ];
+            }
+            
+            // Проверяем структуры с file_name и path
+            if (is_array($value) && isset($value['file_name']) && isset($value['path'])) {
+                $imageUrl = $this->buildImageUrl($value);
+                if ($imageUrl) {
+                    $photos[] = [
+                        'type' => $this->determinePhotoType($currentPath),
+                        'url' => $imageUrl,
+                        'object_id' => $objectId,
+                        'object_type' => $type,
+                        'path' => $currentPath,
+                    ];
+                }
+            }
+            
+            // Проверяем структуры с url
+            if (is_array($value) && isset($value['url'])) {
+                $url = $value['url'];
+                if ($this->isImageUrl($url)) {
+                    $photos[] = [
+                        'type' => $this->determinePhotoType($currentPath),
+                        'url' => $url,
+                        'object_id' => $objectId,
+                        'object_type' => $type,
+                        'path' => $currentPath,
+                    ];
+                }
+            }
+            
+            // Проверяем структуры с url_full
+            if (is_array($value) && isset($value['url_full'])) {
+                $url = $value['url_full'];
+                if ($this->isImageUrl($url)) {
+                    $photos[] = [
+                        'type' => $this->determinePhotoType($currentPath),
+                        'url' => $url,
+                        'object_id' => $objectId,
+                        'object_type' => $type,
+                        'path' => $currentPath,
+                    ];
+                }
+            }
+            
+            // Рекурсивно проверяем вложенные массивы
+            if (is_array($value)) {
+                $this->extractImageUrls($value, $photos, $type, $objectId, $currentPath);
+            }
+        }
+    }
+    
+    private function isImageUrl(string $url): bool
+    {
+        if (empty($url) || !is_string($url)) {
+            return false;
+        }
+        
+        // Проверяем, что это URL
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+        
+        // Проверяем домены изображений TrendAgent
+        $imageDomains = [
+            'selcdn.trendagent.ru',
+            'trendagent.ru',
+            'cdn.trendagent.ru',
+        ];
+        
+        $parsedUrl = parse_url($url);
+        $host = $parsedUrl['host'] ?? '';
+        
+        foreach ($imageDomains as $domain) {
+            if (strpos($host, $domain) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    private function determinePhotoType(string $path): string
+    {
+        $path = strtolower($path);
+        
+        if (strpos($path, 'renderer') !== false) {
+            return 'unified_renderer';
+        }
+        if (strpos($path, 'plan') !== false) {
+            return 'plan';
+        }
+        if (strpos($path, 'apartment') !== false) {
+            return 'apartment_image';
+        }
+        if (strpos($path, 'image') !== false) {
+            return 'object_image';
+        }
+        if (strpos($path, 'video') !== false) {
+            return 'video_thumbnail';
+        }
+        
+        return 'other';
+    }
+    
     private function buildImageUrl(array $plan): ?string
     {
         if (isset($plan['file_name']) && isset($plan['path'])) {
             $fileName = $plan['file_name'];
             $path = $plan['path'];
+            // Убираем лишние слеши
+            $path = trim($path, '/');
+            if (!empty($path)) {
+                $path .= '/';
+            }
             return "https://selcdn.trendagent.ru/images/{$path}m_{$fileName}";
         }
         return null;
     }
     
+    private function checkPhotosInList(array $data, string $type): void
+    {
+        if (isset($data['data']['objects']) && is_array($data['data']['objects'])) {
+            foreach ($data['data']['objects'] as $object) {
+                $objectId = $object['_id'] ?? $object['guid'] ?? null;
+                if ($objectId) {
+                    $photos = [];
+                    $this->extractImageUrls($object, $photos, $type, $objectId, 'list');
+                    // Проверяем доступность каждой найденной фотографии
+                    foreach ($photos as $photo) {
+                        $this->checkPhotoAvailability($photo);
+                    }
+                }
+            }
+        }
+    }
+    
     private function checkPhotoAvailability(array $photo): void
     {
+        // Проверяем, не добавлена ли уже эта фотография
+        foreach ($this->photoResults as $existing) {
+            if ($existing['url'] === $photo['url']) {
+                return; // Уже проверена
+            }
+        }
+        
         try {
             $response = $this->client->head($photo['url'], [
                 'timeout' => 10,
@@ -503,7 +598,7 @@ class TrendAgentApiTest
             $contentType = $response->getHeader('Content-Type')[0] ?? 'unknown';
             $contentLength = $response->getHeader('Content-Length')[0] ?? 'unknown';
             
-            $this->photoResults[] = [
+            $result = [
                 'url' => $photo['url'],
                 'type' => $photo['type'],
                 'object_id' => $photo['object_id'],
@@ -513,8 +608,14 @@ class TrendAgentApiTest
                 'content_type' => $contentType,
                 'content_length' => $contentLength,
             ];
+            
+            if (isset($photo['path'])) {
+                $result['path'] = $photo['path'];
+            }
+            
+            $this->photoResults[] = $result;
         } catch (GuzzleException $e) {
-            $this->photoResults[] = [
+            $result = [
                 'url' => $photo['url'],
                 'type' => $photo['type'],
                 'object_id' => $photo['object_id'],
@@ -522,6 +623,12 @@ class TrendAgentApiTest
                 'status' => 'unavailable',
                 'error' => $e->getMessage(),
             ];
+            
+            if (isset($photo['path'])) {
+                $result['path'] = $photo['path'];
+            }
+            
+            $this->photoResults[] = $result;
         }
     }
     
@@ -617,21 +724,29 @@ class TrendAgentApiTest
         $report .= "## Photo Details\n\n";
         
         foreach ($this->photoResults as $photo) {
-            $status = $photo['status'];
+            $status = $photo['status'] ?? 'unknown';
             $icon = $status === 'available' ? '✓' : '✗';
+            $type = $photo['type'] ?? 'unknown';
+            $url = $photo['url'] ?? 'N/A';
+            $objectId = $photo['object_id'] ?? 'N/A';
+            $objectType = $photo['object_type'] ?? 'N/A';
             
-            $report .= "### {$icon} {$photo['type']}\n\n";
-            $report .= "- **URL:** {$photo['url']}\n";
-            $report .= "- **Object ID:** {$photo['object_id']}\n";
-            $report .= "- **Object Type:** {$photo['object_type']}\n";
+            $report .= "### {$icon} {$type}\n\n";
+            $report .= "- **URL:** {$url}\n";
+            $report .= "- **Object ID:** {$objectId}\n";
+            $report .= "- **Object Type:** {$objectType}\n";
             $report .= "- **Status:** {$status}\n";
             
             if ($status === 'available') {
-                $report .= "- **Status Code:** {$photo['status_code']}\n";
-                $report .= "- **Content Type:** {$photo['content_type']}\n";
-                $report .= "- **Content Length:** {$photo['content_length']}\n";
+                $report .= "- **Status Code:** " . ($photo['status_code'] ?? 'N/A') . "\n";
+                $report .= "- **Content Type:** " . ($photo['content_type'] ?? 'N/A') . "\n";
+                $report .= "- **Content Length:** " . ($photo['content_length'] ?? 'N/A') . "\n";
             } else {
-                $report .= "- **Error:** {$photo['error']}\n";
+                $report .= "- **Error:** " . ($photo['error'] ?? 'Unknown error') . "\n";
+            }
+            
+            if (isset($photo['path'])) {
+                $report .= "- **Path:** {$photo['path']}\n";
             }
             
             $report .= "\n---\n\n";
@@ -642,12 +757,12 @@ class TrendAgentApiTest
         
         $byType = [];
         foreach ($this->photoResults as $photo) {
-            $type = $photo['type'];
+            $type = $photo['type'] ?? 'unknown';
             if (!isset($byType[$type])) {
                 $byType[$type] = ['total' => 0, 'available' => 0, 'unavailable' => 0];
             }
             $byType[$type]['total']++;
-            if ($photo['status'] === 'available') {
+            if (isset($photo['status']) && $photo['status'] === 'available') {
                 $byType[$type]['available']++;
             } else {
                 $byType[$type]['unavailable']++;
@@ -657,8 +772,10 @@ class TrendAgentApiTest
         foreach ($byType as $type => $stats) {
             $report .= "### {$type}\n\n";
             $report .= "- **Total:** {$stats['total']}\n";
-            $report .= "- **Available:** {$stats['available']} (" . round($stats['available'] / max($stats['total'], 1) * 100, 2) . "%)\n";
-            $report .= "- **Unavailable:** {$stats['unavailable']} (" . round($stats['unavailable'] / max($stats['total'], 1) * 100, 2) . "%)\n\n";
+            $availablePercent = $stats['total'] > 0 ? round($stats['available'] / $stats['total'] * 100, 2) : 0;
+            $unavailablePercent = $stats['total'] > 0 ? round($stats['unavailable'] / $stats['total'] * 100, 2) : 0;
+            $report .= "- **Available:** {$stats['available']} ({$availablePercent}%)\n";
+            $report .= "- **Unavailable:** {$stats['unavailable']} ({$unavailablePercent}%)\n\n";
         }
         
         file_put_contents(__DIR__ . '/../TRENDAGENT_API_PHOTO_REPORT.md', $report);

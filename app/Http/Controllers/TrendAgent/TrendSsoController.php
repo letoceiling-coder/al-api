@@ -483,7 +483,11 @@ class TrendSsoController extends Controller
                 ];
             }
             
-            return response()->json($citiesList, 200);
+            return response()->json([
+                'success' => true,
+                'data' => $citiesList,
+                'count' => count($citiesList),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Ошибка получения списка городов', [
                 'message' => $e->getMessage(),

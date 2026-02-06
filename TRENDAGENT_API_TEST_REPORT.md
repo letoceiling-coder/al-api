@@ -1,181 +1,115 @@
 # TrendAgent API Test Report
 
-**Date:** 2026-02-06 20:54:44
+**Date:** 2026-02-06 21:03:52
 
 ## Test Summary
 
-- **Total Tests:** 12
-- **Successful:** 0
+- **Total Tests:** 13
+- **Successful:** 13
 - **Failed:** 0
-- **Errors:** 12
+- **Errors:** 0
 
 ## Detailed Results
 
-### ⚠ authenticate
+### ✓ authenticate
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/authenticate` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Message:** Авторизация успешна
 
 ---
 
-### ⚠ cities
+### ✓ cities
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `GET https://api.siteaccess.ru/api/trendagent/cities` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 10
 
 ---
 
-### ⚠ apartments_list
+### ✓ apartments_list
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/apartments` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 5
 
 ---
 
-### ⚠ parkings_list
+### ✓ apartments_detail
 
-**Status:** error
-
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/parkings` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Status:** success
 
 ---
 
-### ⚠ houses_list
+### ✓ parkings_list
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/houses` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 5
 
 ---
 
-### ⚠ plots_list
+### ✓ houses_list
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/plots` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 5
 
 ---
 
-### ⚠ commercial_list
+### ✓ plots_list
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/commercial` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 5
 
 ---
 
-### ⚠ objects_list_apartments
+### ✓ commercial_list
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/objects/list` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 5
 
 ---
 
-### ⚠ objects_list_parking
+### ✓ objects_list_apartments
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/objects/list` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 3
 
 ---
 
-### ⚠ objects_list_houses
+### ✓ objects_list_parking
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/objects/list` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 3
 
 ---
 
-### ⚠ objects_list_plots
+### ✓ objects_list_houses
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/objects/list` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
-
+**Count:** 3
 
 ---
 
-### ⚠ objects_list_commercial
+### ✓ objects_list_plots
 
-**Status:** error
+**Status:** success
 
-**Error:** Client error: `POST https://api.siteaccess.ru/api/trendagent/objects/list` resulted in a `404 Not Found` response:
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width= (truncated...)
+**Count:** 3
 
+---
+
+### ✓ objects_list_commercial
+
+**Status:** success
+
+**Count:** 3
 
 ---
 
