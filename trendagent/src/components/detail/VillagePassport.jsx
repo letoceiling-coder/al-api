@@ -10,25 +10,41 @@ const VillagePassport = ({ unifiedData }) => {
     const data = unifiedData || {}
     
     // Проверяем, есть ли вложенный объект passport
-    const passport = data.passport || {}
+    // passport может быть массивом объектов {name, value} или объектом с полями
+    let passportObj = {}
+    
+    if (Array.isArray(data.passport)) {
+      // Если passport - массив объектов {name, value}, преобразуем в объект
+      data.passport.forEach(item => {
+        if (item && item.name && item.value !== undefined) {
+          // Преобразуем name в ключ (например, "Застройщик" -> "builder")
+          const key = item.name.toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '')
+          passportObj[key] = item.value
+        }
+      })
+    } else if (data.passport && typeof data.passport === 'object') {
+      passportObj = data.passport
+    }
     
     return {
-      builder: data.builder?.name || data.builder || passport.builder?.name || passport.builder || null,
-      villageClass: data.village_class || data.class || passport.village_class || passport.class || null,
-      unifiedStyle: data.unified_style || data.architectural_style || passport.unified_style || passport.architectural_style || null,
-      landPurpose: data.land_purpose || data.purpose || passport.land_purpose || passport.purpose || null,
-      waterSupply: data.water_supply || passport.water_supply || null,
-      sewerage: data.sewerage || passport.sewerage || null,
-      gasSupply: data.gas_supply || passport.gas_supply || null,
-      electricity: data.electricity || passport.electricity || null,
-      powerKw: data.power_kw || data.power || passport.power_kw || passport.power || null,
-      managementCompany: data.management_company || passport.management_company || null,
-      registration: data.registration || data.permanent_registration || passport.registration || passport.permanent_registration || null,
-      fiberInternet: data.fiber_internet || passport.fiber_internet || null,
-      road: data.road || data.road_type || passport.road || passport.road_type || null,
-      payment: data.payment || data.payment_types || passport.payment || passport.payment_types || null,
-      contract: data.contract || data.contract_type || passport.contract || passport.contract_type || null,
-      escrow: data.escrow || passport.escrow || null,
+      builder: data.builder?.name || data.builder || passportObj.builder?.name || passportObj.builder || null,
+      villageClass: data.village_class || data.class || passportObj.village_class || passportObj.class || null,
+      unifiedStyle: data.unified_style || data.architectural_style || passportObj.unified_style || passportObj.architectural_style || null,
+      landPurpose: data.land_purpose || data.purpose || passportObj.land_purpose || passportObj.purpose || null,
+      waterSupply: data.water_supply || passportObj.water_supply || null,
+      sewerage: data.sewerage || passportObj.sewerage || null,
+      gasSupply: data.gas_supply || passportObj.gas_supply || null,
+      electricity: data.electricity || passportObj.electricity || null,
+      powerKw: data.power_kw || data.power || passportObj.power_kw || passportObj.power || null,
+      managementCompany: data.management_company || passportObj.management_company || null,
+      registration: data.registration || data.permanent_registration || passportObj.registration || passportObj.permanent_registration || null,
+      fiberInternet: data.fiber_internet || passportObj.fiber_internet || null,
+      road: data.road || data.road_type || passportObj.road || passportObj.road_type || null,
+      payment: data.payment || data.payment_types || passportObj.payment || passportObj.payment_types || null,
+      contract: data.contract || data.contract_type || passportObj.contract || passportObj.contract_type || null,
+      escrow: data.escrow || passportObj.escrow || null,
     }
   }
 
@@ -37,7 +53,13 @@ const VillagePassport = ({ unifiedData }) => {
   const renderValue = (value) => {
     if (value === null || value === undefined) return null
     if (typeof value === 'boolean') return value ? 'Да' : 'Нет'
-    if (Array.isArray(value)) return value.join(', ')
+    if (typeof value === 'object') {
+      // Если это объект, пытаемся извлечь строковое представление
+      if (Array.isArray(value)) return value.join(', ')
+      if (value.name) return String(value.name)
+      if (value.value !== undefined) return String(value.value)
+      return JSON.stringify(value)
+    }
     return String(value)
   }
 

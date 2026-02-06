@@ -5,8 +5,20 @@ const VillageReward = ({ rewardData }) => {
     return null
   }
 
-  const reward = rewardData.label || rewardData.value || rewardData
-  const hint = rewardData.hint || null
+  // Безопасное извлечение reward и hint
+  let reward = null
+  let hint = null
+  
+  if (typeof rewardData === 'string') {
+    reward = rewardData
+  } else if (typeof rewardData === 'object' && rewardData !== null) {
+    reward = rewardData.label || rewardData.value || null
+    hint = rewardData.hint || null
+  }
+  
+  if (!reward) {
+    return null
+  }
 
   return (
     <div className="village-reward">

@@ -35,16 +35,38 @@ const VillageMiniPassport = ({ unifiedData, distance }) => {
   }
 
   if (mini.railway) {
+    let railwayValue = mini.railway
+    if (typeof mini.railway === 'object' && mini.railway !== null) {
+      // Если это объект, формируем строку из его свойств
+      if (mini.railway.name && mini.railway.time) {
+        railwayValue = `Ж/д станция ${mini.railway.name}, ${mini.railway.time} минут транспортом`
+      } else if (mini.railway.name) {
+        railwayValue = mini.railway.name
+      } else {
+        railwayValue = String(mini.railway)
+      }
+    }
     items.push({
       icon: 'train',
-      value: mini.railway,
+      value: railwayValue,
     })
   }
 
   if (mini.highway) {
+    let highwayValue = mini.highway
+    if (typeof mini.highway === 'object' && mini.highway !== null) {
+      // Если это объект, формируем строку из его свойств
+      if (mini.highway.name && mini.highway.distance) {
+        highwayValue = `${mini.highway.name}, ${mini.highway.distance} км до КАД`
+      } else if (mini.highway.name) {
+        highwayValue = mini.highway.name
+      } else {
+        highwayValue = String(mini.highway)
+      }
+    }
     items.push({
       icon: 'road',
-      value: mini.highway,
+      value: highwayValue,
     })
   }
 
