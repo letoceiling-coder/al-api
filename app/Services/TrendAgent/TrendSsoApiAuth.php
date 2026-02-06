@@ -1725,11 +1725,26 @@ class TrendSsoApiAuth
                 $minPrices = [];
                 if (isset($item['min_prices']) && is_array($item['min_prices'])) {
                     foreach ($item['min_prices'] as $priceItem) {
-                        // Проверяем, что priceItem не пустой и имеет value
-                        if (isset($priceItem['value']) && $priceItem['value'] !== null && $priceItem['value'] > 0) {
+                        // API возвращает unformatted_value (число) и value (отформатированная строка)
+                        $priceValue = null;
+                        if (isset($priceItem['unformatted_value']) && $priceItem['unformatted_value'] !== null) {
+                            $priceValue = (float)$priceItem['unformatted_value'];
+                        } elseif (isset($priceItem['value'])) {
+                            // Если value - число, используем его
+                            if (is_numeric($priceItem['value'])) {
+                                $priceValue = (float)$priceItem['value'];
+                            } else {
+                                // Если value - строка типа "от 177 000", пытаемся извлечь число
+                                $priceValue = (float)preg_replace('/[^\d.]/', '', $priceItem['value']);
+                            }
+                        }
+                        
+                        // Проверяем, что priceValue валидное число и больше 0
+                        if ($priceValue !== null && $priceValue > 0) {
                             $minPrices[] = [
                                 'label' => $priceItem['label'] ?? null,
-                                'value' => $priceItem['value'],
+                                'value' => $priceValue,
+                                'formatted_value' => $priceItem['value'] ?? null, // Сохраняем отформатированное значение
                                 'unit' => $priceItem['unit'] ?? '₽',
                             ];
                         }
