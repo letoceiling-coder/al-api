@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "home": "Главная",
+    "documentation": "Документация",
+    "streaming": "Streaming",
+    "fileUpload": "Загрузка файлов",
+    "parameters": "Параметры",
+    "errors": "Ошибки",
+    "swagger": "Swagger",
+    "vueDocs": "Vue Docs"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "back": "Назад",
+    "next": "Далее",
+    "save": "Сохранить",
+    "cancel": "Отмена"
+  },
+  "home": {
+    "title": "AL API Gateway",
+    "subtitle": "Unified API для Gemini и OpenAI с Analytics & Key Management",
+    "description": "Единый интерфейс для работы с AI моделями",
+    "quickStart": "Быстрый старт",
+    "documentation": "Документация",
+    "apiReference": "API Reference"
+  },
+  "docs": {
+    "title": "API Документация",
+    "baseUrl": "Base URL",
+    "authentication": "Аутентификация",
+    "endpoints": "Endpoints",
+    "examples": "Примеры",
+    "models": "Модели"
+  }
+}

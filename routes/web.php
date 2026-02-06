@@ -16,6 +16,14 @@ Route::get('/guide', function () {
     return response($html)->header('Content-Type', 'text/html; charset=utf-8');
 });
 
+// React app routes - serve index.html for all React routes
+Route::get('/react/{any?}', function () {
+    if (file_exists(public_path('react/index.html'))) {
+        return response()->file(public_path('react/index.html'));
+    }
+    return redirect('/');
+})->where('any', '.*');
+
 // Fix for l5-swagger route name issue
 Route::get('/docs/{jsonFile?}', [SwaggerController::class, 'docs'])
     ->name('l5-swagger.default.docs')
