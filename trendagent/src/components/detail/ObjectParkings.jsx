@@ -1,3 +1,4 @@
+import { getImageUrl } from '../../utils/imageUtils'
 import './ObjectParkings.css'
 
 const ObjectParkings = ({ parkingsData }) => {
@@ -20,21 +21,29 @@ const ObjectParkings = ({ parkingsData }) => {
     <div className="object-parkings card">
       <h2 className="section-title">Паркинги</h2>
       <div className="parkings-list">
-        {parkings.map((parking, index) => (
-          <div key={parking._id || index} className="parking-item">
-            <div className="parking-info">
-              <h3 className="parking-title">{parking.name || `Паркинг ${index + 1}`}</h3>
-              {parking.description && (
-                <p className="parking-description">{parking.description}</p>
-              )}
-              {parking.price && (
-                <div className="parking-price">
-                  {formatPrice(parking.price)}
+        {parkings.map((parking, index) => {
+          const imageUrl = getImageUrl(parking.image || parking.images?.[0])
+          return (
+            <div key={parking._id || index} className="parking-item">
+              {imageUrl && (
+                <div className="parking-image">
+                  <img src={imageUrl} alt={parking.name || `Паркинг ${index + 1}`} />
                 </div>
               )}
+              <div className="parking-info">
+                <h3 className="parking-title">{parking.name || `Паркинг ${index + 1}`}</h3>
+                {parking.description && (
+                  <p className="parking-description">{parking.description}</p>
+                )}
+                {parking.price && (
+                  <div className="parking-price">
+                    {formatPrice(parking.price)}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

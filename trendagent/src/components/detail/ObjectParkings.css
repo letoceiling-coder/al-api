@@ -9,10 +9,27 @@
 }
 
 .parking-item {
+  display: flex;
+  gap: 1rem;
   padding: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background: #f9fafb;
+}
+
+.parking-image {
+  flex-shrink: 0;
+  width: 200px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #f3f4f6;
+}
+
+.parking-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .parking-title {
@@ -22,10 +39,17 @@
   color: #111827;
 }
 
+.parking-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .parking-description {
   font-size: 0.875rem;
   color: #6b7280;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
 }
 
 .parking-price {

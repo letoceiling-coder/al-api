@@ -1,3 +1,4 @@
+import { getImageUrl } from '../../utils/imageUtils'
 import './ObjectCommerce.css'
 
 const ObjectCommerce = ({ commerceData }) => {
@@ -20,22 +21,32 @@ const ObjectCommerce = ({ commerceData }) => {
     <div className="object-commerce card">
       <h2 className="section-title">Коммерческая недвижимость</h2>
       <div className="commerce-grid">
-        {premises.map((premise, index) => (
-          <div key={premise._id || index} className="premise-card">
-            <h3 className="premise-title">{premise.name || `Помещение ${index + 1}`}</h3>
-            {premise.area && (
-              <div className="premise-info">
-                <span className="info-label">Площадь:</span>
-                <span className="info-value">{premise.area} м²</span>
+        {premises.map((premise, index) => {
+          const imageUrl = getImageUrl(premise.image || premise.images?.[0])
+          return (
+            <div key={premise._id || index} className="premise-card">
+              {imageUrl && (
+                <div className="premise-image">
+                  <img src={imageUrl} alt={premise.name || `Помещение ${index + 1}`} />
+                </div>
+              )}
+              <div className="premise-content">
+                <h3 className="premise-title">{premise.name || `Помещение ${index + 1}`}</h3>
+                {premise.area && (
+                  <div className="premise-info">
+                    <span className="info-label">Площадь:</span>
+                    <span className="info-value">{premise.area} м²</span>
+                  </div>
+                )}
+                {premise.price && (
+                  <div className="premise-price">
+                    {formatPrice(premise.price)}
+                  </div>
+                )}
               </div>
-            )}
-            {premise.price && (
-              <div className="premise-price">
-                {formatPrice(premise.price)}
-              </div>
-            )}
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
