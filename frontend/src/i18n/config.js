@@ -13,6 +13,7 @@ i18n
       ru: { translation: ru },
       en: { translation: en },
     },
+    lng: localStorage.getItem('i18nextLng') || 'ru',
     fallbackLng: 'ru',
     defaultNS: 'translation',
     interpolation: {
