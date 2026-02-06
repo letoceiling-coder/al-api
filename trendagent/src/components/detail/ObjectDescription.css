@@ -1,0 +1,28 @@
+.object-description {
+  margin-bottom: 2rem;
+}
+
+.description-content {
+  color: #374151;
+  line-height: 1.6;
+}
+
+.description-content p {
+  margin: 0.75rem 0;
+}
+
+.description-content ul,
+.description-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.description-content li {
+  margin: 0.25rem 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
