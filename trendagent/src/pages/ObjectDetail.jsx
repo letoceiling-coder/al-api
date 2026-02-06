@@ -162,7 +162,26 @@ const ObjectDetail = () => {
   }
 
   // Безопасное извлечение данных с проверкой типов
-  const unifiedData = objectData.unified?.data || objectData.unified || {}
+  // Для участков unified данные могут быть в разных местах
+  let unifiedData = {}
+  if (objectData.unified) {
+    if (objectData.unified.data) {
+      unifiedData = objectData.unified.data
+    } else if (typeof objectData.unified === 'object' && !objectData.unified.error) {
+      unifiedData = objectData.unified
+    }
+  }
+  
+  // Логирование для отладки
+  if (objectType === 'plots') {
+    console.log('ObjectDetail: Plots unified data', {
+      hasUnified: !!objectData.unified,
+      unifiedKeys: Object.keys(unifiedData),
+      hasMinPrices: !!unifiedData.min_prices,
+      minPricesCount: Array.isArray(unifiedData.min_prices) ? unifiedData.min_prices.length : 0,
+      unifiedData: unifiedData,
+    })
+  }
   const apartmentsData = objectData.apartments || {}
   const parkingsData = objectData.parkings || {}
   const commerceData = objectData.commerce || {}
