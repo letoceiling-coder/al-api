@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API Gateway - Multipart File Upload Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; 
+            color: #333; 
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        h3 { color: #34495e; margin: 30px 0 15px; }
+        .subtitle { color: #7f8c8d; font-size: 1.1em; margin-bottom: 30px; }
+        .badge { display: inline-block; background: #3498db; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+        .badge.new { background: #27ae60; }
+        .badge.better { background: #e67e22; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 4px; overflow-x: auto; margin: 15px 0; }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .info-box { background: #e8f4f8; border-left: 4px solid #3498db; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .comparison > div { padding: 20px; border-radius: 4px; }
+        .comparison .old { background: #ffe6e6; border-left: 4px solid #e74c3c; }
+        .comparison .new { background: #e6ffe6; border-left: 4px solid #27ae60; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multipart File Upload</h1>
+        <p class="subtitle">
+            Upload files directly without Base64 encoding
+            <span class="badge new">NEW</span>
+            <span class="badge better">30% FASTER</span>
+            <span class="badge">v1</span>
+        </p>
+
+        <h2>Why Multipart?</h2>
+        
+        <div class="success-box">
+            <strong>✅ Преимущества multipart/form-data:</strong><br>
+            • <strong>Меньше размер</strong> - без Base64 overhead (~33% экономии)<br>
+            • <strong>Быстрее загрузка</strong> - нативная поддержка браузером<br>
+            • <strong>Простота</strong> - не нужно конвертировать в Base64<br>
+            • <strong>Большие файлы</strong> - до 100 MB (vs 10 MB для Base64)
+        </div>
+
+        <div class="comparison">
+            <div class="old">
+                <h3>❌ Старый способ (Base64)</h3>
+                <strong>Проблемы:</strong>
+                <ul>
+                    <li>Файл 10 MB → 13.3 MB после Base64</li>
+                    <li>Дополнительное время на кодирование</li>
+                    <li>Нагрузка на память</li>
+                </ul>
+            </div>
+            <div class="new">
+                <h3>✅ Новый способ (Multipart)</h3>
+                <strong>Плюсы:</strong>
+                <ul>
+                    <li>Файл 10 MB остаётся 10 MB</li>
+                    <li>Прямая загрузка</li>
+                    <li>Меньше памяти</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Endpoints</h2>
+        
+        <table>
+            <tr>
+                <th>Endpoint</th>
+                <th>Content-Type</th>
+                <th>File Format</th>
+                <th>Max Size</th>
+            </tr>
+            <tr>
+                <td><code>/api/v1/ai/process</code></td>
+                <td><code>application/json</code></td>
+                <td>Base64 (legacy)</td>
+                <td>10 MB</td>
+            </tr>
+            <tr>
+                <td><code>/api/v1/ai/process</code></td>
+                <td><code>multipart/form-data</code></td>
+                <td>Binary (new)</td>
+                <td>100 MB</td>
+            </tr>
+            <tr>
+                <td><code>/api/v1/ai/stream</code></td>
+                <td><code>multipart/form-data</code></td>
+                <td>Binary (new)</td>
+                <td>100 MB</td>
+            </tr>
+        </table>
+
+        <div class="info-box">
+            <strong>🔄 Обратная совместимость:</strong><br>
+            API автоматически определяет формат по <code>Content-Type</code>. Старые клиенты с Base64 продолжат работать без изменений.
+        </div>
+
+        <h2>Supported File Types</h2>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Extensions</th>
+                <th>MIME Types</th>
+            </tr>
+            <tr>
+                <td><strong>Images</strong></td>
+                <td><code>jpg, jpeg, png, gif, webp</code></td>
+                <td><code>image/jpeg, image/png, image/gif, image/webp</code></td>
+            </tr>
+            <tr>
+                <td><strong>Documents</strong></td>
+                <td><code>pdf, txt, doc, docx</code></td>
+                <td><code>application/pdf, text/plain, application/msword</code></td>
+            </tr>
+            <tr>
+                <td><strong>Audio</strong></td>
+                <td><code>mp3, wav</code></td>
+                <td><code>audio/mpeg, audio/wav</code></td>
+            </tr>
+            <tr>
+                <td><strong>Video</strong></td>
+                <td><code>mp4</code></td>
+                <td><code>video/mp4</code></td>
+            </tr>
+        </table>
+
+        <h2>Request Format</h2>
+
+        <h3>Multipart/form-data Structure</h3>
+        <pre><code>POST /api/v1/ai/process
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...
+Authorization: Bearer {your-token}
+
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="provider"
+
+gemini
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="model"
+
+gemini-1.5-pro
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="prompt"
+
+Analyze this image and describe what you see
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="parameters"
+
+{"temperature": 0.7, "max_tokens": 1024}
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="uploaded_files[]"; filename="photo.jpg"
+Content-Type: image/jpeg
+
+[binary file data]
+------WebKitFormBoundary...--</code></pre>
+
+        <h3>Field Names</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>provider</code></td>
+                <td>string</td>
+                <td>✅ Yes</td>
+                <td>AI provider (gemini, openai)</td>
+            </tr>
+            <tr>
+                <td><code>model</code></td>
+                <td>string</td>
+                <td>✅ Yes</td>
+                <td>Model name (e.g., gemini-1.5-pro)</td>
+            </tr>
+            <tr>
+                <td><code>prompt</code></td>
+                <td>string</td>
+                <td>✅ Yes</td>
+                <td>Text prompt</td>
+            </tr>
+            <tr>
+                <td><code>uploaded_files[]</code></td>
+                <td>file[]</td>
+                <td>❌ No</td>
+                <td>Array of files (up to 10)</td>
+            </tr>
+            <tr>
+                <td><code>parameters</code></td>
+                <td>JSON string</td>
+                <td>❌ No</td>
+                <td>Model parameters (as JSON string)</td>
+            </tr>
+            <tr>
+                <td><code>user_api_key</code></td>
+                <td>string</td>
+                <td>❌ No</td>
+                <td>User-provided AI API key</td>
+            </tr>
+            <tr>
+                <td><code>metadata</code></td>
+                <td>JSON string</td>
+                <td>❌ No</td>
+                <td>Custom metadata (as JSON string)</td>
+            </tr>
+        </table>
+
+        <h2>Client Examples</h2>
+
+        <h3>JavaScript (Browser - FormData)</h3>
+        <pre><code>async function uploadWithFiles() {
+  const formData = new FormData();
+  
+  // Add text fields
+  formData.append('provider', 'gemini');
+  formData.append('model', 'gemini-1.5-pro');
+  formData.append('prompt', 'Analyze this image');
+  
+  // Add parameters as JSON string
+  formData.append('parameters', JSON.stringify({
+    temperature: 0.7,
+    max_tokens: 1024
+  }));
+  
+  // Add files from file input
+  const fileInput = document.getElementById('fileInput');
+  for (const file of fileInput.files) {
+    formData.append('uploaded_files[]', file);
+  }
+  
+  // Send request
+  const response = await fetch('https://api.siteaccess.ru/api/v1/ai/process', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`
+      // Do NOT set Content-Type manually - browser will set it with boundary
+    },
+    body: formData
+  });
+  
+  const result = await response.json();
+  console.log(result);
+}</code></pre>
+
+        <h3>JavaScript (Node.js - form-data)</h3>
+        <pre><code>const FormData = require('form-data');
+const fs = require('fs');
+const axios = require('axios');
+
+async function uploadWithFiles() {
+  const form = new FormData();
+  
+  // Add text fields
+  form.append('provider', 'gemini');
+  form.append('model', 'gemini-1.5-pro');
+  form.append('prompt', 'Analyze this image');
+  
+  // Add parameters
+  form.append('parameters', JSON.stringify({
+    temperature: 0.7,
+    max_tokens: 1024
+  }));
+  
+  // Add files
+  form.append('uploaded_files[]', fs.createReadStream('photo.jpg'));
+  form.append('uploaded_files[]', fs.createReadStream('document.pdf'));
+  
+  // Send request
+  const response = await axios.post(
+    'https://api.siteaccess.ru/api/v1/ai/process',
+    form,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        ...form.getHeaders() // Important: includes Content-Type with boundary
+      }
+    }
+  );
+  
+  console.log(response.data);
+}
+
+uploadWithFiles();</code></pre>
+
+        <h3>Python (requests)</h3>
+        <pre><code>import requests
+
+def upload_with_files():
+    url = 'https://api.siteaccess.ru/api/v1/ai/process'
+    
+    headers = {
+        'Authorization': f'Bearer {token}'
+        # Do NOT set Content-Type - requests will set it automatically
+    }
+    
+    # Form data
+    data = {
+        'provider': 'gemini',
+        'model': 'gemini-1.5-pro',
+        'prompt': 'Analyze this image',
+        'parameters': '{"temperature": 0.7, "max_tokens": 1024}'
+    }
+    
+    # Files to upload
+    files = [
+        ('uploaded_files[]', ('photo.jpg', open('photo.jpg', 'rb'), 'image/jpeg')),
+        ('uploaded_files[]', ('document.pdf', open('document.pdf', 'rb'), 'application/pdf'))
+    ]
+    
+    response = requests.post(url, headers=headers, data=data, files=files)
+    result = response.json()
+    
+    print(result)
+
+upload_with_files()</code></pre>
+
+        <h3>cURL</h3>
+        <pre><code>curl -X POST https://api.siteaccess.ru/api/v1/ai/process \
+  -H "Authorization: Bearer your-token" \
+  -F "provider=gemini" \
+  -F "model=gemini-1.5-pro" \
+  -F "prompt=Analyze these images" \
+  -F 'parameters={"temperature": 0.7}' \
+  -F "uploaded_files[]=@photo1.jpg" \
+  -F "uploaded_files[]=@photo2.png" \
+  -F "uploaded_files[]=@document.pdf"</code></pre>
+
+        <h3>PHP</h3>
+        <pre><code>&lt;?php
+$token = 'your-bearer-token';
+$url = 'https://api.siteaccess.ru/api/v1/ai/process';
+
+$ch = curl_init();
+
+$data = [
+    'provider' => 'gemini',
+    'model' => 'gemini-1.5-pro',
+    'prompt' => 'Analyze this image',
+    'parameters' => json_encode(['temperature' => 0.7, 'max_tokens' => 1024]),
+    'uploaded_files' => [
+        new CURLFile('photo.jpg', 'image/jpeg', 'photo.jpg'),
+        new CURLFile('document.pdf', 'application/pdf', 'document.pdf')
+    ]
+];
+
+curl_setopt_array($ch, [
+    CURLOPT_URL => $url,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $data,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer $token"
+    ]
+]);
+
+$response = curl_exec($ch);
+$result = json_decode($response, true);
+
+print_r($result);
+
+curl_close($ch);
+?&gt;</code></pre>
+
+        <h2>Response Format</h2>
+
+        <p>Response is identical to JSON requests:</p>
+        <pre><code>{
+  "success": true,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "data": {
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "response": {
+      "text": "I can see a beautiful landscape with mountains and a lake...",
+      "finish_reason": "stop"
+    }
+  },
+  "usage": {
+    "prompt_tokens": 1250,
+    "completion_tokens": 180,
+    "total_tokens": 1430,
+    "estimated_cost": 0.00215
+  },
+  "metadata": {
+    "processing_time": 3.456,
+    "timestamp": "2026-02-06T16:30:00Z",
+    "api_key_source": "internal",
+    "files_processed": 2
+  }
+}</code></pre>
+
+        <h2>Validation & Limits</h2>
+
+        <table>
+            <tr>
+                <th>Limit</th>
+                <th>Value</th>
+                <th>Configurable</th>
+            </tr>
+            <tr>
+                <td>Max files per request</td>
+                <td>10</td>
+                <td>❌ No</td>
+            </tr>
+            <tr>
+                <td>Max file size</td>
+                <td>100 MB</td>
+                <td>✅ Yes (.env)</td>
+            </tr>
+            <tr>
+                <td>Total request size</td>
+                <td>100 MB</td>
+                <td>✅ Yes (Nginx)</td>
+            </tr>
+            <tr>
+                <td>Supported formats</td>
+                <td>See table above</td>
+                <td>✅ Yes (code)</td>
+            </tr>
+        </table>
+
+        <h2>Error Handling</h2>
+
+        <h3>Validation Errors</h3>
+        <pre><code>{
+  "type": "https://api.siteaccess.ru/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "The given data was invalid.",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "errors": {
+    "uploaded_files.0": [
+      "The file must not be greater than 102400 kilobytes."
+    ],
+    "uploaded_files.1": [
+      "The file must be a file of type: jpeg, jpg, png, gif, webp, pdf, txt."
+    ]
+  }
+}</code></pre>
+
+        <h3>Common Errors</h3>
+        <table>
+            <tr>
+                <th>Error</th>
+                <th>Cause</th>
+                <th>Solution</th>
+            </tr>
+            <tr>
+                <td>File too large</td>
+                <td>File exceeds 100 MB</td>
+                <td>Compress or split the file</td>
+            </tr>
+            <tr>
+                <td>Invalid file type</td>
+                <td>Unsupported format</td>
+                <td>Convert to supported format</td>
+            </tr>
+            <tr>
+                <td>Too many files</td>
+                <td>More than 10 files</td>
+                <td>Split into multiple requests</td>
+            </tr>
+            <tr>
+                <td>Missing boundary</td>
+                <td>Invalid Content-Type</td>
+                <td>Let library set Content-Type automatically</td>
+            </tr>
+        </table>
+
+        <h2>Best Practices</h2>
+
+        <div class="success-box">
+            <strong>✅ Рекомендации:</strong><br>
+            1. <strong>Не устанавливайте Content-Type вручную</strong> - пусть библиотека добавит boundary<br>
+            2. <strong>Оптимизируйте изображения</strong> перед загрузкой (resize, compression)<br>
+            3. <strong>Используйте streaming</strong> для больших файлов (<code>/api/v1/ai/stream</code>)<br>
+            4. <strong>Обрабатывайте ошибки загрузки</strong> - network может прерваться<br>
+            5. <strong>Показывайте прогресс</strong> пользователю при больших файлах
+        </div>
+
+        <h3>Progress Tracking (JavaScript)</h3>
+        <pre><code>async function uploadWithProgress() {
+  const formData = new FormData();
+  // ... add fields and files
+  
+  const xhr = new XMLHttpRequest();
+  
+  // Track upload progress
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percentComplete = (e.loaded / e.total) * 100;
+      console.log(`Upload: ${percentComplete}%`);
+      updateProgressBar(percentComplete);
+    }
+  });
+  
+  // Handle completion
+  xhr.addEventListener('load', () => {
+    const result = JSON.parse(xhr.responseText);
+    console.log('Upload complete:', result);
+  });
+  
+  xhr.open('POST', 'https://api.siteaccess.ru/api/v1/ai/process');
+  xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+  xhr.send(formData);
+}</code></pre>
+
+        <h2>Migration from Base64</h2>
+
+        <h3>Before (Base64)</h3>
+        <pre><code>// Old way - Base64
+const fileInput = document.getElementById('file');
+const file = fileInput.files[0];
+
+const reader = new FileReader();
+reader.onload = async (e) => {
+  const base64 = e.target.result.split(',')[1];
+  
+  const response = await fetch('/api/v1/ai/process', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      provider: 'gemini',
+      model: 'gemini-1.5-pro',
+      prompt: 'Analyze this image',
+      files: [{
+        type: 'image',
+        content: `data:image/jpeg;base64,${base64}`,
+        mime_type: 'image/jpeg',
+        name: file.name
+      }]
+    })
+  });
+};
+reader.readAsDataURL(file);</code></pre>
+
+        <h3>After (Multipart)</h3>
+        <pre><code>// New way - Multipart (simpler!)
+const fileInput = document.getElementById('file');
+const formData = new FormData();
+
+formData.append('provider', 'gemini');
+formData.append('model', 'gemini-1.5-pro');
+formData.append('prompt', 'Analyze this image');
+formData.append('uploaded_files[]', fileInput.files[0]);
+
+const response = await fetch('/api/v1/ai/process', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  },
+  body: formData
+});</code></pre>
+
+        <div class="warning-box">
+            <strong>⚠️ Важно:</strong><br>
+            • Base64 метод НЕ удаляется - он остаётся для обратной совместимости<br>
+            • Старые клиенты продолжат работать без изменений<br>
+            • Multipart рекомендуется для новых интеграций
+        </div>
+
+        <h2>Performance Comparison</h2>
+
+        <table>
+            <tr>
+                <th>File Size</th>
+                <th>Base64 Size</th>
+                <th>Multipart Size</th>
+                <th>Savings</th>
+            </tr>
+            <tr>
+                <td>1 MB</td>
+                <td>~1.33 MB</td>
+                <td>1 MB</td>
+                <td>-33%</td>
+            </tr>
+            <tr>
+                <td>5 MB</td>
+                <td>~6.65 MB</td>
+                <td>5 MB</td>
+                <td>-33%</td>
+            </tr>
+            <tr>
+                <td>10 MB</td>
+                <td>~13.3 MB</td>
+                <td>10 MB</td>
+                <td>-33%</td>
+            </tr>
+            <tr>
+                <td>50 MB</td>
+                <td>❌ Not supported</td>
+                <td>50 MB ✅</td>
+                <td>N/A</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 40px;">
+            <a href="/api/documentation">← Back to API Documentation</a> |
+            <a href="/streaming-guide.html">Streaming Guide →</a>
+        </div>
+    </div>
+</body>
+</html>

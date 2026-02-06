@@ -22,8 +22,9 @@ class AIProcessRequest extends FormRequest
     public function rules(): array
     {
         $providers = config('ai.providers', ['gemini', 'openai']);
+        $isMultipart = $this->isMultipartRequest();
         
-        return [
+        $rules = [
             // Required fields
             'provider' => ['required', 'string', 'in:' . implode(',', $providers)],
             'model' => ['required', 'string', 'max:100'],
@@ -42,16 +43,40 @@ class AIProcessRequest extends FormRequest
             'parameters.top_k' => ['nullable', 'integer', 'min:1'],
             'parameters.stream' => ['nullable', 'boolean'],
             
-            // Files
-            'files' => ['nullable', 'array', 'max:10'],
-            'files.*.type' => ['required_with:files', 'string', 'in:image,audio,document'],
-            'files.*.content' => ['required_with:files', 'string'],
-            'files.*.mime_type' => ['required_with:files', 'string'],
-            'files.*.name' => ['nullable', 'string', 'max:255'],
-            
             // Metadata
             'metadata' => ['nullable', 'array'],
         ];
+
+        // Different validation rules for multipart vs JSON
+        if ($isMultipart) {
+            // Multipart: uploaded files
+            $maxFileSize = config('ai.limits.max_file_size_mb', 10) * 1024; // Convert to KB
+            $rules['uploaded_files'] = ['nullable', 'array', 'max:10'];
+            $rules['uploaded_files.*'] = [
+                'required',
+                'file',
+                'max:' . $maxFileSize,
+                'mimes:jpeg,jpg,png,gif,webp,pdf,txt,doc,docx,mp3,mp4,wav',
+            ];
+        } else {
+            // JSON: Base64 files (backward compatibility)
+            $rules['files'] = ['nullable', 'array', 'max:10'];
+            $rules['files.*.type'] = ['required_with:files', 'string', 'in:image,audio,document'];
+            $rules['files.*.content'] = ['required_with:files', 'string'];
+            $rules['files.*.mime_type'] = ['required_with:files', 'string'];
+            $rules['files.*.name'] = ['nullable', 'string', 'max:255'];
+        }
+        
+        return $rules;
+    }
+
+    /**
+     * Check if this is a multipart/form-data request
+     */
+    protected function isMultipartRequest(): bool
+    {
+        $contentType = $this->header('Content-Type', '');
+        return str_contains($contentType, 'multipart/form-data');
     }
 
     /**
@@ -76,13 +101,89 @@ class AIProcessRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        // Parse JSON parameters if sent as string in multipart
+        if ($this->isMultipartRequest() && $this->has('parameters') && is_string($this->parameters)) {
+            $this->merge(['parameters' => json_decode($this->parameters, true) ?? []]);
+        }
+
+        // Parse JSON metadata if sent as string in multipart
+        if ($this->isMultipartRequest() && $this->has('metadata') && is_string($this->metadata)) {
+            $this->merge(['metadata' => json_decode($this->metadata, true) ?? []]);
+        }
+
         // Ensure arrays exist
         if (!$this->has('parameters')) {
             $this->merge(['parameters' => []]);
         }
 
-        if (!$this->has('files')) {
+        if (!$this->has('files') && !$this->isMultipartRequest()) {
             $this->merge(['files' => []]);
         }
+    }
+
+    /**
+     * Get normalized files array (converts multipart to internal format)
+     * 
+     * @return array
+     */
+    public function getNormalizedFiles(): array
+    {
+        if ($this->isMultipartRequest()) {
+            return $this->convertMultipartToFiles();
+        }
+        
+        return $this->input('files', []);
+    }
+
+    /**
+     * Convert uploaded multipart files to internal format
+     * 
+     * @return array
+     */
+    protected function convertMultipartToFiles(): array
+    {
+        $uploadedFiles = $this->file('uploaded_files', []);
+        $normalizedFiles = [];
+
+        foreach ($uploadedFiles as $file) {
+            $mimeType = $file->getMimeType();
+            $type = $this->detectFileType($mimeType);
+            
+            // Convert to base64 for internal processing
+            $content = base64_encode(file_get_contents($file->getRealPath()));
+            
+            $normalizedFiles[] = [
+                'type' => $type,
+                'content' => 'data:' . $mimeType . ';base64,' . $content,
+                'mime_type' => $mimeType,
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+            ];
+        }
+
+        return $normalizedFiles;
+    }
+
+    /**
+     * Detect file type from MIME type
+     * 
+     * @param string $mimeType
+     * @return string
+     */
+    protected function detectFileType(string $mimeType): string
+    {
+        if (str_starts_with($mimeType, 'image/')) {
+            return 'image';
+        }
+        
+        if (str_starts_with($mimeType, 'audio/')) {
+            return 'audio';
+        }
+        
+        if (str_starts_with($mimeType, 'video/')) {
+            return 'video';
+        }
+        
+        return 'document';
     }
 }

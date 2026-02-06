@@ -225,10 +225,11 @@ class AIProxyController extends Controller
             );
 
             // 4. Validate model and files
+            $normalizedFiles = $request->getNormalizedFiles();
             $this->validateModelCapabilities(
                 $request->provider,
                 $request->model,
-                !empty($request->files)
+                !empty($normalizedFiles)
             );
 
             // 5. Process request through appropriate service
@@ -250,14 +251,15 @@ class AIProxyController extends Controller
 
             // 7. Track usage
             if (config('ai.features.logging')) {
+                $normalizedFiles = $request->getNormalizedFiles();
                 $this->trackRequest([
                     'user_id' => $user->id,
                     'request_id' => $requestId,
                     'provider' => $request->provider,
                     'model' => $request->model,
                     'prompt_length' => strlen($request->prompt),
-                    'has_files' => !empty($request->files),
-                    'file_count' => count($request->files ?? []),
+                    'has_files' => !empty($normalizedFiles),
+                    'file_count' => count($normalizedFiles),
                     'prompt_tokens' => $response['usage']['prompt_tokens'] ?? null,
                     'completion_tokens' => $response['usage']['completion_tokens'] ?? null,
                     'total_tokens' => $response['usage']['total_tokens'] ?? null,
@@ -349,13 +351,14 @@ class AIProxyController extends Controller
         );
 
         // Validate model capabilities
+        $normalizedFiles = $request->getNormalizedFiles();
         $this->validateModelCapabilities(
             $request->provider,
             $request->model,
-            !empty($request->files)
+            !empty($normalizedFiles)
         );
 
-        return response()->stream(function () use ($request, $user, $requestId, $traceId, $apiKeyInfo) {
+        return response()->stream(function () use ($request, $user, $requestId, $traceId, $apiKeyInfo, $normalizedFiles) {
             // Set headers for SSE
             header('Content-Type: text/event-stream');
             header('Cache-Control: no-cache');
@@ -443,8 +446,8 @@ class AIProxyController extends Controller
                         'provider' => $request->provider,
                         'model' => $request->model,
                         'prompt_length' => strlen($request->prompt),
-                        'has_files' => !empty($request->files),
-                        'file_count' => count($request->files ?? []),
+                        'has_files' => !empty($normalizedFiles),
+                        'file_count' => count($normalizedFiles),
                         'prompt_tokens' => $mockResponse['usage']['prompt_tokens'] ?? null,
                         'completion_tokens' => $mockResponse['usage']['completion_tokens'] ?? null,
                         'total_tokens' => $mockResponse['usage']['total_tokens'] ?? null,
@@ -577,8 +580,8 @@ class AIProxyController extends Controller
                 'provider' => $request->provider ?? 'unknown',
                 'model' => $request->model ?? 'unknown',
                 'prompt_length' => strlen($request->prompt ?? ''),
-                'has_files' => !empty($request->files),
-                'file_count' => count($request->files ?? []),
+                'has_files' => false,
+                'file_count' => 0,
                 'status' => $status,
                 'error_message' => $errorMessage,
                 'ip_address' => $request->ip(),
