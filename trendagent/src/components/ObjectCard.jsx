@@ -13,6 +13,10 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getName = () => {
+    // Для участков может быть название в разных полях
+    if (objectType === 'plots') {
+      return object.name || object.village_name || 'Без названия'
+    }
     return object.name || 'Без названия'
   }
 
@@ -23,7 +27,25 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   const getImage = () => {
     // Сначала проверяем массив images (для паркингов, домов, участков, коммерции)
     if (object.images && Array.isArray(object.images) && object.images.length > 0) {
-      return getImageUrl(object.images[0])
+      const firstImage = object.images[0]
+      
+      // Для участков images может быть массивом объектов с thumbnail/full
+      if (firstImage.thumbnail) {
+        return firstImage.thumbnail
+      }
+      if (firstImage.full) {
+        return firstImage.full
+      }
+      
+      // Если есть path и file_name, формируем URL
+      if (firstImage.path && firstImage.file_name) {
+        const path = firstImage.path.replace(/^\/+|\/+$/g, '')
+        const fileName = firstImage.file_name
+        return `https://selcdn.trendagent.ru/images/${path}/m_${fileName}`
+      }
+      
+      // Пробуем через imageUtils
+      return getImageUrl(firstImage)
     }
     
     // Затем проверяем одиночное поле image (для квартир и других типов)
@@ -40,6 +62,18 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getPrice = () => {
+    // Для участков цена хранится в массиве min_prices
+    if (objectType === 'plots' && object.min_prices && Array.isArray(object.min_prices) && object.min_prices.length > 0) {
+      // Берем первую цену из массива
+      const firstPrice = object.min_prices[0]
+      if (firstPrice.value) {
+        const unit = firstPrice.unit || '₽'
+        const label = firstPrice.label ? `${firstPrice.label}: ` : ''
+        return `${label}${formatPrice(firstPrice.value)} ${unit}`
+      }
+    }
+    
+    // Стандартная обработка для других типов
     if (object.min_price && object.max_price) {
       if (object.min_price === object.max_price) {
         return formatPrice(object.min_price)
