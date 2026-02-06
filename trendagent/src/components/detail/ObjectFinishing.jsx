@@ -2,7 +2,9 @@ import './ObjectFinishing.css'
 import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectFinishing = ({ finishings }) => {
-  const finishingsList = finishings || []
+  const finishingsList = Array.isArray(finishings?.data) 
+    ? finishings.data 
+    : (Array.isArray(finishings) ? finishings : [])
 
   if (!finishingsList || finishingsList.length === 0) {
     return (

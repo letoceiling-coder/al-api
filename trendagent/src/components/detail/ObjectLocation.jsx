@@ -2,7 +2,9 @@ import './ObjectLocation.css'
 import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectLocation = ({ address, nearbyPlaces }) => {
-  const places = nearbyPlaces || []
+  const places = Array.isArray(nearbyPlaces?.data) 
+    ? nearbyPlaces.data 
+    : (Array.isArray(nearbyPlaces) ? nearbyPlaces : [])
 
   return (
     <div className="object-location card">

@@ -1,7 +1,9 @@
 import './ObjectCommerce.css'
 
 const ObjectCommerce = ({ commerceData }) => {
-  const premises = commerceData?.data || commerceData || []
+  const premises = Array.isArray(commerceData?.data) 
+    ? commerceData.data 
+    : (Array.isArray(commerceData) ? commerceData : [])
 
   if (!premises || premises.length === 0) {
     return (

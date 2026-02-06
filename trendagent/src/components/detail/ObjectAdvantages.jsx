@@ -2,7 +2,9 @@ import './ObjectAdvantages.css'
 import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectAdvantages = ({ advantages }) => {
-  const advantagesList = advantages || []
+  const advantagesList = Array.isArray(advantages?.data) 
+    ? advantages.data 
+    : (Array.isArray(advantages) ? advantages : [])
 
   if (!advantagesList || advantagesList.length === 0) {
     return null

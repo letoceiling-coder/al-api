@@ -5,7 +5,9 @@ import { getImageUrl } from '../../utils/imageUtils'
 const ObjectProgress = ({ progressData }) => {
   const [selectedYear, setSelectedYear] = useState(null)
 
-  const progress = progressData?.data || progressData || []
+  const progress = Array.isArray(progressData?.data) 
+    ? progressData.data 
+    : (Array.isArray(progressData) ? progressData : [])
   const years = [...new Set(progress.map(p => {
     if (p.date) {
       return new Date(p.date).getFullYear()

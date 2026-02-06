@@ -6,9 +6,16 @@ const ObjectApartments = ({ apartmentsData, plansData, buildingsData }) => {
   const [selectedRoomType, setSelectedRoomType] = useState(null)
   const [selectedBuilding, setSelectedBuilding] = useState(null)
 
-  const apartments = apartmentsData?.data || apartmentsData || []
-  const plans = plansData || []
-  const buildings = buildingsData || []
+  // Безопасное извлечение данных с проверкой на массив
+  const apartments = Array.isArray(apartmentsData?.data) 
+    ? apartmentsData.data 
+    : (Array.isArray(apartmentsData) ? apartmentsData : [])
+  const plans = Array.isArray(plansData?.data) 
+    ? plansData.data 
+    : (Array.isArray(plansData) ? plansData : [])
+  const buildings = Array.isArray(buildingsData?.data) 
+    ? buildingsData.data 
+    : (Array.isArray(buildingsData) ? buildingsData : [])
 
   const roomTypes = [...new Set(apartments.map(apt => apt.rooms || apt.room).filter(Boolean))].sort()
 

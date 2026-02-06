@@ -1,7 +1,9 @@
 import './ObjectFiles.css'
 
 const ObjectFiles = ({ files }) => {
-  const filesList = files || []
+  const filesList = Array.isArray(files?.data) 
+    ? files.data 
+    : (Array.isArray(files) ? files : [])
 
   if (!filesList || filesList.length === 0) {
     return (

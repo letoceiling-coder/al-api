@@ -159,18 +159,23 @@ const ObjectDetail = () => {
     return null
   }
 
+  // Безопасное извлечение данных с проверкой типов
   const unifiedData = objectData.unified?.data || objectData.unified || {}
   const apartmentsData = objectData.apartments || {}
   const parkingsData = objectData.parkings || {}
   const commerceData = objectData.commerce || {}
-  const buildingsData = objectData.buildings?.data || objectData.buildings || []
-  const plansData = objectData.plans?.data || objectData.plans || []
+  const buildingsData = Array.isArray(objectData.buildings?.data) 
+    ? objectData.buildings.data 
+    : (Array.isArray(objectData.buildings) ? objectData.buildings : [])
+  const plansData = Array.isArray(objectData.plans?.data) 
+    ? objectData.plans.data 
+    : (Array.isArray(objectData.plans) ? objectData.plans : [])
   const progressData = objectData.progress || {}
-  const finishingsData = objectData.finishings?.data || objectData.finishings || []
-  const advantagesData = objectData.advantages?.data || objectData.advantages || []
-  const nearbyPlacesData = objectData.nearby_places?.data || objectData.nearby_places || []
-  const videosData = objectData.videos?.data || objectData.videos || []
-  const filesData = objectData.files?.data || objectData.files || []
+  const finishingsData = objectData.finishings || {}
+  const advantagesData = objectData.advantages || {}
+  const nearbyPlacesData = objectData.nearby_places || {}
+  const videosData = objectData.videos || {}
+  const filesData = objectData.files || {}
 
   return (
     <div className="object-detail">

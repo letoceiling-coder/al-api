@@ -1,7 +1,9 @@
 import './ObjectParkings.css'
 
 const ObjectParkings = ({ parkingsData }) => {
-  const parkings = parkingsData?.data || parkingsData || []
+  const parkings = Array.isArray(parkingsData?.data) 
+    ? parkingsData.data 
+    : (Array.isArray(parkingsData) ? parkingsData : [])
 
   if (!parkings || parkings.length === 0) {
     return (

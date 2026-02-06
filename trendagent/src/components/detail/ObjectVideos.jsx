@@ -1,7 +1,9 @@
 import './ObjectVideos.css'
 
 const ObjectVideos = ({ videos }) => {
-  const videosList = videos || []
+  const videosList = Array.isArray(videos?.data) 
+    ? videos.data 
+    : (Array.isArray(videos) ? videos : [])
 
   if (!videosList || videosList.length === 0) {
     return (
