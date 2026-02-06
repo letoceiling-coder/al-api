@@ -118,6 +118,20 @@ class PlotsController
             $totalCount = $apiData['blocks_count'] ?? $apiData['total'] ?? 0;
             $returnedCount = count($apiData['data'] ?? []);
             
+            // Логирование для отладки
+            if ($returnedCount > 0) {
+                $firstItem = $apiData['data'][0] ?? [];
+                Log::info('PlotsController: First item structure', [
+                    'has_name' => isset($firstItem['name']),
+                    'name' => $firstItem['name'] ?? null,
+                    'has_min_prices' => isset($firstItem['min_prices']),
+                    'min_prices_count' => is_array($firstItem['min_prices'] ?? null) ? count($firstItem['min_prices']) : 0,
+                    'has_images' => isset($firstItem['images']),
+                    'images_count' => is_array($firstItem['images'] ?? null) ? count($firstItem['images']) : 0,
+                    'keys' => array_keys($firstItem),
+                ]);
+            }
+            
             $result = [
                 'success' => true,
                 'total_count' => $totalCount,
