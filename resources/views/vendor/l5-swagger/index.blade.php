@@ -37,7 +37,7 @@
     <script>
         window.onload = function() {
             const ui = SwaggerUIBundle({
-                url: "{{ route('l5-swagger.'.$documentation.'.docs', ['jsonFile' => config('l5-swagger.documentations.'.$documentation.'.paths.docs_json', 'api-docs.json')]) }}",
+                url: "{{ url('docs?api-docs.json') }}",
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [
