@@ -277,10 +277,11 @@ const ObjectPlots = ({ plotsData, unifiedData }) => {
             <div className="description-text" dangerouslySetInnerHTML={{ __html: info.description }} />
           </div>
         )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   )
 }
