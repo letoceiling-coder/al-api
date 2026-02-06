@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API - Model Parameters Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; 
+            color: #333; 
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        h3 { color: #34495e; margin: 30px 0 15px; }
+        .subtitle { color: #7f8c8d; font-size: 1.1em; margin-bottom: 30px; }
+        .badge { display: inline-block; background: #3498db; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+        .badge.gemini { background: #4285f4; }
+        .badge.openai { background: #10a37f; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 4px; overflow-x: auto; margin: 15px 0; }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .info-box { background: #e8f4f8; border-left: 4px solid #3498db; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        .param-table th { background: #34495e; }
+        .param-name { font-family: monospace; background: #ecf0f1; padding: 2px 6px; border-radius: 3px; }
+        .param-type { color: #e74c3c; font-weight: bold; }
+        .provider-section { background: #f8f9fa; padding: 30px; border-radius: 8px; margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Model Parameters Guide</h1>
+        <p class="subtitle">
+            Complete reference for all AI model parameters
+            <span class="badge">v1</span>
+        </p>
+
+        <div class="info-box">
+            <strong>📝 Note:</strong> All parameters are optional. Default values will be used if not specified.
+        </div>
+
+        <h2>Common Parameters</h2>
+        <p>These parameters are supported by both Gemini and OpenAI models:</p>
+
+        <table class="param-table">
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Range</th>
+                <th>Default</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><span class="param-name">temperature</span></td>
+                <td><span class="param-type">float</span></td>
+                <td>0.0 - 2.0</td>
+                <td>1.0 (Gemini)<br>1.0 (OpenAI)</td>
+                <td>Controls randomness. Lower = more deterministic, Higher = more creative</td>
+            </tr>
+            <tr>
+                <td><span class="param-name">top_p</span></td>
+                <td><span class="param-type">float</span></td>
+                <td>0.0 - 1.0</td>
+                <td>0.95 (Gemini)<br>1.0 (OpenAI)</td>
+                <td>Nucleus sampling. Considers tokens with cumulative probability up to top_p</td>
+            </tr>
+            <tr>
+                <td><span class="param-name">max_tokens</span></td>
+                <td><span class="param-type">integer</span></td>
+                <td>1 - model max</td>
+                <td>1024</td>
+                <td>Maximum number of tokens to generate</td>
+            </tr>
+        </table>
+
+        <h3>Example Usage (Common Parameters)</h3>
+        <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Write a creative story",
+  "parameters": {
+    "temperature": 1.2,
+    "top_p": 0.9,
+    "max_tokens": 2048
+  }
+}</code></pre>
+
+        <div class="provider-section">
+            <h2><span class="badge gemini">Gemini</span> Specific Parameters</h2>
+
+            <table class="param-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Range/Values</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="param-name">top_k</span></td>
+                    <td><span class="param-type">integer</span></td>
+                    <td>1 - 100</td>
+                    <td>40</td>
+                    <td>Top-K sampling. Considers only the top K most likely tokens</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">max_output_tokens</span></td>
+                    <td><span class="param-type">integer</span></td>
+                    <td>1 - 8192</td>
+                    <td>2048</td>
+                    <td>Maximum tokens in response (Gemini-specific)</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">stop_sequences</span></td>
+                    <td><span class="param-type">array</span></td>
+                    <td>Max 5 sequences</td>
+                    <td>[]</td>
+                    <td>Array of strings that will stop generation</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">candidate_count</span></td>
+                    <td><span class="param-type">integer</span></td>
+                    <td>1 - 8</td>
+                    <td>1</td>
+                    <td>Number of response variations to generate</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">safety_settings</span></td>
+                    <td><span class="param-type">array</span></td>
+                    <td>See below</td>
+                    <td>Default safety</td>
+                    <td>Content safety filter settings</td>
+                </tr>
+            </table>
+
+            <h3>Safety Settings Structure</h3>
+            <pre><code>{
+  "safety_settings": [
+    {
+      "category": "HARM_CATEGORY_HARASSMENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_HATE_SPEECH",
+      "threshold": "BLOCK_ONLY_HIGH"
+    },
+    {
+      "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+  ]
+}</code></pre>
+
+            <h4>Safety Categories</h4>
+            <ul>
+                <li><code>HARM_CATEGORY_HARASSMENT</code></li>
+                <li><code>HARM_CATEGORY_HATE_SPEECH</code></li>
+                <li><code>HARM_CATEGORY_SEXUALLY_EXPLICIT</code></li>
+                <li><code>HARM_CATEGORY_DANGEROUS_CONTENT</code></li>
+            </ul>
+
+            <h4>Safety Thresholds</h4>
+            <ul>
+                <li><code>BLOCK_NONE</code> - No blocking</li>
+                <li><code>BLOCK_ONLY_HIGH</code> - Block only high probability harmful content</li>
+                <li><code>BLOCK_MEDIUM_AND_ABOVE</code> - Block medium and high (default)</li>
+                <li><code>BLOCK_LOW_AND_ABOVE</code> - Block low, medium and high</li>
+            </ul>
+
+            <h3>Gemini Example Request</h3>
+            <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Explain quantum computing in simple terms",
+  "parameters": {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 1024,
+    "stop_sequences": ["END", "STOP"],
+    "candidate_count": 1,
+    "safety_settings": [
+      {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+      }
+    ]
+  }
+}</code></pre>
+        </div>
+
+        <div class="provider-section">
+            <h2><span class="badge openai">OpenAI</span> Specific Parameters</h2>
+
+            <table class="param-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Range/Values</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="param-name">presence_penalty</span></td>
+                    <td><span class="param-type">float</span></td>
+                    <td>-2.0 to 2.0</td>
+                    <td>0</td>
+                    <td>Penalizes new tokens based on presence in text so far. Positive = encourage new topics</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">frequency_penalty</span></td>
+                    <td><span class="param-type">float</span></td>
+                    <td>-2.0 to 2.0</td>
+                    <td>0</td>
+                    <td>Penalizes tokens based on frequency. Positive = reduce repetition</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">n</span></td>
+                    <td><span class="param-type">integer</span></td>
+                    <td>1 - 10</td>
+                    <td>1</td>
+                    <td>Number of chat completion choices to generate</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">stop</span></td>
+                    <td><span class="param-type">array</span></td>
+                    <td>Max 4 sequences</td>
+                    <td>null</td>
+                    <td>Up to 4 sequences where API will stop generating</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">logit_bias</span></td>
+                    <td><span class="param-type">object</span></td>
+                    <td>Token ID: -100 to 100</td>
+                    <td>{}</td>
+                    <td>Modify likelihood of specified tokens appearing</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">user</span></td>
+                    <td><span class="param-type">string</span></td>
+                    <td>Max 255 chars</td>
+                    <td>null</td>
+                    <td>Unique identifier for end-user (for monitoring/abuse)</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">seed</span></td>
+                    <td><span class="param-type">integer</span></td>
+                    <td>Any integer</td>
+                    <td>null</td>
+                    <td>Deterministic sampling (GPT-4 Turbo+)</td>
+                </tr>
+                <tr>
+                    <td><span class="param-name">response_format</span></td>
+                    <td><span class="param-type">object</span></td>
+                    <td>See below</td>
+                    <td>null</td>
+                    <td>Force output format (GPT-4 Turbo, GPT-3.5 Turbo)</td>
+                </tr>
+            </table>
+
+            <h3>Response Format (JSON Mode)</h3>
+            <pre><code>{
+  "response_format": {
+    "type": "json_object"
+  }
+}</code></pre>
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong> When using JSON mode, you MUST include the word "JSON" in your prompt. Example: "Return the response in JSON format."
+            </div>
+
+            <h3>Logit Bias Example</h3>
+            <p>Increase likelihood of token 1234 by 50, decrease 5678 by 50:</p>
+            <pre><code>{
+  "logit_bias": {
+    "1234": 50,
+    "5678": -50
+  }
+}</code></pre>
+
+            <h3>OpenAI Example Request</h3>
+            <pre><code>{
+  "provider": "openai",
+  "model": "gpt-4-turbo-preview",
+  "prompt": "Write a function to calculate fibonacci numbers. Return as JSON.",
+  "parameters": {
+    "temperature": 0.5,
+    "top_p": 1.0,
+    "max_tokens": 1024,
+    "presence_penalty": 0.3,
+    "frequency_penalty": 0.3,
+    "n": 1,
+    "stop": ["END", "STOP"],
+    "user": "user-123",
+    "seed": 42,
+    "response_format": {
+      "type": "json_object"
+    }
+  }
+}</code></pre>
+        </div>
+
+        <h2>Parameter Combinations & Best Practices</h2>
+
+        <h3>1. Creative Writing (High Creativity)</h3>
+        <pre><code>{
+  "parameters": {
+    "temperature": 1.5,
+    "top_p": 0.9,
+    "top_k": 50,          // Gemini
+    "presence_penalty": 0.6  // OpenAI
+  }
+}</code></pre>
+
+        <h3>2. Factual/Technical (Low Creativity)</h3>
+        <pre><code>{
+  "parameters": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 20,          // Gemini
+    "frequency_penalty": 0.0  // OpenAI
+  }
+}</code></pre>
+
+        <h3>3. Code Generation (Deterministic)</h3>
+        <pre><code>{
+  "parameters": {
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "seed": 42,           // OpenAI
+    "max_tokens": 2048
+  }
+}</code></pre>
+
+        <h3>4. JSON Output (Structured Data)</h3>
+        <pre><code>{
+  "prompt": "Return user data as JSON with fields: name, age, email",
+  "parameters": {
+    "temperature": 0.5,
+    "response_format": {  // OpenAI only
+      "type": "json_object"
+    }
+  }
+}</code></pre>
+
+        <h2>Model-Specific Limits</h2>
+
+        <h3>Gemini Models</h3>
+        <table>
+            <tr>
+                <th>Model</th>
+                <th>Max Input</th>
+                <th>Max Output</th>
+                <th>Vision</th>
+            </tr>
+            <tr>
+                <td>gemini-1.5-pro</td>
+                <td>1,000,000 tokens</td>
+                <td>8,192 tokens</td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td>gemini-1.5-flash</td>
+                <td>1,000,000 tokens</td>
+                <td>8,192 tokens</td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td>gemini-pro-vision</td>
+                <td>30,720 tokens</td>
+                <td>2,048 tokens</td>
+                <td>✅ Yes</td>
+            </tr>
+        </table>
+
+        <h3>OpenAI Models</h3>
+        <table>
+            <tr>
+                <th>Model</th>
+                <th>Max Input</th>
+                <th>Max Output</th>
+                <th>Vision</th>
+                <th>JSON Mode</th>
+            </tr>
+            <tr>
+                <td>gpt-4-turbo-preview</td>
+                <td>128,000 tokens</td>
+                <td>4,096 tokens</td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td>gpt-4</td>
+                <td>8,192 tokens</td>
+                <td>8,192 tokens</td>
+                <td>❌ No</td>
+                <td>❌ No</td>
+            </tr>
+            <tr>
+                <td>gpt-3.5-turbo</td>
+                <td>16,385 tokens</td>
+                <td>4,096 tokens</td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+            </tr>
+            <tr>
+                <td>gpt-4-vision-preview</td>
+                <td>128,000 tokens</td>
+                <td>4,096 tokens</td>
+                <td>✅ Yes</td>
+                <td>❌ No</td>
+            </tr>
+        </table>
+
+        <h2>Error Handling</h2>
+
+        <h3>Invalid Parameter Value</h3>
+        <pre><code>{
+  "type": "https://api.siteaccess.ru/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "The given data was invalid.",
+  "errors": {
+    "parameters.temperature": [
+      "The parameters.temperature must be between 0 and 2."
+    ]
+  }
+}</code></pre>
+
+        <h3>Unsupported Parameter</h3>
+        <div class="warning-box">
+            <strong>⚠️ Note:</strong> If you send a parameter not supported by the model, it will be ignored (no error).
+        </div>
+
+        <h2>Tips & Recommendations</h2>
+
+        <div class="info-box">
+            <strong>💡 Best Practices:</strong><br><br>
+            <strong>1. Temperature:</strong> Start with 0.7, adjust based on use case<br>
+            • 0.0-0.3: Factual, deterministic<br>
+            • 0.4-0.9: Balanced<br>
+            • 1.0-2.0: Creative, experimental<br><br>
+            
+            <strong>2. top_p vs top_k:</strong><br>
+            • Use top_p for most cases (more stable)<br>
+            • Use top_k when you need strict control<br>
+            • Don't use both at max values simultaneously<br><br>
+            
+            <strong>3. Penalties (OpenAI):</strong><br>
+            • presence_penalty: Encourage topic diversity<br>
+            • frequency_penalty: Reduce repetition<br>
+            • Start with 0.0, increase gradually<br><br>
+            
+            <strong>4. max_tokens:</strong><br>
+            • Set based on expected response length<br>
+            • Higher values = more cost<br>
+            • Monitor usage in analytics<br><br>
+            
+            <strong>5. Safety Settings (Gemini):</strong><br>
+            • Default is usually appropriate<br>
+            • Adjust only if needed for your use case<br>
+            • More restrictive = fewer blocked responses
+        </div>
+
+        <div style="margin-top: 40px;">
+            <a href="/api/documentation">← Back to API Documentation</a> |
+            <a href="/multipart-guide.html">Multipart Guide</a> |
+            <a href="/streaming-guide.html">Streaming Guide →</a>
+        </div>
+    </div>
+</body>
+</html>

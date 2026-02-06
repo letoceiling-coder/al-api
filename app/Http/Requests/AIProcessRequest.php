@@ -35,13 +35,32 @@ class AIProcessRequest extends FormRequest
             'use_saved_key' => ['nullable', 'boolean'],
             'saved_key_id' => ['nullable', 'integer', 'exists:user_ai_keys,id'],
             
-            // Parameters
+            // Parameters (dynamic validation based on model)
             'parameters' => ['nullable', 'array'],
             'parameters.temperature' => ['nullable', 'numeric', 'between:0,2'],
             'parameters.max_tokens' => ['nullable', 'integer', 'min:1', 'max:1000000'],
+            'parameters.max_output_tokens' => ['nullable', 'integer', 'min:1'],
             'parameters.top_p' => ['nullable', 'numeric', 'between:0,1'],
-            'parameters.top_k' => ['nullable', 'integer', 'min:1'],
+            'parameters.top_k' => ['nullable', 'integer', 'min:1', 'max:100'],
             'parameters.stream' => ['nullable', 'boolean'],
+            
+            // Gemini-specific parameters
+            'parameters.stop_sequences' => ['nullable', 'array', 'max:5'],
+            'parameters.stop_sequences.*' => ['string', 'max:500'],
+            'parameters.candidate_count' => ['nullable', 'integer', 'min:1', 'max:8'],
+            'parameters.safety_settings' => ['nullable', 'array'],
+            
+            // OpenAI-specific parameters
+            'parameters.presence_penalty' => ['nullable', 'numeric', 'between:-2,2'],
+            'parameters.frequency_penalty' => ['nullable', 'numeric', 'between:-2,2'],
+            'parameters.n' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'parameters.stop' => ['nullable', 'array', 'max:4'],
+            'parameters.stop.*' => ['string', 'max:500'],
+            'parameters.logit_bias' => ['nullable', 'array'],
+            'parameters.user' => ['nullable', 'string', 'max:255'],
+            'parameters.seed' => ['nullable', 'integer'],
+            'parameters.response_format' => ['nullable', 'array'],
+            'parameters.response_format.type' => ['nullable', 'string', 'in:text,json_object'],
             
             // Metadata
             'metadata' => ['nullable', 'array'],
@@ -93,6 +112,13 @@ class AIProcessRequest extends FormRequest
             'files.max' => 'Maximum 10 files allowed per request',
             'parameters.temperature.between' => 'Temperature must be between 0 and 2',
             'parameters.max_tokens.max' => 'Max tokens cannot exceed 1,000,000',
+            'parameters.top_k.max' => 'Top K must not exceed 100',
+            'parameters.stop_sequences.max' => 'Maximum 5 stop sequences allowed',
+            'parameters.candidate_count.max' => 'Maximum 8 candidates allowed',
+            'parameters.presence_penalty.between' => 'Presence penalty must be between -2 and 2',
+            'parameters.frequency_penalty.between' => 'Frequency penalty must be between -2 and 2',
+            'parameters.n.max' => 'Maximum 10 completion choices allowed',
+            'parameters.stop.max' => 'Maximum 4 stop sequences allowed',
         ];
     }
 
