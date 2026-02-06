@@ -264,45 +264,59 @@ const ObjectDetail = () => {
                 />
               </section>
               
-              {/* План посёлка */}
-              <section id="plan" className="detail-section">
-                <div className="village-plan-section">
-                  <h2>План посёлка</h2>
-                  <div className="plan-placeholder">
-                    <p>План посёлка будет отображаться здесь</p>
+              {/* План посёлка - показываем только если есть данные */}
+              {(plansData?.length > 0 || unifiedData?.plan) && (
+                <section id="plan" className="detail-section">
+                  <div className="village-plan-section">
+                    <h2>План посёлка</h2>
+                    {unifiedData?.plan ? (
+                      <div className="village-plan-content">
+                        <img src={unifiedData.plan} alt="План посёлка" className="village-plan-image" />
+                      </div>
+                    ) : (
+                      <div className="plan-placeholder">
+                        <p>План посёлка будет отображаться здесь</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
               
-              {/* Об объекте */}
-              <section id="about" className="detail-section">
-                <div className="village-about-section">
-                  <h2>Об объекте</h2>
-                  <div className="village-about-content">
-                    <div className="village-advantages-list">
-                      {Array.isArray(advantagesData?.data) && advantagesData.data.map((advantage, index) => (
-                        <div key={index} className="advantage-card">
-                          {advantage.image && (
-                            <img
-                              src={advantage.image.url || advantage.image}
-                              alt={advantage.name || advantage.title}
-                              className="advantage-card-image"
-                            />
-                          )}
-                          <div className="advantage-card-text">
-                            {advantage.name || advantage.title || advantage.description}
-                          </div>
+              {/* Об объекте - показываем только если есть преимущества или описание */}
+              {((Array.isArray(advantagesData?.data) && advantagesData.data.length > 0) || unifiedData?.description || unifiedData?.about) && (
+                <section id="about" className="detail-section">
+                  <div className="village-about-section">
+                    <h2>Об объекте</h2>
+                    <div className="village-about-content">
+                      {Array.isArray(advantagesData?.data) && advantagesData.data.length > 0 && (
+                        <div className="village-advantages-list">
+                          {advantagesData.data.map((advantage, index) => (
+                            <div key={index} className="advantage-card">
+                              {advantage.image && (
+                                <img
+                                  src={advantage.image.url || advantage.image}
+                                  alt={advantage.name || advantage.title}
+                                  className="advantage-card-image"
+                                />
+                              )}
+                              <div className="advantage-card-text">
+                                {advantage.name || advantage.title || advantage.description}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <div className="village-description">
-                      <div dangerouslySetInnerHTML={{ __html: unifiedData?.description || unifiedData?.about || '' }} />
+                      )}
+                      {(unifiedData?.description || unifiedData?.about) && (
+                        <div className="village-description">
+                          <div dangerouslySetInnerHTML={{ __html: unifiedData?.description || unifiedData?.about || '' }} />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
               
-              {/* Ипотека */}
+              {/* Ипотека - всегда показываем */}
               <section id="mortgage" className="detail-section">
                 <div className="village-mortgage-section">
                   <h2>Ипотека</h2>
@@ -338,53 +352,71 @@ const ObjectDetail = () => {
             </section>
           )}
 
-          {/* Паркинги */}
-          <section id="parkings" className="detail-section">
-            <ObjectParkings parkingsData={parkingsData} />
-          </section>
+          {/* Паркинги - показываем только если есть данные */}
+          {objectType !== 'plots' && (parkingsData?.data?.length > 0 || parkingsData?.length > 0) && (
+            <section id="parkings" className="detail-section">
+              <ObjectParkings parkingsData={parkingsData} />
+            </section>
+          )}
 
-          {/* Коммерция */}
-          <section id="commerce" className="detail-section">
-            <ObjectCommerce commerceData={commerceData} />
-          </section>
+          {/* Коммерция - показываем только если есть данные */}
+          {objectType !== 'plots' && (commerceData?.data?.length > 0 || commerceData?.length > 0) && (
+            <section id="commerce" className="detail-section">
+              <ObjectCommerce commerceData={commerceData} />
+            </section>
+          )}
 
-          {/* Расположение */}
-          <section id="location" className="detail-section">
-            <ObjectLocation
-              address={unifiedData.address}
-              nearbyPlaces={nearbyPlacesData}
-            />
-          </section>
+          {/* Расположение - показываем только если есть адрес или nearby places */}
+          {(unifiedData?.address || (nearbyPlacesData?.data && nearbyPlacesData.data.length > 0)) && (
+            <section id="location" className="detail-section">
+              <ObjectLocation
+                address={unifiedData.address}
+                nearbyPlaces={nearbyPlacesData}
+              />
+            </section>
+          )}
 
-          {/* Описание */}
-          <section id="description" className="detail-section">
-            <ObjectDescription description={unifiedData.description || unifiedData.about} />
-          </section>
+          {/* Описание - показываем только для не-участков (для участков уже в секции "Об объекте") */}
+          {objectType !== 'plots' && (unifiedData?.description || unifiedData?.about) && (
+            <section id="description" className="detail-section">
+              <ObjectDescription description={unifiedData.description || unifiedData.about} />
+            </section>
+          )}
 
-          {/* Видео */}
-          <section id="videos" className="detail-section">
-            <ObjectVideos videos={videosData} />
-          </section>
+          {/* Видео - показываем только если есть данные */}
+          {(videosData?.data?.length > 0 || videosData?.length > 0) && (
+            <section id="videos" className="detail-section">
+              <ObjectVideos videos={videosData} />
+            </section>
+          )}
 
-          {/* Отделка */}
-          <section id="finishing" className="detail-section">
-            <ObjectFinishing finishings={finishingsData} />
-          </section>
+          {/* Отделка - показываем только если есть данные */}
+          {(finishingsData?.data?.length > 0 || finishingsData?.length > 0) && (
+            <section id="finishing" className="detail-section">
+              <ObjectFinishing finishings={finishingsData} />
+            </section>
+          )}
 
-          {/* Ход строительства */}
-          <section id="progress" className="detail-section">
-            <ObjectProgress progressData={progressData} />
-          </section>
+          {/* Ход строительства - показываем только если есть данные */}
+          {(progressData?.data?.length > 0 || progressData?.length > 0) && (
+            <section id="progress" className="detail-section">
+              <ObjectProgress progressData={progressData} />
+            </section>
+          )}
 
-          {/* Файлы */}
-          <section id="files" className="detail-section">
-            <ObjectFiles files={filesData} />
-          </section>
+          {/* Файлы - показываем только если есть данные */}
+          {(filesData?.data?.length > 0 || filesData?.length > 0) && (
+            <section id="files" className="detail-section">
+              <ObjectFiles files={filesData} />
+            </section>
+          )}
 
-          {/* Преимущества */}
-          <section id="advantages" className="detail-section">
-            <ObjectAdvantages advantages={advantagesData} />
-          </section>
+          {/* Преимущества - показываем только для не-участков (для участков уже в секции "Об объекте") */}
+          {objectType !== 'plots' && (advantagesData?.data?.length > 0 || advantagesData?.length > 0) && (
+            <section id="advantages" className="detail-section">
+              <ObjectAdvantages advantages={advantagesData} />
+            </section>
+          )}
         </div>
       </div>
     </div>

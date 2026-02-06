@@ -119,21 +119,31 @@ const VillageDetail = ({ unifiedData, advantagesData }) => {
               </div>
             )}
             
-            {/* Мини-паспорт */}
-            <div className="mini-passport__container">
-              <div className="mini-passport__top">
-                <VillageMiniPassport unifiedData={unifiedData} distance={unifiedData?.distance} />
+            {/* Мини-паспорт - показываем только если есть данные */}
+            {(unifiedData?.address || unifiedData?.distance) && (
+              <div className="mini-passport__container">
+                <div className="mini-passport__top">
+                  <VillageMiniPassport unifiedData={unifiedData} distance={unifiedData?.distance} />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Правая колонка */}
           <div className="page-layout__col page-layout__col--sm main-info__right">
-            <VillageReward rewardData={unifiedData?.reward} />
+            {/* Вознаграждения - показываем только если есть данные */}
+            {unifiedData?.reward && (
+              <VillageReward rewardData={unifiedData?.reward} />
+            )}
             
+            {/* Фиксация клиента - всегда показываем */}
             <div className="fixation-block__container">
               <div className="fixation-block__block fixation-block__block_container">
-                <div className="fixation-block__block fixation-block__block_icon"></div>
+                <div className="fixation-block__block fixation-block__block_icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#667eea"/>
+                  </svg>
+                </div>
                 <div className="fixation-block__block fixation-block__block_info">
                   <h6>Фиксация клиента</h6>
                   <p>Задайте уточняющие вопросы, запишитесь на встречу или зафиксируйте клиента</p>
@@ -146,7 +156,10 @@ const VillageDetail = ({ unifiedData, advantagesData }) => {
               </div>
             </div>
 
-            <VillagePassport unifiedData={unifiedData} />
+            {/* Паспорт объекта - показываем только если есть данные */}
+            {(unifiedData?.passport || unifiedData?.builder || unifiedData?.village_class) && (
+              <VillagePassport unifiedData={unifiedData} />
+            )}
           </div>
         </div>
         <div className="main-info__boundary"></div>
