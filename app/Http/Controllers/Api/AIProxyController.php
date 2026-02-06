@@ -22,7 +22,8 @@ class AIProxyController extends Controller
         protected GeminiService $geminiService,
         protected OpenAIService $openaiService,
         protected UsageTracker $usageTracker,
-        protected CostCalculator $costCalculator
+        protected CostCalculator $costCalculator,
+        protected \App\Services\Cache\AICacheService $cacheService
     ) {}
 
     /**
@@ -209,12 +210,55 @@ class AIProxyController extends Controller
         $requestId = Str::uuid()->toString();
 
         try {
-            // 1. Check rate limits
+            // 1. Check cache first
+            if ($this->cacheService->isEnabled()) {
+                $normalizedFiles = $request->getNormalizedFiles();
+                $cached = $this->cacheService->get(
+                    $request->provider,
+                    $request->model,
+                    $request->prompt,
+                    $request->parameters ?? [],
+                    $normalizedFiles
+                );
+
+                if ($cached) {
+                    // Return cached response with metadata
+                    $limits = UserLimit::getForUser($user->id);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'request_id' => $requestId,
+                        'data' => [
+                            'provider' => $request->provider,
+                            'model' => $request->model,
+                            'response' => [
+                                'text' => $cached['text'],
+                                'finish_reason' => $cached['finish_reason'] ?? 'stop',
+                            ],
+                        ],
+                        'usage' => $cached['usage'] ?? ['prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0],
+                        'metadata' => [
+                            'cached' => true,
+                            'cached_at' => $cached['cached_at'] ?? null,
+                            'processing_time' => 0,
+                            'timestamp' => now()->toIso8601String(),
+                            'api_key_source' => 'cache',
+                        ],
+                        'limits' => [
+                            'daily_requests_used' => $limits->today_requests,
+                            'daily_requests_limit' => $limits->daily_request_limit,
+                            'daily_requests_remaining' => $limits->remaining_requests,
+                        ],
+                    ])->header('X-Trace-ID', $requestId)->header('X-Cache', 'HIT');
+                }
+            }
+
+            // 2. Check rate limits
             if (config('ai.features.rate_limiting')) {
                 $this->checkRateLimits($user);
             }
 
-            // 2. Validate provider and model
+            // 3. Validate provider and model
             $this->keyResolver->validateProvider($request->provider);
             
             // 3. Resolve API key
@@ -271,11 +315,27 @@ class AIProxyController extends Controller
                 ]);
             }
 
-            // 8. Get user limits
+            // 8. Store in cache
+            if ($this->cacheService->isEnabled() && empty($normalizedFiles)) {
+                $this->cacheService->put(
+                    $request->provider,
+                    $request->model,
+                    $request->prompt,
+                    [
+                        'text' => $response['text'],
+                        'finish_reason' => $response['finish_reason'] ?? 'stop',
+                        'usage' => $response['usage'] ?? [],
+                    ],
+                    $request->parameters ?? [],
+                    $normalizedFiles
+                );
+            }
+
+            // 9. Get user limits
             $limits = UserLimit::getForUser($user->id);
             $limits->incrementTodayRequests();
 
-            // 9. Return response
+            // 10. Return response
             return response()->json([
                 'success' => true,
                 'request_id' => $requestId,
