@@ -7,11 +7,11 @@ const ErrorsGuide = () => {
   return (
     <div className="page">
       <div className="page-container">
-        <h1>⚠️ Error Handling (RFC 7807)</h1>
-        <p>Стандартизированная обработка ошибок API</p>
+        <h1>⚠️ {t('errors.title')}</h1>
+        <p>{t('errors.subtitle')}</p>
         
         <section>
-          <h2>Формат ошибки</h2>
+          <h2>{t('errors.errorFormat')}</h2>
           <pre className="code-block">
 {`{
   "type": "https://api.siteaccess.ru/errors/validation",
@@ -25,19 +25,19 @@ const ErrorsGuide = () => {
         </section>
 
         <section>
-          <h2>Типы ошибок</h2>
+          <h2>{t('errors.errorTypes')}</h2>
           <div className="error-types">
             <div className="error-type">
-              <strong>401</strong> - Unauthorized
+              <strong>401</strong> - {t('errors.unauthorized')}
             </div>
             <div className="error-type">
-              <strong>422</strong> - Validation Error
+              <strong>422</strong> - {t('errors.validationError')}
             </div>
             <div className="error-type">
-              <strong>429</strong> - Rate Limit Exceeded
+              <strong>429</strong> - {t('errors.rateLimitExceeded')}
             </div>
             <div className="error-type">
-              <strong>500</strong> - Server Error
+              <strong>500</strong> - {t('errors.serverError')}
             </div>
           </div>
         </section>

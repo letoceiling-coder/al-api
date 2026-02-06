@@ -19,33 +19,33 @@ const Home = () => {
           <div className="cards-grid">
             <Link to="/guide" className="card">
               <div className="card-icon">📖</div>
-              <h3>API Документация</h3>
-              <p>Полное описание всех endpoints, примеры запросов и ответов</p>
+              <h3>{t('home.cardApiDocs')}</h3>
+              <p>{t('home.cardApiDocsDesc')}</p>
             </Link>
             <Link to="/streaming" className="card">
               <div className="card-icon">📡</div>
-              <h3>Streaming</h3>
-              <p>Server-Sent Events для потоковой передачи ответов</p>
+              <h3>{t('home.cardStreaming')}</h3>
+              <p>{t('home.cardStreamingDesc')}</p>
             </Link>
             <Link to="/multipart" className="card">
               <div className="card-icon">📎</div>
-              <h3>Загрузка файлов</h3>
-              <p>Multipart/form-data для эффективной загрузки файлов</p>
+              <h3>{t('home.cardFileUpload')}</h3>
+              <p>{t('home.cardFileUploadDesc')}</p>
             </Link>
             <Link to="/parameters" className="card">
               <div className="card-icon">⚙️</div>
-              <h3>Параметры моделей</h3>
-              <p>Все параметры для Gemini и OpenAI моделей</p>
+              <h3>{t('home.cardParameters')}</h3>
+              <p>{t('home.cardParametersDesc')}</p>
             </Link>
             <Link to="/errors" className="card">
               <div className="card-icon">⚠️</div>
-              <h3>Обработка ошибок</h3>
-              <p>RFC 7807 стандарт для ошибок API</p>
+              <h3>{t('home.cardErrors')}</h3>
+              <p>{t('home.cardErrorsDesc')}</p>
             </Link>
             <Link to="/swagger" className="card">
               <div className="card-icon">📘</div>
-              <h3>Swagger UI</h3>
-              <p>Интерактивная документация API</p>
+              <h3>{t('home.cardSwagger')}</h3>
+              <p>{t('home.cardSwaggerDesc')}</p>
             </Link>
           </div>
         </div>
@@ -56,22 +56,22 @@ const Home = () => {
             <div className="step">
               <div className="step-number">1</div>
               <div className="step-content">
-                <h3>Получите токен</h3>
-                <p>Создайте аккаунт и получите Bearer token для доступа к API</p>
+                <h3>{t('home.step1Title')}</h3>
+                <p>{t('home.step1Desc')}</p>
               </div>
             </div>
             <div className="step">
               <div className="step-number">2</div>
               <div className="step-content">
-                <h3>Отправьте запрос</h3>
-                <p>Используйте POST /api/v1/ai/process для отправки запросов к AI</p>
+                <h3>{t('home.step2Title')}</h3>
+                <p>{t('home.step2Desc')}</p>
               </div>
             </div>
             <div className="step">
               <div className="step-number">3</div>
               <div className="step-content">
-                <h3>Получите ответ</h3>
-                <p>Получите структурированный ответ с метаданными и usage</p>
+                <h3>{t('home.step3Title')}</h3>
+                <p>{t('home.step3Desc')}</p>
               </div>
             </div>
           </div>
@@ -81,15 +81,15 @@ const Home = () => {
           <h2>🔗 {t('home.apiReference')}</h2>
           <div className="api-info">
             <div className="info-item">
-              <strong>Base URL:</strong>
+              <strong>{t('home.baseUrl')}:</strong>
               <code>https://api.siteaccess.ru/api</code>
             </div>
             <div className="info-item">
-              <strong>Version:</strong>
+              <strong>{t('home.version')}:</strong>
               <code>v1</code>
             </div>
             <div className="info-item">
-              <strong>Authentication:</strong>
+              <strong>{t('home.authentication')}:</strong>
               <code>Bearer Token (Sanctum)</code>
             </div>
           </div>

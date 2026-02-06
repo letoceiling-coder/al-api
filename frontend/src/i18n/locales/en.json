@@ -16,7 +16,8 @@
     "back": "Back",
     "next": "Next",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "testAPI": "Test API"
   },
   "home": {
     "title": "AL API Gateway",
@@ -24,14 +25,83 @@
     "description": "Single interface for working with AI models",
     "quickStart": "Quick Start",
     "documentation": "Documentation",
-    "apiReference": "API Reference"
+    "apiReference": "API Reference",
+    "cardApiDocs": "API Documentation",
+    "cardApiDocsDesc": "Complete description of all endpoints, request and response examples",
+    "cardStreaming": "Streaming",
+    "cardStreamingDesc": "Server-Sent Events for streaming AI responses",
+    "cardFileUpload": "File Upload",
+    "cardFileUploadDesc": "Multipart/form-data for efficient file uploads",
+    "cardParameters": "Model Parameters",
+    "cardParametersDesc": "All parameters for Gemini and OpenAI models",
+    "cardErrors": "Error Handling",
+    "cardErrorsDesc": "RFC 7807 standard for API errors",
+    "cardSwagger": "Swagger UI",
+    "cardSwaggerDesc": "Interactive API documentation",
+    "step1Title": "Get Your Token",
+    "step1Desc": "Create an account and get a Bearer token to access the API",
+    "step2Title": "Send a Request",
+    "step2Desc": "Use POST /api/v1/ai/process to send requests to AI",
+    "step3Title": "Get Response",
+    "step3Desc": "Get a structured response with metadata and usage",
+    "baseUrl": "Base URL",
+    "version": "Version",
+    "authentication": "Authentication"
   },
   "docs": {
     "title": "API Documentation",
     "baseUrl": "Base URL",
     "authentication": "Authentication",
+    "authDesc": "All endpoints require Bearer token:",
     "endpoints": "Endpoints",
     "examples": "Examples",
-    "models": "Models"
+    "models": "Models",
+    "healthCheck": "Health check",
+    "processAI": "Process AI request",
+    "streamAI": "Streaming AI response"
+  },
+  "streaming": {
+    "title": "Streaming Guide (SSE)",
+    "subtitle": "Server-Sent Events for streaming AI responses",
+    "endpoint": "Endpoint",
+    "usageExample": "Usage Example"
+  },
+  "multipart": {
+    "title": "Multipart File Upload",
+    "subtitle": "Efficient file upload via multipart/form-data",
+    "advantages": "Advantages",
+    "advantage1": "33% traffic savings compared to Base64",
+    "advantage2": "Support for large files (up to 100MB)",
+    "advantage3": "Automatic MIME type handling",
+    "example": "Example"
+  },
+  "parameters": {
+    "title": "Model Parameters",
+    "subtitle": "All parameters for configuring AI models",
+    "geminiParams": "Gemini Parameters",
+    "openaiParams": "OpenAI Parameters",
+    "temperature": "temperature",
+    "topP": "top_p",
+    "topK": "top_k",
+    "candidateCount": "candidate_count",
+    "maxTokens": "max_tokens",
+    "frequencyPenalty": "frequency_penalty",
+    "presencePenalty": "presence_penalty",
+    "default": "default",
+    "modelSpecific": "model specific"
+  },
+  "errors": {
+    "title": "Error Handling (RFC 7807)",
+    "subtitle": "Standardized API error handling",
+    "errorFormat": "Error Format",
+    "errorTypes": "Error Types",
+    "unauthorized": "Unauthorized",
+    "validationError": "Validation Error",
+    "rateLimitExceeded": "Rate Limit Exceeded",
+    "serverError": "Server Error"
+  },
+  "swagger": {
+    "title": "Swagger UI",
+    "redirecting": "Redirecting to Swagger UI..."
   }
 }

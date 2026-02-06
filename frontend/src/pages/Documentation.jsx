@@ -32,12 +32,12 @@ const Documentation = () => {
 
         <section className="doc-section">
           <h2>{t('docs.authentication')}</h2>
-          <p>Все endpoints требуют Bearer token:</p>
+          <p>{t('docs.authDesc')}</p>
           <code className="code-block">
             Authorization: Bearer YOUR_TOKEN
           </code>
           <button onClick={testAPI} className="test-btn" disabled={loading}>
-            {loading ? t('common.loading') : 'Test API'}
+            {loading ? t('common.loading') : t('common.testAPI')}
           </button>
           {testResult && (
             <div className={`test-result ${testResult.success ? 'success' : 'error'}`}>
@@ -52,17 +52,17 @@ const Documentation = () => {
             <div className="endpoint">
               <span className="method get">GET</span>
               <code>/api/v1/test</code>
-              <span>Health check</span>
+              <span>{t('docs.healthCheck')}</span>
             </div>
             <div className="endpoint">
               <span className="method post">POST</span>
               <code>/api/v1/ai/process</code>
-              <span>Process AI request</span>
+              <span>{t('docs.processAI')}</span>
             </div>
             <div className="endpoint">
               <span className="method post">POST</span>
               <code>/api/v1/ai/stream</code>
-              <span>Streaming AI response</span>
+              <span>{t('docs.streamAI')}</span>
             </div>
           </div>
         </section>

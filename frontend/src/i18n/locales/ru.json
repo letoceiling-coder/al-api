@@ -16,7 +16,8 @@
     "back": "Назад",
     "next": "Далее",
     "save": "Сохранить",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "testAPI": "Тест API"
   },
   "home": {
     "title": "AL API Gateway",
@@ -24,14 +25,83 @@
     "description": "Единый интерфейс для работы с AI моделями",
     "quickStart": "Быстрый старт",
     "documentation": "Документация",
-    "apiReference": "API Reference"
+    "apiReference": "API Reference",
+    "cardApiDocs": "API Документация",
+    "cardApiDocsDesc": "Полное описание всех endpoints, примеры запросов и ответов",
+    "cardStreaming": "Streaming",
+    "cardStreamingDesc": "Server-Sent Events для потоковой передачи ответов",
+    "cardFileUpload": "Загрузка файлов",
+    "cardFileUploadDesc": "Multipart/form-data для эффективной загрузки файлов",
+    "cardParameters": "Параметры моделей",
+    "cardParametersDesc": "Все параметры для Gemini и OpenAI моделей",
+    "cardErrors": "Обработка ошибок",
+    "cardErrorsDesc": "RFC 7807 стандарт для ошибок API",
+    "cardSwagger": "Swagger UI",
+    "cardSwaggerDesc": "Интерактивная документация API",
+    "step1Title": "Получите токен",
+    "step1Desc": "Создайте аккаунт и получите Bearer token для доступа к API",
+    "step2Title": "Отправьте запрос",
+    "step2Desc": "Используйте POST /api/v1/ai/process для отправки запросов к AI",
+    "step3Title": "Получите ответ",
+    "step3Desc": "Получите структурированный ответ с метаданными и usage",
+    "baseUrl": "Base URL",
+    "version": "Version",
+    "authentication": "Authentication"
   },
   "docs": {
     "title": "API Документация",
     "baseUrl": "Base URL",
     "authentication": "Аутентификация",
+    "authDesc": "Все endpoints требуют Bearer token:",
     "endpoints": "Endpoints",
     "examples": "Примеры",
-    "models": "Модели"
+    "models": "Модели",
+    "healthCheck": "Health check",
+    "processAI": "Process AI request",
+    "streamAI": "Streaming AI response"
+  },
+  "streaming": {
+    "title": "Streaming Guide (SSE)",
+    "subtitle": "Server-Sent Events для потоковой передачи ответов AI",
+    "endpoint": "Endpoint",
+    "usageExample": "Пример использования"
+  },
+  "multipart": {
+    "title": "Multipart File Upload",
+    "subtitle": "Эффективная загрузка файлов через multipart/form-data",
+    "advantages": "Преимущества",
+    "advantage1": "33% экономия трафика по сравнению с Base64",
+    "advantage2": "Поддержка больших файлов (до 100MB)",
+    "advantage3": "Автоматическая обработка MIME типов",
+    "example": "Пример"
+  },
+  "parameters": {
+    "title": "Model Parameters",
+    "subtitle": "Все параметры для настройки AI моделей",
+    "geminiParams": "Gemini Parameters",
+    "openaiParams": "OpenAI Parameters",
+    "temperature": "temperature",
+    "topP": "top_p",
+    "topK": "top_k",
+    "candidateCount": "candidate_count",
+    "maxTokens": "max_tokens",
+    "frequencyPenalty": "frequency_penalty",
+    "presencePenalty": "presence_penalty",
+    "default": "по умолчанию",
+    "modelSpecific": "зависит от модели"
+  },
+  "errors": {
+    "title": "Error Handling (RFC 7807)",
+    "subtitle": "Стандартизированная обработка ошибок API",
+    "errorFormat": "Формат ошибки",
+    "errorTypes": "Типы ошибок",
+    "unauthorized": "Unauthorized",
+    "validationError": "Validation Error",
+    "rateLimitExceeded": "Rate Limit Exceeded",
+    "serverError": "Server Error"
+  },
+  "swagger": {
+    "title": "Swagger UI",
+    "redirecting": "Перенаправление на Swagger UI..."
   }
 }

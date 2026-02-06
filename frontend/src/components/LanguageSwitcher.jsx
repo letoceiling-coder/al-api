@@ -10,7 +10,7 @@ const LanguageSwitcher = () => {
   }
 
   return (
-    <div className="language-switcher">
+    <div id="lang-switcher" className="language-switcher">
       <button
         className={`lang-btn ${currentLang === 'ru' ? 'active' : ''}`}
         onClick={() => switchLanguage('ru')}

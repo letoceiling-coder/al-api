@@ -7,20 +7,20 @@ const MultipartGuide = () => {
   return (
     <div className="page">
       <div className="page-container">
-        <h1>📎 Multipart File Upload</h1>
-        <p>Эффективная загрузка файлов через multipart/form-data</p>
+        <h1>📎 {t('multipart.title')}</h1>
+        <p>{t('multipart.subtitle')}</p>
         
         <section>
-          <h2>Преимущества</h2>
+          <h2>{t('multipart.advantages')}</h2>
           <ul>
-            <li>33% экономия трафика по сравнению с Base64</li>
-            <li>Поддержка больших файлов (до 100MB)</li>
-            <li>Автоматическая обработка MIME типов</li>
+            <li>{t('multipart.advantage1')}</li>
+            <li>{t('multipart.advantage2')}</li>
+            <li>{t('multipart.advantage3')}</li>
           </ul>
         </section>
 
         <section>
-          <h2>Пример</h2>
+          <h2>{t('multipart.example')}</h2>
           <pre className="code-block">
 {`const formData = new FormData();
 formData.append('provider', 'gemini');
