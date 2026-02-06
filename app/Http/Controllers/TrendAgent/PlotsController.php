@@ -108,7 +108,9 @@ class PlotsController
             }
 
             // Получаем данные через API
-            $apiData = $apiAuth->getPlotsSearch($apiParams);
+            // Для участков используем getVillagesSearch (как в старом проекте)
+            // Это endpoint /v1/search/villages, который возвращает поселки с участками
+            $apiData = $apiAuth->getVillagesSearch($apiParams);
 
             if (!($apiData['success'] ?? false)) {
                 throw new \Exception('Ошибка при получении данных из API');
