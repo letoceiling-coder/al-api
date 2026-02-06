@@ -1,5 +1,96 @@
+.village-plots-section {
+  padding: 2rem 0;
+}
+
+.village-plots-section .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.toggled-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.toggled-title__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.village-plots-section__filter {
+  margin-bottom: 2rem;
+}
+
+.villagePlots-filter {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.filters-main-form {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters-search {
+  flex: 1;
+  min-width: 300px;
+}
+
+.field-wrapper {
+  position: relative;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.field__icon {
+  padding: 0 0.5rem;
+  color: #6b7280;
+}
+
+.text-field__element {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.village-plots-section__section {
+  margin-top: 2rem;
+}
+
+.village-plots-section__plots-header {
+  margin-bottom: 1.5rem;
+}
+
+.village-plots-section__plots-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.village-plots-section__accordions-container {
+  width: 100%;
+}
+
 .object-plots {
   padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
 }
 
 .object-plots h2 {

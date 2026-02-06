@@ -9,23 +9,26 @@ const VillagePassport = ({ unifiedData }) => {
     // Извлекаем данные из unified или из других источников
     const data = unifiedData || {}
     
+    // Проверяем, есть ли вложенный объект passport
+    const passport = data.passport || {}
+    
     return {
-      builder: data.builder?.name || data.builder || null,
-      villageClass: data.village_class || data.class || null,
-      unifiedStyle: data.unified_style || data.architectural_style || null,
-      landPurpose: data.land_purpose || data.purpose || null,
-      waterSupply: data.water_supply || null,
-      sewerage: data.sewerage || null,
-      gasSupply: data.gas_supply || null,
-      electricity: data.electricity || null,
-      powerKw: data.power_kw || data.power || null,
-      managementCompany: data.management_company || null,
-      registration: data.registration || data.permanent_registration || null,
-      fiberInternet: data.fiber_internet || null,
-      road: data.road || data.road_type || null,
-      payment: data.payment || data.payment_types || null,
-      contract: data.contract || data.contract_type || null,
-      escrow: data.escrow || null,
+      builder: data.builder?.name || data.builder || passport.builder?.name || passport.builder || null,
+      villageClass: data.village_class || data.class || passport.village_class || passport.class || null,
+      unifiedStyle: data.unified_style || data.architectural_style || passport.unified_style || passport.architectural_style || null,
+      landPurpose: data.land_purpose || data.purpose || passport.land_purpose || passport.purpose || null,
+      waterSupply: data.water_supply || passport.water_supply || null,
+      sewerage: data.sewerage || passport.sewerage || null,
+      gasSupply: data.gas_supply || passport.gas_supply || null,
+      electricity: data.electricity || passport.electricity || null,
+      powerKw: data.power_kw || data.power || passport.power_kw || passport.power || null,
+      managementCompany: data.management_company || passport.management_company || null,
+      registration: data.registration || data.permanent_registration || passport.registration || passport.permanent_registration || null,
+      fiberInternet: data.fiber_internet || passport.fiber_internet || null,
+      road: data.road || data.road_type || passport.road || passport.road_type || null,
+      payment: data.payment || data.payment_types || passport.payment || passport.payment_types || null,
+      contract: data.contract || data.contract_type || passport.contract || passport.contract_type || null,
+      escrow: data.escrow || passport.escrow || null,
     }
   }
 

@@ -268,10 +268,22 @@ class PlotsController
                 // Получаем дополнительные данные через getBlockFullData (buildings, progress, etc.)
                 try {
                     $fullData = $apiAuth->getBlockFullData($villageId, $options);
-                    // Заменяем unified данные на данные из списка поселков
+                    
+                    // Объединяем данные из списка поселков с unified данными
+                    $unifiedDataFromApi = $fullData['data']['unified']['data'] ?? [];
+                    
+                    // Если в unified есть passport, используем его
+                    if (isset($unifiedDataFromApi['passport']) && is_array($unifiedDataFromApi['passport'])) {
+                        $villageData = array_merge($villageData, $unifiedDataFromApi['passport']);
+                    }
+                    
+                    // Объединяем все данные
+                    $mergedUnifiedData = array_merge($unifiedDataFromApi, $villageData);
+                    
+                    // Заменяем unified данные на объединенные данные
                     $fullData['data']['unified'] = [
                         'success' => true,
-                        'data' => $villageData,
+                        'data' => $mergedUnifiedData,
                     ];
                 } catch (\Exception $e) {
                     Log::warning('Ошибка получения дополнительных данных блока', [
