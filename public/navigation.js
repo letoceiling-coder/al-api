@@ -5,6 +5,7 @@
 const navigation = {
   ru: [
     { name: 'Главная', url: '/', icon: '🏠' },
+    { name: 'Документация', url: '/guide', icon: '📖' },
     { name: 'Streaming', url: '/streaming-guide.html', icon: '📡' },
     { name: 'Загрузка файлов', url: '/multipart-guide.html', icon: '📎' },
     { name: 'Параметры', url: '/model-parameters-guide.html', icon: '⚙️' },
@@ -13,6 +14,7 @@ const navigation = {
   ],
   en: [
     { name: 'Home', url: '/', icon: '🏠' },
+    { name: 'Documentation', url: '/guide', icon: '📖' },
     { name: 'Streaming', url: '/streaming-guide.html', icon: '📡' },
     { name: 'File Upload', url: '/multipart-guide.html', icon: '📎' },
     { name: 'Parameters', url: '/model-parameters-guide.html', icon: '⚙️' },
