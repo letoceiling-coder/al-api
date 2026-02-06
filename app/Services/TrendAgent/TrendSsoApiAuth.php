@@ -2916,11 +2916,10 @@ class TrendSsoApiAuth
 
             // Для поселков (villages) используем другой endpoint
             // Проверяем, является ли это GUID поселка (обычно это строки типа "lebyazhe")
-            // Для поселков может использоваться house-api вместо api.trendagent.ru
             $isGuid = !preg_match('/^[a-f0-9]{24}$/i', $guid);
             
-            // Пока используем стандартный endpoint для всех типов
-            // В будущем может потребоваться отдельный endpoint для поселков
+            // Для поселков используем стандартный endpoint api.trendagent.ru
+            // Он должен работать и для поселков, так как они тоже являются блоками
             $apiUrl = 'https://api.trendagent.ru/v4_29/blocks/search/id/';
             $fullUrl = $apiUrl . '?' . http_build_query(array_merge($queryParams, ['guid' => $guid]));
             
@@ -2928,7 +2927,6 @@ class TrendSsoApiAuth
                 'guid' => $guid,
                 'url' => $fullUrl,
                 'is_guid_format' => $isGuid,
-                'is_village_guid' => $isGuid && !preg_match('/^[a-f0-9]{24}$/i', $guid),
             ]);
 
             $response = $this->client->get($fullUrl, [
