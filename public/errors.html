@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API Gateway - Error Reference</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6; 
+            color: #333; 
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        h3 { color: #34495e; margin: 30px 0 15px; }
+        .subtitle { color: #7f8c8d; font-size: 1.1em; margin-bottom: 30px; }
+        .error-card {
+            background: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .error-card h4 { color: #e74c3c; margin-bottom: 10px; font-size: 1.2em; }
+        .error-code { 
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .spec-badge { 
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        .back-link { margin-top: 40px; }
+        .back-link a { color: #3498db; text-decoration: none; font-weight: bold; }
+        .back-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AL API Gateway - Error Reference</h1>
+        <p class="subtitle">RFC 7807 Problem Details for HTTP APIs <span class="spec-badge">RFC 7807</span></p>
+
+        <h2>Overview</h2>
+        <p>
+            AL API Gateway follows <strong>RFC 7807 Problem Details for HTTP APIs</strong> standard for all error responses.
+            This provides a consistent, machine-readable format for error handling across all endpoints.
+        </p>
+
+        <h3>Error Response Format</h3>
+        <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/error-type",
+  "title": "Human-readable error title",
+  "status": 400,
+  "detail": "Detailed explanation of the error",
+  "instance": "/api/v1/endpoint",
+  "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2026-02-06T16:00:00Z"
+}</code></pre>
+
+        <h3>Response Headers</h3>
+        <table>
+            <tr>
+                <th>Header</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+            <tr>
+                <td><code>Content-Type</code></td>
+                <td>Always <code>application/problem+json</code></td>
+                <td><code>application/problem+json</code></td>
+            </tr>
+            <tr>
+                <td><code>X-Trace-ID</code></td>
+                <td>Unique identifier for request tracing</td>
+                <td><code>550e8400-e29b-...</code></td>
+            </tr>
+            <tr>
+                <td><code>X-API-Version</code></td>
+                <td>API version used for the request</td>
+                <td><code>v1</code></td>
+            </tr>
+            <tr>
+                <td><code>Retry-After</code></td>
+                <td>Seconds to wait before retry (429 only)</td>
+                <td><code>60</code></td>
+            </tr>
+        </table>
+
+        <h2>Error Types</h2>
+
+        <!-- 401 Errors -->
+        <div class="error-card">
+            <h4><span class="error-code">401</span> Authentication Required</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/authentication-required</code></p>
+            <p><strong>When:</strong> Missing or invalid bearer token</p>
+            <p><strong>Solution:</strong> Include valid bearer token in Authorization header</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/authentication-required",
+  "title": "Authentication Required",
+  "status": 401,
+  "detail": "Unauthenticated. Please provide a valid bearer token.",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z"
+}</code></pre>
+        </div>
+
+        <div class="error-card">
+            <h4><span class="error-code">401</span> Invalid API Key</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/invalid-api-key</code></p>
+            <p><strong>When:</strong> Provided AI provider API key is invalid</p>
+            <p><strong>Solution:</strong> Check your Gemini/OpenAI API key</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/invalid-api-key",
+  "title": "Invalid API Key",
+  "status": 401,
+  "detail": "The provided Gemini API key is invalid or expired",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z",
+  "provider": "gemini"
+}</code></pre>
+        </div>
+
+        <!-- 404 Error -->
+        <div class="error-card">
+            <h4><span class="error-code">404</span> Not Found</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/not-found</code></p>
+            <p><strong>When:</strong> Requested resource doesn't exist</p>
+            <p><strong>Solution:</strong> Check the endpoint URL</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "The requested resource was not found.",
+  "instance": "/api/v1/user/keys/999",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z"
+}</code></pre>
+        </div>
+
+        <!-- 422 Error -->
+        <div class="error-card">
+            <h4><span class="error-code">422</span> Validation Error</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/validation-error</code></p>
+            <p><strong>When:</strong> Request data fails validation</p>
+            <p><strong>Solution:</strong> Fix validation errors in request</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/validation-error",
+  "title": "Validation Error",
+  "status": 422,
+  "detail": "The given data was invalid.",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z",
+  "errors": {
+    "provider": ["The provider field is required."],
+    "model": ["The model field is required."],
+    "prompt": ["The prompt field must be at least 1 character."]
+  }
+}</code></pre>
+        </div>
+
+        <!-- 429 Error -->
+        <div class="error-card">
+            <h4><span class="error-code">429</span> Rate Limit Exceeded</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/rate-limit-exceeded</code></p>
+            <p><strong>When:</strong> Too many requests from user</p>
+            <p><strong>Solution:</strong> Wait for the specified retry_after period</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/rate-limit-exceeded",
+  "title": "Rate Limit Exceeded",
+  "status": 429,
+  "detail": "Daily request limit of 100 exceeded. Resets tomorrow.",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z",
+  "retry_after": 86400
+}</code></pre>
+            <p><strong>Response Headers:</strong> <code>Retry-After: 86400</code></p>
+        </div>
+
+        <!-- 500 Error -->
+        <div class="error-card">
+            <h4><span class="error-code">500</span> Internal Server Error</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/internal-error</code></p>
+            <p><strong>When:</strong> Unexpected server error</p>
+            <p><strong>Solution:</strong> Contact support with trace_id</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/internal-error",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z"
+}</code></pre>
+        </div>
+
+        <!-- 502 Error -->
+        <div class="error-card">
+            <h4><span class="error-code">502</span> AI Provider Error</h4>
+            <p><strong>Type:</strong> <code>/docs/errors/ai-provider-error</code></p>
+            <p><strong>When:</strong> AI provider (Gemini/OpenAI) returns error</p>
+            <p><strong>Solution:</strong> Check provider status, retry later</p>
+            <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/ai-provider-error",
+  "title": "AI Provider Error",
+  "status": 502,
+  "detail": "Gemini API returned an error: Invalid request",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z",
+  "provider": "gemini"
+}</code></pre>
+        </div>
+
+        <h2>Using trace_id for Debugging</h2>
+        <p>
+            Every error response includes a <code>trace_id</code> field. This unique identifier can be used to:
+        </p>
+        <ul>
+            <li>Track requests across multiple services</li>
+            <li>Correlate logs for debugging</li>
+            <li>Report issues to support</li>
+        </ul>
+        <p>You can also provide your own trace_id by sending it in the request header:</p>
+        <pre><code>X-Trace-ID: your-custom-trace-id-12345</code></pre>
+
+        <h2>Debug Mode</h2>
+        <p>
+            In development/debug mode (<code>APP_DEBUG=true</code>), error responses include additional debug information:
+        </p>
+        <pre><code>{
+  "type": "https://api.siteaccess.ru/docs/errors/internal-error",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "Call to undefined method...",
+  "instance": "/api/v1/ai/process",
+  "trace_id": "550e8400-...",
+  "timestamp": "2026-02-06T16:00:00Z",
+  "debug": {
+    "exception": "ErrorException",
+    "file": "/var/www/AL/app/Services/AI/GeminiService.php",
+    "line": 45,
+    "trace": [...]
+  }
+}</code></pre>
+        <p><strong>Warning:</strong> Debug mode should be disabled in production!</p>
+
+        <h2>Best Practices</h2>
+        <ul>
+            <li><strong>Always check status codes</strong> before parsing response</li>
+            <li><strong>Log trace_id</strong> for all errors for easier debugging</li>
+            <li><strong>Handle validation errors</strong> gracefully with user-friendly messages</li>
+            <li><strong>Implement retry logic</strong> for 429 (rate limit) and 502 (provider errors)</li>
+            <li><strong>Use Retry-After header</strong> value for exponential backoff</li>
+        </ul>
+
+        <div class="back-link">
+            <a href="/api/documentation">← Back to API Documentation</a> |
+            <a href="/">← Back to Main Documentation</a>
+        </div>
+    </div>
+</body>
+</html>

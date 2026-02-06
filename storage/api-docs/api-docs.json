@@ -127,6 +127,50 @@
             }
         },
         "schemas": {
+            "RFC7807Error": {
+                "type": "object",
+                "required": ["type", "title", "status"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URI reference that identifies the problem type",
+                        "example": "https://api.siteaccess.ru/docs/errors/validation-error"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "A short, human-readable summary of the problem type",
+                        "example": "Validation Error"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "description": "The HTTP status code",
+                        "example": 422
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "A human-readable explanation specific to this occurrence",
+                        "example": "The given data was invalid."
+                    },
+                    "instance": {
+                        "type": "string",
+                        "description": "A URI reference that identifies the specific occurrence",
+                        "example": "/api/v1/ai/process"
+                    },
+                    "trace_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Unique identifier for request tracing and debugging",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the error occurred",
+                        "example": "2026-02-06T16:00:00Z"
+                    }
+                }
+            },
             "AIProcessRequest": {
                 "type": "object",
                 "required": ["provider", "model", "prompt"],
@@ -316,98 +360,176 @@
         },
         "responses": {
             "Unauthorized": {
-                "description": "Unauthorized - Invalid or missing bearer token",
+                "description": "Unauthorized - Invalid or missing bearer token (RFC 7807)",
                 "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "example": "Unauthenticated."
-                                }
-                            }
+                    "application/problem+json": {
+                        "schema": {"$ref": "#/components/schemas/RFC7807Error"},
+                        "example": {
+                            "type": "https://api.siteaccess.ru/docs/errors/authentication-required",
+                            "title": "Authentication Required",
+                            "status": 401,
+                            "detail": "Unauthenticated. Please provide a valid bearer token.",
+                            "instance": "/api/v1/ai/process",
+                            "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+                            "timestamp": "2026-02-06T16:00:00Z"
                         }
+                    }
+                },
+                "headers": {
+                    "X-Trace-ID": {
+                        "schema": {"type": "string", "format": "uuid"},
+                        "description": "Unique trace ID for debugging"
+                    },
+                    "X-API-Version": {
+                        "schema": {"type": "string"},
+                        "description": "API version"
                     }
                 }
             },
             "ValidationError": {
-                "description": "Validation Error",
+                "description": "Validation Error (RFC 7807)",
                 "content": {
-                    "application/json": {
+                    "application/problem+json": {
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "example": "The provider field is required."
-                                },
-                                "errors": {
-                                    "type": "object",
-                                    "additionalProperties": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    },
-                                    "example": {
-                                        "provider": ["The provider field is required."]
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "RateLimitExceeded": {
-                "description": "Rate Limit Exceeded",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "success": {"type": "boolean", "example": false},
-                                "error": {
+                            "allOf": [
+                                {"$ref": "#/components/schemas/RFC7807Error"},
+                                {
                                     "type": "object",
                                     "properties": {
-                                        "type": {
-                                            "type": "string",
-                                            "example": "RateLimitExceededException"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Daily request limit of 100 exceeded. Resets tomorrow."
+                                        "errors": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {"type": "string"}
+                                            }
                                         }
                                     }
                                 }
+                            ]
+                        },
+                        "example": {
+                            "type": "https://api.siteaccess.ru/docs/errors/validation-error",
+                            "title": "Validation Error",
+                            "status": 422,
+                            "detail": "The given data was invalid.",
+                            "instance": "/api/v1/ai/process",
+                            "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+                            "timestamp": "2026-02-06T16:00:00Z",
+                            "errors": {
+                                "provider": ["The provider field is required."],
+                                "model": ["The model field is required."]
                             }
                         }
+                    }
+                },
+                "headers": {
+                    "X-Trace-ID": {"schema": {"type": "string", "format": "uuid"}},
+                    "X-API-Version": {"schema": {"type": "string"}}
+                }
+            },
+            "RateLimitExceeded": {
+                "description": "Rate Limit Exceeded (RFC 7807)",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "allOf": [
+                                {"$ref": "#/components/schemas/RFC7807Error"},
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "retry_after": {"type": "integer"}
+                                    }
+                                }
+                            ]
+                        },
+                        "example": {
+                            "type": "https://api.siteaccess.ru/docs/errors/rate-limit-exceeded",
+                            "title": "Rate Limit Exceeded",
+                            "status": 429,
+                            "detail": "Daily request limit of 100 exceeded. Resets tomorrow.",
+                            "instance": "/api/v1/ai/process",
+                            "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+                            "timestamp": "2026-02-06T16:00:00Z",
+                            "retry_after": 86400
+                        }
+                    }
+                },
+                "headers": {
+                    "X-Trace-ID": {"schema": {"type": "string", "format": "uuid"}},
+                    "X-API-Version": {"schema": {"type": "string"}},
+                    "Retry-After": {
+                        "schema": {"type": "integer"},
+                        "description": "Seconds to wait before retry"
                     }
                 }
             },
             "ServerError": {
-                "description": "Server Error",
+                "description": "Server Error (RFC 7807)",
                 "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "success": {"type": "boolean", "example": false},
-                                "request_id": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                },
-                                "error": {
-                                    "type": "object",
-                                    "properties": {
-                                        "type": {"type": "string", "example": "AIProviderException"},
-                                        "message": {"type": "string", "example": "AI provider error"}
-                                    }
-                                }
-                            }
+                    "application/problem+json": {
+                        "schema": {"$ref": "#/components/schemas/RFC7807Error"},
+                        "example": {
+                            "type": "https://api.siteaccess.ru/docs/errors/internal-error",
+                            "title": "Internal Server Error",
+                            "status": 500,
+                            "detail": "An unexpected error occurred",
+                            "instance": "/api/v1/ai/process",
+                            "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+                            "timestamp": "2026-02-06T16:00:00Z"
                         }
+                    }
+                },
+                "headers": {
+                    "X-Trace-ID": {"schema": {"type": "string", "format": "uuid"}},
+                    "X-API-Version": {"schema": {"type": "string"}}
+                }
+            }
+        },
+        "schemas": {
+            "RFC7807Error": {
+                "type": "object",
+                "required": ["type", "title", "status"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URI reference that identifies the problem type",
+                        "example": "https://api.siteaccess.ru/docs/errors/validation-error"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "A short, human-readable summary of the problem type",
+                        "example": "Validation Error"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "description": "The HTTP status code",
+                        "example": 422
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "A human-readable explanation specific to this occurrence",
+                        "example": "The given data was invalid."
+                    },
+                    "instance": {
+                        "type": "string",
+                        "description": "A URI reference that identifies the specific occurrence",
+                        "example": "/api/v1/ai/process"
+                    },
+                    "trace_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Unique identifier for request tracing and debugging",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the error occurred",
+                        "example": "2026-02-06T16:00:00Z"
                     }
                 }
             }
-        }
     },
     "tags": [
         {
