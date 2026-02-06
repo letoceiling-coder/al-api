@@ -9,16 +9,6 @@ export default defineConfig({
     outDir: '../public',
     emptyOutDir: false,
     sourcemap: false,
-    rollupOptions: {
-      input: {
-        main: './index.html',
-      },
-      output: {
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
-      },
-    },
   },
   server: {
     port: 3000,
