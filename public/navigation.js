@@ -6,19 +6,19 @@ const navigation = {
   ru: [
     { name: 'Главная', url: '/', icon: '🏠' },
     { name: 'Документация', url: '/guide', icon: '📖' },
-    { name: 'Streaming', url: '/streaming-guide.html', icon: '📡' },
-    { name: 'Загрузка файлов', url: '/multipart-guide.html', icon: '📎' },
-    { name: 'Параметры', url: '/model-parameters-guide.html', icon: '⚙️' },
-    { name: 'Ошибки', url: '/errors.html', icon: '⚠️' },
+    { name: 'Streaming', url: '/streaming', icon: '📡' },
+    { name: 'Загрузка файлов', url: '/multipart', icon: '📎' },
+    { name: 'Параметры', url: '/parameters', icon: '⚙️' },
+    { name: 'Ошибки', url: '/errors', icon: '⚠️' },
     { name: 'Swagger', url: '/api/documentation', icon: '📘' },
   ],
   en: [
     { name: 'Home', url: '/', icon: '🏠' },
     { name: 'Documentation', url: '/guide', icon: '📖' },
-    { name: 'Streaming', url: '/streaming-guide.html', icon: '📡' },
-    { name: 'File Upload', url: '/multipart-guide.html', icon: '📎' },
-    { name: 'Parameters', url: '/model-parameters-guide.html', icon: '⚙️' },
-    { name: 'Errors', url: '/errors.html', icon: '⚠️' },
+    { name: 'Streaming', url: '/streaming', icon: '📡' },
+    { name: 'File Upload', url: '/multipart', icon: '📎' },
+    { name: 'Parameters', url: '/parameters', icon: '⚙️' },
+    { name: 'Errors', url: '/errors', icon: '⚠️' },
     { name: 'Swagger', url: '/api/documentation', icon: '📘' },
   ]
 };
