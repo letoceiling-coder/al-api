@@ -3,7 +3,8 @@ import './ObjectCard.css'
 
 const ObjectCard = ({ object, objectType, onClick }) => {
   const getObjectId = () => {
-    return object._id || object.id || object.guid
+    // Приоритет: _id, затем id, но не guid (guid используется отдельно)
+    return object._id || object.id || null
   }
 
   const getObjectGuid = () => {
@@ -125,7 +126,10 @@ const ObjectCard = ({ object, objectType, onClick }) => {
 
   const objectId = getObjectId()
   const objectGuid = getObjectGuid()
-  const linkTo = `/${objectType}/${objectId}${objectGuid ? `?guid=${objectGuid}` : ''}`
+  // Формируем URL: если есть ID, используем его, иначе используем GUID
+  // Если есть и ID и GUID, используем ID в пути, а GUID в query параметрах
+  const identifier = objectId || objectGuid
+  const linkTo = identifier ? `/${objectType}/${identifier}${objectId && objectGuid ? `?guid=${objectGuid}` : ''}` : '#'
 
   return (
     <Link to={linkTo} className="object-card" onClick={onClick}>

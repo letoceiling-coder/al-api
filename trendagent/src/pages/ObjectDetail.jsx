@@ -68,7 +68,11 @@ const ObjectDetail = () => {
       }
 
       let response
-      const objectId = guid || id
+      // Определяем, какой идентификатор использовать
+      // Приоритет: если id является валидным MongoDB ObjectId (24 символа hex), используем id
+      // Иначе используем guid, если он есть
+      const isValidMongoId = id && /^[a-f0-9]{24}$/i.test(id)
+      const objectId = isValidMongoId ? id : (guid || id)
 
       if (objectType === 'apartments') {
         response = await trendAgentAPI.getApartmentDetail(objectId, params)
