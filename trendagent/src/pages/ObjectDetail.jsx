@@ -12,6 +12,7 @@ import ObjectFinishing from '../components/detail/ObjectFinishing'
 import ObjectProgress from '../components/detail/ObjectProgress'
 import ObjectFiles from '../components/detail/ObjectFiles'
 import ObjectAdvantages from '../components/detail/ObjectAdvantages'
+import ObjectPlots from '../components/detail/ObjectPlots'
 import '../pages/ObjectDetail.css'
 
 const ObjectDetail = () => {
@@ -28,6 +29,7 @@ const ObjectDetail = () => {
 
   const sections = [
     { id: 'header', label: 'Общая информация' },
+    ...(objectType === 'plots' ? [{ id: 'plots', label: 'Участки' }] : []),
     { id: 'apartments', label: 'Квартиры' },
     { id: 'parkings', label: 'Паркинги' },
     { id: 'commerce', label: 'Коммерция' },
@@ -216,6 +218,16 @@ const ObjectDetail = () => {
               buildings={buildingsData}
             />
           </section>
+
+          {/* Участки */}
+          {objectType === 'plots' && (
+            <section id="plots" className="detail-section">
+              <ObjectPlots
+                plotsData={null}
+                unifiedData={unifiedData}
+              />
+            </section>
+          )}
 
           {/* Квартиры */}
           {objectType === 'apartments' && (

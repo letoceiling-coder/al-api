@@ -63,9 +63,26 @@ const ObjectHeader = ({ objectData, advantages, buildings }) => {
   }
 
   const getMinPrice = () => {
-    if (objectData?.min_price) {
-      return formatPrice(objectData.min_price)
+    // Для участков цена может быть в массиве min_prices
+    if (objectData?.min_prices && Array.isArray(objectData.min_prices) && objectData.min_prices.length > 0) {
+      const firstPrice = objectData.min_prices[0]
+      if (firstPrice && firstPrice.value) {
+        const unit = firstPrice.unit || '₽'
+        const label = firstPrice.label ? `${firstPrice.label}: ` : ''
+        return `${label}${formatPrice(firstPrice.value)} ${unit}`
+      }
     }
+    
+    // Альтернативные варианты
+    if (objectData?.min_price) {
+      return `от ${formatPrice(objectData.min_price)}`
+    }
+    
+    // Проверяем price_from
+    if (objectData?.price_from) {
+      return `от ${formatPrice(objectData.price_from)}`
+    }
+    
     return null
   }
 
