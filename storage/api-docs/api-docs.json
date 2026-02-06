@@ -1,0 +1,434 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "AL API Gateway",
+        "description": "Unified API Gateway for Gemini and OpenAI models with token-based authentication, analytics, and user key management. This API provides a single interface to interact with multiple AI providers.",
+        "version": "1.0.0",
+        "contact": {
+            "email": "support@siteaccess.ru"
+        },
+        "license": {
+            "name": "Proprietary",
+            "url": "https://api.siteaccess.ru/license"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://api.siteaccess.ru/api/v1",
+            "description": "Production API Server (v1)"
+        },
+        {
+            "url": "https://api.siteaccess.ru/api",
+            "description": "Legacy API Server (deprecated)"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": ["Health Check"],
+                "summary": "API Health Check",
+                "description": "Check if API is working properly",
+                "responses": {
+                    "200": {
+                        "description": "API is working",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {"type": "string", "example": "AL API v1 is working"},
+                                        "version": {"type": "string", "example": "1.0.0"},
+                                        "status": {"type": "string", "example": "success"},
+                                        "timestamp": {"type": "string", "format": "date-time"},
+                                        "api_version": {"type": "string", "example": "v1"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "Get current user info",
+                "description": "Returns authenticated user information",
+                "security": [{"sanctum": []}],
+                "responses": {
+                    "200": {
+                        "description": "User info retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {"type": "boolean", "example": true},
+                                        "user": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {"type": "integer", "example": 1},
+                                                "name": {"type": "string", "example": "Admin"},
+                                                "email": {"type": "string", "example": "admin@al-api.local"},
+                                                "created_at": {"type": "string", "format": "date-time"},
+                                                "updated_at": {"type": "string", "format": "date-time"}
+                                            }
+                                        },
+                                        "api_version": {"type": "string", "example": "v1"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {"$ref": "#/components/responses/Unauthorized"}
+                }
+            }
+        },
+        "/ai/process": {
+            "post": {
+                "tags": ["AI Processing"],
+                "summary": "Process AI Request",
+                "description": "Send a prompt to Gemini or OpenAI models with optional files. Returns AI-generated response with usage statistics and cost estimation.",
+                "operationId": "processAIRequest",
+                "security": [{"sanctum": []}],
+                "requestBody": {
+                    "required": true,
+                    "description": "AI processing request with provider, model, prompt and optional parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/AIProcessRequest"}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful AI response",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/AIProcessResponse"}
+                            }
+                        }
+                    },
+                    "401": {"$ref": "#/components/responses/Unauthorized"},
+                    "422": {"$ref": "#/components/responses/ValidationError"},
+                    "429": {"$ref": "#/components/responses/RateLimitExceeded"},
+                    "500": {"$ref": "#/components/responses/ServerError"}
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "token",
+                "description": "Laravel Sanctum Bearer Token Authentication. Obtain token via /api/v1/auth/login or create via artisan command."
+            }
+        },
+        "schemas": {
+            "AIProcessRequest": {
+                "type": "object",
+                "required": ["provider", "model", "prompt"],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "enum": ["gemini", "openai"],
+                        "description": "AI provider to use",
+                        "example": "gemini"
+                    },
+                    "model": {
+                        "type": "string",
+                        "description": "Model name. Options: gemini-1.5-pro, gemini-1.5-flash, gemini-pro-vision, gpt-4-turbo-preview, gpt-4, gpt-3.5-turbo, gpt-4-vision-preview",
+                        "example": "gemini-1.5-pro"
+                    },
+                    "prompt": {
+                        "type": "string",
+                        "description": "Text prompt for the AI model",
+                        "minLength": 1,
+                        "example": "Explain quantum computing in simple terms"
+                    },
+                    "user_api_key": {
+                        "type": "string",
+                        "description": "Optional user-provided API key for the provider (if internal keys are disabled)",
+                        "example": "AIzaSyBUwkCahleq..."
+                    },
+                    "use_saved_key": {
+                        "type": "boolean",
+                        "description": "Use a saved user API key instead of internal key",
+                        "example": false
+                    },
+                    "saved_key_id": {
+                        "type": "integer",
+                        "description": "ID of saved user API key (if use_saved_key is true)",
+                        "example": 1
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Optional model parameters",
+                        "properties": {
+                            "temperature": {
+                                "type": "number",
+                                "format": "float",
+                                "minimum": 0,
+                                "maximum": 2,
+                                "description": "Sampling temperature (0-2)",
+                                "example": 0.7
+                            },
+                            "max_tokens": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "Maximum tokens to generate",
+                                "example": 1000
+                            },
+                            "top_p": {
+                                "type": "number",
+                                "format": "float",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "description": "Nucleus sampling (0-1)",
+                                "example": 0.9
+                            },
+                            "top_k": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "Top-k sampling (Gemini only)",
+                                "example": 40
+                            },
+                            "stream": {
+                                "type": "boolean",
+                                "description": "Stream response (future feature)",
+                                "example": false
+                            }
+                        }
+                    },
+                    "files": {
+                        "type": "array",
+                        "description": "Optional files for vision models (base64 encoded)",
+                        "maxItems": 10,
+                        "items": {
+                            "type": "object",
+                            "required": ["type", "content"],
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["image", "document"],
+                                    "example": "image"
+                                },
+                                "content": {
+                                    "type": "string",
+                                    "description": "Base64 encoded file content",
+                                    "example": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+                                },
+                                "mime_type": {
+                                    "type": "string",
+                                    "example": "image/png"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "example.png"
+                                }
+                            }
+                        }
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "description": "Optional metadata for tracking",
+                        "properties": {
+                            "client_id": {"type": "string", "example": "web-app"},
+                            "session_id": {"type": "string", "example": "session-123"}
+                        }
+                    }
+                }
+            },
+            "AIProcessResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {"type": "boolean", "example": true},
+                    "request_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "provider": {"type": "string", "example": "gemini"},
+                            "model": {"type": "string", "example": "gemini-1.5-pro"},
+                            "response": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "example": "Quantum computing uses quantum bits..."
+                                    },
+                                    "finish_reason": {
+                                        "type": "string",
+                                        "example": "stop"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "usage": {
+                        "type": "object",
+                        "properties": {
+                            "prompt_tokens": {"type": "integer", "example": 10},
+                            "completion_tokens": {"type": "integer", "example": 50},
+                            "total_tokens": {"type": "integer", "example": 60},
+                            "estimated_cost": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 0.00075
+                            }
+                        }
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "properties": {
+                            "processing_time": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 2.345
+                            },
+                            "timestamp": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-02-06T15:30:00Z"
+                            },
+                            "api_key_source": {
+                                "type": "string",
+                                "enum": ["internal", "user_request", "user_saved"],
+                                "example": "internal"
+                            }
+                        }
+                    },
+                    "limits": {
+                        "type": "object",
+                        "properties": {
+                            "daily_requests_used": {"type": "integer", "example": 45},
+                            "daily_requests_limit": {"type": "integer", "example": 100},
+                            "daily_requests_remaining": {"type": "integer", "example": 55}
+                        }
+                    }
+                }
+            }
+        },
+        "responses": {
+            "Unauthorized": {
+                "description": "Unauthorized - Invalid or missing bearer token",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Unauthenticated."
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ValidationError": {
+                "description": "Validation Error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "The provider field is required."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {"type": "string"}
+                                    },
+                                    "example": {
+                                        "provider": ["The provider field is required."]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "RateLimitExceeded": {
+                "description": "Rate Limit Exceeded",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {"type": "boolean", "example": false},
+                                "error": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "RateLimitExceededException"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daily request limit of 100 exceeded. Resets tomorrow."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ServerError": {
+                "description": "Server Error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {"type": "boolean", "example": false},
+                                "request_id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                },
+                                "error": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {"type": "string", "example": "AIProviderException"},
+                                        "message": {"type": "string", "example": "AI provider error"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health Check",
+            "description": "API health and status endpoints"
+        },
+        {
+            "name": "Authentication",
+            "description": "User authentication and token management"
+        },
+        {
+            "name": "AI Processing",
+            "description": "Main AI processing endpoints for Gemini and OpenAI"
+        },
+        {
+            "name": "User API Keys",
+            "description": "Manage user-provided AI API keys (Gemini, OpenAI)"
+        },
+        {
+            "name": "Analytics",
+            "description": "Usage analytics, costs, limits, and statistics"
+        }
+    ]
+}

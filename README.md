@@ -1,59 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AL API Gateway
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Unified API Gateway for accessing multiple AI providers (Gemini, OpenAI) with built-in key management, analytics, and rate limiting.
 
-## About Laravel
+## 📚 Documentation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Основная документация:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. **[API_GATEWAY_DOCUMENTATION.md](API_GATEWAY_DOCUMENTATION.md)** ⭐
+   - Полная документация API
+   - Все endpoints с примерами
+   - Форматы запросов и ответов
+   - Примеры использования curl
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+2. **[SETUP_COMPLETE.md](SETUP_COMPLETE.md)**
+   - Статус установки
+   - Учетные данные
+   - Быстрый старт
+   - Примеры запросов
 
-## Learning Laravel
+3. **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)**
+   - Что реализовано
+   - Структура проекта
+   - Статистика
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Техническая документация:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+4. **[ARCHITECTURE_PROPOSAL.md](ARCHITECTURE_PROPOSAL.md)**
+   - Варианты архитектуры
+   - Схемы работы
+   - Рекомендации
 
-## Laravel Sponsors
+5. **[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)**
+   - План реализации
+   - Структура БД
+   - Конфигурация
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+6. **[PROMPT_LIBRARY_EXPLANATION.md](PROMPT_LIBRARY_EXPLANATION.md)**
+   - Объяснение библиотеки промптов
+   - Примеры использования
 
-### Premium Partners
+7. **[AI_MODELS_GUIDE.md](AI_MODELS_GUIDE.md)**
+   - Справка по моделям AI
+   - Gemini и OpenAI модели
+   - Возможности каждой модели
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+8. **[SYNC_STATUS.md](SYNC_STATUS.md)**
+   - Статус синхронизации Git
+   - Команды для работы
 
-## Contributing
+## 🚀 Quick Start
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### API Base URL
+```
+https://api.siteaccess.ru/api
+```
 
-## Code of Conduct
+### Authentication
+All endpoints (except `/test`) require Sanctum Bearer token:
+```
+Authorization: Bearer {your_token}
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Test Endpoint
+```bash
+curl https://api.siteaccess.ru/api/test
+```
 
-## Security Vulnerabilities
+### Main AI Endpoint
+```bash
+curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "Hello AI!"
+  }' \
+  https://api.siteaccess.ru/api/ai/process
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 📖 Полная документация
 
-## License
+Смотрите **[API_GATEWAY_DOCUMENTATION.md](API_GATEWAY_DOCUMENTATION.md)** для:
+- Всех доступных endpoints
+- Детального описания запросов
+- Примеров использования
+- Обработки ошибок
+- Конфигурации
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔧 Setup
+
+### Создать API токен
+```bash
+cd /var/www/AL
+php create_api_token.php
+```
+
+### Запустить миграции
+```bash
+php artisan migrate
+```
+
+### Очистить кэш
+```bash
+php artisan config:cache
+php artisan route:cache
+```
+
+## 📊 Features
+
+- ✅ Multi-provider support (Gemini, OpenAI)
+- ✅ API key management (internal/user-provided)
+- ✅ Usage tracking and analytics
+- ✅ Cost calculation
+- ✅ Rate limiting
+- ✅ Request logging
+- ✅ File support (images, audio, documents)
+
+## 🔗 Links
+
+- **API**: https://api.siteaccess.ru/api
+- **GitHub**: https://github.com/letoceiling-coder/al-api
+- **Test**: https://api.siteaccess.ru/api/test
+
+## 📝 License
+
+Private project

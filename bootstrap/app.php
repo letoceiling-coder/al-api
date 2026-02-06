@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Register middleware aliases for routing
+        $middleware->alias([
+            'api-version' => \App\Http\Middleware\ApiVersionMiddleware::class,
+            'deprecation-warning' => \App\Http\Middleware\DeprecationWarningMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

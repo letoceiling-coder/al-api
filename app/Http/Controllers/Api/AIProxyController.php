@@ -26,7 +26,181 @@ class AIProxyController extends Controller
     ) {}
 
     /**
-     * Process AI request
+     * Process AI Request
+     * 
+     * Main endpoint for processing AI requests through Gemini or OpenAI.
+     * Supports text generation, vision models, and file attachments.
+     *
+     * @OA\Post(
+     *     path="/ai/process",
+     *     summary="Process AI Request",
+     *     description="Send a prompt to Gemini or OpenAI models with optional files. Returns AI-generated response with usage statistics and cost estimation.",
+     *     operationId="processAIRequest",
+     *     tags={"AI Processing"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="AI processing request with provider, model, prompt and optional parameters",
+     *         @OA\JsonContent(
+     *             required={"provider", "model", "prompt"},
+     *             @OA\Property(
+     *                 property="provider",
+     *                 type="string",
+     *                 enum={"gemini", "openai"},
+     *                 description="AI provider to use",
+     *                 example="gemini"
+     *             ),
+     *             @OA\Property(
+     *                 property="model",
+     *                 type="string",
+     *                 description="Model name to use. Options: gemini-1.5-pro, gemini-1.5-flash, gemini-pro-vision, gpt-4-turbo-preview, gpt-4, gpt-3.5-turbo, gpt-4-vision-preview",
+     *                 example="gemini-1.5-pro"
+     *             ),
+     *             @OA\Property(
+     *                 property="prompt",
+     *                 type="string",
+     *                 description="Text prompt for the AI model",
+     *                 example="Explain quantum computing in simple terms"
+     *             ),
+     *             @OA\Property(
+     *                 property="user_api_key",
+     *                 type="string",
+     *                 description="Optional user-provided API key for the provider (if internal keys are disabled)",
+     *                 example="AIzaSyBUwkCahleq..."
+     *             ),
+     *             @OA\Property(
+     *                 property="use_saved_key",
+     *                 type="boolean",
+     *                 description="Use a saved user API key instead of internal key",
+     *                 example=false
+     *             ),
+     *             @OA\Property(
+     *                 property="saved_key_id",
+     *                 type="integer",
+     *                 description="ID of saved user API key (if use_saved_key is true)",
+     *                 example=1
+     *             ),
+     *             @OA\Property(
+     *                 property="parameters",
+     *                 type="object",
+     *                 description="Optional model parameters",
+     *                 @OA\Property(property="temperature", type="number", format="float", description="Sampling temperature (0-2)", example=0.7),
+     *                 @OA\Property(property="max_tokens", type="integer", description="Maximum tokens to generate", example=1000),
+     *                 @OA\Property(property="top_p", type="number", format="float", description="Nucleus sampling (0-1)", example=0.9),
+     *                 @OA\Property(property="top_k", type="integer", description="Top-k sampling (Gemini only)", example=40),
+     *                 @OA\Property(property="stream", type="boolean", description="Stream response (future feature)", example=false)
+     *             ),
+     *             @OA\Property(
+     *                 property="files",
+     *                 type="array",
+     *                 description="Optional files for vision models (base64 encoded)",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     required={"type", "content"},
+     *                     @OA\Property(property="type", type="string", enum={"image", "document"}, example="image"),
+     *                     @OA\Property(property="content", type="string", description="Base64 encoded file content", example="data:image/png;base64,iVBORw0KGgoAAAANS..."),
+     *                     @OA\Property(property="mime_type", type="string", example="image/png"),
+     *                     @OA\Property(property="name", type="string", example="example.png")
+     *                 )
+     *             ),
+     *             @OA\Property(
+     *                 property="metadata",
+     *                 type="object",
+     *                 description="Optional metadata for tracking",
+     *                 @OA\Property(property="client_id", type="string", example="web-app"),
+     *                 @OA\Property(property="session_id", type="string", example="session-123")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful AI response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="request_id", type="string", format="uuid", example="550e8400-e29b-41d4-a716-446655440000"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="provider", type="string", example="gemini"),
+     *                 @OA\Property(property="model", type="string", example="gemini-1.5-pro"),
+     *                 @OA\Property(
+     *                     property="response",
+     *                     type="object",
+     *                     @OA\Property(property="text", type="string", example="Quantum computing uses quantum bits..."),
+     *                     @OA\Property(property="finish_reason", type="string", example="stop")
+     *                 )
+     *             ),
+     *             @OA\Property(
+     *                 property="usage",
+     *                 type="object",
+     *                 @OA\Property(property="prompt_tokens", type="integer", example=10),
+     *                 @OA\Property(property="completion_tokens", type="integer", example=50),
+     *                 @OA\Property(property="total_tokens", type="integer", example=60),
+     *                 @OA\Property(property="estimated_cost", type="number", format="float", example=0.00075)
+     *             ),
+     *             @OA\Property(
+     *                 property="metadata",
+     *                 type="object",
+     *                 @OA\Property(property="processing_time", type="number", format="float", example=2.345),
+     *                 @OA\Property(property="timestamp", type="string", format="date-time", example="2026-02-06T15:30:00Z"),
+     *                 @OA\Property(property="api_key_source", type="string", enum={"internal", "user_request", "user_saved"}, example="internal")
+     *             ),
+     *             @OA\Property(
+     *                 property="limits",
+     *                 type="object",
+     *                 @OA\Property(property="daily_requests_used", type="integer", example=45),
+     *                 @OA\Property(property="daily_requests_limit", type="integer", example=100),
+     *                 @OA\Property(property="daily_requests_remaining", type="integer", example=55)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing bearer token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The provider field is required."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="provider",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The provider field is required.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Rate Limit Exceeded",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="type", type="string", example="RateLimitExceededException"),
+     *                 @OA\Property(property="message", type="string", example="Daily request limit of 100 exceeded. Resets tomorrow.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="request_id", type="string", format="uuid"),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="type", type="string", example="AIProviderException"),
+     *                 @OA\Property(property="message", type="string", example="AI provider error")
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function process(AIProcessRequest $request): JsonResponse
     {
