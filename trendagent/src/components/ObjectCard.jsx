@@ -26,16 +26,16 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getName = () => {
-    // Для участков может быть название в разных полях
+    // Для участков может быть название в разных полях (как в старом проекте)
     if (objectType === 'plots') {
-      // Проверяем все возможные варианты названия
       return object.name || 
+             object.title || 
              object.village_name || 
              object.village?.name ||
              object.block_name ||
              'Без названия'
     }
-    return object.name || 'Без названия'
+    return object.name || object.title || object.block_name || 'Без названия'
   }
 
   const getAddress = () => {
@@ -80,7 +80,20 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getPrice = () => {
-    // Для участков цена хранится в массиве min_prices
+    // Обработка цены как в старом проекте (ObjectCard.vue)
+    if (object.price) {
+      if (typeof object.price === 'number') {
+        return formatPrice(object.price)
+      }
+      if (object.price.min) {
+        return `от ${formatPrice(object.price.min)}`
+      }
+      if (object.price.value) {
+        return formatPrice(object.price.value)
+      }
+    }
+    
+    // Для участков цена может быть в массиве min_prices
     if (objectType === 'plots') {
       // Проверяем массив min_prices
       if (object.min_prices && Array.isArray(object.min_prices) && object.min_prices.length > 0) {
@@ -95,10 +108,9 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (object.min_price) {
         return `от ${formatPrice(object.min_price)}`
       }
-      if (object.price) {
-        return formatPrice(object.price)
+      if (object.price_from) {
+        return `от ${formatPrice(object.price_from)}`
       }
-      return 'Цена не указана'
     }
     
     // Стандартная обработка для других типов
@@ -111,10 +123,10 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     if (object.min_price) {
       return `от ${formatPrice(object.min_price)}`
     }
-    if (object.price) {
-      return formatPrice(object.price)
+    if (object.price_from) {
+      return `от ${formatPrice(object.price_from)}`
     }
-    return 'Цена не указана'
+    return null
   }
 
   const getCount = () => {
@@ -201,7 +213,11 @@ const ObjectCard = ({ object, objectType, onClick }) => {
         </div>
 
         <div className="object-card-footer">
-          <div className="object-card-price">{getPrice()}</div>
+          {getPrice() ? (
+            <div className="object-card-price">{getPrice()}</div>
+          ) : (
+            <div className="object-card-price">Цена не указана</div>
+          )}
           {getCount() !== null && (
             <div className="object-card-count">
               {getCount()} {getCountLabel()}
