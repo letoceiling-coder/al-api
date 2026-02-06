@@ -1690,9 +1690,12 @@ class TrendSsoApiAuth
                     'min_price' => $firstRawItem['min_price'] ?? null,
                     'has_price' => isset($firstRawItem['price']),
                     'price' => $firstRawItem['price'] ?? null,
+                    'has_price_from' => isset($firstRawItem['price_from']),
+                    'price_from' => $firstRawItem['price_from'] ?? null,
                     'has_images' => isset($firstRawItem['images']),
                     'images_count' => is_array($firstRawItem['images'] ?? null) ? count($firstRawItem['images']) : 0,
-                    'full_item' => $firstRawItem,
+                    'has_renderer' => isset($firstRawItem['renderer']),
+                    'renderer_count' => is_array($firstRawItem['renderer'] ?? null) ? count($firstRawItem['renderer']) : 0,
                 ]);
             }
 
