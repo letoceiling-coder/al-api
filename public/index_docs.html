@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API Gateway - Документация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .nav h2 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .nav-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .nav-link {
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .nav-link h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .nav-link p {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .content h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .content h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .content h3 {
+            color: #495057;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        .content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .content pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .content table th,
+        .content table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .content table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 AL API Gateway</h1>
+        <p>Unified API for Gemini and OpenAI with Analytics & Key Management</p>
+    </header>
+    
+    <div class="container">
+        <div class="nav">
+            <h2>📚 Документация</h2>
+            <div class="nav-links">
+                <a href="#api-docs" class="nav-link">
+                    <h3>📖 API Документация</h3>
+                    <p>Полное описание всех endpoints, примеры запросов и ответов</p>
+                </a>
+                <a href="#setup" class="nav-link">
+                    <h3>⚙️ Установка</h3>
+                    <p>Статус установки, учетные данные, быстрый старт</p>
+                </a>
+                <a href="#models" class="nav-link">
+                    <h3>🤖 Модели AI</h3>
+                    <p>Справка по моделям Gemini и OpenAI</p>
+                </a>
+                <a href="#architecture" class="nav-link">
+                    <h3>🏗️ Архитектура</h3>
+                    <p>Варианты архитектуры и план реализации</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="content" id="api-docs">
+            <h1>📖 API Документация</h1>
+            
+            <h2>Base URL</h2>
+            <p><code>https://api.siteaccess.ru/api</code></p>
+            
+            <h2>Аутентификация</h2>
+            <p>Все endpoints (кроме <code>/test</code>) требуют Sanctum Bearer token:</p>
+            <pre><code>Authorization: Bearer {your_sanctum_token}</code></pre>
+            
+            <h2>Основные Endpoints</h2>
+            
+            <h3>1. Test Endpoint</h3>
+            <p><strong>GET</strong> <code>/api/test</code></p>
+            <p>Проверка работы API</p>
+            <pre><code>curl https://api.siteaccess.ru/api/test</code></pre>
+            
+            <h3>2. Process AI Request (Главный endpoint)</h3>
+            <p><strong>POST</strong> <code>/api/ai/process</code></p>
+            <p>Отправка запроса к AI провайдеру (Gemini или OpenAI)</p>
+            
+            <h4>Пример запроса:</h4>
+            <pre><code>curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "Explain quantum computing"
+  }' \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+            
+            <h4>Формат запроса:</h4>
+            <pre><code>{
+  "provider": "gemini|openai",    // Обязательно
+  "model": "gemini-1.5-pro",       // Обязательно
+  "prompt": "Your prompt",         // Обязательно
+  "user_api_key": "optional",      // Опционально
+  "parameters": {                  // Опционально
+    "temperature": 0.7,
+    "max_tokens": 1000
+  },
+  "files": [...]                   // Опционально (для vision)
+}</code></pre>
+            
+            <h4>Формат ответа:</h4>
+            <pre><code>{
+  "success": true,
+  "request_id": "uuid",
+  "data": {
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "response": {
+      "text": "Generated response...",
+      "finish_reason": "stop"
+    }
+  },
+  "usage": {
+    "prompt_tokens": 150,
+    "completion_tokens": 300,
+    "total_tokens": 450,
+    "estimated_cost": 0.000675
+  },
+  "limits": {
+    "daily_requests_remaining": 55
+  }
+}</code></pre>
+            
+            <h3>3. Управление API ключами</h3>
+            <table>
+                <tr>
+                    <th>Метод</th>
+                    <th>Endpoint</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/api/user/keys</code></td>
+                    <td>Список всех ключей</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/api/user/keys</code></td>
+                    <td>Добавить новый ключ</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/api/user/keys/{id}</code></td>
+                    <td>Детали ключа</td>
+                </tr>
+                <tr>
+                    <td>PUT</td>
+                    <td><code>/api/user/keys/{id}</code></td>
+                    <td>Обновить ключ</td>
+                </tr>
+                <tr>
+                    <td>DELETE</td>
+                    <td><code>/api/user/keys/{id}</code></td>
+                    <td>Удалить ключ</td>
+                </tr>
+            </table>
+            
+            <h3>4. Аналитика</h3>
+            <table>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td><code>/api/analytics/summary</code></td>
+                    <td>Общая статистика</td>
+                </tr>
+                <tr>
+                    <td><code>/api/analytics/history</code></td>
+                    <td>История запросов</td>
+                </tr>
+                <tr>
+                    <td><code>/api/analytics/costs</code></td>
+                    <td>Расходы за 30 дней</td>
+                </tr>
+                <tr>
+                    <td><code>/api/analytics/limits</code></td>
+                    <td>Текущие лимиты</td>
+                </tr>
+            </table>
+            
+            <h2>Поддерживаемые модели</h2>
+            
+            <h3>Gemini</h3>
+            <ul>
+                <li><code>gemini-1.5-pro</code> - Лучшее качество, поддержка vision</li>
+                <li><code>gemini-1.5-flash</code> - Быстрая, дешевая, поддержка vision</li>
+                <li><code>gemini-pro-vision</code> - Legacy vision модель</li>
+            </ul>
+            
+            <h3>OpenAI</h3>
+            <ul>
+                <li><code>gpt-4-turbo-preview</code> - Последний GPT-4</li>
+                <li><code>gpt-4</code> - Стандартный GPT-4</li>
+                <li><code>gpt-3.5-turbo</code> - Быстрая и дешевая</li>
+                <li><code>gpt-4-vision-preview</code> - GPT-4 с vision</li>
+            </ul>
+        </div>
+        
+        <div class="content" id="setup" style="margin-top: 40px;">
+            <h1>⚙️ Установка и Быстрый Старт</h1>
+            
+            <h2>Статус</h2>
+            <p><span class="badge badge-success">✅ Система установлена и работает</span></p>
+            
+            <h2>Учетные данные</h2>
+            <p><strong>Email:</strong> <code>admin@al-api.local</code></p>
+            <p><strong>Password:</strong> <code>password123</code></p>
+            
+            <h2>Создать новый токен</h2>
+            <pre><code>cd /var/www/AL
+php create_api_token.php</code></pre>
+            
+            <h2>Быстрый тест</h2>
+            <pre><code># Проверка API
+curl https://api.siteaccess.ru/api/test
+
+# Получить данные пользователя
+curl -H 'Authorization: Bearer YOUR_TOKEN' \
+  https://api.siteaccess.ru/api/user
+
+# Отправить AI запрос
+curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"provider":"gemini","model":"gemini-1.5-pro","prompt":"Hello!"}' \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+        </div>
+        
+        <div class="content" id="models" style="margin-top: 40px;">
+            <h1>🤖 Модели AI</h1>
+            
+            <h2>Gemini Models</h2>
+            <p>Подробная информация о моделях Gemini доступна в <code>AI_MODELS_GUIDE.md</code></p>
+            
+            <h2>OpenAI Models</h2>
+            <p>Подробная информация о моделях OpenAI доступна в <code>AI_MODELS_GUIDE.md</code></p>
+            
+            <h2>Цены (за 1M токенов)</h2>
+            <table>
+                <tr>
+                    <th>Модель</th>
+                    <th>Input</th>
+                    <th>Output</th>
+                </tr>
+                <tr>
+                    <td>Gemini 1.5 Pro</td>
+                    <td>$0.50</td>
+                    <td>$1.50</td>
+                </tr>
+                <tr>
+                    <td>Gemini 1.5 Flash</td>
+                    <td>$0.10</td>
+                    <td>$0.30</td>
+                </tr>
+                <tr>
+                    <td>GPT-4 Turbo</td>
+                    <td>$10.00</td>
+                    <td>$30.00</td>
+                </tr>
+                <tr>
+                    <td>GPT-3.5 Turbo</td>
+                    <td>$0.50</td>
+                    <td>$1.50</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="content" id="architecture" style="margin-top: 40px;">
+            <h1>🏗️ Архитектура</h1>
+            
+            <h2>Основные компоненты</h2>
+            <ul>
+                <li><strong>API Gateway</strong> - Единая точка входа для всех AI запросов</li>
+                <li><strong>Key Management</strong> - Управление API ключами (internal/user)</li>
+                <li><strong>Analytics</strong> - Отслеживание использования и стоимости</li>
+                <li><strong>Rate Limiting</strong> - Ограничение запросов</li>
+                <li><strong>Request Logging</strong> - Логирование всех запросов</li>
+            </ul>
+            
+            <h2>База данных</h2>
+            <ul>
+                <li><code>user_ai_keys</code> - API ключи пользователей</li>
+                <li><code>ai_request_logs</code> - Логи запросов</li>
+                <li><code>user_usage_stats</code> - Статистика по дням</li>
+                <li><code>user_limits</code> - Лимиты пользователей</li>
+            </ul>
+            
+            <p>Подробная информация в <code>ARCHITECTURE_PROPOSAL.md</code> и <code>IMPLEMENTATION_PLAN.md</code></p>
+        </div>
+        
+        <div class="footer">
+            <p>AL API Gateway v1.0.0</p>
+            <p>GitHub: <a href="https://github.com/letoceiling-coder/al-api" target="_blank">letoceiling-coder/al-api</a></p>
+            <p>Полная документация доступна в репозитории проекта</p>
+        </div>
+    </div>
+</body>
+</html>
