@@ -1867,6 +1867,24 @@ class TrendSsoApiAuth
                     'images' => $images,
                     'is_new_village' => $item['is_new_village'] ?? false,
                     'property_types' => $item['property_types'] ?? [],
+                    // Паспортные данные
+                    'village_class' => $item['village_class'] ?? $item['class'] ?? null,
+                    'unified_style' => $item['unified_style'] ?? $item['architectural_style'] ?? null,
+                    'land_purpose' => $item['land_purpose'] ?? $item['purpose'] ?? null,
+                    'water_supply' => $item['water_supply'] ?? null,
+                    'sewerage' => $item['sewerage'] ?? null,
+                    'gas_supply' => $item['gas_supply'] ?? null,
+                    'electricity' => $item['electricity'] ?? null,
+                    'power_kw' => $item['power_kw'] ?? $item['power'] ?? null,
+                    'management_company' => $item['management_company'] ?? null,
+                    'registration' => $item['registration'] ?? $item['permanent_registration'] ?? null,
+                    'fiber_internet' => $item['fiber_internet'] ?? null,
+                    'road' => $item['road'] ?? $item['road_type'] ?? null,
+                    'payment' => $item['payment'] ?? $item['payment_types'] ?? null,
+                    'contract' => $item['contract'] ?? $item['contract_type'] ?? null,
+                    'escrow' => $item['escrow'] ?? null,
+                    'description' => $item['description'] ?? $item['about'] ?? null,
+                    'about' => $item['about'] ?? $item['description'] ?? null,
                 ];
             }
 
