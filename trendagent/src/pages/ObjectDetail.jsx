@@ -74,6 +74,14 @@ const ObjectDetail = () => {
       const isValidMongoId = id && /^[a-f0-9]{24}$/i.test(id)
       const objectId = isValidMongoId ? id : (guid || id)
 
+      console.log('ObjectDetail: Loading object', {
+        objectType,
+        id,
+        guid,
+        isValidMongoId,
+        objectId,
+      })
+
       if (objectType === 'apartments') {
         response = await trendAgentAPI.getApartmentDetail(objectId, params)
       } else if (objectType === 'parkings') {
@@ -90,12 +98,30 @@ const ObjectDetail = () => {
 
       if (response.success) {
         setObjectData(response.data)
+        console.log('ObjectDetail: Data loaded successfully', {
+          block_id: response.block_id,
+          block_guid: response.block_guid,
+        })
       } else {
-        setError(response.message || 'Ошибка загрузки данных')
+        const errorMessage = response.message || response.error?.message || 'Ошибка загрузки данных'
+        console.error('ObjectDetail: API returned error', {
+          success: response.success,
+          message: errorMessage,
+          error: response.error,
+        })
+        setError(errorMessage)
       }
     } catch (err) {
-      console.error('Ошибка загрузки детальной информации:', err)
-      setError(err.message || 'Ошибка загрузки данных объекта')
+      console.error('ObjectDetail: Exception during load', {
+        error: err,
+        message: err.message,
+        response: err.response?.data,
+      })
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error?.message || 
+                          err.message || 
+                          'Ошибка загрузки данных объекта'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
