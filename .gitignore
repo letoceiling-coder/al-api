@@ -17,3 +17,4 @@ yarn-error.log
 *.log
 .DS_Store
 Thumbs.db
+SSH_KEY_FOR_GITHUB.txt
