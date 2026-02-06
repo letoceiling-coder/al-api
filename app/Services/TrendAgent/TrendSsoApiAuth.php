@@ -1452,16 +1452,28 @@ class TrendSsoApiAuth
                     ];
                 }
 
+                // Обрабатываем deadline безопасно
+                $deadlineValue = null;
+                if (isset($item['deadline'])) {
+                    if (is_array($item['deadline']) && isset($item['deadline']['value'])) {
+                        $deadlineValue = $item['deadline']['value'];
+                    } elseif (is_string($item['deadline'])) {
+                        $deadlineValue = $item['deadline'];
+                    }
+                }
+
                 $processedResults[] = [
                     'id' => $item['_id'] ?? null,
+                    '_id' => $item['_id'] ?? null, // Добавляем _id для совместимости
                     'guid' => $item['guid'] ?? null,
-                    'name' => $item['name'] ?? null,
+                    'name' => $item['name'] ?? $item['village_name'] ?? $item['block_name'] ?? null,
+                    'village_name' => $item['village_name'] ?? null,
                     'address' => $item['address'] ?? null,
                     'plots_count' => $item['plots_count'] ?? 0,
                     'view_plots_count' => $item['view_plots_count'] ?? 0,
                     'builder' => $item['builder'] ?? null,
                     'distance' => $distance,
-                    'deadline' => $item['deadline']['value'] ?? null,
+                    'deadline' => $deadlineValue,
                     'min_prices' => $minPrices,
                     'reward' => $reward,
                     'reward_hint' => $rewardHint,
