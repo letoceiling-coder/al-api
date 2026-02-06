@@ -1701,10 +1701,36 @@ class TrendSsoApiAuth
                 $minPrices = [];
                 if (isset($item['min_prices']) && is_array($item['min_prices'])) {
                     foreach ($item['min_prices'] as $priceItem) {
+                        // Проверяем, что priceItem не пустой и имеет value
+                        if (isset($priceItem['value']) && $priceItem['value'] !== null && $priceItem['value'] > 0) {
+                            $minPrices[] = [
+                                'label' => $priceItem['label'] ?? null,
+                                'value' => $priceItem['value'],
+                                'unit' => $priceItem['unit'] ?? '₽',
+                            ];
+                        }
+                    }
+                }
+                
+                // Если min_prices пустой, но есть другие поля с ценой, добавляем их
+                if (empty($minPrices)) {
+                    if (isset($item['min_price']) && $item['min_price'] > 0) {
                         $minPrices[] = [
-                            'label' => $priceItem['label'] ?? null,
-                            'value' => $priceItem['value'] ?? null,
-                            'unit' => $priceItem['unit'] ?? '₽',
+                            'label' => 'от',
+                            'value' => $item['min_price'],
+                            'unit' => '₽',
+                        ];
+                    } elseif (isset($item['price']) && $item['price'] > 0) {
+                        $minPrices[] = [
+                            'label' => null,
+                            'value' => $item['price'],
+                            'unit' => '₽',
+                        ];
+                    } elseif (isset($item['price_from']) && $item['price_from'] > 0) {
+                        $minPrices[] = [
+                            'label' => 'от',
+                            'value' => $item['price_from'],
+                            'unit' => '₽',
                         ];
                     }
                 }
