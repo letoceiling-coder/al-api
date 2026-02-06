@@ -4,8 +4,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use L5Swagger\Http\Controllers\SwaggerController;
 
-// Главная страница - документация
+// Главная страница - React приложение
 Route::get('/', function () {
+    if (file_exists(public_path('react/index.html'))) {
+        return response()->file(public_path('react/index.html'));
+    }
+    // Fallback на старую документацию
     $html = File::get(public_path('index_docs.html'));
     return response($html)->header('Content-Type', 'text/html; charset=utf-8');
 });
