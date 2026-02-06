@@ -24,6 +24,13 @@ return [
         'cost_tracking' => env('ENABLE_COST_TRACKING', true),
     ],
 
+    // Cache Configuration
+    'cache' => [
+        'enabled' => env('AI_CACHE_ENABLED', true),
+        'ttl' => env('AI_CACHE_TTL', 3600), // 1 hour default
+        'driver' => env('CACHE_STORE', 'redis'),
+    ],
+
     // Gemini Configuration
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
