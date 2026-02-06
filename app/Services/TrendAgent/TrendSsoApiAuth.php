@@ -2924,12 +2924,26 @@ class TrendSsoApiAuth
                 throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
             }
 
+            // Логирование для отладки
+            if (empty($data['data'])) {
+                Log::warning('getBlockById - блок не найден', [
+                    'guid' => $guid,
+                    'status_code' => $statusCode,
+                    'response_keys' => array_keys($data ?? []),
+                    'response_sample' => substr($body, 0, 500),
+                ]);
+            }
+
             return [
                 'success' => true,
                 'data' => $data['data'] ?? null,
                 'raw_response' => $data,
             ];
         } catch (GuzzleException $e) {
+            Log::error('getBlockById - ошибка Guzzle', [
+                'guid' => $guid,
+                'error' => $e->getMessage(),
+            ]);
             throw new \Exception('Ошибка при получении блока: ' . $e->getMessage());
         }
     }
