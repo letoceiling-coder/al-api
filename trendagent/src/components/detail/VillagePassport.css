@@ -1,0 +1,42 @@
+.village-passport {
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.passport-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.passport-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.passport-row:last-child {
+  border-bottom: none;
+}
+
+.passport-row-label {
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+.passport-row-value {
+  color: #1a1a1a;
+  flex: 1;
+}
+
+.passport-contacts-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+}

@@ -13,6 +13,9 @@ import ObjectProgress from '../components/detail/ObjectProgress'
 import ObjectFiles from '../components/detail/ObjectFiles'
 import ObjectAdvantages from '../components/detail/ObjectAdvantages'
 import ObjectPlots from '../components/detail/ObjectPlots'
+import VillagePassport from '../components/detail/VillagePassport'
+import VillageMiniPassport from '../components/detail/VillageMiniPassport'
+import VillageReward from '../components/detail/VillageReward'
 import '../pages/ObjectDetail.css'
 
 const ObjectDetail = () => {
@@ -29,7 +32,12 @@ const ObjectDetail = () => {
 
   const sections = [
     { id: 'header', label: 'Общая информация' },
-    ...(objectType === 'plots' ? [{ id: 'plots', label: 'Участки' }] : []),
+    ...(objectType === 'plots' ? [
+      { id: 'plots', label: 'Участки' },
+      { id: 'plan', label: 'План посёлка' },
+      { id: 'about', label: 'Об объекте' },
+      { id: 'mortgage', label: 'Ипотека' },
+    ] : []),
     { id: 'apartments', label: 'Квартиры' },
     { id: 'parkings', label: 'Паркинги' },
     { id: 'commerce', label: 'Коммерция' },
@@ -240,12 +248,75 @@ const ObjectDetail = () => {
 
           {/* Участки */}
           {objectType === 'plots' && (
-            <section id="plots" className="detail-section">
-              <ObjectPlots
-                plotsData={null}
-                unifiedData={unifiedData}
-              />
-            </section>
+            <>
+              <section id="plots" className="detail-section">
+                <ObjectPlots
+                  plotsData={null}
+                  unifiedData={unifiedData}
+                />
+              </section>
+              
+              {/* План посёлка */}
+              <section id="plan" className="detail-section">
+                <div className="village-plan-section">
+                  <h2>План посёлка</h2>
+                  <div className="plan-placeholder">
+                    <p>План посёлка будет отображаться здесь</p>
+                  </div>
+                </div>
+              </section>
+              
+              {/* Об объекте */}
+              <section id="about" className="detail-section">
+                <div className="village-about-section">
+                  <h2>Об объекте</h2>
+                  <div className="village-about-content">
+                    <div className="village-advantages-list">
+                      {Array.isArray(advantagesData?.data) && advantagesData.data.map((advantage, index) => (
+                        <div key={index} className="advantage-card">
+                          {advantage.image && (
+                            <img
+                              src={advantage.image.url || advantage.image}
+                              alt={advantage.name || advantage.title}
+                              className="advantage-card-image"
+                            />
+                          )}
+                          <div className="advantage-card-text">
+                            {advantage.name || advantage.title || advantage.description}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="village-description">
+                      <div dangerouslySetInnerHTML={{ __html: unifiedData?.description || unifiedData?.about || '' }} />
+                    </div>
+                  </div>
+                </div>
+              </section>
+              
+              {/* Ипотека */}
+              <section id="mortgage" className="detail-section">
+                <div className="village-mortgage-section">
+                  <h2>Ипотека</h2>
+                  <div className="mortgage-content">
+                    <div className="mortgage-buttons">
+                      <button className="card-button">
+                        <div className="card-button-icon">📄</div>
+                        <div className="card-button-label">Посмотреть программы и ставки</div>
+                      </button>
+                      <button className="card-button">
+                        <div className="card-button-icon">💬</div>
+                        <div className="card-button-label">Задать вопрос</div>
+                      </button>
+                      <button className="card-button">
+                        <div className="card-button-icon">📝</div>
+                        <div className="card-button-label">Отправить заявку на ипотеку</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </>
           )}
 
           {/* Квартиры */}
