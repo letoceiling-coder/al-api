@@ -239,11 +239,62 @@ const ObjectDetail = () => {
         <div className="detail-sections">
           {/* Заголовок объекта */}
           <section id="header" className="detail-section">
-            <ObjectHeader
-              objectData={unifiedData}
-              advantages={advantagesData}
-              buildings={buildingsData}
-            />
+            {objectType === 'plots' ? (
+              <div className="village-detail-header">
+                <div className="village-header-main">
+                  <h1 className="village-title">{unifiedData?.name || unifiedData?.village_name || 'Без названия'}</h1>
+                  <VillageMiniPassport unifiedData={unifiedData} distance={unifiedData?.distance} />
+                  {/* Галерея изображений */}
+                  {unifiedData?.images && Array.isArray(unifiedData.images) && unifiedData.images.length > 0 && (
+                    <div className="village-gallery">
+                      <div className="gallery-main">
+                        {unifiedData.images[0] && (
+                          <img
+                            src={unifiedData.images[0].full || unifiedData.images[0].url || unifiedData.images[0]}
+                            alt={unifiedData?.name || unifiedData?.village_name}
+                            className="gallery-main-image"
+                          />
+                        )}
+                      </div>
+                      {unifiedData.images.length > 1 && (
+                        <div className="gallery-thumbnails">
+                          {unifiedData.images.slice(1, 5).map((img, index) => (
+                            <img
+                              key={index}
+                              src={img.thumbnail || img.url || img}
+                              alt={`${unifiedData?.name || unifiedData?.village_name} - ${index + 2}`}
+                              className="gallery-thumbnail"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="village-header-sidebar">
+                  <VillageReward rewardData={unifiedData?.reward} />
+                  <div className="fixation-block">
+                    <div className="fixation-block-content">
+                      <div className="fixation-block-icon"></div>
+                      <div className="fixation-block-info">
+                        <h6>Фиксация клиента</h6>
+                        <p>Задайте уточняющие вопросы, запишитесь на встречу или зафиксируйте клиента</p>
+                      </div>
+                    </div>
+                    <button className="btn btn-primary fixation-block-button">
+                      Зафиксировать у застройщика
+                    </button>
+                  </div>
+                  <VillagePassport unifiedData={unifiedData} />
+                </div>
+              </div>
+            ) : (
+              <ObjectHeader
+                objectData={unifiedData}
+                advantages={advantagesData}
+                buildings={buildingsData}
+              />
+            )}
           </section>
 
           {/* Участки */}
