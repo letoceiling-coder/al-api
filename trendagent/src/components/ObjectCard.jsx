@@ -3,6 +3,19 @@ import { getImageUrl } from '../utils/imageUtils'
 import './ObjectCard.css'
 
 const ObjectCard = ({ object, objectType, onClick }) => {
+  // Отладка для участков
+  if (objectType === 'plots' && !object.name) {
+    console.log('ObjectCard plots debug:', {
+      object,
+      hasName: !!object.name,
+      hasVillageName: !!object.village_name,
+      hasMinPrices: !!object.min_prices,
+      minPricesLength: object.min_prices?.length || 0,
+      hasImages: !!object.images,
+      imagesLength: object.images?.length || 0,
+    })
+  }
+
   const getObjectId = () => {
     // Приоритет: _id, затем id, но не guid (guid используется отдельно)
     return object._id || object.id || null
@@ -15,7 +28,12 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   const getName = () => {
     // Для участков может быть название в разных полях
     if (objectType === 'plots') {
-      return object.name || object.village_name || 'Без названия'
+      // Проверяем все возможные варианты названия
+      return object.name || 
+             object.village_name || 
+             object.village?.name ||
+             object.block_name ||
+             'Без названия'
     }
     return object.name || 'Без названия'
   }
@@ -63,14 +81,24 @@ const ObjectCard = ({ object, objectType, onClick }) => {
 
   const getPrice = () => {
     // Для участков цена хранится в массиве min_prices
-    if (objectType === 'plots' && object.min_prices && Array.isArray(object.min_prices) && object.min_prices.length > 0) {
-      // Берем первую цену из массива
-      const firstPrice = object.min_prices[0]
-      if (firstPrice.value) {
-        const unit = firstPrice.unit || '₽'
-        const label = firstPrice.label ? `${firstPrice.label}: ` : ''
-        return `${label}${formatPrice(firstPrice.value)} ${unit}`
+    if (objectType === 'plots') {
+      // Проверяем массив min_prices
+      if (object.min_prices && Array.isArray(object.min_prices) && object.min_prices.length > 0) {
+        const firstPrice = object.min_prices[0]
+        if (firstPrice && firstPrice.value) {
+          const unit = firstPrice.unit || '₽'
+          const label = firstPrice.label ? `${firstPrice.label}: ` : ''
+          return `${label}${formatPrice(firstPrice.value)} ${unit}`
+        }
       }
+      // Проверяем альтернативные варианты для участков
+      if (object.min_price) {
+        return `от ${formatPrice(object.min_price)}`
+      }
+      if (object.price) {
+        return formatPrice(object.price)
+      }
+      return 'Цена не указана'
     }
     
     // Стандартная обработка для других типов
