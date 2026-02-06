@@ -1675,6 +1675,27 @@ class TrendSsoApiAuth
             $plotsCount = $data['plots_count'] ?? 0;
             $villagesCount = $data['villages_count'] ?? $data['total_count'] ?? 0;
 
+            // Логирование первого элемента сырых данных для отладки
+            if (count($results) > 0) {
+                $firstRawItem = $results[0];
+                Log::info('Villages API - Raw first item', [
+                    'keys' => array_keys($firstRawItem),
+                    'has_name' => isset($firstRawItem['name']),
+                    'name' => $firstRawItem['name'] ?? null,
+                    'has_village_name' => isset($firstRawItem['village_name']),
+                    'village_name' => $firstRawItem['village_name'] ?? null,
+                    'has_min_prices' => isset($firstRawItem['min_prices']),
+                    'min_prices' => $firstRawItem['min_prices'] ?? null,
+                    'has_min_price' => isset($firstRawItem['min_price']),
+                    'min_price' => $firstRawItem['min_price'] ?? null,
+                    'has_price' => isset($firstRawItem['price']),
+                    'price' => $firstRawItem['price'] ?? null,
+                    'has_images' => isset($firstRawItem['images']),
+                    'images_count' => is_array($firstRawItem['images'] ?? null) ? count($firstRawItem['images']) : 0,
+                    'full_item' => $firstRawItem,
+                ]);
+            }
+
             // Обрабатываем каждый результат поселков
             $processedResults = [];
             $totalPlotsFromItems = 0;
