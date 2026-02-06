@@ -3,17 +3,10 @@ import { getImageUrl } from '../utils/imageUtils'
 import './ObjectCard.css'
 
 const ObjectCard = ({ object, objectType, onClick }) => {
-  // Отладка для участков
+  // Отладка для участков - выводим полную структуру первого объекта
   if (objectType === 'plots' && !object.name) {
-    console.log('ObjectCard plots debug:', {
-      object,
-      hasName: !!object.name,
-      hasVillageName: !!object.village_name,
-      hasMinPrices: !!object.min_prices,
-      minPricesLength: object.min_prices?.length || 0,
-      hasImages: !!object.images,
-      imagesLength: object.images?.length || 0,
-    })
+    console.log('ObjectCard plots debug - FULL OBJECT:', JSON.stringify(object, null, 2))
+    console.log('ObjectCard plots debug - KEYS:', Object.keys(object))
   }
 
   const getObjectId = () => {

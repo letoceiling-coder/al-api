@@ -1401,6 +1401,21 @@ class TrendSsoApiAuth
             $resultCount = $data['result_count'] ?? 0;
             $plotsCount = $data['plots_count'] ?? 0;
 
+            // Логирование первого элемента сырых данных для отладки
+            if (count($results) > 0) {
+                $firstRawItem = $results[0];
+                Log::info('Plots API - Raw first item', [
+                    'keys' => array_keys($firstRawItem),
+                    'has_name' => isset($firstRawItem['name']),
+                    'name' => $firstRawItem['name'] ?? null,
+                    'has_min_prices' => isset($firstRawItem['min_prices']),
+                    'min_prices' => $firstRawItem['min_prices'] ?? null,
+                    'has_images' => isset($firstRawItem['images']),
+                    'images_count' => is_array($firstRawItem['images'] ?? null) ? count($firstRawItem['images']) : 0,
+                    'full_item' => $firstRawItem,
+                ]);
+            }
+
             // Обрабатываем каждый результат участков
             $processedResults = [];
             foreach ($results as $item) {
