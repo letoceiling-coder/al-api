@@ -220,7 +220,7 @@
         </div>
         
         <div class="content" id="api-docs">
-            <h1>📖 API Документация</h1>
+            <h1>📖 Полное руководство по работе с API</h1>
             
             <h2>Base URL</h2>
             <p><code>https://api.siteaccess.ru/api</code></p>
@@ -240,39 +240,445 @@
             <p><strong>POST</strong> <code>/api/ai/process</code></p>
             <p>Отправка запроса к AI провайдеру (Gemini или OpenAI)</p>
             
-            <h4>Пример запроса:</h4>
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>📝 Детальное описание запроса</h2>
+            
+            <h3>Обязательные поля</h3>
+            
+            <h4>1. provider (строка, обязательно)</h4>
+            <p>Выбор AI провайдера:</p>
+            <ul>
+                <li><code>"gemini"</code> - Google Gemini</li>
+                <li><code>"openai"</code> - OpenAI</li>
+            </ul>
+            
+            <h4>2. model (строка, обязательно)</h4>
+            <p>Название модели. Доступные модели:</p>
+            <table>
+                <tr>
+                    <th>Провайдер</th>
+                    <th>Модель</th>
+                    <th>Описание</th>
+                    <th>Vision</th>
+                </tr>
+                <tr>
+                    <td rowspan="3">Gemini</td>
+                    <td><code>gemini-1.5-pro</code></td>
+                    <td>Лучшее качество, поддержка vision</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td><code>gemini-1.5-flash</code></td>
+                    <td>Быстрая, дешевая, поддержка vision</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td><code>gemini-pro-vision</code></td>
+                    <td>Legacy vision модель</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td rowspan="4">OpenAI</td>
+                    <td><code>gpt-4-turbo-preview</code></td>
+                    <td>Последний GPT-4, лучшее качество</td>
+                    <td>❌</td>
+                </tr>
+                <tr>
+                    <td><code>gpt-4</code></td>
+                    <td>Стандартный GPT-4</td>
+                    <td>❌</td>
+                </tr>
+                <tr>
+                    <td><code>gpt-3.5-turbo</code></td>
+                    <td>Быстрая и дешевая</td>
+                    <td>❌</td>
+                </tr>
+                <tr>
+                    <td><code>gpt-4-vision-preview</code></td>
+                    <td>GPT-4 с поддержкой vision</td>
+                    <td>✅</td>
+                </tr>
+            </table>
+            
+            <h4>3. prompt (строка, обязательно, минимум 1 символ)</h4>
+            <p><strong>Текст промпта</strong> - основной запрос к AI модели.</p>
+            
+            <p><strong>Рекомендации по написанию промптов:</strong></p>
+            <ul>
+                <li>Будьте конкретны и четко формулируйте задачу</li>
+                <li>Указывайте контекст, если это необходимо</li>
+                <li>Для анализа файлов опишите, что именно нужно сделать</li>
+                <li>Можно использовать многострочные промпты</li>
+            </ul>
+            
+            <p><strong>Примеры хороших промптов:</strong></p>
+            <pre><code>// Простой запрос
+"Объясни квантовые вычисления простым языком"
+
+// Запрос с контекстом
+"Напиши email для клиента о задержке доставки. Тон: вежливый, профессиональный. 
+Клиент ждал заказ 2 недели."
+
+// Запрос для анализа изображения
+"Проанализируй это изображение и опиши:
+1. Что изображено
+2. Основные цвета
+3. Настроение/атмосфера
+4. Детали композиции"
+
+// Запрос на генерацию кода
+"Напиши функцию на Python для сортировки массива чисел методом быстрой сортировки.
+Добавь комментарии к коду."</code></pre>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>📎 Работа с файлами</h2>
+            
+            <h3>Общая информация</h3>
+            <p>Файлы передаются в массиве <code>files</code>. Поддерживаются файлы для мультимодальных моделей (с поддержкой vision).</p>
+            
+            <h3>Ограничения</h3>
+            <table>
+                <tr>
+                    <th>Параметр</th>
+                    <th>Ограничение</th>
+                </tr>
+                <tr>
+                    <td>Максимум файлов на запрос</td>
+                    <td><strong>10 файлов</strong></td>
+                </tr>
+                <tr>
+                    <td>Максимальный размер одного файла</td>
+                    <td><strong>10 MB</strong> (по умолчанию, настраивается в .env)</td>
+                </tr>
+                <tr>
+                    <td>Формат передачи</td>
+                    <td><strong>Base64</strong> (обязательно)</td>
+                </tr>
+            </table>
+            
+            <h3>Поддерживаемые типы файлов</h3>
+            
+            <h4>1. Изображения (type: "image")</h4>
+            <p><strong>Поддерживаемые форматы:</strong></p>
+            <ul>
+                <li><code>image/jpeg</code> - JPEG изображения (.jpg, .jpeg)</li>
+                <li><code>image/png</code> - PNG изображения (.png)</li>
+                <li><code>image/gif</code> - GIF изображения (.gif)</li>
+                <li><code>image/webp</code> - WebP изображения (.webp)</li>
+                <li><code>image/bmp</code> - BMP изображения (.bmp)</li>
+            </ul>
+            <p><strong>Рекомендации:</strong></p>
+            <ul>
+                <li>Используйте JPEG для фотографий (меньший размер)</li>
+                <li>Используйте PNG для изображений с прозрачностью</li>
+                <li>Оптимизируйте изображения перед отправкой (уменьшите размер)</li>
+            </ul>
+            
+            <h4>2. Аудио (type: "audio")</h4>
+            <p><strong>Поддерживаемые форматы:</strong></p>
+            <ul>
+                <li><code>audio/mpeg</code> - MP3 файлы (.mp3)</li>
+                <li><code>audio/wav</code> - WAV файлы (.wav)</li>
+                <li><code>audio/ogg</code> - OGG файлы (.ogg)</li>
+                <li><code>audio/webm</code> - WebM аудио (.webm)</li>
+            </ul>
+            <p><strong>Примечание:</strong> Для транскрипции аудио используйте OpenAI Whisper через специальный endpoint.</p>
+            
+            <h4>3. Документы (type: "document")</h4>
+            <p><strong>Поддерживаемые форматы:</strong></p>
+            <ul>
+                <li><code>application/pdf</code> - PDF документы (.pdf)</li>
+                <li><code>text/plain</code> - Текстовые файлы (.txt)</li>
+                <li><code>text/markdown</code> - Markdown файлы (.md)</li>
+            </ul>
+            
+            <h3>Формат объекта файла</h3>
+            <pre><code>{
+  "type": "image",                    // Обязательно: "image" | "audio" | "document"
+  "content": "base64_encoded_string", // Обязательно: файл в формате Base64
+  "mime_type": "image/jpeg",         // Обязательно: MIME тип файла
+  "name": "photo.jpg"                 // Опционально: имя файла (макс 255 символов)
+}</code></pre>
+            
+            <h3>Как подготовить файл для отправки</h3>
+            
+            <h4>JavaScript/Node.js:</h4>
+            <pre><code>// Чтение файла и конвертация в Base64
+const fs = require('fs');
+const imageBuffer = fs.readFileSync('image.jpg');
+const base64Image = imageBuffer.toString('base64');
+
+// Формирование запроса
+const request = {
+  provider: "gemini",
+  model: "gemini-1.5-pro",
+  prompt: "Что изображено на этой картинке?",
+  files: [{
+    type: "image",
+    content: base64Image,
+    mime_type: "image/jpeg",
+    name: "image.jpg"
+  }]
+};</code></pre>
+            
+            <h4>Python:</h4>
+            <pre><code>import base64
+
+# Чтение файла и конвертация в Base64
+with open('image.jpg', 'rb') as f:
+    image_data = f.read()
+    base64_image = base64.b64encode(image_data).decode('utf-8')
+
+# Формирование запроса
+request = {
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "Что изображено на этой картинке?",
+    "files": [{
+        "type": "image",
+        "content": base64_image,
+        "mime_type": "image/jpeg",
+        "name": "image.jpg"
+    }]
+}</code></pre>
+            
+            <h4>PHP:</h4>
+            <pre><code>// Чтение файла и конвертация в Base64
+$imageData = file_get_contents('image.jpg');
+$base64Image = base64_encode($imageData);
+
+// Формирование запроса
+$request = [
+    'provider' => 'gemini',
+    'model' => 'gemini-1.5-pro',
+    'prompt' => 'Что изображено на этой картинке?',
+    'files' => [[
+        'type' => 'image',
+        'content' => $base64Image,
+        'mime_type' => 'image/jpeg',
+        'name' => 'image.jpg'
+    ]]
+];</code></pre>
+            
+            <h4>Bash/curl:</h4>
+            <pre><code># Конвертация изображения в Base64
+BASE64_IMAGE=$(base64 -w 0 image.jpg)
+
+# Формирование JSON запроса
+curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"provider\": \"gemini\",
+    \"model\": \"gemini-1.5-pro\",
+    \"prompt\": \"Что изображено на этой картинке?\",
+    \"files\": [{
+      \"type\": \"image\",
+      \"content\": \"$BASE64_IMAGE\",
+      \"mime_type\": \"image/jpeg\",
+      \"name\": \"image.jpg\"
+    }]
+  }" \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>⚙️ Параметры модели (parameters)</h2>
+            
+            <p>Все параметры опциональны. Если не указаны, используются значения по умолчанию модели.</p>
+            
+            <table>
+                <tr>
+                    <th>Параметр</th>
+                    <th>Тип</th>
+                    <th>Диапазон</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td><code>temperature</code></td>
+                    <td>number</td>
+                    <td>0.0 - 2.0</td>
+                    <td>Контролирует случайность ответа. 0 = детерминированный, 2 = очень креативный</td>
+                </tr>
+                <tr>
+                    <td><code>max_tokens</code></td>
+                    <td>integer</td>
+                    <td>1 - 1,000,000</td>
+                    <td>Максимальное количество токенов в ответе</td>
+                </tr>
+                <tr>
+                    <td><code>top_p</code></td>
+                    <td>number</td>
+                    <td>0.0 - 1.0</td>
+                    <td>Nucleus sampling - вероятность выбора токенов</td>
+                </tr>
+                <tr>
+                    <td><code>top_k</code></td>
+                    <td>integer</td>
+                    <td>≥ 1</td>
+                    <td>Ограничивает выборку топ-K токенами (только Gemini)</td>
+                </tr>
+                <tr>
+                    <td><code>stream</code></td>
+                    <td>boolean</td>
+                    <td>true/false</td>
+                    <td>Потоковая передача ответа (в разработке)</td>
+                </tr>
+            </table>
+            
+            <p><strong>Рекомендации по параметрам:</strong></p>
+            <ul>
+                <li><strong>temperature: 0.0-0.3</strong> - для фактологических задач, переводов, анализа</li>
+                <li><strong>temperature: 0.4-0.7</strong> - для творческих задач, генерации контента</li>
+                <li><strong>temperature: 0.8-2.0</strong> - для очень креативных задач, художественных текстов</li>
+                <li><strong>max_tokens</strong> - устанавливайте разумный лимит, чтобы контролировать стоимость</li>
+            </ul>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>🔑 Управление API ключами</h2>
+            
+            <h3>Варианты использования ключей</h3>
+            
+            <h4>Вариант 1: Использование внутренних ключей (по умолчанию)</h4>
+            <p>Если в .env установлено <code>ALLOW_INTERNAL_API_KEYS=true</code>, ключи из .env используются автоматически.</p>
+            <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Hello!"
+  // Ключ не нужен, используется внутренний
+}</code></pre>
+            
+            <h4>Вариант 2: Передача ключа в запросе</h4>
+            <p>Если <code>ALLOW_API_KEY_IN_REQUEST=true</code>, можно передать свой ключ:</p>
+            <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Hello!",
+  "user_api_key": "AIzaSyBUwkCahleq0ukUxQVskCGC29CA5EoWTg8"
+}</code></pre>
+            
+            <h4>Вариант 3: Использование сохраненного ключа</h4>
+            <p>Если ключ сохранен в вашем аккаунте:</p>
+            <pre><code>{
+  "provider": "gemini",
+  "model": "gemini-1.5-pro",
+  "prompt": "Hello!",
+  "use_saved_key": true,
+  "saved_key_id": 5  // ID ключа из /api/user/keys
+}</code></pre>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>📤 Полные примеры запросов</h2>
+            
+            <h3>Пример 1: Простой текстовый запрос</h3>
             <pre><code>curl -X POST \
   -H 'Authorization: Bearer YOUR_TOKEN' \
   -H 'Content-Type: application/json' \
   -d '{
     "provider": "gemini",
     "model": "gemini-1.5-pro",
-    "prompt": "Explain quantum computing"
+    "prompt": "Объясни квантовые вычисления простым языком для начинающих"
   }' \
   https://api.siteaccess.ru/api/ai/process</code></pre>
             
-            <h4>Формат запроса:</h4>
-            <pre><code>{
-  "provider": "gemini|openai",    // Обязательно
-  "model": "gemini-1.5-pro",       // Обязательно
-  "prompt": "Your prompt",         // Обязательно
-  "user_api_key": "optional",      // Опционально
-  "parameters": {                  // Опционально
-    "temperature": 0.7,
-    "max_tokens": 1000
-  },
-  "files": [...]                   // Опционально (для vision)
-}</code></pre>
+            <h3>Пример 2: Запрос с параметрами</h3>
+            <pre><code>curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "provider": "openai",
+    "model": "gpt-4-turbo-preview",
+    "prompt": "Напиши короткий рассказ о космосе",
+    "parameters": {
+      "temperature": 0.8,
+      "max_tokens": 500,
+      "top_p": 0.9
+    }
+  }' \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
             
-            <h4>Формат ответа:</h4>
+            <h3>Пример 3: Анализ одного изображения</h3>
+            <pre><code># Сначала конвертируем изображение в Base64
+BASE64_IMAGE=$(base64 -w 0 photo.jpg)
+
+curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"provider\": \"gemini\",
+    \"model\": \"gemini-1.5-pro\",
+    \"prompt\": \"Проанализируй это изображение. Опиши что на нем изображено, основные цвета и композицию.\",
+    \"files\": [{
+      \"type\": \"image\",
+      \"content\": \"$BASE64_IMAGE\",
+      \"mime_type\": \"image/jpeg\",
+      \"name\": \"photo.jpg\"
+    }]
+  }" \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+            
+            <h3>Пример 4: Анализ нескольких изображений</h3>
+            <pre><code># Конвертируем несколько изображений
+IMG1=$(base64 -w 0 image1.jpg)
+IMG2=$(base64 -w 0 image2.png)
+
+curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"provider\": \"gemini\",
+    \"model\": \"gemini-1.5-pro\",
+    \"prompt\": \"Сравни эти два изображения. В чем их сходства и различия?\",
+    \"files\": [
+      {
+        \"type\": \"image\",
+        \"content\": \"$IMG1\",
+        \"mime_type\": \"image/jpeg\",
+        \"name\": \"image1.jpg\"
+      },
+      {
+        \"type\": \"image\",
+        \"content\": \"$IMG2\",
+        \"mime_type\": \"image/png\",
+        \"name\": \"image2.png\"
+      }
+    ]
+  }" \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+            
+            <h3>Пример 5: Запрос с пользовательским ключом</h3>
+            <pre><code>curl -X POST \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "provider": "openai",
+    "model": "gpt-4-turbo-preview",
+    "prompt": "Напиши код на Python для работы с API",
+    "user_api_key": "sk-proj-YOUR_OPENAI_KEY_HERE",
+    "parameters": {
+      "temperature": 0.3,
+      "max_tokens": 1000
+    }
+  }' \
+  https://api.siteaccess.ru/api/ai/process</code></pre>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+            
+            <h2>📥 Формат ответа</h2>
+            
+            <h3>Успешный ответ</h3>
             <pre><code>{
   "success": true,
-  "request_id": "uuid",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
   "data": {
     "provider": "gemini",
     "model": "gemini-1.5-pro",
     "response": {
-      "text": "Generated response...",
+      "text": "Квантовые вычисления - это область информатики...",
       "finish_reason": "stop"
     }
   },
@@ -282,8 +688,127 @@
     "total_tokens": 450,
     "estimated_cost": 0.000675
   },
+  "metadata": {
+    "processing_time": 2.345,
+    "timestamp": "2026-02-06T14:30:00Z",
+    "api_key_source": "internal"
+  },
   "limits": {
+    "daily_requests_used": 45,
+    "daily_requests_limit": 100,
     "daily_requests_remaining": 55
+  }
+}</code></pre>
+            
+            <h4>Описание полей ответа:</h4>
+            <table>
+                <tr>
+                    <th>Поле</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td><code>success</code></td>
+                    <td>boolean</td>
+                    <td>Успешность запроса</td>
+                </tr>
+                <tr>
+                    <td><code>request_id</code></td>
+                    <td>string (UUID)</td>
+                    <td>Уникальный ID запроса для отслеживания</td>
+                </tr>
+                <tr>
+                    <td><code>data.response.text</code></td>
+                    <td>string</td>
+                    <td>Текст ответа от AI модели</td>
+                </tr>
+                <tr>
+                    <td><code>data.response.finish_reason</code></td>
+                    <td>string</td>
+                    <td>Причина завершения: "stop", "length", "content_filter"</td>
+                </tr>
+                <tr>
+                    <td><code>usage.prompt_tokens</code></td>
+                    <td>integer</td>
+                    <td>Количество токенов в промпте</td>
+                </tr>
+                <tr>
+                    <td><code>usage.completion_tokens</code></td>
+                    <td>integer</td>
+                    <td>Количество токенов в ответе</td>
+                </tr>
+                <tr>
+                    <td><code>usage.total_tokens</code></td>
+                    <td>integer</td>
+                    <td>Общее количество токенов</td>
+                </tr>
+                <tr>
+                    <td><code>usage.estimated_cost</code></td>
+                    <td>number</td>
+                    <td>Примерная стоимость в USD</td>
+                </tr>
+                <tr>
+                    <td><code>metadata.processing_time</code></td>
+                    <td>number</td>
+                    <td>Время обработки в секундах</td>
+                </tr>
+                <tr>
+                    <td><code>limits.daily_requests_remaining</code></td>
+                    <td>integer</td>
+                    <td>Оставшиеся запросы на сегодня</td>
+                </tr>
+            </table>
+            
+            <h3>Ответ с ошибкой</h3>
+            <pre><code>{
+  "success": false,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "error": {
+    "type": "InvalidApiKeyException",
+    "message": "API key is required. Please provide your gemini API key or configure internal keys."
+  }
+}</code></pre>
+            
+            <h4>Типы ошибок:</h4>
+            <table>
+                <tr>
+                    <th>Тип ошибки</th>
+                    <th>HTTP код</th>
+                    <th>Описание</th>
+                </tr>
+                <tr>
+                    <td><code>InvalidApiKeyException</code></td>
+                    <td>401</td>
+                    <td>Неверный или отсутствующий API ключ</td>
+                </tr>
+                <tr>
+                    <td><code>RateLimitExceededException</code></td>
+                    <td>429</td>
+                    <td>Превышен лимит запросов</td>
+                </tr>
+                <tr>
+                    <td><code>AIProviderException</code></td>
+                    <td>500</td>
+                    <td>Ошибка провайдера AI</td>
+                </tr>
+                <tr>
+                    <td><code>ValidationException</code></td>
+                    <td>422</td>
+                    <td>Ошибка валидации данных запроса</td>
+                </tr>
+            </table>
+            
+            <h3>Пример ответа с ошибкой валидации</h3>
+            <pre><code>{
+  "success": false,
+  "request_id": "...",
+  "error": {
+    "type": "ValidationException",
+    "message": "The given data was invalid.",
+    "errors": {
+      "prompt": ["Prompt text is required"],
+      "files.0.content": ["File content is required when files are provided"]
+    }
   }
 }</code></pre>
             
