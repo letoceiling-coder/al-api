@@ -13,6 +13,10 @@ return [
                  * Route for accessing api documentation interface
                  */
                 'api' => 'api/documentation',
+                /*
+                 * Custom controller to fix route name issue
+                 */
+                'controller' => \App\Http\Controllers\SwaggerController::class,
             ],
             'paths' => [
                 /*
