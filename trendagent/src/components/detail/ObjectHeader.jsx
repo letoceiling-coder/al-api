@@ -1,17 +1,65 @@
 import './ObjectHeader.css'
+import { getImageUrl as getImageUrlUtil, getImageUrlFull } from '../../utils/imageUtils'
 
 const ObjectHeader = ({ objectData, advantages, buildings }) => {
   const getName = () => objectData?.name || 'Без названия'
   const getAddress = () => objectData?.address || ''
   const getDescription = () => objectData?.description || objectData?.about || ''
-  const getImages = () => {
-    if (objectData?.renderer && Array.isArray(objectData.renderer)) {
-      return objectData.renderer.map(img => ({
-        url: img.url || `https://selcdn.trendagent.ru/images/${img.path || ''}m_${img.file_name || ''}`,
-        urlFull: img.url_full || `https://selcdn.trendagent.ru/images/${img.path || ''}${img.file_name || ''}`,
-      }))
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    if (typeof img === 'string') return img
+    if (typeof img === 'object' && img !== null) {
+      // Используем утилиту для получения URL
+      const imgUrl = getImageUrlUtil(img)
+      const imgUrlFull = getImageUrlFull(img)
+      if (imgUrl) {
+        return { url: imgUrl, urlFull: imgUrlFull || imgUrl }
+      }
+      if (Array.isArray(img) && img.length > 0) {
+        return getImageUrl(img[0])
+      }
     }
-    return []
+    return ''
+  }
+
+  const getImages = () => {
+    const images = []
+    
+    // Проверяем renderer
+    if (objectData?.renderer && Array.isArray(objectData.renderer)) {
+      objectData.renderer.forEach(img => {
+        const imgUrl = getImageUrl(img)
+        if (typeof imgUrl === 'string' && imgUrl) {
+          images.push({ url: imgUrl, urlFull: imgUrl })
+        } else if (typeof imgUrl === 'object' && imgUrl.url) {
+          images.push(imgUrl)
+        }
+      })
+    }
+    
+    // Проверяем images
+    if (objectData?.images && Array.isArray(objectData.images)) {
+      objectData.images.forEach(img => {
+        const imgUrl = getImageUrl(img)
+        if (typeof imgUrl === 'string' && imgUrl) {
+          images.push({ url: imgUrl, urlFull: imgUrl })
+        } else if (typeof imgUrl === 'object' && imgUrl.url) {
+          images.push(imgUrl)
+        }
+      })
+    }
+    
+    // Проверяем одиночное image
+    if (objectData?.image) {
+      const imgUrl = getImageUrl(objectData.image)
+      if (typeof imgUrl === 'string' && imgUrl) {
+        images.push({ url: imgUrl, urlFull: imgUrl })
+      } else if (typeof imgUrl === 'object' && imgUrl.url) {
+        images.push(imgUrl)
+      }
+    }
+    
+    return images
   }
 
   const getMinPrice = () => {
@@ -102,9 +150,10 @@ const ObjectHeader = ({ objectData, advantages, buildings }) => {
                 <div key={index} className="advantage-item">
                   {advantage.image && (
                     <img
-                      src={advantage.image.url || advantage.image}
+                      src={getImageUrlUtil(advantage.image)}
                       alt={advantage.name || advantage.title}
                       className="advantage-image"
+                      onError={(e) => { e.target.style.display = 'none' }}
                     />
                   )}
                   <div className="advantage-content">

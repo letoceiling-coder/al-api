@@ -1,4 +1,5 @@
 import './ObjectFinishing.css'
+import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectFinishing = ({ finishings }) => {
   const finishingsList = finishings || []
@@ -22,9 +23,10 @@ const ObjectFinishing = ({ finishings }) => {
           <div key={finishing._id || index} className="finishing-item">
             {finishing.image && (
               <img
-                src={finishing.image.url || finishing.image}
+                src={getImageUrl(finishing.image)}
                 alt={finishing.name || finishing.title || `Отделка ${index + 1}`}
                 className="finishing-image"
+                onError={(e) => { e.target.style.display = 'none' }}
               />
             )}
             <div className="finishing-content">

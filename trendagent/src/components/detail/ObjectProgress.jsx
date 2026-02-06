@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './ObjectProgress.css'
+import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectProgress = ({ progressData }) => {
   const [selectedYear, setSelectedYear] = useState(null)
@@ -50,9 +51,10 @@ const ObjectProgress = ({ progressData }) => {
           <div key={item._id || index} className="progress-item">
             {item.image && (
               <img
-                src={item.image.url || item.image}
+                src={getImageUrl(item.image)}
                 alt={item.title || item.name || `Прогресс ${index + 1}`}
                 className="progress-image"
+                onError={(e) => { e.target.style.display = 'none' }}
               />
             )}
             <div className="progress-content">

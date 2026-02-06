@@ -19,8 +19,49 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getImage = () => {
+    // Сначала проверяем массив images (для паркингов и других типов)
+    if (object.images && Array.isArray(object.images) && object.images.length > 0) {
+      const firstImage = object.images[0]
+      // Если есть готовый thumbnail URL
+      if (firstImage.thumbnail) {
+        return firstImage.thumbnail
+      }
+      // Если есть готовый full URL
+      if (firstImage.full) {
+        return firstImage.full
+      }
+      // Формируем URL из path и file_name
+      if (firstImage.path && firstImage.file_name) {
+        const path = firstImage.path.replace(/^\/+|\/+$/g, '')
+        const fileName = firstImage.file_name
+        return `https://selcdn.trendagent.ru/images/${path}/m_${fileName}`
+      }
+      // Пробуем другие варианты
+      if (firstImage.url || firstImage.src) {
+        return firstImage.url || firstImage.src
+      }
+    }
+    
+    // Затем проверяем одиночное поле image (для квартир и других типов)
     if (object.image) {
-      return object.image.url_full || object.image.url || null
+      if (typeof object.image === 'string') {
+        return object.image
+      }
+      // Если есть готовый URL
+      if (object.image.url_full) {
+        return object.image.url_full
+      }
+      if (object.image.url) {
+        return object.image.url
+      }
+      // Формируем URL из path и file_name
+      if (object.image.path && object.image.file_name) {
+        const path = object.image.path.replace(/^\/+|\/+$/g, '')
+        const fileName = object.image.file_name
+        return `https://selcdn.trendagent.ru/images/${path}/m_${fileName}`
+      }
+      // Пробуем другие варианты
+      return object.image.src || object.image.thumbnail || null
     }
     return null
   }

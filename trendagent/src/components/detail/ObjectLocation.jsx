@@ -1,4 +1,5 @@
 import './ObjectLocation.css'
+import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectLocation = ({ address, nearbyPlaces }) => {
   const places = nearbyPlaces || []
@@ -22,9 +23,10 @@ const ObjectLocation = ({ address, nearbyPlaces }) => {
               <div key={place._id || index} className="place-item">
                 {place.image && (
                   <img
-                    src={place.image.url || place.image}
+                    src={getImageUrl(place.image)}
                     alt={place.name || place.title}
                     className="place-image"
+                    onError={(e) => { e.target.style.display = 'none' }}
                   />
                 )}
                 <div className="place-content">

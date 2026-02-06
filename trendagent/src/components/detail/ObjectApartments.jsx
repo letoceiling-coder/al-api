@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './ObjectApartments.css'
+import { getImageUrl } from '../../utils/imageUtils'
 
 const ObjectApartments = ({ apartmentsData, plansData, buildingsData }) => {
   const [selectedRoomType, setSelectedRoomType] = useState(null)
@@ -28,8 +29,7 @@ const ObjectApartments = ({ apartmentsData, plansData, buildingsData }) => {
 
   const getPlanImage = (apartment) => {
     if (apartment.plan) {
-      const plan = typeof apartment.plan === 'object' ? apartment.plan : { file_name: apartment.plan, path: '' }
-      return `https://selcdn.trendagent.ru/images/${plan.path || ''}m_${plan.file_name || plan}`
+      return getImageUrl(apartment.plan)
     }
     return null
   }
