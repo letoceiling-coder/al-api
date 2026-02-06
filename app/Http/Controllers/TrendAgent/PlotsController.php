@@ -230,8 +230,71 @@ class PlotsController
                 throw new \Exception('Авторизация не удалась');
             }
 
-            // Получаем полные данные блока
-            $fullData = $apiAuth->getBlockFullData($id, $options);
+            // Для поселков (участков) unified endpoint возвращает другую структуру
+            // Нужно получить данные из getVillagesSearch по ID или GUID
+            $villageData = null;
+            $isGuid = !preg_match('/^[a-f0-9]{24}$/i', $id);
+            $villageId = $id;
+            
+            // Если это GUID, получаем ID через getBlockById
+            if ($isGuid) {
+                try {
+                    $blockData = $apiAuth->getBlockById($id);
+                    $villageId = $blockData['data']['_id'] ?? null;
+                    if (!$villageId) {
+                        throw new \Exception('Блок с GUID ' . $id . ' не найден');
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка получения ID по GUID для поселка', [
+                        'guid' => $id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    throw new \Exception('Не удалось получить ID поселка по GUID: ' . $e->getMessage());
+                }
+            }
+            
+            // Получаем данные поселка из списка villages
+            try {
+                $villageData = $apiAuth->getVillageById($villageId);
+            } catch (\Exception $e) {
+                Log::warning('Ошибка получения данных поселка из списка', [
+                    'id' => $villageId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+            
+            // Если нашли данные поселка, используем их как unified данные
+            if ($villageData) {
+                // Получаем дополнительные данные через getBlockFullData (buildings, progress, etc.)
+                try {
+                    $fullData = $apiAuth->getBlockFullData($villageId, $options);
+                    // Заменяем unified данные на данные из списка поселков
+                    $fullData['data']['unified'] = [
+                        'success' => true,
+                        'data' => $villageData,
+                    ];
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка получения дополнительных данных блока', [
+                        'id' => $villageId,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Используем только данные из списка
+                    $fullData = [
+                        'success' => true,
+                        'block_id' => $villageId,
+                        'block_guid' => $isGuid ? $id : null,
+                        'data' => [
+                            'unified' => [
+                                'success' => true,
+                                'data' => $villageData,
+                            ],
+                        ],
+                    ];
+                }
+            } else {
+                // Если не нашли в списке, используем стандартный метод
+                $fullData = $apiAuth->getBlockFullData($villageId, $options);
+            }
 
             return response()->json([
                 'success' => true,

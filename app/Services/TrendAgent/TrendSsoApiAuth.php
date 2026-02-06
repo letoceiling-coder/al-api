@@ -1552,6 +1552,49 @@ class TrendSsoApiAuth
     }
 
     /**
+     * Получение данных поселка по ID из списка villages
+     * 
+     * @param string $villageId ID поселка
+     * @param array $params Дополнительные параметры
+     * @return array Данные поселка или null если не найден
+     */
+    public function getVillageById(string $villageId, array $params = []): ?array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            // Получаем список поселков и ищем нужный
+            $searchParams = array_merge([
+                'count' => 100,
+                'offset' => 0,
+            ], $params);
+            
+            $villagesList = $this->getVillagesSearch($searchParams);
+            
+            if (isset($villagesList['data']) && is_array($villagesList['data'])) {
+                foreach ($villagesList['data'] as $village) {
+                    if (isset($village['_id']) && $village['_id'] === $villageId) {
+                        return $village;
+                    }
+                    if (isset($village['id']) && $village['id'] === $villageId) {
+                        return $village;
+                    }
+                }
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения поселка по ID', [
+                'village_id' => $villageId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Получение данных поселков (villages) через API house-api.trendagent.ru/v1/search/villages
      * 
      * @param array $params Параметры запроса (count, offset, sort_type, sort_order, city, lang и т.д.)
