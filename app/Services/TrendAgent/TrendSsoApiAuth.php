@@ -1484,12 +1484,29 @@ class TrendSsoApiAuth
                 ];
             }
 
-            Log::info('Данные участков получены', [
-                'total_count' => $totalCount,
-                'result_count' => $resultCount,
-                'plots_count' => $plotsCount,
-                'results_count' => count($processedResults),
-            ]);
+            // Логирование первого элемента для отладки
+            if (count($processedResults) > 0) {
+                $firstItem = $processedResults[0];
+                Log::info('Данные участков получены - первый элемент', [
+                    'total_count' => $totalCount,
+                    'result_count' => $resultCount,
+                    'plots_count' => $plotsCount,
+                    'results_count' => count($processedResults),
+                    'first_item_keys' => array_keys($firstItem),
+                    'first_item_name' => $firstItem['name'] ?? null,
+                    'first_item_min_prices' => $firstItem['min_prices'] ?? null,
+                    'first_item_images_count' => is_array($firstItem['images'] ?? null) ? count($firstItem['images']) : 0,
+                    'first_item_full' => $firstItem,
+                ]);
+            } else {
+                Log::info('Данные участков получены - пустой результат', [
+                    'total_count' => $totalCount,
+                    'result_count' => $resultCount,
+                    'plots_count' => $plotsCount,
+                    'raw_data_keys' => array_keys($data ?? []),
+                    'raw_data_list_count' => count($data['list'] ?? []),
+                ]);
+            }
 
             // Определяем общее количество участков
             $finalTotal = $plotsCount > 0 ? $plotsCount : ($totalCount > 0 ? $totalCount : count($processedResults));
