@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL API Gateway - Документация (Vue)</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.15/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.5/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .lang-switcher {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 999;
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            color: #666;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Sidebar + Content */
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-item:hover {
+            background: #f5f7fa;
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            margin: 1.5rem 0 1rem;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .code-inline {
+            background: #f5f7fa;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #667eea;
+        }
+
+        /* Cards */
+        .card {
+            background: #f5f7fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .card-success {
+            border-left-color: #28a745;
+        }
+
+        .card-warning {
+            border-left-color: #ffc107;
+        }
+
+        .card-error {
+            border-left-color: #dc3545;
+        }
+
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .table tr:hover {
+            background: #fafafa;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-get { background: #61affe; color: white; }
+        .badge-post { background: #49cc90; color: white; }
+        .badge-put { background: #fca130; color: white; }
+        .badge-delete { background: #f93e3e; color: white; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <span>🤖</span>
+                <span>AL API Gateway</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 {{ t('home') }}</a>
+                <a href="/streaming-guide.html" class="nav-link">📡 Streaming</a>
+                <a href="/multipart-guide.html" class="nav-link">📎 {{ t('upload') }}</a>
+                <a href="/model-parameters-guide.html" class="nav-link">⚙️ {{ t('params') }}</a>
+                <a href="/errors.html" class="nav-link">⚠️ {{ t('errors') }}</a>
+                <a href="/api/documentation" class="nav-link">📘 Swagger</a>
+                <a href="/docs-vue.html" class="nav-link active">⚡ Vue Docs</a>
+            </div>
+        </nav>
+
+        <!-- Language Switcher -->
+        <div class="lang-switcher">
+            <button @click="switchLang('ru')" :class="['lang-btn', { active: lang === 'ru' }]">RU</button>
+            <button @click="switchLang('en')" :class="['lang-btn', { active: lang === 'en' }]">EN</button>
+        </div>
+
+        <!-- Container -->
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>{{ t('title') }}</h1>
+                <p>{{ t('subtitle') }}</p>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <h3>{{ t('sections') }}</h3>
+                    <div 
+                        v-for="section in sections" 
+                        :key="section.id"
+                        @click="activeSection = section.id"
+                        :class="['sidebar-item', { active: activeSection === section.id }]"
+                    >
+                        <span>{{ section.icon }}</span>
+                        <span>{{ t(section.title) }}</span>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="main-content">
+                    <!-- Quick Start -->
+                    <div v-if="activeSection === 'quick-start'" class="section">
+                        <h2>{{ t('quick_start') }}</h2>
+                        <p>{{ t('quick_start_desc') }}</p>
+
+                        <div class="card card-success">
+                            <h3>✅ {{ t('step_1') }}</h3>
+                            <p>{{ t('step_1_desc') }}</p>
+                            <div class="code-block">POST /api/v1/register
+Content-Type: application/json
+
+{
+  "name": "Your Name",
+  "email": "your@email.com",
+  "password": "secure_password"
+}</div>
+                        </div>
+
+                        <div class="card card-success">
+                            <h3>✅ {{ t('step_2') }}</h3>
+                            <p>{{ t('step_2_desc') }}</p>
+                            <div class="code-block">curl -X POST https://api.siteaccess.ru/api/v1/ai/process \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "Hello, AI!"
+  }'</div>
+                        </div>
+                    </div>
+
+                    <!-- Authentication -->
+                    <div v-if="activeSection === 'auth'" class="section">
+                        <h2>{{ t('authentication') }}</h2>
+                        <p>{{ t('auth_desc') }}</p>
+
+                        <h3>Bearer Token</h3>
+                        <div class="code-block">Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...</div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ t('header') }}</th>
+                                    <th>{{ t('value') }}</th>
+                                    <th>{{ t('required') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="code-inline">Authorization</span></td>
+                                    <td>Bearer YOUR_TOKEN</td>
+                                    <td>✅ {{ t('yes') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-inline">Content-Type</span></td>
+                                    <td>application/json</td>
+                                    <td>✅ {{ t('yes') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Endpoints -->
+                    <div v-if="activeSection === 'endpoints'" class="section">
+                        <h2>{{ t('endpoints') }}</h2>
+
+                        <div class="card">
+                            <span class="badge badge-post">POST</span>
+                            <span class="code-inline">/api/v1/ai/process</span>
+                            <p>{{ t('process_desc') }}</p>
+                        </div>
+
+                        <div class="card">
+                            <span class="badge badge-post">POST</span>
+                            <span class="code-inline">/api/v1/ai/stream</span>
+                            <p>{{ t('stream_desc') }}</p>
+                        </div>
+
+                        <div class="card">
+                            <span class="badge badge-get">GET</span>
+                            <span class="code-inline">/api/v1/user/keys</span>
+                            <p>{{ t('keys_desc') }}</p>
+                        </div>
+
+                        <div class="card">
+                            <span class="badge badge-get">GET</span>
+                            <span class="code-inline">/api/v1/analytics/summary</span>
+                            <p>{{ t('analytics_desc') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Examples -->
+                    <div v-if="activeSection === 'examples'" class="section">
+                        <h2>{{ t('examples') }}</h2>
+
+                        <h3>{{ t('example_curl') }}</h3>
+                        <div class="code-block">curl -X POST https://api.siteaccess.ru/api/v1/ai/process \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "gemini",
+    "model": "gemini-1.5-pro",
+    "prompt": "What is the capital of France?",
+    "parameters": {
+      "temperature": 0.7,
+      "max_tokens": 100
+    }
+  }'</div>
+
+                        <h3>{{ t('example_js') }}</h3>
+                        <div class="code-block">const response = await fetch('https://api.siteaccess.ru/api/v1/ai/process', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    provider: 'openai',
+    model: 'gpt-4-turbo-preview',
+    prompt: 'Explain quantum computing'
+  })
+});
+
+const data = await response.json();
+console.log(data.data.response);</div>
+
+                        <h3>{{ t('example_python') }}</h3>
+                        <div class="code-block">import requests
+
+response = requests.post(
+    'https://api.siteaccess.ru/api/v1/ai/process',
+    headers={
+        'Authorization': 'Bearer YOUR_TOKEN',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'provider': 'gemini',
+        'model': 'gemini-1.5-flash',
+        'prompt': 'Generate a haiku about AI'
+    }
+)
+
+print(response.json()['data']['response']['text'])</div>
+                    </div>
+
+                    <!-- Models -->
+                    <div v-if="activeSection === 'models'" class="section">
+                        <h2>{{ t('models') }}</h2>
+
+                        <h3>Gemini Models</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ t('model') }}</th>
+                                    <th>{{ t('description') }}</th>
+                                    <th>{{ t('vision') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="code-inline">gemini-1.5-pro</span></td>
+                                    <td>{{ t('gemini_pro_desc') }}</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-inline">gemini-1.5-flash</span></td>
+                                    <td>{{ t('gemini_flash_desc') }}</td>
+                                    <td>✅</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>OpenAI Models</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ t('model') }}</th>
+                                    <th>{{ t('description') }}</th>
+                                    <th>{{ t('vision') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="code-inline">gpt-4-turbo-preview</span></td>
+                                    <td>{{ t('gpt4_desc') }}</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-inline">gpt-3.5-turbo</span></td>
+                                    <td>{{ t('gpt35_desc') }}</td>
+                                    <td>❌</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2026 AL API Gateway | Built with Vue 3 ⚡</p>
+            <p>
+                <a href="https://github.com/letoceiling-coder/al-api" target="_blank" style="color: #667eea;">GitHub</a> |
+                <a href="/api/documentation" style="color: #667eea;">Swagger UI</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    lang: localStorage.getItem('al-api-lang') || 'ru',
+                    activeSection: 'quick-start',
+                    sections: [
+                        { id: 'quick-start', icon: '🚀', title: 'quick_start' },
+                        { id: 'auth', icon: '🔐', title: 'authentication' },
+                        { id: 'endpoints', icon: '📡', title: 'endpoints' },
+                        { id: 'examples', icon: '💻', title: 'examples' },
+                        { id: 'models', icon: '🤖', title: 'models' }
+                    ],
+                    translations: {
+                        ru: {
+                            home: 'Главная',
+                            upload: 'Загрузка файлов',
+                            params: 'Параметры',
+                            errors: 'Ошибки',
+                            title: 'AL API Gateway',
+                            subtitle: 'Единый интерфейс для Gemini и OpenAI с современной Vue архитектурой',
+                            sections: 'Разделы',
+                            quick_start: 'Быстрый старт',
+                            authentication: 'Аутентификация',
+                            endpoints: 'Endpoints',
+                            examples: 'Примеры',
+                            models: 'Модели',
+                            quick_start_desc: 'Начните работу с API за 2 простых шага',
+                            step_1: 'Шаг 1: Регистрация',
+                            step_1_desc: 'Создайте аккаунт и получите токен доступа',
+                            step_2: 'Шаг 2: Первый запрос',
+                            step_2_desc: 'Отправьте ваш первый запрос к AI',
+                            auth_desc: 'Все запросы требуют Bearer токен в заголовке Authorization',
+                            header: 'Заголовок',
+                            value: 'Значение',
+                            required: 'Обязательно',
+                            yes: 'Да',
+                            process_desc: 'Основной endpoint для обработки AI запросов',
+                            stream_desc: 'Streaming endpoint с Server-Sent Events',
+                            keys_desc: 'Управление пользовательскими API ключами',
+                            analytics_desc: 'Статистика использования и затрат',
+                            example_curl: 'Пример cURL',
+                            example_js: 'Пример JavaScript',
+                            example_python: 'Пример Python',
+                            model: 'Модель',
+                            description: 'Описание',
+                            vision: 'Vision',
+                            gemini_pro_desc: 'Самая мощная модель Gemini',
+                            gemini_flash_desc: 'Быстрая и экономичная модель',
+                            gpt4_desc: 'Самая продвинутая модель OpenAI',
+                            gpt35_desc: 'Быстрая и доступная модель'
+                        },
+                        en: {
+                            home: 'Home',
+                            upload: 'File Upload',
+                            params: 'Parameters',
+                            errors: 'Errors',
+                            title: 'AL API Gateway',
+                            subtitle: 'Unified interface for Gemini and OpenAI with modern Vue architecture',
+                            sections: 'Sections',
+                            quick_start: 'Quick Start',
+                            authentication: 'Authentication',
+                            endpoints: 'Endpoints',
+                            examples: 'Examples',
+                            models: 'Models',
+                            quick_start_desc: 'Get started with the API in 2 simple steps',
+                            step_1: 'Step 1: Registration',
+                            step_1_desc: 'Create an account and get your access token',
+                            step_2: 'Step 2: First Request',
+                            step_2_desc: 'Send your first AI request',
+                            auth_desc: 'All requests require a Bearer token in the Authorization header',
+                            header: 'Header',
+                            value: 'Value',
+                            required: 'Required',
+                            yes: 'Yes',
+                            process_desc: 'Main endpoint for processing AI requests',
+                            stream_desc: 'Streaming endpoint with Server-Sent Events',
+                            keys_desc: 'Manage user API keys',
+                            analytics_desc: 'Usage statistics and costs',
+                            example_curl: 'cURL Example',
+                            example_js: 'JavaScript Example',
+                            example_python: 'Python Example',
+                            model: 'Model',
+                            description: 'Description',
+                            vision: 'Vision',
+                            gemini_pro_desc: 'Most capable Gemini model',
+                            gemini_flash_desc: 'Fast and economical model',
+                            gpt4_desc: 'Most advanced OpenAI model',
+                            gpt35_desc: 'Fast and affordable model'
+                        }
+                    }
+                }
+            },
+            methods: {
+                t(key) {
+                    return this.translations[this.lang][key] || key;
+                },
+                switchLang(lang) {
+                    this.lang = lang;
+                    localStorage.setItem('al-api-lang', lang);
+                }
+            },
+            mounted() {
+                console.log('✅ Vue Documentation loaded');
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
