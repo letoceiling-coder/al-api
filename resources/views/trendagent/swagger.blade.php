@@ -18,6 +18,13 @@
             margin:0;
             background: #fafafa;
         }
+        .error-message {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            margin: 20px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -26,9 +33,36 @@
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
     <script>
         window.onload = function() {
+            const swaggerUrl = "{{ url('/trendagent/swagger.json') }}";
+            console.log('Loading Swagger from:', swaggerUrl);
+            
+            // Проверяем доступность файла перед загрузкой
+            fetch(swaggerUrl)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Swagger JSON loaded successfully');
+                    console.log('OpenAPI version:', data.openapi);
+                    console.log('Paths count:', Object.keys(data.paths || {}).length);
+                })
+                .catch(error => {
+                    console.error('Error loading swagger.json:', error);
+                    document.getElementById('swagger-ui').innerHTML = 
+                        '<div class="error-message">' +
+                        '<h2>Ошибка загрузки документации</h2>' +
+                        '<p>Не удалось загрузить swagger.json: ' + error.message + '</p>' +
+                        '<p>URL: ' + swaggerUrl + '</p>' +
+                        '<p>Проверьте консоль браузера (F12) для деталей.</p>' +
+                        '</div>';
+                });
+            
             const ui = SwaggerUIBundle({
-                url: "{{ url('/trendagent/swagger.json') }}",
-                validatorUrl: null,
+                url: swaggerUrl,
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [
@@ -44,7 +78,13 @@
                 filter: true,
                 showExtensions: true,
                 showCommonExtensions: true,
-                tryItOutEnabled: true
+                tryItOutEnabled: true,
+                onComplete: function() {
+                    console.log('Swagger UI loaded successfully');
+                },
+                onFailure: function(data) {
+                    console.error('Swagger UI load error:', data);
+                }
             });
         };
     </script>
