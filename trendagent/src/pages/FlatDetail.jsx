@@ -25,6 +25,7 @@ const FlatDetail = () => {
   const [phone, setPhone] = useState('+79045393434')
   const [password, setPassword] = useState('nwBvh4q')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [imageType, setImageType] = useState('plans') // 'plans' или 'finishing'
 
   useEffect(() => {
     loadFlatDetail()
@@ -49,6 +50,8 @@ const FlatDetail = () => {
         setDiscountsData(response.data?.discounts || null)
         setMortgageData(response.data?.mortgage || null)
         setInstallmentsData(response.data?.installments || null)
+        setPlansData(response.data?.plans || null)
+        setFinishingsData(response.data?.finishings || null)
       } else {
         setError(response.message || 'Ошибка загрузки данных квартиры')
       }
@@ -150,49 +153,123 @@ const FlatDetail = () => {
   const apartment = apartmentData.data || apartmentData
   const block = blockData?.data || blockData
 
-  // Собираем все изображения квартиры
-  const getImages = () => {
-    const images = []
+  // Собираем все изображения квартиры, группируя по типам
+  const getImagesByType = () => {
+    const plans = []
+    const finishing = []
+    const photos = []
     
-    // Проверяем массив images
-    if (apartment?.images && Array.isArray(apartment.images)) {
-      apartment.images.forEach(img => {
+    // Планы (plan, plan_image, plans)
+    if (apartment?.plan) {
+      const imgUrl = getImageUrlFull(apartment.plan) || getImageUrl(apartment.plan)
+      if (imgUrl) {
+        plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
+      }
+    }
+    
+    if (apartment?.plan_image) {
+      const imgUrl = getImageUrlFull(apartment.plan_image) || getImageUrl(apartment.plan_image)
+      if (imgUrl && !plans.find(img => img.url === imgUrl)) {
+        plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan_image' })
+      }
+    }
+    
+    if (apartment?.plans && Array.isArray(apartment.plans)) {
+      apartment.plans.forEach(img => {
         const imgUrl = getImageUrlFull(img) || getImageUrl(img)
-        if (imgUrl) {
-          images.push({ url: imgUrl, urlFull: imgUrl })
+        if (imgUrl && !plans.find(i => i.url === imgUrl)) {
+          plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
         }
       })
     }
     
-    // Проверяем одиночное image
+    // Добавляем планы из plansData (если есть)
+    if (plansData?.data && Array.isArray(plansData.data)) {
+      plansData.data.forEach(plan => {
+        const imgUrl = getImageUrlFull(plan) || getImageUrl(plan)
+        if (imgUrl && !plans.find(i => i.url === imgUrl)) {
+          plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
+        }
+      })
+    }
+    
+    // Отделка (finishing, finishing_images)
+    if (apartment?.finishing_image) {
+      const imgUrl = getImageUrlFull(apartment.finishing_image) || getImageUrl(apartment.finishing_image)
+      if (imgUrl) {
+        finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
+      }
+    }
+    
+    if (apartment?.finishing_images && Array.isArray(apartment.finishing_images)) {
+      apartment.finishing_images.forEach(img => {
+        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
+        if (imgUrl && !finishing.find(i => i.url === imgUrl)) {
+          finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
+        }
+      })
+    }
+    
+    // Добавляем отделку из finishingsData (если есть)
+    if (finishingsData?.data && Array.isArray(finishingsData.data)) {
+      finishingsData.data.forEach(fin => {
+        if (fin.image) {
+          const imgUrl = getImageUrlFull(fin.image) || getImageUrl(fin.image)
+          if (imgUrl && !finishing.find(i => i.url === imgUrl)) {
+            finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
+          }
+        }
+      })
+    }
+    
+    // Фото (images, image, renderer)
+    if (apartment?.images && Array.isArray(apartment.images)) {
+      apartment.images.forEach(img => {
+        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
+        if (imgUrl) {
+          photos.push({ url: imgUrl, urlFull: imgUrl, type: 'photo' })
+        }
+      })
+    }
+    
     if (apartment?.image) {
       const imgUrl = getImageUrlFull(apartment.image) || getImageUrl(apartment.image)
-      if (imgUrl && !images.find(img => img.url === imgUrl)) {
-        images.push({ url: imgUrl, urlFull: imgUrl })
+      if (imgUrl && !photos.find(img => img.url === imgUrl)) {
+        photos.push({ url: imgUrl, urlFull: imgUrl, type: 'photo' })
       }
     }
     
-    // Проверяем plan
-    if (apartment?.plan) {
-      const imgUrl = getImageUrlFull(apartment.plan) || getImageUrl(apartment.plan)
-      if (imgUrl && !images.find(img => img.url === imgUrl)) {
-        images.push({ url: imgUrl, urlFull: imgUrl })
-      }
+    if (apartment?.renderer && Array.isArray(apartment.renderer)) {
+      apartment.renderer.forEach(img => {
+        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
+        if (imgUrl && !photos.find(i => i.url === imgUrl)) {
+          photos.push({ url: imgUrl, urlFull: imgUrl, type: 'renderer' })
+        }
+      })
     }
     
-    // Проверяем plan_image
-    if (apartment?.plan_image) {
-      const imgUrl = getImageUrlFull(apartment.plan_image) || getImageUrl(apartment.plan_image)
-      if (imgUrl && !images.find(img => img.url === imgUrl)) {
-        images.push({ url: imgUrl, urlFull: imgUrl })
-      }
-    }
-    
-    return images
+    return { plans, finishing, photos }
   }
 
-  const images = getImages()
+  const imagesByType = getImagesByType()
+  
+  // Определяем, какие изображения показывать в зависимости от выбранного типа
+  const getCurrentImages = () => {
+    if (imageType === 'plans') {
+      return imagesByType.plans.length > 0 ? imagesByType.plans : imagesByType.photos
+    } else if (imageType === 'finishing') {
+      return imagesByType.finishing.length > 0 ? imagesByType.finishing : imagesByType.photos
+    }
+    return imagesByType.photos
+  }
+
+  const images = getCurrentImages()
   const currentImage = images[currentImageIndex] || null
+  
+  // Сбрасываем индекс при смене типа
+  useEffect(() => {
+    setCurrentImageIndex(0)
+  }, [imageType])
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length)
@@ -253,9 +330,9 @@ const FlatDetail = () => {
       <div className="flat-content">
         <div className="flat-main">
           {/* Галерея изображений */}
-          {images.length > 0 && (
+          {(imagesByType.plans.length > 0 || imagesByType.finishing.length > 0 || imagesByType.photos.length > 0) && (
             <div className="flat-gallery-section">
-              <h2>Фотографии</h2>
+              <h2>Планировка</h2>
               <div className="flat-gallery">
                 <div className="gallery-main">
                   {currentImage && (
@@ -273,7 +350,7 @@ const FlatDetail = () => {
                       )}
                       <img
                         src={currentImage.urlFull || currentImage.url}
-                        alt={`Квартира ${number} - фото ${currentImageIndex + 1}`}
+                        alt={`Квартира ${number} - ${imageType === 'plans' ? 'план' : imageType === 'finishing' ? 'отделка' : 'фото'} ${currentImageIndex + 1}`}
                         className="gallery-main-image"
                         onError={(e) => { e.target.style.display = 'none' }}
                       />
@@ -296,6 +373,29 @@ const FlatDetail = () => {
                     </>
                   )}
                 </div>
+                
+                {/* Переключение между типами изображений */}
+                {(imagesByType.plans.length > 0 || imagesByType.finishing.length > 0) && (
+                  <div className="gallery-type-switcher">
+                    {imagesByType.plans.length > 0 && (
+                      <button
+                        className={`gallery-type-btn ${imageType === 'plans' ? 'active' : ''}`}
+                        onClick={() => setImageType('plans')}
+                      >
+                        Поэтажный план
+                      </button>
+                    )}
+                    {imagesByType.finishing.length > 0 && (
+                      <button
+                        className={`gallery-type-btn ${imageType === 'finishing' ? 'active' : ''}`}
+                        onClick={() => setImageType('finishing')}
+                      >
+                        Отделка
+                      </button>
+                    )}
+                  </div>
+                )}
+                
                 {images.length > 1 && (
                   <div className="gallery-thumbnails">
                     {images.map((img, index) => (

@@ -512,6 +512,21 @@ class ApartmentsController
                 ]);
             }
 
+            // Получаем планы и отделку для блока (могут содержать изображения для квартиры)
+            $plansData = null;
+            $finishingsData = null;
+            try {
+                $plansData = $apiAuth->getBlockPlans($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить планы блока', ['error' => $e->getMessage()]);
+            }
+            
+            try {
+                $finishingsData = $apiAuth->getBlockFinishings($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить отделку блока', ['error' => $e->getMessage()]);
+            }
+
             // Получаем дополнительные данные: вознаграждения, скидки, ипотека, рассрочка
             $rewardsData = null;
             $discountsData = null;
@@ -555,6 +570,8 @@ class ApartmentsController
                     'discounts' => $discountsData,
                     'mortgage' => $mortgageData,
                     'installments' => $installmentsData,
+                    'plans' => $plansData,
+                    'finishings' => $finishingsData,
                 ],
             ], 200);
 

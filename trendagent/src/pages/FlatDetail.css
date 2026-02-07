@@ -207,6 +207,44 @@
   display: block;
 }
 
+.gallery-type-switcher {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.gallery-type-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  color: #666;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gallery-type-btn:hover {
+  border-color: #d0d0d0;
+  background: #f9fafb;
+}
+
+.gallery-type-btn.active {
+  background: #059669;
+  color: #fff;
+  border-color: #059669;
+}
+
+.gallery-type-btn.active:hover {
+  background: #047857;
+  border-color: #047857;
+}
+
 .flat-plan-image {
   width: 100%;
   border-radius: 8px;
