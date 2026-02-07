@@ -68,8 +68,8 @@ class ParseCommand extends Command
         $this->limit = (int) $this->option('limit');
         $this->offset = (int) $this->option('offset');
         $this->parseDetails = $this->option('details');
-        $this->saveRaw = $this->option('save-raw') ?? true;
-        $this->downloadImages = $this->option('download-images') ?? false;
+        $this->saveRaw = $this->option('save-raw');
+        $this->downloadImages = $this->option('download-images');
         
         // Инициализируем ImageDownloader с нужным режимом
         $this->imageDownloader = new ImageDownloader($this->downloadImages);
