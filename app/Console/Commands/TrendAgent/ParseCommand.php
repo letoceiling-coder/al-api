@@ -231,7 +231,13 @@ class ParseCommand extends Command
      */
     private function parseApartments(int $offset, $bar): array
     {
-        $data = $this->apiClient->getApartments($this->region, [], $this->limit, $offset);
+        $params = [
+            'city' => $this->region,
+            'count' => $this->limit,
+            'offset' => $offset,
+        ];
+        
+        $data = $this->apiClient->getApartments($params);
         
         if ($this->saveRaw) {
             $this->saveRawData('apartments', 'list', $offset, $data);
