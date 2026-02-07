@@ -151,34 +151,53 @@ class ParseCommand extends Command
         $processed = 0;
         $errors = 0;
         $currentOffset = $this->offset;
+        $pageSize = 100; // API возвращает максимум ~40-100 объектов
 
         try {
-            switch ($type) {
-                case 'complexes':
-                    $result = $this->parseComplexes($currentOffset, $bar);
-                    break;
-                case 'apartments':
-                    $result = $this->parseApartments($currentOffset, $bar);
-                    break;
-                case 'parkings':
-                    $result = $this->parseParkings($currentOffset, $bar);
-                    break;
-                case 'houses':
-                    $result = $this->parseHouses($currentOffset, $bar);
-                    break;
-                case 'plots':
-                    $result = $this->parsePlots($currentOffset, $bar);
-                    break;
-                case 'commercial':
-                    $result = $this->parseCommercial($currentOffset, $bar);
-                    break;
-                default:
-                    $this->warn("⚠️  Неизвестный тип: {$type}");
-                    return;
-            }
+            // Цикл пагинации
+            while ($processed < $this->limit) {
+                $result = null;
+                switch ($type) {
+                    case 'complexes':
+                        $result = $this->parseComplexes($currentOffset, $bar);
+                        break;
+                    case 'apartments':
+                        $result = $this->parseApartments($currentOffset, $bar);
+                        break;
+                    case 'parkings':
+                        $result = $this->parseParkings($currentOffset, $bar);
+                        break;
+                    case 'houses':
+                        $result = $this->parseHouses($currentOffset, $bar);
+                        break;
+                    case 'plots':
+                        $result = $this->parsePlots($currentOffset, $bar);
+                        break;
+                    case 'commercial':
+                        $result = $this->parseCommercial($currentOffset, $bar);
+                        break;
+                    default:
+                        $this->warn("⚠️  Неизвестный тип: {$type}");
+                        return;
+                }
 
-            $processed = $result['processed'];
-            $errors = $result['errors'];
+                $pageProcessed = $result['processed'];
+                $processed += $pageProcessed;
+                $errors += $result['errors'];
+                
+                // Если получили 0 объектов - значит это конец
+                if ($pageProcessed === 0) {
+                    break;
+                }
+                
+                // Если получили меньше чем pageSize - вероятно последняя страница
+                if ($pageProcessed < $pageSize / 2) {
+                    break;
+                }
+                
+                // Увеличиваем offset для следующей страницы
+                $currentOffset += $pageProcessed;
+            }
 
         } catch (Exception $e) {
             $this->error("\n❌ Ошибка при парсинге {$type}: " . $e->getMessage());
@@ -200,8 +219,8 @@ class ParseCommand extends Command
      */
     private function parseComplexes(int $offset, $bar): array
     {
-        $data = $this->apiClient->getObjectsList($this->region, null, $this->limit, $offset);
-        
+        $data = $this->apiClient->getObjectsList($this->region, null, 100, $offset);
+
         if ($this->saveRaw) {
             $this->saveRawData('complexes', 'list', $offset, $data);
         }
@@ -233,7 +252,7 @@ class ParseCommand extends Command
     {
         $params = [
             'city' => $this->region,
-            'count' => $this->limit,
+            'count' => 100,
             'offset' => $offset,
         ];
         
@@ -258,7 +277,7 @@ class ParseCommand extends Command
     {
         $params = [
             'city' => $this->region,
-            'count' => $this->limit,
+            'count' => 100,
             'offset' => $offset,
         ];
         
@@ -283,7 +302,7 @@ class ParseCommand extends Command
     {
         $params = [
             'city' => $this->region,
-            'count' => $this->limit,
+            'count' => 100,
             'offset' => $offset,
         ];
         
@@ -308,7 +327,7 @@ class ParseCommand extends Command
     {
         $params = [
             'city' => $this->region,
-            'count' => $this->limit,
+            'count' => 100,
             'offset' => $offset,
         ];
         
@@ -333,7 +352,7 @@ class ParseCommand extends Command
     {
         $params = [
             'city' => $this->region,
-            'count' => $this->limit,
+            'count' => 100,
             'offset' => $offset,
         ];
         
