@@ -39,6 +39,11 @@ const ObjectDetail = () => {
       { id: 'about', label: 'Об объекте' },
       { id: 'mortgage', label: 'Ипотека' },
     ] : []),
+    ...(objectType === 'houses' ? [
+      { id: 'houses-table', label: 'Таблица' },
+      { id: 'houses-plans', label: 'Планы' },
+      { id: 'houses-map', label: 'Карта' },
+    ] : []),
     { id: 'apartments', label: 'Квартиры' },
     { id: 'parkings', label: 'Паркинги' },
     { id: 'commerce', label: 'Коммерция' },
