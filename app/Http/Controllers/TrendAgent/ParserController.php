@@ -4,9 +4,7 @@ namespace App\Http\Controllers\TrendAgent;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Process;
 
 class ParserController extends Controller
 {
@@ -30,35 +28,27 @@ class ParserController extends Controller
         }
         
         // Формируем команду
-        $command = [
-            'php',
-            base_path('artisan'),
-            'trendagent:parse',
-            "--region={$region}",
-            "--type={$type}",
-            "--limit={$limit}",
-        ];
+        $command = 'cd ' . base_path() . ' && php artisan trendagent:parse';
+        $command .= " --region={$region}";
+        $command .= " --type={$type}";
+        $command .= " --limit={$limit}";
         
         if ($details) {
-            $command[] = '--details';
+            $command .= ' --details';
         }
         
         if ($saveRaw) {
-            $command[] = '--save-raw';
+            $command .= ' --save-raw';
         }
         
-        // Запускаем процесс в фоне
+        // Лог файл
         $logFile = storage_path("logs/parser_{$region}_{$type}_" . date('Y-m-d_H-i-s') . ".log");
+        $command .= " > {$logFile} 2>&1 & echo $!";
         
-        $process = new Process($command);
-        $process->setTimeout(null);
-        $process->setIdleTimeout(null);
-        $process->start(function ($type, $buffer) use ($logFile) {
-            file_put_contents($logFile, $buffer, FILE_APPEND);
-        });
+        // Запускаем в фоне
+        $pid = exec($command);
         
-        // Сохраняем PID
-        $pid = $process->getPid();
+        // Сохраняем PID и инфо
         Storage::put('parser_pid.txt', $pid);
         Storage::put('parser_log.txt', $logFile);
         Storage::put('parser_started_at.txt', now()->toIso8601String());
