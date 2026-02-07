@@ -1,7 +1,54 @@
 # План парсинга и проектирования БД для TrendAgent
 
+## 📌 Статус: ОБНОВЛЁН после реорганизации проекта (2026-02-07)
+
 ## Цель
 Создать систему парсинга всех типов объектов TrendAgent (Квартиры, Паркинги, Дома, Участки, Коммерция) для всех регионов с последующим анализом данных и проектированием гибкой структуры БД с правильными связями.
+
+## 🔄 Изменения после реорганизации проекта
+
+### Новая структура URL и маршрутов:
+- **TrendAgent React App:** `https://api.siteaccess.ru/trendagent/`
+- **TrendAgent API v1:** `https://api.siteaccess.ru/api/trendagent/v1/*`
+- **TrendAgent Swagger:** `https://api.siteaccess.ru/swagger/trendagent`
+- **TrendAgent Swagger JSON:** `https://api.siteaccess.ru/api/trendagent/v1/swagger.json`
+
+### Новая структура директорий проекта:
+```
+AL/
+├── projects/trendagent/          # Исходники React приложения
+│   ├── src/
+│   │   ├── services/api.js       # API client (базовый URL: /api/trendagent/v1)
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── main.jsx              # BrowserRouter с basename="/trendagent"
+│   ├── vite.config.js            # base: '/trendagent/', outDir: '../../public/trendagent'
+│   └── package.json
+│
+├── public/trendagent/            # Собранное React приложение
+│   ├── index.html
+│   └── assets/
+│       ├── index-*.js
+│       └── index-*.css
+│
+├── app/Http/Controllers/TrendAgent/  # API контроллеры
+│   ├── ApartmentsController.php
+│   ├── ParkingsController.php
+│   ├── HousesController.php
+│   ├── PlotsController.php
+│   ├── CommercialController.php
+│   └── TrendSsoController.php
+│
+├── routes/
+│   ├── web.php                   # /trendagent/{any} → ProjectController@show
+│   └── trendagent.php            # /api/trendagent/v1/* → TrendAgent контроллеры
+│
+└── storage/
+    ├── api-docs/
+    │   └── trendagent-swagger.json    # OpenAPI спецификация
+    └── trendagent/                    # Новое расположение для парсинга
+        └── parsing/                   # (смотри ниже)
+```
 
 ---
 
@@ -41,6 +88,9 @@ storage/trendagent/parsing/
 #### 1.1.2 Создание Artisan команды для парсинга
 **Команда:** `php artisan trendagent:parse --region=spb --type=all`
 
+**Расположение контроллера:**
+- `app/Console/Commands/TrendAgent/ParseCommand.php`
+
 **Параметры:**
 - `--region` - регион (spb, msk, и т.д.)
 - `--type` - тип объекта (all, apartments, parkings, houses, plots, commercial, complexes)
@@ -49,10 +99,16 @@ storage/trendagent/parsing/
 - `--details` - парсить детальные страницы (true/false)
 - `--save-raw` - сохранять сырые данные (true/false)
 
+**Использование API:**
+- Команда будет использовать существующие контроллеры из `app/Http/Controllers/TrendAgent/`
+- Или напрямую обращаться к TrendAgent API через сервис-класс
+- Базовый URL API: `/api/trendagent/v1/*`
+
 ### 1.2 Парсинг списков объектов
 
 #### 1.2.1 Парсинг комплексов (блоков)
-**API Endpoint:** `POST /trendagent/objects/list`
+**API Endpoint:** `POST /api/trendagent/v1/objects/list`
+**Laravel Route:** `routes/trendagent.php` → `TrendSsoController@getObjectsList`
 **Параметры:**
 ```json
 {
@@ -87,7 +143,8 @@ storage/trendagent/parsing/
 ```
 
 #### 1.2.2 Парсинг квартир
-**API Endpoint:** `POST /trendagent/apartments`
+**API Endpoint:** `POST /api/trendagent/v1/apartments`
+**Laravel Route:** `routes/trendagent.php` → `ApartmentsController@index`
 **Параметры:**
 ```json
 {
@@ -106,25 +163,36 @@ storage/trendagent/parsing/
 - Файл: `storage/trendagent/parsing/spb/raw/apartments/list_offset_{offset}.json`
 
 #### 1.2.3 Парсинг паркингов
-**API Endpoint:** `POST /trendagent/parkings`
+**API Endpoint:** `POST /api/trendagent/v1/parkings`
+**Laravel Route:** `routes/trendagent.php` → `ParkingsController@index`
 **Файл:** `storage/trendagent/parsing/spb/raw/parkings/list_offset_{offset}.json`
 
 #### 1.2.4 Парсинг домов
-**API Endpoint:** `POST /trendagent/houses`
+**API Endpoint:** `POST /api/trendagent/v1/houses`
+**Laravel Route:** `routes/trendagent.php` → `HousesController@index`
 **Файл:** `storage/trendagent/parsing/spb/raw/houses/list_offset_{offset}.json`
 
 #### 1.2.5 Парсинг участков
-**API Endpoint:** `POST /trendagent/plots`
+**API Endpoint:** `POST /api/trendagent/v1/plots`
+**Laravel Route:** `routes/trendagent.php` → `PlotsController@index`
 **Файл:** `storage/trendagent/parsing/spb/raw/plots/list_offset_{offset}.json`
 
 #### 1.2.6 Парсинг коммерции
-**API Endpoint:** `POST /trendagent/commercial`
+**API Endpoint:** `POST /api/trendagent/v1/commercial`
+**Laravel Route:** `routes/trendagent.php` → `CommercialController@index`
 **Файл:** `storage/trendagent/parsing/spb/raw/commercial/list_offset_{offset}.json`
 
 ### 1.3 Парсинг детальных страниц
 
 #### 1.3.1 Детали комплекса
-**API Endpoint:** `POST /trendagent/apartments/{id}` или `POST /trendagent/block/details`
+**API Endpoint:** `POST /api/trendagent/v1/apartments/{id}` или `POST /api/trendagent/v1/block/details`
+**Laravel Routes:** 
+- `ApartmentsController@show` - детали комплекса
+- `ApartmentsController@checkerboardBuildings` - шахматка корпусов
+- `ApartmentsController@checkerboardApartments` - шахматка квартир
+- `ApartmentsController@floorPlanDirectory` - директория планов
+- `ApartmentsController@floorPlan` - поэтажный план
+
 **Параметры:**
 ```json
 {
@@ -151,32 +219,45 @@ storage/trendagent/parsing/
 - Файл: `storage/trendagent/parsing/spb/details/complexes/{complex_id}.json`
 
 **Дополнительно парсить:**
-- Шахматка корпусов: `POST /trendagent/apartments/{id}/checkerboard/buildings`
-- Шахматка квартир: `POST /trendagent/apartments/{id}/checkerboard/apartments`
-- Поэтажный план: `POST /trendagent/apartments/{id}/floor-plan/directory`
-- Поэтажный план данные: `POST /trendagent/apartments/{id}/floor-plan`
+- Шахматка корпусов: `POST /api/trendagent/v1/apartments/{id}/checkerboard/buildings`
+- Шахматка квартир: `POST /api/trendagent/v1/apartments/{id}/checkerboard/apartments`
+- Поэтажный план: `POST /api/trendagent/v1/apartments/{id}/floor-plan/directory`
+- Поэтажный план данные: `POST /api/trendagent/v1/apartments/{id}/floor-plan`
 
 #### 1.3.2 Детали квартиры
-**API Endpoint:** `POST /trendagent/apartments/{id}/flat/{apartmentId}`
+**API Endpoint:** `POST /api/trendagent/v1/apartments/{id}/flat/{apartmentId}`
+**Laravel Route:** `ApartmentsController@flatDetail`
 **Файл:** `storage/trendagent/parsing/spb/details/apartments/{apartment_id}.json`
 
 #### 1.3.3 Детали паркинга
-**API Endpoint:** `POST /trendagent/parkings/{id}`
-**Дополнительно:** `POST /trendagent/parkings/{id}/places` (места парковки)
+**API Endpoint:** 
+- `POST /api/trendagent/v1/parkings/{id}` (детали)
+- `POST /api/trendagent/v1/parkings/{id}/places` (места парковки)
+**Laravel Routes:**
+- `ParkingsController@show`
+- `ParkingsController@places`
 **Файл:** `storage/trendagent/parsing/spb/details/parkings/{parking_id}.json`
 
 #### 1.3.4 Детали дома
-**API Endpoint:** `POST /trendagent/houses/{id}`
+**API Endpoint:** `POST /api/trendagent/v1/houses/{id}`
+**Laravel Route:** `HousesController@show`
 **Дополнительно:** Шахматка (если есть)
+- `HousesController@checkerboardBuildings`
+- `HousesController@checkerboardApartments`
 **Файл:** `storage/trendagent/parsing/spb/details/houses/{house_id}.json`
 
 #### 1.3.5 Детали участка
-**API Endpoint:** `POST /trendagent/plots/{id}`
-**Дополнительно:** `POST /trendagent/plots/{id}/plot/{plotId}` (детали конкретного участка)
+**API Endpoint:** 
+- `POST /api/trendagent/v1/plots/{id}` (детали поселка)
+- `POST /api/trendagent/v1/plots/{id}/plot/{plotId}` (детали конкретного участка)
+**Laravel Routes:**
+- `PlotsController@show`
+- `PlotsController@plotDetail`
 **Файл:** `storage/trendagent/parsing/spb/details/plots/{plot_id}.json`
 
 #### 1.3.6 Детали коммерции
-**API Endpoint:** `POST /trendagent/commercial/{id}`
+**API Endpoint:** `POST /api/trendagent/v1/commercial/{id}`
+**Laravel Route:** `CommercialController@show`
 **Файл:** `storage/trendagent/parsing/spb/details/commercial/{commercial_id}.json`
 
 ### 1.4 Скачивание и хранение изображений
@@ -843,24 +924,67 @@ php artisan trendagent:generate-migrations
 
 ### 5.2 Структура классов
 
-#### 5.2.1 Сервисы парсинга
-- `App\Services\TrendAgent\Parser\ComplexParser`
-- `App\Services\TrendAgent\Parser\ApartmentParser`
-- `App\Services\TrendAgent\Parser\ParkingParser`
-- `App\Services\TrendAgent\Parser\HouseParser`
-- `App\Services\TrendAgent\Parser\PlotParser`
-- `App\Services\TrendAgent\Parser\CommercialParser`
+#### 5.2.1 Существующие контроллеры API (уже реализованы)
+**Расположение:** `app/Http/Controllers/TrendAgent/`
 
-#### 5.2.2 Сервисы анализа
-- `App\Services\TrendAgent\Analyzer\FieldExtractor`
-- `App\Services\TrendAgent\Analyzer\RelationshipFinder`
-- `App\Services\TrendAgent\Analyzer\TypeAnalyzer`
-- `App\Services\TrendAgent\Analyzer\IndexRecommender`
+Используются для прокси-запросов к TrendAgent API:
+- `TrendSsoController` - аутентификация, города, списки объектов
+- `ApartmentsController` - квартиры и комплексы
+- `ParkingsController` - паркинги
+- `HousesController` - дома
+- `PlotsController` - участки
+- `CommercialController` - коммерческая недвижимость
 
-#### 5.2.3 Генераторы миграций
-- `App\Services\TrendAgent\Migration\MigrationGenerator`
-- `App\Services\TrendAgent\Migration\TableBuilder`
-- `App\Services\TrendAgent\Migration\IndexBuilder`
+**Middleware:** `app/Http/Middleware/TrendAgentAuthMiddleware.php`
+- Проверяет Bearer токен: `8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF`
+
+#### 5.2.2 Новые сервисы парсинга (нужно создать)
+**Расположение:** `app/Services/TrendAgent/Parser/`
+
+Эти классы будут использовать существующие контроллеры или напрямую обращаться к TrendAgent API:
+- `ComplexParser` - парсинг комплексов
+- `ApartmentParser` - парсинг квартир
+- `ParkingParser` - парсинг паркингов
+- `HouseParser` - парсинг домов
+- `PlotParser` - парсинг участков
+- `CommercialParser` - парсинг коммерции
+- `ImageDownloader` - скачивание изображений
+
+**Базовый класс:**
+```php
+abstract class BaseParser
+{
+    protected TrendAgentApiClient $apiClient;
+    protected FileStorage $storage;
+    
+    abstract public function parseList(string $region, int $offset, int $limit): array;
+    abstract public function parseDetails(string $id): array;
+    abstract public function downloadImages(array $data): void;
+}
+```
+
+#### 5.2.3 Сервисы анализа (нужно создать)
+**Расположение:** `app/Services/TrendAgent/Analyzer/`
+
+- `FieldExtractor` - извлечение всех полей из JSON
+- `RelationshipFinder` - поиск связей между объектами
+- `TypeAnalyzer` - анализ типов данных
+- `IndexRecommender` - рекомендации по индексам
+
+#### 5.2.4 Генераторы миграций (нужно создать)
+**Расположение:** `app/Services/TrendAgent/Migration/`
+
+- `MigrationGenerator` - генерация миграций на основе анализа
+- `TableBuilder` - построение структуры таблиц
+- `IndexBuilder` - создание индексов
+
+#### 5.2.5 Artisan команды (нужно создать)
+**Расположение:** `app/Console/Commands/TrendAgent/`
+
+- `ParseCommand` - `php artisan trendagent:parse`
+- `AnalyzeCommand` - `php artisan trendagent:analyze`
+- `GenerateMigrationsCommand` - `php artisan trendagent:generate-migrations`
+- `ImportToDbCommand` - `php artisan trendagent:import` (будущее)
 
 ---
 
@@ -873,9 +997,127 @@ php artisan trendagent:generate-migrations
 4. **Денормализация для производительности** - дублировать часто используемые поля
 5. **Индексы для сортировки и фильтрации** - на всех полях для выборки
 
+### Интеграция с существующей архитектурой:
+
+#### Использование существующих компонентов:
+1. **API контроллеры** (`app/Http/Controllers/TrendAgent/`) - уже готовы и работают
+2. **Маршруты** (`routes/trendagent.php`) - все endpoints под `/api/trendagent/v1/*`
+3. **Middleware** (`TrendAgentAuthMiddleware`) - аутентификация через Bearer токен
+4. **React приложение** (`projects/trendagent/`) - UI для просмотра данных
+
+#### Новые компоненты для парсера:
+1. **Artisan команды** - для запуска парсинга и анализа
+2. **Сервисы парсинга** - для обработки данных и сохранения в файлы
+3. **Модели БД** - после анализа данных и создания миграций
+4. **API endpoints для парсера** - возможно добавить в `/api/trendagent/v1/parser/*`
+
+#### Рабочий процесс:
+```
+1. Парсинг данных
+   ↓
+   php artisan trendagent:parse --region=spb
+   ↓
+   Сохранение в storage/trendagent/parsing/spb/
+   
+2. Анализ данных
+   ↓
+   php artisan trendagent:analyze --region=spb
+   ↓
+   Генерация анализа в storage/trendagent/parsing/spb/analysis/
+   
+3. Создание миграций
+   ↓
+   php artisan trendagent:generate-migrations
+   ↓
+   Генерация миграций в database/migrations/
+   
+4. Применение миграций
+   ↓
+   php artisan migrate
+   
+5. Импорт данных в БД
+   ↓
+   php artisan trendagent:import --region=spb
+   
+6. Отображение в React приложении
+   ↓
+   https://api.siteaccess.ru/trendagent/
+```
+
 ### Следующие шаги:
-1. Выполнить парсинг данных для Санкт-Петербурга
-2. Провести анализ структуры данных
-3. Сгенерировать миграции на основе анализа
-4. Протестировать миграции на тестовых данных
-5. Оптимизировать структуру на основе реальных запросов
+1. ✅ **Структура проекта обновлена** (2026-02-07)
+2. ✅ **API endpoints работают** под `/api/trendagent/v1/*`
+3. ✅ **React приложение развёрнуто** на `/trendagent/`
+4. ⏳ **Создать Artisan команду парсинга** - `php artisan trendagent:parse`
+5. ⏳ **Выполнить парсинг данных** для Санкт-Петербурга
+6. ⏳ **Провести анализ структуры данных**
+7. ⏳ **Сгенерировать миграции** на основе анализа
+8. ⏳ **Протестировать миграции** на тестовых данных
+9. ⏳ **Оптимизировать структуру** на основе реальных запросов
+10. ⏳ **Интегрировать с React приложением** для отображения данных из БД
+
+### Технические детали реализации:
+
+#### Создание API клиента для парсера:
+```php
+// app/Services/TrendAgent/TrendAgentApiClient.php
+class TrendAgentApiClient
+{
+    private string $baseUrl = 'https://api.trendagent.ru';
+    private string $phone = '+79045393434';
+    private string $password = 'nwBvh4q';
+    
+    public function authenticate(string $city): array;
+    public function getObjectsList(string $city, ?string $objectType, int $count, int $offset): array;
+    public function getApartments(string $city, array $filters, int $count, int $offset): array;
+    public function getApartmentDetails(string $id, array $options): array;
+    // ... другие методы
+}
+```
+
+#### Интеграция с существующими контроллерами:
+Парсер может использовать существующие контроллеры через внутренние запросы:
+```php
+use App\Http\Controllers\TrendAgent\ApartmentsController;
+
+$controller = app(ApartmentsController::class);
+$request = Request::create('/api/trendagent/v1/apartments', 'POST', [
+    'phone' => '+79045393434',
+    'password' => 'nwBvh4q',
+    'city' => 'spb',
+    'count' => 100,
+    'offset' => 0,
+]);
+$response = $controller->index($request);
+```
+
+#### Сохранение результатов:
+```php
+// Структура сохранения
+Storage::put(
+    "trendagent/parsing/{$region}/raw/{$type}/list_offset_{$offset}.json",
+    json_encode([
+        'metadata' => [
+            'region' => $region,
+            'type' => $type,
+            'timestamp' => now()->toIso8601String(),
+            'request_params' => $params,
+            'total_count' => $totalCount,
+            'current_offset' => $offset,
+            'items_count' => count($items),
+        ],
+        'data' => $items,
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+);
+```
+
+---
+
+## 📝 Обновления плана
+
+### 2026-02-07: Реорганизация проекта
+- ✅ Обновлены все пути API endpoints на `/api/trendagent/v1/*`
+- ✅ Добавлены ссылки на существующие контроллеры Laravel
+- ✅ Описана интеграция с текущей архитектурой проекта
+- ✅ Добавлены детали о использовании существующих компонентов
+- ✅ Обновлена структура директорий проекта
