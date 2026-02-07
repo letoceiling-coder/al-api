@@ -38,7 +38,7 @@ class ProjectController extends Controller
     public function show(Request $request, string $project, $any = null)
     {
         // Проверяем существование проекта
-        $indexPath = public_path("assets/{$project}/index.html");
+        $indexPath = public_path("{$project}/index.html");
         
         if (!File::exists($indexPath)) {
             abort(404, "Project '{$project}' not found. Please run: cd projects/{$project} && npm run build");

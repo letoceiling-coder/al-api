@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/frontend/',
   build: {
-    outDir: '../../public/assets/frontend',
+    outDir: '../../public/frontend',
     emptyOutDir: true,
     sourcemap: false,
     rollupOptions: {
