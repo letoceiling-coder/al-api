@@ -288,7 +288,9 @@ const ApartmentsCheckerboard = () => {
         .sort((a, b) => {
           // Сортируем: сначала по комнатам, потом по отделке, потом по площади
           if (a.rooms !== b.rooms) return a.rooms - b.rooms
-          if (a.finishing !== b.finishing) return a.finishing.localeCompare(b.finishing)
+          const finishingA = typeof a.finishing === 'string' ? a.finishing : String(a.finishing || '')
+          const finishingB = typeof b.finishing === 'string' ? b.finishing : String(b.finishing || '')
+          if (finishingA !== finishingB) return finishingA.localeCompare(finishingB)
           return a.area - b.area
         })
 
