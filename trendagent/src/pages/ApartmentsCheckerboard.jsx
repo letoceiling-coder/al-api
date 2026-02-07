@@ -122,13 +122,22 @@ const ApartmentsCheckerboard = () => {
       if (response.success) {
         let apartmentsData = null
         
+        // Проверяем различные структуры ответа API
         if (Array.isArray(response.data)) {
           apartmentsData = response.data
         } else if (response.data && typeof response.data === 'object') {
-          if (Array.isArray(response.data.apartments)) {
-            apartmentsData = response.data.apartments
+          // Проверяем структуру data.results (как в trendagent-api)
+          if (Array.isArray(response.data.results)) {
+            apartmentsData = response.data.results
           } else if (Array.isArray(response.data.data)) {
-            apartmentsData = response.data.data
+            // Проверяем вложенную структуру data.data.results
+            if (Array.isArray(response.data.data.results)) {
+              apartmentsData = response.data.data.results
+            } else {
+              apartmentsData = response.data.data
+            }
+          } else if (Array.isArray(response.data.apartments)) {
+            apartmentsData = response.data.apartments
           } else if (response.data.floors || response.data.sections) {
             apartmentsData = []
             const floors = response.data.floors || []
@@ -145,12 +154,16 @@ const ApartmentsCheckerboard = () => {
                 apartmentsData.push(...section.apartments)
               }
             })
+          } else if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
+            // Если это объект с данными, пытаемся извлечь массив
+            apartmentsData = []
           } else {
             apartmentsData = [response.data]
           }
         }
         
-        setApartments(apartmentsData)
+        console.log('Parsed apartments data:', apartmentsData)
+        setApartments(apartmentsData || [])
       } else {
         setError(response.message || 'Ошибка загрузки квартир')
       }
@@ -173,7 +186,7 @@ const ApartmentsCheckerboard = () => {
   // Обработка данных для шахматки
   const processedData = useMemo(() => {
     if (!apartments || !Array.isArray(apartments) || apartments.length === 0) {
-      return { sections: [] }
+      return { sections: [], allFloors: [] }
     }
 
     // Применяем фильтры
@@ -206,6 +219,14 @@ const ApartmentsCheckerboard = () => {
       return true
     })
 
+    // Собираем все уникальные этажи для синхронизации
+    const allFloorsSet = new Set()
+    filteredApartments.forEach(apt => {
+      const floor = apt.floor || 0
+      allFloorsSet.add(floor)
+    })
+    const allFloors = Array.from(allFloorsSet).sort((a, b) => b - a)
+
     // Группируем по секциям
     const sectionsMap = new Map()
     
@@ -218,7 +239,6 @@ const ApartmentsCheckerboard = () => {
         sectionsMap.set(sectionKey, {
           name: sectionName,
           deadline,
-          subsections: new Map(),
           apartments: []
         })
       }
@@ -226,34 +246,51 @@ const ApartmentsCheckerboard = () => {
       sectionsMap.get(sectionKey).apartments.push(apt)
     })
 
-    // Обрабатываем подсекции и группируем по этажам и типам
+    // Обрабатываем секции и создаем подсекции (колонки) по типам квартир
     const sections = Array.from(sectionsMap.values()).map(section => {
-      // Группируем по подсекциям (по finishing или другим признакам)
-      const subsectionsMap = new Map()
+      // Собираем все уникальные комбинации типов квартир (комнаты + отделка + площадь)
+      const apartmentTypesMap = new Map()
       
       section.apartments.forEach(apt => {
-        const finishing = apt.finishing_name || apt.finishing || 'Без отделки'
         const rooms = apt.rooms || apt.room || 0
+        const finishing = apt.finishing_name || apt.finishing || apt.finishingType?.name || 'Без отделки'
         const area = apt.privArea || apt.area || apt.area_total || 0
         
-        // Создаем ключ подсекции (может быть по finishing или комбинации)
-        const subsectionKey = `${finishing}_${rooms}_${area}`
+        // Создаем ключ типа квартиры
+        const typeKey = `${rooms}_${finishing}_${area}`
         
-        if (!subsectionsMap.has(subsectionKey)) {
-          subsectionsMap.set(subsectionKey, {
-            id: apt.subsection_id || apt.id || Math.random().toString(),
-            label: finishing === 'Чистовая' ? 'В' : finishing === 'Без отделки' ? 'З' : 'В, З',
-            finishing,
+        if (!apartmentTypesMap.has(typeKey)) {
+          // Определяем label для подсекции (В = Чистовая, З = Без отделки, В,З = Подчистовая)
+          let label = 'З'
+          if (finishing === 'Чистовая' || finishing === 'Чистовая отделка') {
+            label = 'В'
+          } else if (finishing === 'Подчистовая' || finishing === 'Подчистовая отделка') {
+            label = 'В, З'
+          } else if (finishing && finishing !== 'Без отделки') {
+            label = 'В, З'
+          }
+          
+          apartmentTypesMap.set(typeKey, {
+            id: `type_${typeKey}`,
+            label,
             rooms,
+            finishing,
             area,
             apartments: []
           })
         }
         
-        subsectionsMap.get(subsectionKey).apartments.push(apt)
+        apartmentTypesMap.get(typeKey).apartments.push(apt)
       })
 
-      const subsections = Array.from(subsectionsMap.values())
+      // Преобразуем в массив и сортируем подсекции
+      const subsections = Array.from(apartmentTypesMap.values())
+        .sort((a, b) => {
+          // Сортируем: сначала по комнатам, потом по отделке, потом по площади
+          if (a.rooms !== b.rooms) return a.rooms - b.rooms
+          if (a.finishing !== b.finishing) return a.finishing.localeCompare(b.finishing)
+          return a.area - b.area
+        })
 
       // Группируем квартиры по этажам для каждой подсекции
       subsections.forEach(subsection => {
@@ -267,8 +304,11 @@ const ApartmentsCheckerboard = () => {
           floorsMap.get(floor).push(apt)
         })
 
-        subsection.floors = Array.from(floorsMap.entries())
-          .sort(([a], [b]) => b - a)
+        // Создаем массив этажей с квартирами, заполняя пустые этажи
+        subsection.floors = allFloors.map(floor => {
+          const floorApartments = floorsMap.get(floor) || []
+          return [floor, floorApartments]
+        })
       })
 
       return {
@@ -277,7 +317,7 @@ const ApartmentsCheckerboard = () => {
       }
     })
 
-    return { sections }
+    return { sections, allFloors }
   }, [apartments, roomFilter, priceFrom, priceTo, deadlineFilter, hideSold, hideBooked])
 
   if (loading && !apartments) {
@@ -609,8 +649,7 @@ const ApartmentsCheckerboard = () => {
                   <div className="col-auto">
                     <div className="checkerboard-container__floors-container">
                       <div className="checkerboard-container__floors">
-                        {processedData.sections.length > 0 && processedData.sections[0].subsections.length > 0 && 
-                         processedData.sections[0].subsections[0].floors.map(([floor]) => (
+                        {processedData.allFloors.map((floor) => (
                           <div key={floor} id={`floor${floor}`} className="checkerboard-container__floors__item">
                             {floor}
                           </div>
@@ -629,17 +668,25 @@ const ApartmentsCheckerboard = () => {
                               {section.subsections.map((subsection, subIdx) => (
                                 <div key={subIdx} className="checkerboard__apartments-col">
                                   {subsection.floors.map(([floor, floorApartments]) => {
-                                    const apartment = floorApartments[0] // Берем первую квартиру этого типа на этаже
-                                    if (!apartment) {
+                                    // Находим квартиру этого типа на этом этаже
+                                    const apartment = floorApartments.find(apt => {
+                                      const aptRooms = apt.rooms || apt.room || 0
+                                      const aptFinishing = apt.finishing_name || apt.finishing || apt.finishingType?.name || 'Без отделки'
+                                      const aptArea = apt.privArea || apt.area || apt.area_total || 0
+                                      return aptRooms === subsection.rooms && 
+                                             aptFinishing === subsection.finishing && 
+                                             aptArea === subsection.area
+                                    }) || floorApartments[0] // Fallback на первую квартиру этажа
+                                    
+                                    if (!apartment || floorApartments.length === 0) {
                                       return (
-                                        <div key={floor} className="checkerboard__item checkerboard__item_empty checkerboard__item_loading"></div>
+                                        <div key={floor} className="checkerboard__item checkerboard__item_empty"></div>
                                       )
                                     }
 
                                     const status = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
                                     const isSold = status.toLowerCase().includes('продан') || status.toLowerCase().includes('sold')
                                     const isBooked = status.toLowerCase().includes('забронирован') || status.toLowerCase().includes('booked')
-                                    const isAvailable = !isSold && !isBooked
                                     
                                     const bgColor = isSold ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)'
                                     const textColor = isSold ? 'rgb(255, 255, 255)' : 'rgb(51, 51, 51)'
@@ -680,10 +727,6 @@ const ApartmentsCheckerboard = () => {
                                       </div>
                                     )
                                   })}
-                                  {/* Пустые ячейки для выравнивания */}
-                                  {Array.from({ length: 3 }).map((_, idx) => (
-                                    <div key={`empty-${idx}`} className="checkerboard__item checkerboard__item_empty checkerboard__item_loading"></div>
-                                  ))}
                                 </div>
                               ))}
                               <div className="checkerboard__apartments-col--last"></div>
