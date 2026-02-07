@@ -231,51 +231,175 @@ const ApartmentsCheckerboard = () => {
       {/* Сетка квартир (шахматка) */}
       {selectedBuilding && apartments && (
         <div className="checkerboard-content">
-          {Array.isArray(apartments) && apartments.length > 0 ? (
-            <div className="checkerboard-grid">
-              {apartments.map((apartment, index) => {
-                const imageUrl = apartment.image?.url || 
-                                (apartment.images && apartment.images.length > 0 ? getImageUrl(apartment.images[0]) : null) ||
-                                (apartment.image && typeof apartment.image === 'string' ? apartment.image : null)
-                const number = apartment.number || apartment.apartment_number || '—'
-                const floor = apartment.floor || '—'
-                const section = apartment.section_name || apartment.section || '—'
-                const area = apartment.privArea || apartment.area || apartment.area_total || null
-                const price = apartment.price || apartment.base_price || null
-                const status = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
-                
-                return (
-                  <div key={index} className="checkerboard-cell">
-                    {imageUrl && (
-                      <div className="cell-image">
-                        <img 
-                          src={imageUrl} 
-                          alt={`Квартира ${number}`}
-                          onError={(e) => { e.target.style.display = 'none' }}
-                        />
+          {(() => {
+            // Обрабатываем данные - могут быть массивом или объектом с секциями/этажами
+            let apartmentsList = []
+            
+            if (Array.isArray(apartments)) {
+              apartmentsList = apartments
+            } else if (apartments && typeof apartments === 'object') {
+              // Данные могут быть структурированы по секциям или этажам
+              if (Array.isArray(apartments.sections)) {
+                apartments.sections.forEach(section => {
+                  if (Array.isArray(section.apartments)) {
+                    apartmentsList.push(...section.apartments)
+                  }
+                })
+              } else if (Array.isArray(apartments.floors)) {
+                apartments.floors.forEach(floor => {
+                  if (Array.isArray(floor.apartments)) {
+                    apartmentsList.push(...floor.apartments)
+                  }
+                })
+              } else if (Array.isArray(apartments.data)) {
+                apartmentsList = apartments.data
+              }
+            }
+            
+            if (apartmentsList.length === 0) {
+              return (
+                <div className="empty-state">
+                  <p>Квартиры не найдены</p>
+                </div>
+              )
+            }
+            
+            // Группируем квартиры по секциям
+            const sectionsMap = new Map()
+            apartmentsList.forEach(apt => {
+              const sectionName = apt.section_name || apt.section || 'Без секции'
+              const sectionKey = `${sectionName}_${apt.deadline || ''}`
+              
+              if (!sectionsMap.has(sectionKey)) {
+                sectionsMap.set(sectionKey, {
+                  name: sectionName,
+                  deadline: apt.deadline || '—',
+                  apartments: []
+                })
+              }
+              
+              sectionsMap.get(sectionKey).apartments.push(apt)
+            })
+            
+            const sections = Array.from(sectionsMap.values())
+            
+            return (
+              <div className="checkerboard-sections">
+                {sections.map((section, sectionIdx) => {
+                  // Группируем квартиры по этажам
+                  const floorsMap = new Map()
+                  section.apartments.forEach(apt => {
+                    const floor = apt.floor || 0
+                    if (!floorsMap.has(floor)) {
+                      floorsMap.set(floor, [])
+                    }
+                    floorsMap.get(floor).push(apt)
+                  })
+                  
+                  const floors = Array.from(floorsMap.entries())
+                    .sort(([a], [b]) => b - a) // Сортируем этажи по убыванию
+                  
+                  // Группируем квартиры по типам (комнаты + отделка)
+                  const getApartmentKey = (apt) => {
+                    const rooms = apt.rooms || apt.room || '—'
+                    const finishing = apt.finishing_name || apt.finishing || 'Без отделки'
+                    const area = apt.privArea || apt.area || apt.area_total || 0
+                    return `${rooms}-к.кв_${finishing}_${area}`
+                  }
+                  
+                  // Собираем все уникальные комбинации типов квартир
+                  const apartmentTypes = new Map()
+                  section.apartments.forEach(apt => {
+                    const key = getApartmentKey(apt)
+                    if (!apartmentTypes.has(key)) {
+                      const rooms = apt.rooms || apt.room || '—'
+                      const finishing = apt.finishing_name || apt.finishing || 'Без отделки'
+                      const area = apt.privArea || apt.area || apt.area_total || 0
+                      apartmentTypes.set(key, {
+                        rooms,
+                        finishing,
+                        area,
+                        key
+                      })
+                    }
+                  })
+                  
+                  const types = Array.from(apartmentTypes.values())
+                  
+                  return (
+                    <div key={sectionIdx} className="checkerboard-section">
+                      <div className="section-header">
+                        <h2>секция {section.name} - {section.deadline}</h2>
                       </div>
-                    )}
-                    <div className="cell-content">
-                      <div className="cell-number">№ {number}</div>
-                      <div className="cell-info">
-                        <div>Этаж: {floor}</div>
-                        {section !== '—' && <div>Секция: {section}</div>}
-                        {area && <div>Площадь: {area} м²</div>}
-                        {price && <div className="cell-price">{formatPrice(price)}</div>}
-                      </div>
-                      <div className={`cell-status status-${status.toLowerCase().replace(/\s+/g, '-')}`}>
-                        {status}
+                      
+                      <div className="checkerboard-table-wrapper">
+                        <table className="checkerboard-table">
+                          <thead>
+                            <tr>
+                              <th className="floor-header">Этаж</th>
+                              {types.map((type, typeIdx) => (
+                                <th key={typeIdx} className="type-header">
+                                  <div className="type-name">
+                                    {type.rooms === '—' ? '' : `${type.rooms}-к.кв`}
+                                  </div>
+                                  <div className="type-details">
+                                    {type.finishing} {type.area > 0 ? `${type.area} м²` : ''}
+                                  </div>
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {floors.map(([floor, floorApartments]) => (
+                              <tr key={floor}>
+                                <td className="floor-cell">{floor}</td>
+                                {types.map((type, typeIdx) => {
+                                  // Находим квартиру этого типа на этом этаже
+                                  const apartment = floorApartments.find(apt => getApartmentKey(apt) === type.key)
+                                  
+                                  if (!apartment) {
+                                    return <td key={typeIdx} className="apartment-cell empty"></td>
+                                  }
+                                  
+                                  const number = apartment.number || apartment.apartment_number || '—'
+                                  const price = apartment.price || apartment.base_price || null
+                                  const status = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
+                                  const isSold = status.toLowerCase().includes('продан') || status.toLowerCase().includes('sold')
+                                  const isBooked = status.toLowerCase().includes('забронирован') || status.toLowerCase().includes('booked')
+                                  const isAvailable = !isSold && !isBooked
+                                  
+                                  return (
+                                    <td 
+                                      key={typeIdx} 
+                                      className={`apartment-cell ${isSold ? 'sold' : isBooked ? 'booked' : 'available'}`}
+                                    >
+                                      <div className="apartment-cell-content">
+                                        <div className="apartment-type">{type.rooms === '—' ? '' : `${type.rooms}-к.кв`}</div>
+                                        <div className="apartment-number">№ {number}</div>
+                                        {price && (
+                                          <div className="apartment-price">{formatPrice(price)}</div>
+                                        )}
+                                        <div className={`apartment-status ${isSold ? 'sold' : isBooked ? 'booked' : 'available'}`}>
+                                          {status}
+                                        </div>
+                                        <div className="apartment-details">
+                                          {type.finishing} {type.area > 0 ? `${type.area} м²` : ''}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  )
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p>Квартиры не найдены</p>
-            </div>
-          )}
+                  )
+                })}
+              </div>
+            )
+          })()}
         </div>
       )}
 
