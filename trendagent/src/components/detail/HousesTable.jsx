@@ -97,14 +97,53 @@ const HousesTable = ({ housesData, unifiedData, objectType }) => {
                              (house.min_prices && house.min_prices.length > 0 ? (house.min_prices[0].price || house.min_prices[0].value) : null) ||
                              house.min_price ||
                              house.price_from
-                const deadline = formatDate(house.deadline)
-                const status = house.status || house.booking_status || 'Доступен'
+                // Обработка deadline
+                let deadline = null
+                if (house.deadline) {
+                  if (Array.isArray(house.deadline) && house.deadline.length > 0) {
+                    deadline = formatDate(house.deadline[0].deadline || house.deadline[0])
+                  } else {
+                    deadline = formatDate(house.deadline)
+                  }
+                }
+                
+                // Обработка статуса - может быть строкой, объектом или null
+                let status = 'Доступен'
+                let statusText = 'Доступен'
+                if (house.status) {
+                  if (typeof house.status === 'string') {
+                    status = house.status
+                    statusText = house.status
+                  } else if (typeof house.status === 'object' && house.status.name) {
+                    status = house.status.name
+                    statusText = house.status.name
+                  } else if (typeof house.status === 'object' && house.status.value) {
+                    status = house.status.value
+                    statusText = house.status.value
+                  }
+                } else if (house.booking_status) {
+                  if (typeof house.booking_status === 'string') {
+                    status = house.booking_status
+                    statusText = house.booking_status
+                  } else if (typeof house.booking_status === 'object' && house.booking_status.name) {
+                    status = house.booking_status.name
+                    statusText = house.booking_status.name
+                  }
+                } else if (house.is_booked) {
+                  status = 'Забронирован'
+                  statusText = 'Забронирован'
+                }
+                
+                // Безопасное преобразование статуса для CSS класса
+                const statusClass = typeof status === 'string' 
+                  ? status.toLowerCase().replace(/\s+/g, '-')
+                  : 'available'
 
                 return (
                   <tr key={index}>
                     <td className="table-image">
                       {imageUrl ? (
-                        <img src={imageUrl} alt={house.name || 'Дом'} />
+                        <img src={imageUrl} alt={name || 'Дом'} />
                       ) : (
                         <div className="image-placeholder">—</div>
                       )}
@@ -130,8 +169,8 @@ const HousesTable = ({ housesData, unifiedData, objectType }) => {
                     </td>
                     <td className="table-deadline">{deadline || '—'}</td>
                     <td className="table-status">
-                      <span className={`status-badge status-${status.toLowerCase().replace(/\s+/g, '-')}`}>
-                        {status}
+                      <span className={`status-badge status-${statusClass}`}>
+                        {statusText}
                       </span>
                     </td>
                   </tr>
