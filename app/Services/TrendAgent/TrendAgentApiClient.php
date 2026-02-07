@@ -582,10 +582,18 @@ class TrendAgentApiClient
      */
     protected function ensureAuthenticated(): void
     {
-        if (!$this->authenticated && !$this->auth->isAuthenticated()) {
+        // Просто проверяем флаг, т.к. аутентификация уже выполнена в ParseCommand
+        if (!$this->authenticated) {
+            // Проверяем, возможно TrendSsoApiAuth уже аутентифицирован
+            if ($this->auth->isAuthenticated()) {
+                $this->authenticated = true;
+                return;
+            }
+            
+            // Если нет - выполняем аутентификацию
             $result = $this->authenticate();
             if (!$result['success']) {
-                throw new Exception('Требуется аутентификация');
+                throw new Exception('Требуется аутентификация: ' . ($result['message'] ?? 'Unknown error'));
             }
         }
     }
