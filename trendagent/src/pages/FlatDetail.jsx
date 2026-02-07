@@ -33,6 +33,13 @@ const FlatDetail = () => {
     loadFlatDetail()
   }, [blockId, apartmentId])
 
+  // Сбрасываем индекс при смене типа изображения
+  useEffect(() => {
+    if (apartmentData) {
+      setCurrentImageIndex(0)
+    }
+  }, [imageType, apartmentData])
+
   const loadFlatDetail = async () => {
     setLoading(true)
     setError(null)
@@ -268,11 +275,6 @@ const FlatDetail = () => {
 
   const images = getCurrentImages()
   const currentImage = images[currentImageIndex] || null
-  
-  // Сбрасываем индекс при смене типа
-  useEffect(() => {
-    setCurrentImageIndex(0)
-  }, [imageType])
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length)
