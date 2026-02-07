@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
 import { getImageUrl, getImageUrlFull, getImageUrls } from '../utils/imageUtils'
@@ -54,6 +54,26 @@ const FlatDetail = () => {
     }
   }, [imageType, apartmentData])
 
+  // Нормализация справочника поэтажного плана (разные форматы API)
+  const getFloorPlanOptions = useCallback(() => {
+    const dir = floorPlanDirectory?.data ?? floorPlanDirectory
+    if (!dir || typeof dir !== 'object') return { buildings: [], sections: [], floors: [] }
+    const buildings = dir.buildings ?? dir.building_list ?? dir.corpus ?? []
+    const sections = dir.sections ?? dir.section_list ?? []
+    const floors = dir.floors ?? dir.floor_list ?? []
+    return {
+      buildings: Array.isArray(buildings) ? buildings : [],
+      sections: Array.isArray(sections) ? sections : [],
+      floors: Array.isArray(floors) ? floors : [],
+    }
+  }, [floorPlanDirectory])
+
+  // Вычисляем, доступен ли интерактивный режим поэтажного плана
+  const hasFloorPlanInteractive = useMemo(() => {
+    const fpOptions = getFloorPlanOptions()
+    return fpOptions.buildings.length > 0 && blockId
+  }, [getFloorPlanOptions, blockId])
+
   // При переключении на таб "Поэтажный план" открываем интерактивный режим, если доступен
   useEffect(() => {
     if (imageType === 'plans' && hasFloorPlanInteractive && !showFloorPlanInteractive) {
@@ -63,7 +83,7 @@ const FlatDetail = () => {
         setShowFloorPlanInteractive(true)
       }
     }
-  }, [imageType, hasFloorPlanInteractive, floorPlanDirectory, selectedBuilding, selectedSection, selectedFloor])
+  }, [imageType, hasFloorPlanInteractive, floorPlanDirectory, selectedBuilding, selectedSection, selectedFloor, showFloorPlanInteractive])
 
   // Загрузка справочника поэтажного плана при наличии blockId
   useEffect(() => {
@@ -190,20 +210,6 @@ const FlatDetail = () => {
     return 'status-default'
   }
 
-  // Нормализация справочника поэтажного плана (разные форматы API)
-  const getFloorPlanOptions = () => {
-    const dir = floorPlanDirectory?.data ?? floorPlanDirectory
-    if (!dir || typeof dir !== 'object') return { buildings: [], sections: [], floors: [] }
-    const buildings = dir.buildings ?? dir.building_list ?? dir.corpus ?? []
-    const sections = dir.sections ?? dir.section_list ?? []
-    const floors = dir.floors ?? dir.floor_list ?? []
-    return {
-      buildings: Array.isArray(buildings) ? buildings : [],
-      sections: Array.isArray(sections) ? sections : [],
-      floors: Array.isArray(floors) ? floors : [],
-    }
-  }
-
   const getFloorPlanImageUrl = () => {
     const data = floorPlanData?.data ?? floorPlanData
     if (!data) return null
@@ -296,7 +302,6 @@ const FlatDetail = () => {
   const currentImage = images[currentImageIndex] || null
   const hasGallery = imagesByType.plans.length > 0 || imagesByType.finishing.length > 0 || imagesByType.photos.length > 0
   const fpOptions = getFloorPlanOptions()
-  const hasFloorPlanInteractive = fpOptions.buildings.length > 0 && blockId
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length)
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
