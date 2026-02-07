@@ -7,6 +7,7 @@ use App\Http\Controllers\TrendAgent\TrendSsoController;
 use App\Http\Controllers\TrendAgent\HousesController;
 use App\Http\Controllers\TrendAgent\PlotsController;
 use App\Http\Controllers\TrendAgent\CommercialController;
+use App\Http\Controllers\TrendAgent\ParserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +77,17 @@ Route::get('trendagent/v1/swagger.json', function () {
         'paths' => [],
     ], 200)->header('Content-Type', 'application/json');
 })->name('trendagent.swagger.json');
+
+// ============================================
+// Parser Management API (без middleware)
+// ============================================
+Route::prefix('trendagent/parser')->name('trendagent.parser.')->group(function () {
+    Route::post('/start', [ParserController::class, 'start'])->name('start');
+    Route::post('/stop', [ParserController::class, 'stop'])->name('stop');
+    Route::get('/status', [ParserController::class, 'status'])->name('status');
+    Route::get('/logs', [ParserController::class, 'logs'])->name('logs');
+    Route::get('/statistics', [ParserController::class, 'statistics'])->name('statistics');
+});
 
 Route::prefix('trendagent/v1')->middleware(['trendagent.auth'])->group(function () {
     
