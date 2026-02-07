@@ -352,6 +352,55 @@ const ObjectDetail = () => {
             </section>
           )}
 
+          {/* Дома - Таблица */}
+          {objectType === 'houses' && (
+            <section id="houses-table" className="detail-section">
+              <div className="houses-table-section">
+                <h2>Таблица домов</h2>
+                <div className="houses-table-content">
+                  <p>Таблица домов будет отображаться здесь</p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Дома - Планы */}
+          {objectType === 'houses' && plansData && (
+            <section id="houses-plans" className="detail-section">
+              <div className="houses-plans-section">
+                <h2>Планы домов</h2>
+                <div className="houses-plans-content">
+                  {Array.isArray(plansData?.data) && plansData.data.length > 0 ? (
+                    <div className="plans-grid">
+                      {plansData.data.map((plan, index) => (
+                        <div key={index} className="plan-card">
+                          {plan.image && (
+                            <img src={plan.image.url || plan.image} alt={plan.name || 'План'} />
+                          )}
+                          {plan.name && <h3>{plan.name}</h3>}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>Планы домов будут отображаться здесь</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Дома - Карта */}
+          {objectType === 'houses' && (
+            <section id="houses-map" className="detail-section">
+              <div className="houses-map-section">
+                <h2>Карта</h2>
+                <div className="houses-map-content">
+                  <p>Карта будет отображаться здесь</p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Паркинги - показываем только если есть данные */}
           {objectType !== 'plots' && (parkingsData?.data?.length > 0 || parkingsData?.length > 0) && (
             <section id="parkings" className="detail-section">

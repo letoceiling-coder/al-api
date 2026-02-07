@@ -86,18 +86,20 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       }
     }
     
-    // Для участков цена может быть в массиве min_prices
-    if (objectType === 'plots') {
+    // Для участков и домов цена может быть в массиве min_prices
+    if (objectType === 'plots' || objectType === 'houses') {
       // Проверяем массив min_prices
       if (object.min_prices && Array.isArray(object.min_prices) && object.min_prices.length > 0) {
         const firstPrice = object.min_prices[0]
-        if (firstPrice && firstPrice.value) {
+        // Для домов может быть price или value
+        const priceValue = firstPrice.price || firstPrice.value
+        if (priceValue) {
           const unit = firstPrice.unit || '₽'
           const label = firstPrice.label ? `${firstPrice.label}: ` : ''
-          return `${label}${formatPrice(firstPrice.value)} ${unit}`
+          return `${label}${formatPrice(priceValue)} ${unit}`
         }
       }
-      // Проверяем альтернативные варианты для участков
+      // Проверяем альтернативные варианты
       if (object.min_price) {
         return `от ${formatPrice(object.min_price)}`
       }
@@ -143,10 +145,39 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getDeadline = () => {
-    if (object.deadline) {
-      const date = new Date(object.deadline)
-      return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })
+    if (!object.deadline) {
+      return null
     }
+    
+    // Если deadline - массив (для коммерции и домов)
+    if (Array.isArray(object.deadline) && object.deadline.length > 0) {
+      const firstDeadline = object.deadline[0]
+      const deadlineValue = firstDeadline.deadline || firstDeadline
+      if (deadlineValue) {
+        try {
+          const date = new Date(deadlineValue)
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })
+          }
+        } catch (e) {
+          console.warn('Invalid deadline date:', deadlineValue)
+        }
+      }
+      return null
+    }
+    
+    // Если deadline - строка или число
+    if (typeof object.deadline === 'string' || typeof object.deadline === 'number') {
+      try {
+        const date = new Date(object.deadline)
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })
+        }
+      } catch (e) {
+        console.warn('Invalid deadline date:', object.deadline)
+      }
+    }
+    
     return null
   }
 

@@ -1,0 +1,79 @@
+.object-houses {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.object-houses h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.houses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.house-card {
+  background: #f9fafb;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.house-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.house-card-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.house-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.house-card-content {
+  padding: 1rem;
+}
+
+.house-card-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.house-card-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.info-label {
+  color: #6b7280;
+}
+
+.info-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.house-card-price {
+  margin-top: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #059669;
+}
