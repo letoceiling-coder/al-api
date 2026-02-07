@@ -11,20 +11,6 @@ use Symfony\Component\Process\Process;
 class ParserController extends Controller
 {
     /**
-     * Показать страницу управления парсером
-     */
-    public function index()
-    {
-        $status = $this->getParserStatus();
-        $statistics = $this->getStatistics();
-        
-        return view('trendagent.parser', [
-            'status' => $status,
-            'statistics' => $statistics,
-        ]);
-    }
-    
-    /**
      * Запустить парсинг
      */
     public function start(Request $request)
