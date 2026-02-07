@@ -21,15 +21,56 @@ use App\Http\Controllers\TrendAgent\CommercialController;
 
 // Swagger документация (без middleware для доступа)
 Route::get('/trendagent/swagger', function () {
+    if (!view()->exists('trendagent.swagger')) {
+        return response('Swagger view not found', 404);
+    }
     return view('trendagent.swagger');
 })->name('trendagent.swagger');
+
+// CORS для swagger.json
+Route::options('/trendagent/swagger.json', function () {
+    return response('', 200)
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Content-Type');
+});
 
 Route::get('/trendagent/swagger.json', function () {
     $swaggerPath = storage_path('api-docs/trendagent-swagger.json');
     
     if (file_exists($swaggerPath)) {
-        $swagger = json_decode(file_get_contents($swaggerPath), true);
-        return response()->json($swagger)->header('Content-Type', 'application/json');
+        $content = file_get_contents($swaggerPath);
+        $swagger = json_decode($content, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            \Log::error('TrendAgent Swagger JSON parse error', [
+                'error' => json_last_error_msg(),
+                'path' => $swaggerPath
+            ]);
+            
+            // Fallback к базовой структуре при ошибке парсинга
+            return response()->json([
+                'openapi' => '3.0.0',
+                'info' => [
+                    'title' => 'TrendAgent API',
+                    'version' => '1.0.0',
+                    'description' => 'API для получения данных о недвижимости с сайта trendagent.ru',
+                ],
+                'servers' => [
+                    ['url' => 'https://api.siteaccess.ru/trendagent', 'description' => 'Production API Server'],
+                ],
+                'security' => [
+                    ['trendagent_auth' => []],
+                ],
+                'paths' => [],
+            ], 200)->header('Content-Type', 'application/json');
+        }
+        
+        return response()->json($swagger, 200)
+            ->header('Content-Type', 'application/json')
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'Content-Type');
     }
     
     // Fallback к базовой структуре
@@ -47,7 +88,7 @@ Route::get('/trendagent/swagger.json', function () {
             ['trendagent_auth' => []],
         ],
         'paths' => [],
-    ])->header('Content-Type', 'application/json');
+    ], 200)->header('Content-Type', 'application/json');
 })->name('trendagent.swagger.json');
 
 Route::prefix('trendagent')->middleware(['trendagent.auth'])->group(function () {

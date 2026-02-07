@@ -28,6 +28,7 @@
         window.onload = function() {
             const ui = SwaggerUIBundle({
                 url: "{{ url('/trendagent/swagger.json') }}",
+                validatorUrl: null,
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [
