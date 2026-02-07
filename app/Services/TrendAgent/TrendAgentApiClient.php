@@ -130,8 +130,12 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
+            // Получаем и удаляем city из params, чтобы использовать MongoID
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
             $defaultParams = [
-                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
                 'show_type' => 'list',
@@ -308,8 +312,11 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
             $defaultParams = [
-                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
                 'object_type' => 'parking',
@@ -390,8 +397,11 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
             $defaultParams = [
-                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
                 'object_type' => 'house',
@@ -447,8 +457,11 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
             $defaultParams = [
-                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
                 'object_type' => 'land_plot',
@@ -528,8 +541,11 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
             $defaultParams = [
-                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
                 'object_type' => 'commercial',
