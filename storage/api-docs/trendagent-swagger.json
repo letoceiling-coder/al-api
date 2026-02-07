@@ -1,0 +1,1237 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TrendAgent API",
+    "version": "1.0.0",
+    "description": "API для получения данных о недвижимости с сайта trendagent.ru. Все запросы требуют авторизации через Bearer токен.",
+    "contact": {
+      "email": "support@siteaccess.ru"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.siteaccess.ru/trendagent",
+      "description": "Production API Server"
+    }
+  ],
+  "security": [
+    {
+      "trendagent_auth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "trendagent_auth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bearer token: 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Ошибка валидации"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Операция выполнена успешно"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "AuthRequest": {
+        "type": "object",
+        "required": ["phone", "password"],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Номер телефона для авторизации",
+            "example": "+79045393434"
+          },
+          "password": {
+            "type": "string",
+            "description": "Пароль для авторизации",
+            "example": "nwBvh4q"
+          },
+          "login_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL для авторизации (опционально)",
+            "nullable": true
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Авторизация успешна"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "authenticated": {
+                "type": "boolean",
+                "example": true
+              },
+              "auth_token": {
+                "type": "string",
+                "description": "Токен для использования в последующих запросах"
+              },
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "user": {
+                "type": "object"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "ApartmentsListRequest": {
+        "type": "object",
+        "required": ["phone", "password"],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+79045393434"
+          },
+          "password": {
+            "type": "string",
+            "example": "nwBvh4q"
+          },
+          "city": {
+            "type": "string",
+            "description": "Город для фильтрации",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20,
+            "description": "Количество объектов на странице"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Смещение для пагинации"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Номер страницы (альтернатива offset)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": ["price", "deadline", "name"],
+            "description": "Поле для сортировки"
+          },
+          "sort_order": {
+            "type": "string",
+            "enum": ["asc", "desc"],
+            "default": "asc"
+          },
+          "room": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Фильтр по количеству комнат (например, [1, 2, 3])"
+          },
+          "price_from": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Минимальная цена"
+          },
+          "price_to": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Максимальная цена"
+          },
+          "area_from": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Минимальная площадь"
+          },
+          "area_to": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Максимальная площадь"
+          },
+          "floor_from": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Минимальный этаж"
+          },
+          "floor_to": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Максимальный этаж"
+          },
+          "finishing_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Типы отделки"
+          },
+          "deadline_key": {
+            "type": "string",
+            "description": "Ключ срока сдачи"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Текстовый поиск"
+          },
+          "subway": {
+            "type": "string",
+            "description": "Фильтр по метро"
+          },
+          "region": {
+            "type": "string",
+            "description": "Фильтр по региону"
+          },
+          "district": {
+            "type": "string",
+            "description": "Фильтр по району"
+          }
+        }
+      },
+      "ApartmentsListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "total_count": {
+            "type": "integer",
+            "description": "Общее количество объектов"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "blocks_count": {
+                "type": "integer",
+                "description": "Количество блоков"
+              },
+              "apartments_count": {
+                "type": "integer",
+                "description": "Количество квартир"
+              },
+              "objects_count": {
+                "type": "integer",
+                "description": "Количество возвращенных объектов"
+              },
+              "objects": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "offset": {
+                "type": "integer"
+              },
+              "page": {
+                "type": "integer"
+              },
+              "has_more": {
+                "type": "boolean"
+              },
+              "returned_count": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "BlockDetailRequest": {
+        "type": "object",
+        "required": ["phone", "password"],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+79045393434"
+          },
+          "password": {
+            "type": "string",
+            "example": "nwBvh4q"
+          },
+          "options": {
+            "type": "object",
+            "description": "Опции для получения данных",
+            "properties": {
+              "unified": {
+                "type": "boolean",
+                "default": true
+              },
+              "buildings": {
+                "type": "boolean",
+                "default": true
+              },
+              "apartments": {
+                "type": "boolean",
+                "default": true
+              },
+              "plans": {
+                "type": "boolean",
+                "default": true
+              },
+              "progress": {
+                "type": "boolean",
+                "default": true
+              },
+              "finishings": {
+                "type": "boolean",
+                "default": true
+              },
+              "advantages": {
+                "type": "boolean",
+                "default": true
+              },
+              "nearby_places": {
+                "type": "boolean",
+                "default": true
+              },
+              "min_price": {
+                "type": "boolean",
+                "default": true
+              },
+              "videos": {
+                "type": "boolean",
+                "default": true
+              },
+              "files": {
+                "type": "boolean",
+                "default": true
+              },
+              "apartments_params": {
+                "type": "object",
+                "description": "Параметры для фильтрации квартир"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Аутентификация через TrendAgent SSO"
+    },
+    {
+      "name": "Cities",
+      "description": "Получение списка городов"
+    },
+    {
+      "name": "Apartments",
+      "description": "Операции с квартирами"
+    },
+    {
+      "name": "Houses",
+      "description": "Операции с домами (коттеджи, таунхаусы)"
+    },
+    {
+      "name": "Plots",
+      "description": "Операции с участками (поселки)"
+    },
+    {
+      "name": "Parkings",
+      "description": "Операции с паркингами"
+    },
+    {
+      "name": "Commercial",
+      "description": "Операции с коммерческой недвижимостью"
+    },
+    {
+      "name": "House Projects",
+      "description": "Операции с проектами домов"
+    },
+    {
+      "name": "Objects",
+      "description": "Универсальные операции с объектами"
+    }
+  ],
+  "paths": {
+    "/authenticate": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Авторизация через Trend SSO",
+        "description": "Выполняет авторизацию пользователя через TrendAgent SSO API и возвращает токен для последующих запросов",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              },
+              "example": {
+                "phone": "+79045393434",
+                "password": "nwBvh4q"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Авторизация успешна",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Ошибка сервера",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cities": {
+      "get": {
+        "tags": ["Cities"],
+        "summary": "Получение списка городов",
+        "description": "Возвращает список доступных городов для фильтрации объектов",
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Номер телефона для авторизации"
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Пароль для авторизации"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список городов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение списка квартир",
+        "description": "Возвращает список квартир с возможностью фильтрации и пагинации",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApartmentsListRequest"
+              },
+              "example": {
+                "phone": "+79045393434",
+                "password": "nwBvh4q",
+                "city": "spb",
+                "count": 20,
+                "page": 1,
+                "sort": "price",
+                "sort_order": "asc",
+                "room": [1, 2],
+                "price_from": 2000000,
+                "price_to": 10000000
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список квартир",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApartmentsListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Ошибка сервера",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение детальной информации о блоке/ЖК",
+        "description": "Возвращает полную информацию о жилом комплексе, включая корпуса, квартиры, планы, отделку и другие данные",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID или GUID блока/ЖК (например: 63c50acc9a85d53360f63a76 или dom-na-naberezhnoy-st)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockDetailRequest"
+              },
+              "example": {
+                "phone": "+79045393434",
+                "password": "nwBvh4q",
+                "options": {
+                  "unified": true,
+                  "buildings": true,
+                  "apartments": true,
+                  "plans": true,
+                  "progress": true,
+                  "finishings": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о блоке",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "block_id": {
+                      "type": "string"
+                    },
+                    "block_guid": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Данные блока в зависимости от переданных options"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Ошибка сервера",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}/flat/{apartmentId}": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение детальной информации о квартире",
+        "description": "Возвращает полную информацию о конкретной квартире, включая цены, отделку, планы и другие данные",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID блока/ЖК"
+          },
+          {
+            "name": "apartmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID квартиры"
+          },
+          {
+            "name": "block",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID блока (опционально, если отличается от id в пути)"
+          },
+          {
+            "name": "guid",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "GUID объекта (опционально)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о квартире",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "apartment": {
+                          "type": "object"
+                        },
+                        "block": {
+                          "type": "object"
+                        },
+                        "rewards": {
+                          "type": "array"
+                        },
+                        "discounts": {
+                          "type": "array"
+                        },
+                        "mortgage": {
+                          "type": "object"
+                        },
+                        "installments": {
+                          "type": "object"
+                        },
+                        "plans": {
+                          "type": "array"
+                        },
+                        "finishings": {
+                          "type": "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}/checkerboard/buildings": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение корпусов для шахматки",
+        "description": "Возвращает список корпусов для отображения на шахматке квартир",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{24}$"
+            },
+            "description": "ID блока (24 символа hex)"
+          },
+          {
+            "name": "guid",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "GUID объекта"
+          },
+          {
+            "name": "apartments-onrequest",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Показывать только квартиры под запрос"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "room": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Фильтр по количеству комнат"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список корпусов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "building_id": {
+                                "type": "string"
+                              },
+                              "apartments_count": {
+                                "type": "integer"
+                              },
+                              "onRequestApartmentsCount": {
+                                "type": "integer"
+                              },
+                              "bookedApartmentsCount": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}/checkerboard/apartments": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение квартир для шахматки",
+        "description": "Возвращает список квартир для отображения на шахматке по выбранному корпусу",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{24}$"
+            },
+            "description": "ID блока (24 символа hex)"
+          },
+          {
+            "name": "guid",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "GUID объекта"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password", "building_id"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "building_id": {
+                    "type": "string",
+                    "description": "ID корпуса"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список квартир",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "number": {
+                            "type": "string"
+                          },
+                          "rooms": {
+                            "type": "integer"
+                          },
+                          "area": {
+                            "type": "number"
+                          },
+                          "price": {
+                            "type": "number"
+                          },
+                          "floor": {
+                            "type": "integer"
+                          },
+                          "section_id": {
+                            "type": "string"
+                          },
+                          "building_id": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "object"
+                          },
+                          "finishing": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}/floor-plan/directory": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение справочника поэтажного плана",
+        "description": "Возвращает справочник доступных корпусов, секций и этажей для поэтажного плана",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID блока/ЖК"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Справочник поэтажного плана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "buildings": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "sections": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "floors": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apartments/{id}/floor-plan": {
+      "post": {
+        "tags": ["Apartments"],
+        "summary": "Получение поэтажного плана",
+        "description": "Возвращает изображение или SVG поэтажного плана для указанного корпуса, секции и этажа",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID блока/ЖК"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password", "building_id", "section_id", "floor_number"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "building_id": {
+                    "type": "string",
+                    "description": "ID корпуса"
+                  },
+                  "section_id": {
+                    "type": "string",
+                    "description": "ID секции"
+                  },
+                  "floor_number": {
+                    "type": "integer",
+                    "description": "Номер этажа"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Данные поэтажного плана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "image_url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL изображения плана"
+                        },
+                        "svg": {
+                          "type": "string",
+                          "description": "SVG код плана"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/objects/list": {
+      "post": {
+        "tags": ["Objects"],
+        "summary": "Универсальный список объектов",
+        "description": "Возвращает список объектов различных типов (квартиры, дома, участки, коммерческая недвижимость, паркинги, проекты домов)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "object_type": {
+                    "type": "string",
+                    "enum": ["apartments", "parking", "houses", "plots", "commercial", "contractors"],
+                    "description": "Тип объекта"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sort": {
+                    "type": "string"
+                  },
+                  "sort_order": {
+                    "type": "string",
+                    "enum": ["asc", "desc"]
+                  },
+                  "room": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "price_from": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "price_to": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список объектов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

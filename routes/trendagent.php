@@ -21,11 +21,19 @@ use App\Http\Controllers\TrendAgent\CommercialController;
 
 // Swagger документация (без middleware для доступа)
 Route::get('/trendagent/swagger', function () {
-    return redirect('/api/documentation?url=' . urlencode(url('/trendagent/swagger.json')));
+    return view('trendagent.swagger');
 })->name('trendagent.swagger');
 
 Route::get('/trendagent/swagger.json', function () {
-    $swagger = [
+    $swaggerPath = storage_path('api-docs/trendagent-swagger.json');
+    
+    if (file_exists($swaggerPath)) {
+        $swagger = json_decode(file_get_contents($swaggerPath), true);
+        return response()->json($swagger)->header('Content-Type', 'application/json');
+    }
+    
+    // Fallback к базовой структуре
+    return response()->json([
         'openapi' => '3.0.0',
         'info' => [
             'title' => 'TrendAgent API',
@@ -39,11 +47,7 @@ Route::get('/trendagent/swagger.json', function () {
             ['trendagent_auth' => []],
         ],
         'paths' => [],
-    ];
-    
-    // Здесь можно добавить автоматическую генерацию из аннотаций
-    // Пока возвращаем базовую структуру
-    return response()->json($swagger);
+    ])->header('Content-Type', 'application/json');
 })->name('trendagent.swagger.json');
 
 Route::prefix('trendagent')->middleware(['trendagent.auth'])->group(function () {
