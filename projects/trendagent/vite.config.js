@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/trendagent/',
   build: {
-    outDir: '../public/trendagent',
+    outDir: '../../public/assets/trendagent',
     emptyOutDir: true,
     sourcemap: false,
     rollupOptions: {

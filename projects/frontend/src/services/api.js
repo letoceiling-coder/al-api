@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://api.siteaccess.ru/api',
+  baseURL: '/api/frontend/v1',
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ucfirst($project) }} API - Swagger Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            @if($project === 'frontend')
+                // Frontend использует l5-swagger
+                var swaggerUrl = "{{ url('/api/documentation') }}";
+            @elseif($project === 'trendagent')
+                // TrendAgent имеет свой swagger.json
+                var swaggerUrl = "{{ url('/api/trendagent/v1/swagger.json') }}";
+            @else
+                var swaggerUrl = "/api/{{ $project }}/v1/swagger.json";
+            @endif
+            
+            const ui = SwaggerUIBundle({
+                url: swaggerUrl,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                validatorUrl: null,
+                docExpansion: "list",
+                filter: true,
+                showExtensions: true,
+                showCommonExtensions: true,
+            });
+            
+            window.ui = ui;
+        };
+    </script>
+</body>
+</html>

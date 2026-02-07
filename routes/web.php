@@ -1,28 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\File;
-use L5Swagger\Http\Controllers\SwaggerController;
+use App\Http\Controllers\ProjectController;
 
-// Главная страница обрабатывается Nginx напрямую (index.html)
-// Laravel route не нужен, так как Nginx отдает статический файл из public/
+// Корневая страница - список проектов
+Route::get('/', [ProjectController::class, 'index'])->name('home');
 
-// Альтернативный роут для документации (перенесен на /guide чтобы не конфликтовать с Swagger)
-Route::get('/guide', function () {
-    $html = File::get(public_path('index_docs.html'));
-    return response($html)->header('Content-Type', 'text/html; charset=utf-8');
-});
+// Проекты - без префикса /projects
+// URL: /frontend, /trendagent
+Route::get('/{project}/{any?}', [ProjectController::class, 'show'])
+    ->where('project', 'frontend|trendagent')  // Только разрешённые проекты
+    ->where('any', '.*')
+    ->name('project.show');
 
-// React app routes - serve index.html for all React routes
-Route::get('/react/{any?}', function () {
-    if (file_exists(public_path('react/index.html'))) {
-        return response()->file(public_path('react/index.html'));
+// Swagger для каждого проекта
+Route::get('/swagger/{project}', function (string $project) {
+    if (!in_array($project, ['frontend', 'trendagent'])) {
+        abort(404);
     }
-    return redirect('/');
-})->where('any', '.*');
-
-// Fix for l5-swagger route name issue
-// Удалено - l5-swagger автоматически регистрирует этот роут
-// Route::get('/docs/{jsonFile?}', [SwaggerController::class, 'docs'])
-//     ->name('l5-swagger.default.docs')
-//     ->where('jsonFile', '.*');
+    
+    return view('swagger.project', compact('project'));
+})->name('swagger.project');

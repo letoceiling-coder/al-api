@@ -29,7 +29,69 @@ Route::get('/test', function () {
 });
 
 // ============================================
-// API Version 1 (v1) - Main routes
+// Frontend API v1
+// ============================================
+Route::prefix('frontend/v1')->group(function () {
+    
+    // Public test endpoint
+    Route::get('/test', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'Frontend API v1 is working',
+            'version' => '1.0.0',
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    });
+    
+    // Protected routes (require Sanctum authentication)
+    Route::middleware('auth:sanctum')->group(function () {
+        
+        // User info
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'success' => true,
+                'user' => $request->user(),
+                'api_version' => 'v1',
+            ]);
+        });
+
+        // ============================================
+        // AI Processing (Main endpoints)
+        // ============================================
+        Route::post('/ai/process', [AIProxyController::class, 'process'])
+            ->name('frontend.v1.ai.process');
+        
+        Route::post('/ai/stream', [AIProxyController::class, 'stream'])
+            ->name('frontend.v1.ai.stream');
+
+        // ============================================
+        // User API Keys Management
+        // ============================================
+        Route::prefix('user/keys')->name('frontend.v1.keys.')->group(function () {
+            Route::get('/', [UserKeysController::class, 'index'])->name('index');
+            Route::post('/', [UserKeysController::class, 'store'])->name('store');
+            Route::get('/{id}', [UserKeysController::class, 'show'])->name('show');
+            Route::put('/{id}', [UserKeysController::class, 'update'])->name('update');
+            Route::delete('/{id}', [UserKeysController::class, 'destroy'])->name('destroy');
+            Route::patch('/{id}/toggle', [UserKeysController::class, 'toggle'])->name('toggle');
+        });
+
+        // ============================================
+        // Analytics & Usage
+        // ============================================
+        Route::prefix('analytics')->name('frontend.v1.analytics.')->group(function () {
+            Route::get('/summary', [AnalyticsController::class, 'summary'])->name('summary');
+            Route::get('/history', [AnalyticsController::class, 'history'])->name('history');
+            Route::get('/costs', [AnalyticsController::class, 'costs'])->name('costs');
+            Route::get('/limits', [AnalyticsController::class, 'limits'])->name('limits');
+            Route::get('/by-provider', [AnalyticsController::class, 'byProvider'])->name('by-provider');
+            Route::get('/by-model', [AnalyticsController::class, 'byModel'])->name('by-model');
+        });
+    });
+});
+
+// ============================================
+// Backward Compatibility - старые маршруты
 // ============================================
 Route::prefix('v1')->middleware(['api-version:v1'])->group(function () {
     
@@ -56,18 +118,14 @@ Route::prefix('v1')->middleware(['api-version:v1'])->group(function () {
             ]);
         });
 
-        // ============================================
-        // AI Processing (Main endpoints)
-        // ============================================
+        // AI Processing
         Route::post('/ai/process', [AIProxyController::class, 'process'])
             ->name('v1.ai.process');
         
         Route::post('/ai/stream', [AIProxyController::class, 'stream'])
             ->name('v1.ai.stream');
 
-        // ============================================
         // User API Keys Management
-        // ============================================
         Route::prefix('user/keys')->name('v1.keys.')->group(function () {
             Route::get('/', [UserKeysController::class, 'index'])->name('index');
             Route::post('/', [UserKeysController::class, 'store'])->name('store');
@@ -77,9 +135,7 @@ Route::prefix('v1')->middleware(['api-version:v1'])->group(function () {
             Route::patch('/{id}/toggle', [UserKeysController::class, 'toggle'])->name('toggle');
         });
 
-        // ============================================
         // Analytics & Usage
-        // ============================================
         Route::prefix('analytics')->name('v1.analytics.')->group(function () {
             Route::get('/summary', [AnalyticsController::class, 'summary'])->name('summary');
             Route::get('/history', [AnalyticsController::class, 'history'])->name('history');
@@ -92,10 +148,7 @@ Route::prefix('v1')->middleware(['api-version:v1'])->group(function () {
     });
 });
 
-// ============================================
-// Backward Compatibility (DEPRECATED)
-// ============================================
-// Legacy routes without version prefix (will be removed in v2)
+// Legacy routes without version prefix (DEPRECATED)
 Route::middleware('auth:sanctum')->group(function () {
     
     // User info
@@ -103,7 +156,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json([
             'success' => true,
             'user' => $request->user(),
-            'warning' => 'This endpoint is deprecated. Please use /api/v1/user instead.',
+            'warning' => 'This endpoint is deprecated. Please use /api/frontend/v1/user instead.',
             'deprecated' => true,
         ]);
     });

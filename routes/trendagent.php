@@ -10,55 +10,18 @@ use App\Http\Controllers\TrendAgent\CommercialController;
 
 /*
 |--------------------------------------------------------------------------
-| TrendAgent API Routes
+| TrendAgent API Routes v1
 |--------------------------------------------------------------------------
 |
+| Префикс: /api/trendagent/v1
 | API для парсинга trendagent.ru
 | Использует отдельный токен для аутентификации: 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF
 | Все маршруты требуют авторизации через TrendAgentAuthMiddleware
 |
 */
 
-// Информация об API (без middleware для доступа)
-Route::get('/trendagent/', function () {
-    return response()->json([
-        'name' => 'TrendAgent API',
-        'version' => '1.0.0',
-        'description' => 'API для получения данных о недвижимости с сайта trendagent.ru',
-        'documentation' => url('/trendagent/swagger'),
-        'endpoints' => [
-            'authentication' => '/trendagent/authenticate',
-            'cities' => '/trendagent/cities',
-            'apartments' => '/trendagent/apartments',
-            'parkings' => '/trendagent/parkings',
-            'houses' => '/trendagent/houses',
-            'plots' => '/trendagent/plots',
-            'commercial' => '/trendagent/commercial',
-        ],
-        'authentication' => [
-            'type' => 'Bearer Token',
-            'header' => 'Authorization: Bearer {token}',
-        ],
-    ], 200)->header('Content-Type', 'application/json');
-})->name('trendagent.index');
-
-// Swagger документация (без middleware для доступа)
-Route::get('/trendagent/swagger', function () {
-    if (!view()->exists('trendagent.swagger')) {
-        return response('Swagger view not found', 404);
-    }
-    return view('trendagent.swagger');
-})->name('trendagent.swagger');
-
-// CORS для swagger.json
-Route::options('/trendagent/swagger.json', function () {
-    return response('', 200)
-        ->header('Access-Control-Allow-Origin', '*')
-        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
-        ->header('Access-Control-Allow-Headers', 'Content-Type');
-});
-
-Route::get('/trendagent/swagger.json', function () {
+// Swagger JSON для TrendAgent
+Route::get('trendagent/v1/swagger.json', function () {
     $swaggerPath = storage_path('api-docs/trendagent-swagger.json');
     
     if (file_exists($swaggerPath)) {
@@ -105,7 +68,7 @@ Route::get('/trendagent/swagger.json', function () {
             'description' => 'API для получения данных о недвижимости с сайта trendagent.ru',
         ],
         'servers' => [
-            ['url' => 'https://api.siteaccess.ru/trendagent', 'description' => 'Production API Server'],
+            ['url' => 'https://api.siteaccess.ru/api/trendagent/v1', 'description' => 'Production API Server'],
         ],
         'security' => [
             ['trendagent_auth' => []],
@@ -114,7 +77,7 @@ Route::get('/trendagent/swagger.json', function () {
     ], 200)->header('Content-Type', 'application/json');
 })->name('trendagent.swagger.json');
 
-Route::prefix('trendagent')->middleware(['trendagent.auth'])->group(function () {
+Route::prefix('trendagent/v1')->middleware(['trendagent.auth'])->group(function () {
     
     // ============================================
     // SSO Authentication & Cities
