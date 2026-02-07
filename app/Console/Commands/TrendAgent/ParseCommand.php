@@ -190,13 +190,11 @@ class ParseCommand extends Command
                     break;
                 }
                 
-                // Если получили меньше чем pageSize - вероятно последняя страница
-                if ($pageProcessed < $pageSize / 2) {
-                    break;
-                }
-                
                 // Увеличиваем offset для следующей страницы
                 $currentOffset += $pageProcessed;
+                
+                // Добавляем небольшую задержку между запросами
+                usleep(100000); // 0.1 секунды
             }
 
         } catch (Exception $e) {
