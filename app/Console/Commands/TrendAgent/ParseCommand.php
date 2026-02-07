@@ -256,7 +256,13 @@ class ParseCommand extends Command
      */
     private function parseParkings(int $offset, $bar): array
     {
-        $data = $this->apiClient->getParkings($this->region, [], $this->limit, $offset);
+        $params = [
+            'city' => $this->region,
+            'count' => $this->limit,
+            'offset' => $offset,
+        ];
+        
+        $data = $this->apiClient->getParkings($params);
         
         if ($this->saveRaw) {
             $this->saveRawData('parkings', 'list', $offset, $data);
@@ -275,7 +281,13 @@ class ParseCommand extends Command
      */
     private function parseHouses(int $offset, $bar): array
     {
-        $data = $this->apiClient->getHouses($this->region, [], $this->limit, $offset);
+        $params = [
+            'city' => $this->region,
+            'count' => $this->limit,
+            'offset' => $offset,
+        ];
+        
+        $data = $this->apiClient->getHouses($params);
         
         if ($this->saveRaw) {
             $this->saveRawData('houses', 'list', $offset, $data);
@@ -294,7 +306,13 @@ class ParseCommand extends Command
      */
     private function parsePlots(int $offset, $bar): array
     {
-        $data = $this->apiClient->getPlots($this->region, [], $this->limit, $offset);
+        $params = [
+            'city' => $this->region,
+            'count' => $this->limit,
+            'offset' => $offset,
+        ];
+        
+        $data = $this->apiClient->getPlots($params);
         
         if ($this->saveRaw) {
             $this->saveRawData('plots', 'list', $offset, $data);
@@ -313,7 +331,13 @@ class ParseCommand extends Command
      */
     private function parseCommercial(int $offset, $bar): array
     {
-        $data = $this->apiClient->getCommercial($this->region, [], $this->limit, $offset);
+        $params = [
+            'city' => $this->region,
+            'count' => $this->limit,
+            'offset' => $offset,
+        ];
+        
+        $data = $this->apiClient->getCommercial($params);
         
         if ($this->saveRaw) {
             $this->saveRawData('commercial', 'list', $offset, $data);
