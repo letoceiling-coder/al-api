@@ -512,6 +512,38 @@ class ApartmentsController
                 ]);
             }
 
+            // Получаем дополнительные данные: вознаграждения, скидки, ипотека, рассрочка
+            $rewardsData = null;
+            $discountsData = null;
+            $mortgageData = null;
+            $installmentsData = null;
+            
+            $builderId = $blockData['data']['builder_id'] ?? $blockData['builder_id'] ?? null;
+            
+            try {
+                $rewardsData = $apiAuth->getRewards($id, $builderId);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные о вознаграждениях', ['error' => $e->getMessage()]);
+            }
+            
+            try {
+                $discountsData = $apiAuth->getDiscounts($id, $builderId);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные о скидках', ['error' => $e->getMessage()]);
+            }
+            
+            try {
+                $mortgageData = $apiAuth->getMortgage($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные об ипотеке', ['error' => $e->getMessage()]);
+            }
+            
+            try {
+                $installmentsData = $apiAuth->getInstallments($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные о рассрочке', ['error' => $e->getMessage()]);
+            }
+
             return response()->json([
                 'success' => true,
                 'block_id' => $id,
@@ -519,6 +551,10 @@ class ApartmentsController
                 'data' => [
                     'apartment' => $apartmentData['data'] ?? $apartmentData,
                     'block' => $blockData['data'] ?? $blockData,
+                    'rewards' => $rewardsData,
+                    'discounts' => $discountsData,
+                    'mortgage' => $mortgageData,
+                    'installments' => $installmentsData,
                 ],
             ], 200);
 

@@ -1,0 +1,65 @@
+.apartment-passport {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.price-passport__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-weight: 500;
+}
+
+.price-passport__item-col {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.price-passport__item-col.col-auto {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.apartment-passport__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.apartment-passport__row:last-child {
+  border-bottom: none;
+}
+
+.apartment-passport__row .col-auto {
+  color: #666;
+}
+
+.apartment-passport__row .col-auto:last-child {
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: right;
+}
+
+.apartment-passport__tags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.apartment-passport__tags-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.apartment-passport__tag-item {
+  display: inline-block;
+}

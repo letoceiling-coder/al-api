@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
-import { getImageUrl } from '../utils/imageUtils'
+import { getImageUrl, getImageUrlFull, getImageUrls } from '../utils/imageUtils'
+import FlatRewardCard from '../components/detail/FlatRewardCard'
+import FlatHighlights from '../components/detail/FlatHighlights'
+import FlatPassport from '../components/detail/FlatPassport'
+import FlatBlockInfo from '../components/detail/FlatBlockInfo'
 import './FlatDetail.css'
 
 const FlatDetail = () => {
@@ -14,8 +18,13 @@ const FlatDetail = () => {
   const [error, setError] = useState(null)
   const [apartmentData, setApartmentData] = useState(null)
   const [blockData, setBlockData] = useState(null)
+  const [rewardsData, setRewardsData] = useState(null)
+  const [discountsData, setDiscountsData] = useState(null)
+  const [mortgageData, setMortgageData] = useState(null)
+  const [installmentsData, setInstallmentsData] = useState(null)
   const [phone, setPhone] = useState('+79045393434')
   const [password, setPassword] = useState('nwBvh4q')
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
     loadFlatDetail()
@@ -36,6 +45,10 @@ const FlatDetail = () => {
       if (response.success) {
         setApartmentData(response.data?.apartment || response.data)
         setBlockData(response.data?.block || null)
+        setRewardsData(response.data?.rewards || null)
+        setDiscountsData(response.data?.discounts || null)
+        setMortgageData(response.data?.mortgage || null)
+        setInstallmentsData(response.data?.installments || null)
       } else {
         setError(response.message || 'Ошибка загрузки данных квартиры')
       }
@@ -137,11 +150,61 @@ const FlatDetail = () => {
   const apartment = apartmentData.data || apartmentData
   const block = blockData?.data || blockData
 
-  const imageUrl = apartment.image?.url || 
-                  (apartment.images && apartment.images.length > 0 ? getImageUrl(apartment.images[0]) : null) ||
-                  (apartment.image && typeof apartment.image === 'string' ? apartment.image : null) ||
-                  (apartment.plan ? getImageUrl(apartment.plan) : null) ||
-                  (apartment.plan_image ? getImageUrl(apartment.plan_image) : null)
+  // Собираем все изображения квартиры
+  const getImages = () => {
+    const images = []
+    
+    // Проверяем массив images
+    if (apartment?.images && Array.isArray(apartment.images)) {
+      apartment.images.forEach(img => {
+        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
+        if (imgUrl) {
+          images.push({ url: imgUrl, urlFull: imgUrl })
+        }
+      })
+    }
+    
+    // Проверяем одиночное image
+    if (apartment?.image) {
+      const imgUrl = getImageUrlFull(apartment.image) || getImageUrl(apartment.image)
+      if (imgUrl && !images.find(img => img.url === imgUrl)) {
+        images.push({ url: imgUrl, urlFull: imgUrl })
+      }
+    }
+    
+    // Проверяем plan
+    if (apartment?.plan) {
+      const imgUrl = getImageUrlFull(apartment.plan) || getImageUrl(apartment.plan)
+      if (imgUrl && !images.find(img => img.url === imgUrl)) {
+        images.push({ url: imgUrl, urlFull: imgUrl })
+      }
+    }
+    
+    // Проверяем plan_image
+    if (apartment?.plan_image) {
+      const imgUrl = getImageUrlFull(apartment.plan_image) || getImageUrl(apartment.plan_image)
+      if (imgUrl && !images.find(img => img.url === imgUrl)) {
+        images.push({ url: imgUrl, urlFull: imgUrl })
+      }
+    }
+    
+    return images
+  }
+
+  const images = getImages()
+  const currentImage = images[currentImageIndex] || null
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  const selectImage = (index) => {
+    setCurrentImageIndex(index)
+  }
 
   const number = apartment.number || apartment.apartment_number || '—'
   const floor = apartment.floor || '—'
@@ -189,16 +252,67 @@ const FlatDetail = () => {
 
       <div className="flat-content">
         <div className="flat-main">
-          {/* План квартиры */}
-          {imageUrl && (
-            <div className="flat-plan-section">
-              <h2>Планировка</h2>
-              <div className="flat-plan-image">
-                <img 
-                  src={imageUrl} 
-                  alt={`Планировка квартиры ${number}`}
-                  onError={(e) => { e.target.style.display = 'none' }}
-                />
+          {/* Галерея изображений */}
+          {images.length > 0 && (
+            <div className="flat-gallery-section">
+              <h2>Фотографии</h2>
+              <div className="flat-gallery">
+                <div className="gallery-main">
+                  {currentImage && (
+                    <>
+                      {images.length > 1 && (
+                        <button 
+                          className="gallery-nav-btn gallery-nav-btn-prev"
+                          onClick={prevImage}
+                          aria-label="Предыдущее изображение"
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      )}
+                      <img
+                        src={currentImage.urlFull || currentImage.url}
+                        alt={`Квартира ${number} - фото ${currentImageIndex + 1}`}
+                        className="gallery-main-image"
+                        onError={(e) => { e.target.style.display = 'none' }}
+                      />
+                      {images.length > 1 && (
+                        <button 
+                          className="gallery-nav-btn gallery-nav-btn-next"
+                          onClick={nextImage}
+                          aria-label="Следующее изображение"
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      )}
+                      {images.length > 1 && (
+                        <div className="gallery-counter">
+                          {currentImageIndex + 1} / {images.length}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {images.length > 1 && (
+                  <div className="gallery-thumbnails">
+                    {images.map((img, index) => (
+                      <div
+                        key={index}
+                        className={`gallery-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                        onClick={() => selectImage(index)}
+                      >
+                        <img
+                          src={img.url || img.urlFull}
+                          alt={`Миниатюра ${index + 1}`}
+                          onError={(e) => { e.target.style.display = 'none' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -265,46 +379,57 @@ const FlatDetail = () => {
           </div>
         </div>
 
-        <div className="flat-sidebar">
-          {/* Цены */}
-          <div className="flat-prices-section">
-            <h2>Цены</h2>
-            {basePrice && (
-              <div className="price-item">
-                <span className="price-label">Базовая цена:</span>
-                <span className="price-value">{formatPrice(basePrice)}</span>
-              </div>
-            )}
-            {fullPrice && fullPrice !== basePrice && (
-              <div className="price-item">
-                <span className="price-label">Цена при 100%:</span>
-                <span className="price-value">{formatPrice(fullPrice)}</span>
-              </div>
-            )}
-            {pricePerM2 !== '—' && (
-              <div className="price-item">
-                <span className="price-label">Цена за м²:</span>
-                <span className="price-value">{pricePerM2}</span>
-              </div>
-            )}
-          </div>
+        <div className="flat-sidebar apartment-col apartment-rside col">
+          {/* Блок вознаграждения */}
+          <FlatRewardCard rewardsData={rewardsData} />
 
-          {/* Статус */}
-          <div className="flat-status-section">
-            <h2>Статус</h2>
-            <div className={`status-badge ${getStatusClass(status)}`}>
-              {status}
-            </div>
-          </div>
+          {/* Блоки акций, ипотеки, рассрочки */}
+          <FlatHighlights 
+            discountsData={discountsData}
+            mortgageData={mortgageData}
+            installmentsData={installmentsData}
+          />
+
+          {/* Паспорт квартиры */}
+          <FlatPassport apartment={apartment} block={block} />
+
+          {/* Информация о застройщике и объекте */}
+          <FlatBlockInfo block={block} />
 
           {/* Действия */}
-          <div className="flat-actions-section">
-            <button className="btn btn-primary btn-block">
-              Зафиксировать клиента
-            </button>
-            <button className="btn btn-secondary btn-block">
-              Добавить к сравнению
-            </button>
+          <div className="apartment-passport__actions row">
+            <div className="col-6">
+              <div>
+                <div className="shell-element shell-element_md shell-element_secondary shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper btn-wrapper_press-effect-animation">
+                  <button iconPosition="left" tabIndex="0" className="btn btn_secondary px-sm" type="button">
+                    <span className="btn__content justify-content-center">
+                      <span>Контакты</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="col-6">
+              <div>
+                <div className="shell-element shell-element_md shell-element_brand shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper btn-wrapper_press-effect-animation">
+                  <button iconPosition="left" tabIndex="0" className="btn btn_brand px-sm" type="button">
+                    <span className="btn__content justify-content-center">
+                      <span>Забронировать</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="col-12">
+              <div className="apartment-form__control">
+                <div className="apartment-files__item">
+                  <svg className="svg-icon trend-ui-icon-root trend-ui-icon-root__File trend-ui-icon-root__File-20" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+                    <path xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd" d="M2.00012 3.35C2.00012 1.99029 3.18409 1 4.50012 1H10.7501C10.949 1 11.1398 1.07902 11.2805 1.21967L17.7805 7.71967C17.9211 7.86032 18.0001 8.05109 18.0001 8.25V16.65C18.0001 18.0097 16.8162 19 15.5001 19H4.50012C3.18409 19 2.00012 18.0097 2.00012 16.65V3.35ZM4.50012 2.5C3.88316 2.5 3.50012 2.9424 3.50012 3.35V16.65C3.50012 17.0576 3.88316 17.5 4.50012 17.5H15.5001C16.1171 17.5 16.5001 17.0576 16.5001 16.65V9L10.7501 9.00002C10.5512 9.00003 10.3604 8.92101 10.2198 8.78036C10.0791 8.6397 10.0001 8.44894 10.0001 8.25002V2.5H4.50012ZM11.5001 3.56066L15.4395 7.50001L11.5001 7.50002V3.56066Z" fill="#4C4C4C"></path>
+                  </svg>
+                  Регламент взаимодействия
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
