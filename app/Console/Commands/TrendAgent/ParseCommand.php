@@ -223,7 +223,8 @@ class ParseCommand extends Command
             $this->saveRawData('complexes', 'list', $offset, $data);
         }
 
-        $items = $data['objects'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = 0;
 
         foreach ($items as $item) {
@@ -260,7 +261,8 @@ class ParseCommand extends Command
             $this->saveRawData('apartments', 'list', $offset, $data);
         }
 
-        $items = $data['apartments'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = count($items);
         
         $bar->advance($processed);
@@ -285,7 +287,8 @@ class ParseCommand extends Command
             $this->saveRawData('parkings', 'list', $offset, $data);
         }
 
-        $items = $data['parkings'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = count($items);
         
         $bar->advance($processed);
@@ -310,7 +313,8 @@ class ParseCommand extends Command
             $this->saveRawData('houses', 'list', $offset, $data);
         }
 
-        $items = $data['houses'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = count($items);
         
         $bar->advance($processed);
@@ -335,7 +339,8 @@ class ParseCommand extends Command
             $this->saveRawData('plots', 'list', $offset, $data);
         }
 
-        $items = $data['plots'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = count($items);
         
         $bar->advance($processed);
@@ -360,7 +365,8 @@ class ParseCommand extends Command
             $this->saveRawData('commercial', 'list', $offset, $data);
         }
 
-        $items = $data['commercial'] ?? $data['data'] ?? [];
+        // API возвращает структуру: ['success' => true, 'data' => [...], 'total' => N]
+        $items = $data['data'] ?? [];
         $processed = count($items);
         
         $bar->advance($processed);
