@@ -11,8 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            // TrendAgent routes - без префикса api, так как они уже имеют свой префикс /trendagent
-            \Illuminate\Support\Facades\Route::group([], base_path('routes/trendagent.php'));
+            // TrendAgent routes - с префиксом api
+            \Illuminate\Support\Facades\Route::prefix('api')->group(base_path('routes/trendagent.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

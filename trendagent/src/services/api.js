@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = '/trendagent'
+const API_BASE_URL = '/api/trendagent'
 const TRENDAGENT_TOKEN = '8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF'
 
 // Создаем экземпляр axios с базовой конфигурацией
