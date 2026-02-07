@@ -251,33 +251,23 @@ class ParseCommand extends Command
     }
     
     /**
-     * Парсинг квартир внутри комплекса через шахматку
+     * Парсинг квартир внутри комплекса
      */
     private function parseComplexApartments(string $blockId): void
     {
         try {
-            // Получаем квартиры через детальную страницу (как на /trendagent/apartments/{id})
-            // Это более полный список чем через шахматку
-            $apartmentsData = $this->apiClient->getApartmentDetails($blockId);
+            // Получаем квартиры комплекса через API метод getBlockApartments
+            // Это точно такой же список как на /trendagent/apartments/{id}
+            $apartmentsResponse = $this->apiClient->getBlockApartments($blockId);
             
             if ($this->saveRaw) {
-                $this->saveRawData('complexes', 'apartments_list', $blockId, $apartmentsData);
+                $this->saveRawData('complexes', 'apartments', $blockId, $apartmentsResponse);
             }
             
-            // Также получаем через шахматку для сравнения
-            try {
-                $checkerboardData = $this->apiClient->getApartmentCheckerboardApartments($blockId);
-                
-                if ($this->saveRaw) {
-                    $this->saveRawData('complexes', 'checkerboard_apartments', $blockId, $checkerboardData);
-                }
-                
-                $checkerboardCount = count($checkerboardData['data'] ?? []);
-                $this->info("\n   └── Комплекс {$blockId}: {$checkerboardCount} квартир через шахматку");
-                
-            } catch (Exception $e) {
-                $this->warn("\n   └── ⚠️  Ошибка получения квартир через шахматку для {$blockId}: " . $e->getMessage());
-            }
+            $apartments = $apartmentsResponse['data'] ?? [];
+            $apartmentsCount = count($apartments);
+            
+            $this->info("\n   └── Комплекс {$blockId}: {$apartmentsCount} квартир");
             
         } catch (Exception $e) {
             $this->warn("\n   └── ⚠️  Ошибка парсинга квартир комплекса {$blockId}: " . $e->getMessage());

@@ -634,6 +634,31 @@ class TrendAgentApiClient
             }
         }
     }
+    
+    /**
+     * Получить список всех квартир комплекса
+     */
+    public function getBlockApartments(string $blockId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->getBlockApartments($blockId, $params);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+                'total' => $result['total'] ?? count($result['data'] ?? []),
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения квартир комплекса {$blockId}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
 
     /**
      * Получить ID города по коду
