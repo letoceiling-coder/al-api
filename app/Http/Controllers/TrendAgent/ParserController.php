@@ -200,7 +200,7 @@ class ParserController extends Controller
         
         $basePath = 'trendagent/parsing/spb/raw';
         
-        if (!Storage::disk('private')->exists($basePath)) {
+        if (!Storage::disk('local')->exists($basePath)) {
             return $stats;
         }
         
@@ -209,13 +209,13 @@ class ParserController extends Controller
         foreach ($types as $type) {
             $path = "{$basePath}/{$type}";
             
-            if (Storage::disk('private')->exists($path)) {
-                $files = Storage::disk('private')->files($path);
+            if (Storage::disk('local')->exists($path)) {
+                $files = Storage::disk('local')->files($path);
                 $count = count($files);
                 $size = 0;
                 
                 foreach ($files as $file) {
-                    $size += Storage::disk('private')->size($file);
+                    $size += Storage::disk('local')->size($file);
                 }
                 
                 $stats['by_type'][$type] = [
