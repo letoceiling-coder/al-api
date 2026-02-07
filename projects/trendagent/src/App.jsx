@@ -13,6 +13,7 @@ import ObjectDetail from './pages/ObjectDetail'
 import HousesCheckerboard from './pages/HousesCheckerboard'
 import ApartmentsCheckerboard from './pages/ApartmentsCheckerboard'
 import FlatDetail from './pages/FlatDetail'
+import Parser from './pages/Parser'
 import './App.css'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
     <div className="app">
       <Routes>
         <Route path="/" element={<ObjectsList />} />
+        <Route path="/parser" element={<Parser />} />
         <Route path="/objects/table" element={<ObjectsTable />} />
         <Route path="/objects/plans" element={<ObjectsPlans />} />
         <Route path="/objects/map" element={<ObjectsMap />} />
