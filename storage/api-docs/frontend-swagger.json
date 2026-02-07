@@ -1,0 +1,137 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Frontend API",
+    "version": "1.0.0",
+    "description": "API для основного фронтенд-приложения AL. Предоставляет доступ к функциям работы с AI моделями, управлению ключами и аналитике.",
+    "contact": {
+      "name": "AL API Support",
+      "url": "https://api.siteaccess.ru"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.siteaccess.ru/api/frontend/v1",
+      "description": "Production API Server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/test": {
+      "get": {
+        "summary": "API Health Check",
+        "description": "Проверка работоспособности API",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API работает корректно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Frontend API v1 is working"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "summary": "Get Current User",
+        "description": "Получить информацию о текущем авторизованном пользователе",
+        "tags": ["User"],
+        "responses": {
+          "200": {
+            "description": "Информация о пользователе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "user": {
+                      "type": "object"
+                    },
+                    "api_version": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/ai/process": {
+      "post": {
+        "summary": "Process AI Request",
+        "description": "Обработка запроса к AI модели",
+        "tags": ["AI"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Текст запроса"
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Название модели"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ от AI"
+          }
+        }
+      }
+    }
+  }
+}

@@ -43,6 +43,36 @@ Route::prefix('frontend/v1')->group(function () {
         ]);
     });
     
+    // Swagger JSON endpoint
+    Route::get('/swagger.json', function () {
+        $swaggerPath = storage_path('api-docs/frontend-swagger.json');
+        
+        if (file_exists($swaggerPath)) {
+            $content = file_get_contents($swaggerPath);
+            $swagger = json_decode($content, true);
+            
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return response()->json($swagger, 200)
+                    ->header('Content-Type', 'application/json')
+                    ->header('Access-Control-Allow-Origin', '*');
+            }
+        }
+        
+        // Fallback к базовой структуре
+        return response()->json([
+            'openapi' => '3.0.0',
+            'info' => [
+                'title' => 'Frontend API',
+                'version' => '1.0.0',
+                'description' => 'API для фронтенд-приложения',
+            ],
+            'servers' => [
+                ['url' => url('/api/frontend/v1'), 'description' => 'Production API Server'],
+            ],
+            'paths' => [],
+        ], 200)->header('Content-Type', 'application/json');
+    })->name('frontend.swagger.json');
+    
     // Protected routes (require Sanctum authentication)
     Route::middleware('auth:sanctum')->group(function () {
         
