@@ -20,6 +20,15 @@ import VillageDetail from '../components/detail/VillageDetail'
 import HousesTable from '../components/detail/HousesTable'
 import HousesMap from '../components/detail/HousesMap'
 import { getImageUrl } from '../utils/imageUtils'
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0,
+  }).format(price)
+}
+
 import '../pages/ObjectDetail.css'
 
 const ObjectDetail = () => {
@@ -366,6 +375,7 @@ const ObjectDetail = () => {
               <HousesTable 
                 housesData={apartmentsData} 
                 unifiedData={unifiedData}
+                objectType={objectType}
               />
             </section>
           )}

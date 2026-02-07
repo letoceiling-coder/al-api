@@ -182,6 +182,7 @@ class HousesController
                 $options = [
                     'unified' => true,
                     'buildings' => true,
+                    'apartments' => true, // Для домов нужны apartments с фильтром room=[30,40]
                     'plans' => true,
                     'progress' => true,
                     'finishings' => true,
@@ -195,6 +196,7 @@ class HousesController
                 $options = array_merge([
                     'unified' => true,
                     'buildings' => true,
+                    'apartments' => true, // Для домов нужны apartments с фильтром room=[30,40]
                     'plans' => true,
                     'progress' => true,
                     'finishings' => true,
@@ -215,6 +217,8 @@ class HousesController
             }
 
             // Получаем полные данные блока
+            // Передаем object_type для правильной фильтрации домов
+            $options['object_type'] = 'houses';
             $fullData = $apiAuth->getBlockFullData($id, $options);
 
             return response()->json([

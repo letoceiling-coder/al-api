@@ -1,7 +1,7 @@
 import './HousesTable.css'
 import { getImageUrl } from '../../utils/imageUtils'
 
-const HousesTable = ({ housesData, unifiedData }) => {
+const HousesTable = ({ housesData, unifiedData, objectType }) => {
   if (!housesData && !unifiedData) {
     return null
   }
@@ -26,8 +26,39 @@ const HousesTable = ({ housesData, unifiedData }) => {
   }
 
   // Получаем данные домов из apartments или houses
-  const houses = housesData?.data || housesData?.apartments?.data || housesData || []
-  const hasHouses = Array.isArray(houses) && houses.length > 0
+  // Для домов данные приходят в apartments.data (коттеджи и таунхаусы с room=[30,40])
+  let houses = []
+  
+  if (housesData) {
+    // Проверяем разные возможные структуры данных
+    if (Array.isArray(housesData)) {
+      houses = housesData
+    } else if (housesData.data && Array.isArray(housesData.data)) {
+      houses = housesData.data
+    } else if (housesData.apartments) {
+      if (Array.isArray(housesData.apartments)) {
+        houses = housesData.apartments
+      } else if (housesData.apartments.data && Array.isArray(housesData.apartments.data)) {
+        houses = housesData.apartments.data
+      } else if (housesData.apartments.results && Array.isArray(housesData.apartments.results)) {
+        houses = housesData.apartments.results
+      }
+    } else if (housesData.results && Array.isArray(housesData.results)) {
+      houses = housesData.results
+    }
+  }
+  
+  const hasHouses = houses.length > 0
+  
+  // Логируем для отладки
+  if (objectType === 'houses') {
+    console.log('HousesTable: housesData structure', {
+      hasHousesData: !!housesData,
+      housesDataKeys: housesData ? Object.keys(housesData) : [],
+      housesCount: houses.length,
+      firstHouse: houses[0] || null,
+    })
+  }
 
   if (!hasHouses) {
     return (
@@ -78,7 +109,7 @@ const HousesTable = ({ housesData, unifiedData }) => {
                         <div className="image-placeholder">—</div>
                       )}
                     </td>
-                    <td className="table-name">{house.name || house.title || 'Без названия'}</td>
+                    <td className="table-name">{name}</td>
                     <td className="table-area">
                       {area ? (
                         typeof area === 'object' && area.from && area.to ? (
