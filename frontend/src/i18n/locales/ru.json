@@ -83,7 +83,12 @@
     "step3Desc": "Получите структурированный ответ с метаданными и usage",
     "baseUrl": "Base URL",
     "version": "Version",
-    "authentication": "Authentication"
+    "authentication": "Authentication",
+    "projects": "Проекты",
+    "cardTrendAgent": "TrendAgent",
+    "cardTrendAgentDesc": "Платформа для работы с недвижимостью - квартиры, дома, участки, коммерция",
+    "cardFrontend": "Frontend",
+    "cardFrontendDesc": "Главное приложение с документацией и навигацией"
   },
   "docs": {
     "title": "📖 Полное руководство по работе с API",

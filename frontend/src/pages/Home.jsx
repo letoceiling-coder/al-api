@@ -15,6 +15,22 @@ const Home = () => {
 
       <div className="home-content">
         <div className="home-section">
+          <h2>🚀 {t('home.projects')}</h2>
+          <div className="cards-grid">
+            <a href="/trendagent/" className="card" target="_self">
+              <div className="card-icon">🏠</div>
+              <h3>{t('home.cardTrendAgent')}</h3>
+              <p>{t('home.cardTrendAgentDesc')}</p>
+            </a>
+            <a href="/frontend/" className="card" target="_self">
+              <div className="card-icon">📱</div>
+              <h3>{t('home.cardFrontend')}</h3>
+              <p>{t('home.cardFrontendDesc')}</p>
+            </a>
+          </div>
+        </div>
+
+        <div className="home-section">
           <h2>📚 {t('home.documentation')}</h2>
           <div className="cards-grid">
             <Link to="/guide" className="card">

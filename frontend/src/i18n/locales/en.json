@@ -83,7 +83,12 @@
     "step3Desc": "Get a structured response with metadata and usage",
     "baseUrl": "Base URL",
     "version": "Version",
-    "authentication": "Authentication"
+    "authentication": "Authentication",
+    "projects": "Projects",
+    "cardTrendAgent": "TrendAgent",
+    "cardTrendAgentDesc": "Real estate platform - apartments, houses, plots, commercial properties",
+    "cardFrontend": "Frontend",
+    "cardFrontendDesc": "Main application with documentation and navigation"
   },
   "docs": {
     "title": "📖 Complete API Guide",
