@@ -362,6 +362,11 @@ class ApartmentsController
                     ? $request->input('room') 
                     : [$request->input('room')];
             }
+            
+            // Параметр onrequest для фильтрации квартир под запрос
+            if ($request->has('onrequest')) {
+                $params['onrequest'] = $request->input('onrequest');
+            }
 
             $result = $apiAuth->getCheckerboardBuildings($id, $params);
 

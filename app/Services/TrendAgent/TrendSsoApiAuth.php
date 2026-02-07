@@ -4512,6 +4512,13 @@ class TrendSsoApiAuth
                     unset($queryParams['room']);
                 }
                 
+                // Обрабатываем параметр onrequest (для фильтрации квартир под запрос)
+                $onRequestParam = null;
+                if (isset($queryParams['onrequest'])) {
+                    $onRequestParam = $queryParams['onrequest'];
+                    unset($queryParams['onrequest']);
+                }
+                
                 $queryParams['auth_token'] = $authToken;
                 
                 // Формируем базовый query string
@@ -4527,6 +4534,16 @@ class TrendSsoApiAuth
                         $queryString .= '&' . implode('&', $roomQuery);
                     } else {
                         $queryString = implode('&', $roomQuery);
+                    }
+                }
+                
+                // Добавляем параметр onrequest, если указан
+                if ($onRequestParam !== null) {
+                    $onRequestValue = $onRequestParam === true || $onRequestParam === 'true' || $onRequestParam === '1' ? 'true' : 'false';
+                    if (!empty($queryString)) {
+                        $queryString .= '&onrequest=' . urlencode($onRequestValue);
+                    } else {
+                        $queryString = 'onrequest=' . urlencode($onRequestValue);
                     }
                 }
                 

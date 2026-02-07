@@ -53,8 +53,10 @@ const ApartmentsCheckerboard = () => {
         if (Array.isArray(response.data)) {
           buildingsData = response.data
         } else if (response.data && typeof response.data === 'object') {
-          // Может быть объект с массивом buildings или плоский объект
-          if (Array.isArray(response.data.buildings)) {
+          // Проверяем results (основной массив корпусов)
+          if (Array.isArray(response.data.results)) {
+            buildingsData = response.data.results
+          } else if (Array.isArray(response.data.buildings)) {
             buildingsData = response.data.buildings
           } else if (Array.isArray(response.data.data)) {
             buildingsData = response.data.data
