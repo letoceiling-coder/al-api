@@ -2367,10 +2367,51 @@ class TrendSsoApiAuth
                 $minPrices = [];
                 if (isset($item['min_prices']) && is_array($item['min_prices'])) {
                     foreach ($item['min_prices'] as $priceItem) {
+                        // Для домов может быть price или value
+                        $priceValue = $priceItem['price'] ?? $priceItem['value'] ?? null;
+                        // Если value - строка типа "от 177 000", пытаемся извлечь число
+                        if ($priceValue === null && isset($priceItem['value']) && is_string($priceItem['value'])) {
+                            $priceValue = (float)preg_replace('/[^\d.]/', '', $priceItem['value']);
+                        }
+                        // Если есть unformatted_value, используем его
+                        if (isset($priceItem['unformatted_value']) && $priceItem['unformatted_value'] !== null) {
+                            $priceValue = (float)$priceItem['unformatted_value'];
+                        }
+                        
+                        if ($priceValue !== null && $priceValue > 0) {
+                            $minPrices[] = [
+                                'label' => $priceItem['label'] ?? null,
+                                'value' => $priceValue,
+                                'price' => $priceValue, // Добавляем price для совместимости
+                                'formatted_value' => $priceItem['value'] ?? null, // Сохраняем отформатированное значение
+                                'unit' => $priceItem['unit'] ?? '₽',
+                            ];
+                        }
+                    }
+                }
+                
+                // Если min_prices пустой, но есть другие поля с ценой, добавляем их
+                if (empty($minPrices)) {
+                    if (isset($item['min_price']) && $item['min_price'] > 0) {
                         $minPrices[] = [
-                            'label' => $priceItem['label'] ?? null,
-                            'value' => $priceItem['value'] ?? null,
-                            'unit' => $priceItem['unit'] ?? '₽',
+                            'label' => 'от',
+                            'value' => $item['min_price'],
+                            'price' => $item['min_price'],
+                            'unit' => '₽',
+                        ];
+                    } elseif (isset($item['price']) && $item['price'] > 0) {
+                        $minPrices[] = [
+                            'label' => null,
+                            'value' => $item['price'],
+                            'price' => $item['price'],
+                            'unit' => '₽',
+                        ];
+                    } elseif (isset($item['price_from']) && $item['price_from'] > 0) {
+                        $minPrices[] = [
+                            'label' => 'от',
+                            'value' => $item['price_from'],
+                            'price' => $item['price_from'],
+                            'unit' => '₽',
                         ];
                     }
                 }
