@@ -22,6 +22,7 @@ Route::get('/react/{any?}', function () {
 })->where('any', '.*');
 
 // Fix for l5-swagger route name issue
-Route::get('/docs/{jsonFile?}', [SwaggerController::class, 'docs'])
-    ->name('l5-swagger.default.docs')
-    ->where('jsonFile', '.*');
+// Удалено - l5-swagger автоматически регистрирует этот роут
+// Route::get('/docs/{jsonFile?}', [SwaggerController::class, 'docs'])
+//     ->name('l5-swagger.default.docs')
+//     ->where('jsonFile', '.*');

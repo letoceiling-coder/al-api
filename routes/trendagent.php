@@ -60,8 +60,7 @@ Route::prefix('trendagent')->middleware(['trendagent.auth'])->group(function () 
     Route::prefix('apartments')->group(function () {
         Route::post('/', [ApartmentsController::class, 'index']); // Список квартир
         // Более специфичные роуты должны быть определены раньше менее специфичных
-        Route::post('/{id}/flat/{apartmentId}', [ApartmentsController::class, 'flatDetail'])
-            ->where(['id' => '[a-f0-9]{24}', 'apartmentId' => '[a-f0-9]{24}']); // Детальная информация о квартире
+        Route::post('/{id}/flat/{apartmentId}', [ApartmentsController::class, 'flatDetail']); // Детальная информация о квартире
         Route::post('/{id}/checkerboard/buildings', [ApartmentsController::class, 'checkerboardBuildings'])
             ->where(['id' => '[a-f0-9]{24}']); // Корпуса для шахматки
         Route::post('/{id}/checkerboard/apartments', [ApartmentsController::class, 'checkerboardApartments'])
