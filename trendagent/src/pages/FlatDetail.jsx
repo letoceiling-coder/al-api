@@ -41,6 +41,8 @@ const FlatDetail = () => {
   const [selectedFloor, setSelectedFloor] = useState(null)
   const [floorPlanZoom, setFloorPlanZoom] = useState(1)
   const [floorPlanFullscreen, setFloorPlanFullscreen] = useState(false)
+  const [floorPlanRotation, setFloorPlanRotation] = useState(0)
+  const [showFloorPlanInteractive, setShowFloorPlanInteractive] = useState(false)
 
   useEffect(() => {
     loadFlatDetail()
@@ -381,8 +383,21 @@ const FlatDetail = () => {
                   )}
                 </div>
 
+                {/* Кнопка открытия интерактивного поэтажного плана */}
+                {imageType === 'plans' && hasFloorPlanInteractive && !showFloorPlanInteractive && (
+                  <div className="floor-plan-button-wrapper">
+                    <button
+                      type="button"
+                      className="btn btn_secondary px-4"
+                      onClick={() => setShowFloorPlanInteractive(true)}
+                    >
+                      <span className="btn__content justify-content-center">Поэтажный план</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Режим интерактивного поэтажного плана (корпус/секция/этаж) */}
-                {imageType === 'plans' && hasFloorPlanInteractive && (
+                {imageType === 'plans' && hasFloorPlanInteractive && showFloorPlanInteractive && (
                   <div className="floor-plan-interactive">
                     <div className="floor-plan-dropdowns">
                       <div className="floor-plan-select-wrap">
@@ -442,41 +457,98 @@ const FlatDetail = () => {
                     </div>
 
                     <div className="floor-plan-toolbar">
-                      <button
-                        type="button"
-                        className="floor-plan-zoom-btn"
-                        onClick={() => setFloorPlanZoom((z) => Math.min(3, z + 0.25))}
-                        aria-label="Увеличить"
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        className="floor-plan-zoom-btn"
-                        onClick={() => setFloorPlanZoom((z) => Math.max(0.5, z - 0.25))}
-                        aria-label="Уменьшить"
-                      >
-                        −
-                      </button>
-                      <button
-                        type="button"
-                        className="floor-plan-fullscreen-btn"
-                        onClick={() => setFloorPlanFullscreen((v) => !v)}
-                        aria-label="Полноэкранный режим"
-                      >
-                        ⛶
-                      </button>
-                      {getFloorPlanImageUrl() && (
-                        <a
-                          href={getFloorPlanImageUrl()}
-                          download
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="floor-plan-download-btn"
+                      <div className="floor-plan-toolbar-group">
+                        <button
+                          type="button"
+                          className="floor-plan-zoom-btn"
+                          onClick={() => setFloorPlanZoom((z) => Math.min(3, z + 0.25))}
+                          aria-label="Увеличить"
+                          title="Увеличить"
                         >
-                          Скачать
-                        </a>
-                      )}
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="floor-plan-zoom-btn"
+                          onClick={() => setFloorPlanZoom((z) => Math.max(0.5, z - 0.25))}
+                          aria-label="Уменьшить"
+                          title="Уменьшить"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="floor-plan-toolbar-group">
+                        <button
+                          type="button"
+                          className="floor-plan-rotate-btn"
+                          onClick={() => setFloorPlanRotation((r) => (r + 90) % 360)}
+                          aria-label="Повернуть"
+                          title="Повернуть на 90°"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15 5L17 3L15 1M3 5L1 3L3 1M5 3C5 6.314 7.686 9 11 9M15 17C15 13.686 12.314 11 9 11M5 17L3 19L5 21M17 17L19 19L17 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="floor-plan-compass-btn"
+                          onClick={() => setFloorPlanRotation(0)}
+                          aria-label="Выровнять по сторонам света"
+                          title="Выровнять по сторонам света"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5"/>
+                            <path d="M10 2V6M10 14V18M2 10H6M14 10H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M10 6L12 10L10 14L8 10Z" fill="currentColor"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="floor-plan-toolbar-group">
+                        <button
+                          type="button"
+                          className="floor-plan-fullscreen-btn"
+                          onClick={() => setFloorPlanFullscreen((v) => !v)}
+                          aria-label="Полноэкранный режим"
+                          title="Полноэкранный режим"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            {floorPlanFullscreen ? (
+                              <path d="M6 6L4 4M4 4V8M4 4H8M14 6L16 4M16 4V8M16 4H12M6 14L4 16M4 16V12M4 16H8M14 14L16 16M16 16V12M16 16H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            ) : (
+                              <path d="M6 4H4C3.44772 4 3 4.44772 3 5V7M17 4H16C15.4477 4 15 4.44772 15 5V7M3 13V15C3 15.5523 3.44772 16 4 16H6M17 13V15C17 15.5523 16.5523 16 16 16H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            )}
+                          </svg>
+                        </button>
+                        {getFloorPlanImageUrl() && (
+                          <a
+                            href={getFloorPlanImageUrl()}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="floor-plan-download-btn"
+                            title="Скачать план"
+                          >
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                              <path d="M10 2V12M10 12L6 8M10 12L14 8M3 15V17C3 17.5523 3.44772 18 4 18H16C16.5523 18 17 17.5523 17 17V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          className="floor-plan-close-btn"
+                          onClick={() => setShowFloorPlanInteractive(false)}
+                          aria-label="Закрыть"
+                          title="Закрыть"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div className={`floor-plan-view ${floorPlanFullscreen ? 'fullscreen' : ''}`}>
@@ -487,7 +559,13 @@ const FlatDetail = () => {
                         </div>
                       )}
                       {!floorPlanLoading && getFloorPlanImageUrl() && (
-                        <div className="floor-plan-image-wrap" style={{ transform: `scale(${floorPlanZoom})` }}>
+                        <div 
+                          className="floor-plan-image-wrap" 
+                          style={{ 
+                            transform: `scale(${floorPlanZoom}) rotate(${floorPlanRotation}deg)`,
+                            transformOrigin: 'center center'
+                          }}
+                        >
                           <img
                             src={getFloorPlanImageUrl()}
                             alt="План этажа"
@@ -499,7 +577,10 @@ const FlatDetail = () => {
                       {!floorPlanLoading && getFloorPlanSvg() && (
                         <div
                           className="floor-plan-svg-wrap"
-                          style={{ transform: `scale(${floorPlanZoom})` }}
+                          style={{ 
+                            transform: `scale(${floorPlanZoom}) rotate(${floorPlanRotation}deg)`,
+                            transformOrigin: 'center center'
+                          }}
                           dangerouslySetInnerHTML={{ __html: getFloorPlanSvg() }}
                         />
                       )}

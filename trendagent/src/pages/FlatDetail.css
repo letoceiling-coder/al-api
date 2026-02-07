@@ -623,6 +623,216 @@
   }
 }
 
+/* Поэтажный план */
+.floor-plan-button-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.floor-plan-interactive {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.floor-plan-dropdowns {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.floor-plan-select-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 150px;
+  flex: 1;
+}
+
+.floor-plan-select-wrap label {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.floor-plan-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.floor-plan-select:hover {
+  border-color: #d0d0d0;
+}
+
+.floor-plan-select:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.floor-plan-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.floor-plan-toolbar-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.floor-plan-zoom-btn,
+.floor-plan-rotate-btn,
+.floor-plan-compass-btn,
+.floor-plan-fullscreen-btn,
+.floor-plan-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #1a1a1a;
+}
+
+.floor-plan-zoom-btn:hover,
+.floor-plan-rotate-btn:hover,
+.floor-plan-compass-btn:hover,
+.floor-plan-fullscreen-btn:hover,
+.floor-plan-close-btn:hover {
+  border-color: #d0d0d0;
+  background: #f9fafb;
+}
+
+.floor-plan-zoom-btn:active,
+.floor-plan-rotate-btn:active,
+.floor-plan-compass-btn:active,
+.floor-plan-fullscreen-btn:active,
+.floor-plan-close-btn:active {
+  background: #e5e5e5;
+}
+
+.floor-plan-download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.floor-plan-download-btn:hover {
+  border-color: #d0d0d0;
+  background: #f9fafb;
+}
+
+.floor-plan-view {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.floor-plan-view.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+}
+
+.floor-plan-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: #666;
+}
+
+.floor-plan-image-wrap {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.floor-plan-image {
+  max-width: 100%;
+  max-height: 80vh;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.floor-plan-svg-wrap {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.floor-plan-svg-wrap svg {
+  max-width: 100%;
+  max-height: 80vh;
+  height: auto;
+  width: auto;
+}
+
+.floor-plan-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+}
+
 @media (max-width: 768px) {
   .flat-detail-container {
     padding: 1rem;
@@ -656,5 +866,22 @@
   
   .gallery-thumbnail {
     height: 80px;
+  }
+
+  .floor-plan-dropdowns {
+    flex-direction: column;
+  }
+
+  .floor-plan-select-wrap {
+    width: 100%;
+  }
+
+  .floor-plan-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .floor-plan-toolbar-group {
+    justify-content: center;
   }
 }
