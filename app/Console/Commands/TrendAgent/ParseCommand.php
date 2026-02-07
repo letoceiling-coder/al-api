@@ -231,17 +231,53 @@ class ParseCommand extends Command
             $bar->advance();
             $processed++;
 
-            if ($this->parseDetails && isset($item['id'])) {
+            $blockId = $item['_id'] ?? $item['id'] ?? null;
+            
+            if ($this->parseDetails && $blockId) {
                 try {
-                    $details = $this->apiClient->getApartmentDetails($item['id']);
-                    $this->saveDetailedData('complexes', $item['id'], $details);
+                    // Получаем детали комплекса
+                    $details = $this->apiClient->getApartmentDetails($blockId);
+                    $this->saveDetailedData('complexes', $blockId, $details);
+                    
+                    // Получаем все квартиры комплекса через шахматку
+                    $this->parseComplexApartments($blockId);
                 } catch (Exception $e) {
-                    $this->warn("\n⚠️  Ошибка при загрузке деталей комплекса {$item['id']}: " . $e->getMessage());
+                    $this->warn("\n⚠️  Ошибка при загрузке деталей комплекса {$blockId}: " . $e->getMessage());
                 }
             }
         }
 
         return ['processed' => $processed, 'errors' => 0];
+    }
+    
+    /**
+     * Парсинг квартир внутри комплекса через шахматку
+     */
+    private function parseComplexApartments(string $blockId): void
+    {
+        try {
+            // Получаем здания для шахматки
+            $buildingsData = $this->apiClient->getApartmentCheckerboardBuildings($blockId);
+            
+            if ($this->saveRaw) {
+                $this->saveRawData('complexes', 'buildings', $blockId, $buildingsData);
+            }
+            
+            // Получаем все квартиры через шахматку
+            $apartmentsData = $this->apiClient->getApartmentCheckerboardApartments($blockId);
+            
+            if ($this->saveRaw) {
+                $this->saveRawData('complexes', 'checkerboard_apartments', $blockId, $apartmentsData);
+            }
+            
+            $apartments = $apartmentsData['data'] ?? [];
+            $this->statistics['images']['total_urls'] += count($apartments);
+            
+            $this->info("\n   └── Комплекс {$blockId}: " . count($apartments) . " квартир");
+            
+        } catch (Exception $e) {
+            $this->warn("\n   └── ⚠️  Ошибка парсинга квартир комплекса {$blockId}: " . $e->getMessage());
+        }
     }
 
     /**
@@ -377,9 +413,12 @@ class ParseCommand extends Command
     /**
      * Сохранить сырые данные списка
      */
-    private function saveRawData(string $type, string $dataType, int $offset, array $data): void
+    private function saveRawData(string $type, string $dataType, $identifier, array $data): void
     {
-        $filename = "trendagent/parsing/{$this->region}/raw/{$type}/{$dataType}_offset_{$offset}.json";
+        // Если identifier это число - это offset, иначе - это ID объекта
+        $filename = is_numeric($identifier)
+            ? "trendagent/parsing/{$this->region}/raw/{$type}/{$dataType}_offset_{$identifier}.json"
+            : "trendagent/parsing/{$this->region}/raw/{$type}/{$dataType}_{$identifier}.json";
         
         $content = [
             'metadata' => [
@@ -387,9 +426,9 @@ class ParseCommand extends Command
                 'type' => $type,
                 'data_type' => $dataType,
                 'timestamp' => now()->toIso8601String(),
-                'offset' => $offset,
+                'identifier' => $identifier,
                 'limit' => $this->limit,
-                'items_count' => count($data),
+                'items_count' => count($data['data'] ?? $data),
             ],
             'data' => $data,
         ];
