@@ -93,17 +93,18 @@ const ObjectCard = ({ object, objectType, onClick }) => {
         const firstPrice = object.min_prices[0]
         // Для домов может быть price или value
         const priceValue = firstPrice.price || firstPrice.value
-        if (priceValue) {
+        if (priceValue && priceValue > 0) {
           const unit = firstPrice.unit || '₽'
-          const label = firstPrice.label ? `${firstPrice.label}: ` : ''
-          return `${label}${formatPrice(priceValue)} ${unit}`
+          // Для домов всегда показываем "от" если нет label
+          const label = firstPrice.label || 'от'
+          return `${label} ${formatPrice(priceValue)} ${unit}`.trim()
         }
       }
       // Проверяем альтернативные варианты
-      if (object.min_price) {
+      if (object.min_price && object.min_price > 0) {
         return `от ${formatPrice(object.min_price)}`
       }
-      if (object.price_from) {
+      if (object.price_from && object.price_from > 0) {
         return `от ${formatPrice(object.price_from)}`
       }
     }

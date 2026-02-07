@@ -1,0 +1,158 @@
+.houses-table-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.houses-table-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.houses-table-content {
+  overflow-x: auto;
+}
+
+.houses-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.houses-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.houses-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.houses-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.houses-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+.houses-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.houses-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-image {
+  width: 80px;
+  padding: 0.5rem !important;
+}
+
+.table-image img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.image-placeholder {
+  width: 80px;
+  height: 60px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.table-name {
+  font-weight: 500;
+  color: #1a1a1a;
+  min-width: 200px;
+}
+
+.table-area {
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.table-price {
+  white-space: nowrap;
+}
+
+.price-value {
+  font-weight: 600;
+  color: #059669;
+  font-size: 0.9375rem;
+}
+
+.table-deadline {
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.table-status {
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-доступен,
+.status-available {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-забронирован,
+.status-booked {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-продан,
+.status-sold {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+@media (max-width: 768px) {
+  .houses-table {
+    font-size: 0.75rem;
+  }
+  
+  .houses-table th,
+  .houses-table td {
+    padding: 0.5rem;
+  }
+  
+  .table-image {
+    width: 60px;
+  }
+  
+  .table-image img {
+    width: 60px;
+    height: 45px;
+  }
+}

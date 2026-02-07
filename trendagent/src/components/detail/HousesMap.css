@@ -1,0 +1,100 @@
+.houses-map-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.houses-map-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.houses-map-content {
+  width: 100%;
+}
+
+.map-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.map-iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+  display: block;
+}
+
+.map-info {
+  padding: 1rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.map-address-info,
+.map-coordinates {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.map-address-info strong,
+.map-coordinates strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.map-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.map-link:hover {
+  background: #5568d3;
+}
+
+.map-placeholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.map-placeholder p {
+  margin: 0.5rem 0;
+}
+
+.map-address {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+@media (max-width: 768px) {
+  .map-iframe {
+    height: 400px;
+  }
+  
+  .houses-map-section {
+    padding: 1rem;
+  }
+}

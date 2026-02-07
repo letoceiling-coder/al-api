@@ -17,6 +17,9 @@ import VillagePassport from '../components/detail/VillagePassport'
 import VillageMiniPassport from '../components/detail/VillageMiniPassport'
 import VillageReward from '../components/detail/VillageReward'
 import VillageDetail from '../components/detail/VillageDetail'
+import HousesTable from '../components/detail/HousesTable'
+import HousesMap from '../components/detail/HousesMap'
+import { getImageUrl } from '../utils/imageUtils'
 import '../pages/ObjectDetail.css'
 
 const ObjectDetail = () => {
@@ -360,12 +363,10 @@ const ObjectDetail = () => {
           {/* Дома - Таблица */}
           {objectType === 'houses' && (
             <section id="houses-table" className="detail-section">
-              <div className="houses-table-section">
-                <h2>Таблица домов</h2>
-                <div className="houses-table-content">
-                  <p>Таблица домов будет отображаться здесь</p>
-                </div>
-              </div>
+              <HousesTable 
+                housesData={apartmentsData} 
+                unifiedData={unifiedData}
+              />
             </section>
           )}
 
@@ -377,14 +378,29 @@ const ObjectDetail = () => {
                 <div className="houses-plans-content">
                   {Array.isArray(plansData?.data) && plansData.data.length > 0 ? (
                     <div className="plans-grid">
-                      {plansData.data.map((plan, index) => (
-                        <div key={index} className="plan-card">
-                          {plan.image && (
-                            <img src={plan.image.url || plan.image} alt={plan.name || 'План'} />
-                          )}
-                          {plan.name && <h3>{plan.name}</h3>}
-                        </div>
-                      ))}
+                      {plansData.data.map((plan, index) => {
+                        const planImage = plan.image?.url || 
+                                        (plan.images && plan.images.length > 0 ? getImageUrl(plan.images[0]) : null) ||
+                                        plan.image
+                        return (
+                          <div key={index} className="plan-card">
+                            {planImage && (
+                              <img src={planImage} alt={plan.name || 'План'} />
+                            )}
+                            {plan.name && <h3>{plan.name}</h3>}
+                            {plan.area && (
+                              <div className="plan-info">
+                                <span>Площадь: {plan.area} м²</span>
+                              </div>
+                            )}
+                            {plan.rooms && (
+                              <div className="plan-info">
+                                <span>Комнат: {plan.rooms}</span>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   ) : (
                     <p>Планы домов будут отображаться здесь</p>
@@ -397,12 +413,10 @@ const ObjectDetail = () => {
           {/* Дома - Карта */}
           {objectType === 'houses' && (
             <section id="houses-map" className="detail-section">
-              <div className="houses-map-section">
-                <h2>Карта</h2>
-                <div className="houses-map-content">
-                  <p>Карта будет отображаться здесь</p>
-                </div>
-              </div>
+              <HousesMap 
+                unifiedData={unifiedData}
+                housesData={apartmentsData}
+              />
             </section>
           )}
 
