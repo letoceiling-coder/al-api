@@ -533,7 +533,16 @@ class ApartmentsController
             $mortgageData = null;
             $installmentsData = null;
             
-            $builderId = $blockData['data']['builder_id'] ?? $blockData['builder_id'] ?? null;
+            $builderIdRaw = $blockData['data']['builder_id'] ?? $blockData['builder_id'] ?? null;
+            // Преобразуем builderId в строку, если это массив, берем _id или первый элемент
+            $builderId = null;
+            if ($builderIdRaw) {
+                if (is_array($builderIdRaw)) {
+                    $builderId = $builderIdRaw['_id'] ?? $builderIdRaw['id'] ?? (is_array($builderIdRaw) && count($builderIdRaw) > 0 ? (string)($builderIdRaw[0] ?? reset($builderIdRaw)) : null);
+                } else {
+                    $builderId = (string)$builderIdRaw;
+                }
+            }
             
             try {
                 $rewardsData = $apiAuth->getRewards($id, $builderId);

@@ -4376,7 +4376,16 @@ class TrendSsoApiAuth
 
             if ($options['rewards']) {
                 try {
-                    $builderId = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    $builderIdRaw = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    // Преобразуем builderId в строку, если это массив, берем _id или первый элемент
+                    $builderId = null;
+                    if ($builderIdRaw) {
+                        if (is_array($builderIdRaw)) {
+                            $builderId = $builderIdRaw['_id'] ?? $builderIdRaw['id'] ?? (is_array($builderIdRaw) && count($builderIdRaw) > 0 ? (string)($builderIdRaw[0] ?? reset($builderIdRaw)) : null);
+                        } else {
+                            $builderId = (string)$builderIdRaw;
+                        }
+                    }
                     $result['data']['rewards'] = $this->getRewards($blockId, $builderId);
                 } catch (\Exception $e) {
                     Log::warning('Ошибка загрузки rewards', ['error' => $e->getMessage()]);
@@ -4386,7 +4395,16 @@ class TrendSsoApiAuth
 
             if ($options['discounts']) {
                 try {
-                    $builderId = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    $builderIdRaw = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    // Преобразуем builderId в строку, если это массив, берем _id или первый элемент
+                    $builderId = null;
+                    if ($builderIdRaw) {
+                        if (is_array($builderIdRaw)) {
+                            $builderId = $builderIdRaw['_id'] ?? $builderIdRaw['id'] ?? (is_array($builderIdRaw) && count($builderIdRaw) > 0 ? (string)($builderIdRaw[0] ?? reset($builderIdRaw)) : null);
+                        } else {
+                            $builderId = (string)$builderIdRaw;
+                        }
+                    }
                     $result['data']['discounts'] = $this->getDiscounts($blockId, $builderId);
                 } catch (\Exception $e) {
                     Log::warning('Ошибка загрузки discounts', ['error' => $e->getMessage()]);
