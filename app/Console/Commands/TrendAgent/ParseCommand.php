@@ -4,6 +4,7 @@ namespace App\Console\Commands\TrendAgent;
 
 use Illuminate\Console\Command;
 use App\Services\TrendAgent\TrendAgentApiClient;
+use App\Services\TrendAgent\ImageDownloader;
 use Illuminate\Support\Facades\Storage;
 use Exception;
 
@@ -20,7 +21,8 @@ class ParseCommand extends Command
                             {--limit=100 : Лимит объектов для парсинга}
                             {--offset=0 : Смещение для продолжения парсинга}
                             {--details : Парсить детальные страницы}
-                            {--save-raw : Сохранять сырые данные}';
+                            {--save-raw : Сохранять сырые данные}
+                            {--download-images : Скачивать изображения локально (по умолчанию только URL)}';
 
     /**
      * The console command description.
@@ -30,12 +32,14 @@ class ParseCommand extends Command
     protected $description = 'Парсинг данных TrendAgent для указанного региона и типа объектов';
 
     private TrendAgentApiClient $apiClient;
+    private ImageDownloader $imageDownloader;
     private string $region;
     private string $type;
     private int $limit;
     private int $offset;
     private bool $parseDetails;
     private bool $saveRaw;
+    private bool $downloadImages;
 
     private array $statistics = [
         'started_at' => null,
@@ -43,6 +47,12 @@ class ParseCommand extends Command
         'total_processed' => 0,
         'total_errors' => 0,
         'by_type' => [],
+        'images' => [
+            'total_urls' => 0,
+            'downloaded' => 0,
+            'skipped' => 0,
+            'errors' => 0,
+        ],
     ];
 
     /**
@@ -59,11 +69,16 @@ class ParseCommand extends Command
         $this->offset = (int) $this->option('offset');
         $this->parseDetails = $this->option('details');
         $this->saveRaw = $this->option('save-raw') ?? true;
+        $this->downloadImages = $this->option('download-images') ?? false;
+        
+        // Инициализируем ImageDownloader с нужным режимом
+        $this->imageDownloader = new ImageDownloader($this->downloadImages);
 
         $this->info("🚀 Начинаю парсинг TrendAgent");
         $this->info("📍 Регион: {$this->region}");
         $this->info("📦 Тип: {$this->type}");
         $this->info("📊 Лимит: {$this->limit}, Offset: {$this->offset}");
+        $this->info("📷 Изображения: " . ($this->downloadImages ? "Скачивать локально" : "Только URL"));
         $this->newLine();
 
         try {
@@ -354,6 +369,9 @@ class ParseCommand extends Command
      */
     private function saveStatistics(): void
     {
+        // Добавляем статистику по изображениям
+        $this->statistics['images'] = $this->imageDownloader->getStats();
+        
         $filename = "trendagent/parsing/{$this->region}/metadata/statistics.json";
         Storage::put($filename, json_encode($this->statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }

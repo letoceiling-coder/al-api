@@ -360,49 +360,125 @@ storage/trendagent/parsing/spb/details/plots/{settlement_id}/
 **Laravel Route:** `CommercialController@show`
 **Файл:** `storage/trendagent/parsing/spb/details/commercial/{commercial_id}.json`
 
-### 1.4 Скачивание и хранение изображений
+### 1.4 Хранение ссылок на изображения (обновлено)
 
-#### 1.4.1 Структура хранения изображений
+**⭐ ВАЖНО: По умолчанию сохраняем только ссылки, скачивание опционально**
+
+#### 1.4.1 Принципы работы с изображениями
+
+**По умолчанию (--download-images=false):**
+- Сохраняем только URL изображений с донора (selcdn.trendagent.ru, api.trendagent.ru)
+- Не скачиваем файлы
+- Экономим место на диске
+- Быстрый парсинг
+
+**Опционально (--download-images=true):**
+- Скачиваем все изображения локально
+- Создаём миниатюры
+- Оптимизируем (WebP, сжатие)
+- Сохраняем и URL, и локальный путь
+
+#### 1.4.2 Структура данных для изображений
+
+**Формат сохранения в JSON:**
+
+```json
+{
+  "id": "63c5614728d3bcf2420860b1",
+  "number": "169",
+  "plan_image": {
+    "url": "https://selcdn.trendagent.ru/images/9s/ry/m_b7eb828fbd2cf76ed684c93e1855787a.png",
+    "local_path": null,  // null если не скачано
+    "thumbnail_path": null,
+    "downloaded_at": null
+  },
+  "gallery_images": [
+    {
+      "url": "https://selcdn.trendagent.ru/images/...",
+      "local_path": null,
+      "thumbnail_path": null,
+      "type": "gallery",
+      "order": 1
+    }
+  ],
+  "view_images": [
+    {
+      "url": "https://selcdn.trendagent.ru/images/...",
+      "local_path": null,
+      "type": "view",
+      "direction": "north"
+    }
+  ]
+}
+```
+
+**Если изображения скачаны (--download-images=true):**
+
+```json
+{
+  "plan_image": {
+    "url": "https://selcdn.trendagent.ru/images/9s/ry/m_b7eb828fbd2cf76ed684c93e1855787a.png",
+    "local_path": "/storage/trendagent/images/apartments/63c5614728d3bcf2420860b1/plan.png",
+    "thumbnail_path": "/storage/trendagent/thumbnails/apartments/63c5614728d3bcf2420860b1/plan_thumb.jpg",
+    "file_size": 152400,
+    "width": 800,
+    "height": 600,
+    "downloaded_at": "2026-02-07T18:00:00Z"
+  }
+}
+```
+
+#### 1.4.3 Структура хранения файлов (если скачаны)
+
 ```
 storage/app/public/trendagent/
-├── images/
-│   ├── complexes/
-│   │   └── {complex_id}/
-│   │       ├── gallery/          # Фото комплекса
-│   │       │   ├── {image_hash}.jpg
-│   │       │   └── ...
-│   │       ├── plans/            # Планы комплекса (генплан, и т.д.)
-│   │       └── apartments/       # Планы квартир
-│   │           ├── {apt_id}_plan.png
-│   │           └── ...
-│   ├── apartments/
-│   │   └── {apartment_id}/
-│   │       ├── plan.png          # План квартиры
-│   │       ├── gallery/          # Фото квартиры
-│   │       └── views/            # Виды из окон
-│   ├── parkings/
-│   │   └── {parking_id}/
-│   │       ├── gallery/
-│   │       └── plans/
-│   ├── houses/
-│   │   └── {house_id}/
-│   │       ├── gallery/
-│   │       ├── plans/
-│   │       └── views/
-│   ├── plots/
-│   │   └── {settlement_id}/
-│   │       ├── gallery/          # Фото поселка
-│   │       ├── genplan/          # Генплан поселка
-│   │       └── plots/            # Фото участков
-│   │           └── {plot_id}/
-│   └── commercial/
-│       └── {commercial_id}/
-│           ├── gallery/
-│           ├── plans/
-│           └── views/
-└── thumbnails/                    # Миниатюры для быстрой загрузки
-    └── {same_structure}
+├── images/                          # Только если --download-images=true
+│   ├── complexes/{id}/
+│   │   ├── gallery/
+│   │   │   ├── {hash}.jpg
+│   │   │   └── ...
+│   │   └── genplan/
+│   ├── apartments/{id}/
+│   │   ├── plan.png
+│   │   ├── gallery/
+│   │   └── views/
+│   ├── parkings/{id}/
+│   ├── plots/{settlement_id}/
+│   └── commercial/{id}/
+└── thumbnails/                      # Только если --download-images=true
+    └── (аналогичная структура)
 ```
+
+#### 1.4.4 Логика скачивания изображений
+
+**Параметры команды парсинга:**
+
+```bash
+# Только ссылки (быстро, экономия места)
+php artisan trendagent:parse --region=spb --type=apartments
+
+# Со скачиванием изображений
+php artisan trendagent:parse --region=spb --type=apartments --download-images
+
+# Можно скачать позже отдельной командой
+php artisan trendagent:download-images --region=spb --type=apartments
+```
+
+**Преимущества подхода:**
+
+1. **Быстрый первичный парсинг**
+   - Только данные и ссылки
+   - Без затрат на скачивание/обработку изображений
+   - Можно быстро получить все данные
+
+2. **Гибкость**
+   - Можно работать с внешними ссылками
+   - Можно скачать позже при необходимости
+   - Экономия места на диске
+
+3. **Два режима работы**
+   - Разработка: только ссылки
+   - Продакшн: со скачиванием для независимости от внешних ресурсов
 
 ### 1.5 Сохранение данных с поддержкой фильтров и сортировки
 
@@ -573,12 +649,15 @@ storage/trendagent/parsing/spb/details/complexes/{complex_id}/
 }
 ```
 
-#### 1.4.2 Логика скачивания изображений
-**Принципы:**
+#### 1.4.2 Логика скачивания изображений (опционально)
+
+**⚠️ Скачивание включается флагом: --download-images**
+
+**Принципы (только при --download-images=true):**
 1. Скачивать все изображения с донора (selcdn.trendagent.ru, api.trendagent.ru)
 2. Сохранять с оригинальным именем или хешем URL
 3. Создавать миниатюры для галерей (300x300, 800x800)
-4. Обновлять URL в JSON данных на локальные пути
+4. Обновлять `local_path` в JSON данных (не удалять `url`)
 5. Проверять существование перед скачиванием (избегать дубликатов)
 6. **Сохранять ВСЕ типы изображений:**
    - Планы квартир/домов/участков
@@ -588,25 +667,40 @@ storage/trendagent/parsing/spb/details/complexes/{complex_id}/
    - Поэтажные планы
    - 3D-визуализации (если есть)
 
-**Формат сохранения:**
+**Формат сохранения (при скачивании):**
 - Оригиналы: `storage/app/public/trendagent/images/{type}/{object_id}/gallery/{hash}.{ext}`
 - Миниатюры: `storage/app/public/trendagent/thumbnails/{type}/{object_id}/gallery/{hash}_thumb.{ext}`
 - Публичный URL: `/storage/trendagent/images/{type}/{object_id}/gallery/{hash}.{ext}`
 
-**Метаданные изображений:**
-- Сохранять в БД таблицу `trendagent_images`:
-  - original_url (URL с донора)
-  - local_path (локальный путь)
-  - public_url (публичный URL)
-  - width, height
-  - file_size
-  - mime_type
-  - image_type (gallery, plan, view, genplan)
-  - object_type (complex, apartment, parking, house, plot, commercial)
-  - object_id
-  - downloaded_at
+**Метаданные изображений (всегда в JSON):**
+```json
+{
+  "url": "https://selcdn.trendagent.ru/...",
+  "local_path": null,  // заполняется при скачивании
+  "thumbnail_path": null,  // заполняется при скачивании
+  "file_size": null,  // заполняется при скачивании
+  "width": null,  // заполняется при скачивании
+  "height": null,  // заполняется при скачивании
+  "mime_type": null,  // заполняется при скачивании
+  "type": "plan",
+  "downloaded_at": null  // заполняется при скачивании
+}
+```
 
-#### 1.4.3 Обработка изображений
+**Опционально: таблица БД `trendagent_images` (если нужна индексация):**
+- original_url (URL с донора)
+- local_path (локальный путь, nullable)
+- public_url (публичный URL, nullable)
+- width, height (nullable)
+- file_size (nullable)
+- mime_type (nullable)
+- image_type (gallery, plan, view, genplan)
+- object_type (complex, apartment, parking, house, plot, commercial)
+- object_id
+- downloaded_at (nullable)
+
+#### 1.4.3 Обработка изображений (при скачивании)
+
 **Типы изображений:**
 - **Галерея** - основные фото объектов
 - **Планы** - планировки квартир, поэтажные планы
@@ -614,11 +708,18 @@ storage/trendagent/parsing/spb/details/complexes/{complex_id}/
 - **Иконки** - маленькие превью
 - **Генпланы** - планы комплексов, поселков
 
-**Оптимизация:**
+**Оптимизация (только при скачивании):**
 - Создавать миниатюры (300x300, 800x800)
 - Сжимать JPEG (quality 85)
 - Конвертировать в WebP для современных браузеров
 - Ленивая загрузка больших изображений
+
+**Отложенное скачивание:**
+```bash
+# Можно скачать позже отдельной командой
+php artisan trendagent:download-images --region=spb --type=apartments
+php artisan trendagent:download-images --region=spb --type=all --recreate-thumbs
+```
 
 ### 1.6 Логика парсинга (обновлённая)
 

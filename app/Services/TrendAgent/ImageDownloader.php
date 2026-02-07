@@ -2,339 +2,284 @@
 
 namespace App\Services\TrendAgent;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Client\RequestException;
 
 class ImageDownloader
 {
-    protected $imageManager;
-    protected $basePath = 'trendagent/images';
-    protected $thumbnailPath = 'trendagent/thumbnails';
-    
-    public function __construct()
+    protected string $baseStoragePath;
+    protected bool $downloadEnabled = false;
+    protected array $stats = [];
+
+    public function __construct(bool $downloadEnabled = false)
     {
-        $this->imageManager = new ImageManager(new Driver());
+        $this->baseStoragePath = storage_path('app/public/trendagent');
+        $this->downloadEnabled = $downloadEnabled;
+        $this->stats = [
+            'total_urls' => 0,
+            'downloaded' => 0,
+            'skipped' => 0,
+            'errors' => 0,
+        ];
     }
-    
+
     /**
-     * Скачать изображение с URL и сохранить локально
+     * Обработка изображения: сохранить только URL или скачать файл
      * 
-     * @param string $url URL изображения
-     * @param string $type Тип объекта (complex, apartment, parking, house, plot, commercial)
+     * @param string $imageUrl URL изображения
+     * @param string $objectType Тип объекта (complex, apartment, parking, etc.)
      * @param string $objectId ID объекта
-     * @param string $category Категория (gallery, plans, views)
-     * @param bool $createThumbnail Создавать ли миниатюру
-     * @return array|null Массив с информацией об изображении или null при ошибке
+     * @param string $imageType Тип изображения (gallery, plan, view, genplan)
+     * @param int|null $order Порядковый номер (для галереи)
+     * @return array Данные изображения
      */
-    public function download(string $url, string $type, string $objectId, string $category = 'gallery', bool $createThumbnail = true): ?array
-    {
+    public function processImage(
+        string $imageUrl,
+        string $objectType,
+        string $objectId,
+        string $imageType = 'gallery',
+        ?int $order = null
+    ): array {
+        $this->stats['total_urls']++;
+
+        $imageData = [
+            'url' => $imageUrl,
+            'local_path' => null,
+            'thumbnail_path' => null,
+            'file_size' => null,
+            'width' => null,
+            'height' => null,
+            'mime_type' => null,
+            'type' => $imageType,
+            'order' => $order,
+            'downloaded_at' => null,
+        ];
+
+        // Если скачивание отключено - возвращаем только URL
+        if (!$this->downloadEnabled) {
+            $this->stats['skipped']++;
+            return $imageData;
+        }
+
+        // Скачиваем изображение
         try {
-            // Валидация URL
-            if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
-                Log::warning('Invalid image URL', ['url' => $url]);
-                return null;
+            $downloadResult = $this->downloadImage($imageUrl, $objectType, $objectId, $imageType, $order);
+            
+            if ($downloadResult['success']) {
+                $imageData['local_path'] = $downloadResult['local_path'];
+                $imageData['thumbnail_path'] = $downloadResult['thumbnail_path'] ?? null;
+                $imageData['file_size'] = $downloadResult['file_size'];
+                $imageData['width'] = $downloadResult['width'] ?? null;
+                $imageData['height'] = $downloadResult['height'] ?? null;
+                $imageData['mime_type'] = $downloadResult['mime_type'];
+                $imageData['downloaded_at'] = now()->toIso8601String();
+                $this->stats['downloaded']++;
+            } else {
+                $this->stats['errors']++;
+                Log::warning("Failed to download image: {$imageUrl}", [
+                    'error' => $downloadResult['error'] ?? 'Unknown error'
+                ]);
             }
-            
-            // Генерируем имя файла на основе хеша URL
-            $urlHash = md5($url);
-            $extension = $this->getExtensionFromUrl($url);
-            $filename = $urlHash . '.' . $extension;
-            
-            // Путь для сохранения
-            $relativePath = "{$this->basePath}/{$type}/{$objectId}/{$category}/{$filename}";
-            $fullPath = storage_path("app/public/{$relativePath}");
-            
-            // Проверяем, существует ли уже файл
-            if (Storage::disk('public')->exists($relativePath)) {
-                Log::info('Image already exists', ['path' => $relativePath]);
-                return $this->getImageInfo($relativePath, $url, $type, $objectId, $category);
-            }
-            
-            // Создаем директорию если не существует
-            $directory = dirname($fullPath);
-            if (!is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
-            
-            // Скачиваем изображение
-            $imageContent = $this->fetchImage($url);
-            if ($imageContent === null) {
-                return null;
-            }
-            
-            // Сохраняем оригинал
-            file_put_contents($fullPath, $imageContent);
-            
-            // Получаем информацию об изображении
-            $imageInfo = $this->getImageInfo($relativePath, $url, $type, $objectId, $category);
-            
-            // Создаем миниатюру если нужно
-            if ($createThumbnail) {
-                $this->createThumbnail($fullPath, $type, $objectId, $category, $urlHash, $extension);
-            }
-            
-            Log::info('Image downloaded successfully', [
-                'url' => $url,
-                'path' => $relativePath,
-                'size' => $imageInfo['file_size']
-            ]);
-            
-            return $imageInfo;
-            
         } catch (\Exception $e) {
-            Log::error('Error downloading image', [
-                'url' => $url,
+            $this->stats['errors']++;
+            Log::error("Exception while downloading image: {$imageUrl}", [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        return $imageData;
+    }
+
+    /**
+     * Скачать изображение с внешнего URL
+     */
+    protected function downloadImage(
+        string $imageUrl,
+        string $objectType,
+        string $objectId,
+        string $imageType,
+        ?int $order
+    ): array {
+        try {
+            // Генерируем хеш для имени файла
+            $urlHash = md5($imageUrl);
+            $extension = $this->getExtensionFromUrl($imageUrl);
+            
+            // Если у нас есть order, добавляем его к имени файла
+            $filename = $order !== null 
+                ? "{$urlHash}_{$order}.{$extension}"
+                : "{$urlHash}.{$extension}";
+
+            // Формируем путь для сохранения
+            $relativePath = "images/{$objectType}/{$objectId}/{$imageType}";
+            $fullPath = "{$this->baseStoragePath}/{$relativePath}";
+            $filePath = "{$fullPath}/{$filename}";
+
+            // Если файл уже существует - пропускаем
+            if (File::exists($filePath)) {
+                $fileSize = File::size($filePath);
+                list($width, $height) = @getimagesize($filePath) ?: [null, null];
+                
+                return [
+                    'success' => true,
+                    'local_path' => "/storage/trendagent/{$relativePath}/{$filename}",
+                    'file_size' => $fileSize,
+                    'width' => $width,
+                    'height' => $height,
+                    'mime_type' => mime_content_type($filePath),
+                ];
+            }
+
+            // Создаём директорию если не существует
+            File::ensureDirectoryExists($fullPath);
+
+            // Скачиваем файл
+            $response = Http::timeout(30)->get($imageUrl);
+            
+            if (!$response->successful()) {
+                return [
+                    'success' => false,
+                    'error' => "HTTP {$response->status()}"
+                ];
+            }
+
+            // Сохраняем файл
+            File::put($filePath, $response->body());
+            
+            // Получаем метаданные
+            $fileSize = File::size($filePath);
+            list($width, $height) = @getimagesize($filePath) ?: [null, null];
+            $mimeType = mime_content_type($filePath);
+
+            // Создаём миниатюру для галерейных изображений
+            $thumbnailPath = null;
+            if ($imageType === 'gallery' || $imageType === 'view') {
+                $thumbnailPath = $this->createThumbnail($filePath, $objectType, $objectId, $imageType, $filename);
+            }
+
+            return [
+                'success' => true,
+                'local_path' => "/storage/trendagent/{$relativePath}/{$filename}",
+                'thumbnail_path' => $thumbnailPath,
+                'file_size' => $fileSize,
+                'width' => $width,
+                'height' => $height,
+                'mime_type' => $mimeType,
+            ];
+
+        } catch (RequestException $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Создать миниатюру изображения
+     */
+    protected function createThumbnail(
+        string $originalPath,
+        string $objectType,
+        string $objectId,
+        string $imageType,
+        string $filename
+    ): ?string {
+        try {
+            // Путь для миниатюры
+            $relativePath = "thumbnails/{$objectType}/{$objectId}/{$imageType}";
+            $fullPath = "{$this->baseStoragePath}/{$relativePath}";
+            $thumbnailFilename = pathinfo($filename, PATHINFO_FILENAME) . '_thumb.' . pathinfo($filename, PATHINFO_EXTENSION);
+            $thumbnailPath = "{$fullPath}/{$thumbnailFilename}";
+
+            // Создаём директорию
+            File::ensureDirectoryExists($fullPath);
+
+            // Создаём миниатюру (используем GD или ImageMagick если доступен)
+            if (extension_loaded('gd')) {
+                $this->createThumbnailGD($originalPath, $thumbnailPath, 300, 300);
+                return "/storage/trendagent/{$relativePath}/{$thumbnailFilename}";
+            }
+
+            Log::warning('GD extension not available, thumbnail not created');
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Failed to create thumbnail', [
+                'error' => $e->getMessage(),
+                'file' => $originalPath,
             ]);
             return null;
         }
     }
-    
+
     /**
-     * Скачать несколько изображений
-     * 
-     * @param array $urls Массив URL изображений
-     * @param string $type Тип объекта
-     * @param string $objectId ID объекта
-     * @param string $category Категория
-     * @return array Массив информации об изображениях
+     * Создать миниатюру с помощью GD
      */
-    public function downloadMultiple(array $urls, string $type, string $objectId, string $category = 'gallery'): array
+    protected function createThumbnailGD(string $source, string $destination, int $maxWidth, int $maxHeight): void
     {
-        $results = [];
-        
-        foreach ($urls as $index => $url) {
-            if (empty($url)) {
-                continue;
-            }
-            
-            $result = $this->download($url, $type, $objectId, $category);
-            if ($result) {
-                $result['order'] = $index;
-                $results[] = $result;
-            }
-            
-            // Небольшая задержка между запросами
-            usleep(100000); // 0.1 секунды
+        list($srcWidth, $srcHeight, $type) = getimagesize($source);
+
+        // Вычисляем новые размеры с сохранением пропорций
+        $ratio = min($maxWidth / $srcWidth, $maxHeight / $srcHeight);
+        $newWidth = (int) ($srcWidth * $ratio);
+        $newHeight = (int) ($srcHeight * $ratio);
+
+        // Создаём исходное изображение
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                $srcImage = imagecreatefromjpeg($source);
+                break;
+            case IMAGETYPE_PNG:
+                $srcImage = imagecreatefrompng($source);
+                break;
+            case IMAGETYPE_GIF:
+                $srcImage = imagecreatefromgif($source);
+                break;
+            default:
+                throw new \Exception("Unsupported image type: {$type}");
         }
+
+        // Создаём миниатюру
+        $dstImage = imagecreatetruecolor($newWidth, $newHeight);
         
-        return $results;
+        // Для PNG сохраняем прозрачность
+        if ($type === IMAGETYPE_PNG) {
+            imagealphablending($dstImage, false);
+            imagesavealpha($dstImage, true);
+            $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
+            imagefilledrectangle($dstImage, 0, 0, $newWidth, $newHeight, $transparent);
+        }
+
+        // Ресайзим
+        imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+
+        // Сохраняем
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                imagejpeg($dstImage, $destination, 85);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($dstImage, $destination, 8);
+                break;
+            case IMAGETYPE_GIF:
+                imagegif($dstImage, $destination);
+                break;
+        }
+
+        // Освобождаем память
+        imagedestroy($srcImage);
+        imagedestroy($dstImage);
     }
-    
-    /**
-     * Извлечь все URL изображений из данных объекта
-     * 
-     * @param array $data Данные объекта
-     * @return array Массив URL изображений по категориям
-     */
-    public function extractImageUrls(array $data): array
-    {
-        $images = [
-            'gallery' => [],
-            'plans' => [],
-            'views' => []
-        ];
-        
-        // Галерея
-        if (isset($data['images']) && is_array($data['images'])) {
-            foreach ($data['images'] as $image) {
-                $url = $this->extractUrl($image);
-                if ($url) {
-                    $images['gallery'][] = $url;
-                }
-            }
-        }
-        
-        if (isset($data['gallery']) && is_array($data['gallery'])) {
-            foreach ($data['gallery'] as $image) {
-                $url = $this->extractUrl($image);
-                if ($url) {
-                    $images['gallery'][] = $url;
-                }
-            }
-        }
-        
-        // Планы
-        if (isset($data['plan']) && !empty($data['plan'])) {
-            $url = $this->extractUrl($data['plan']);
-            if ($url) {
-                $images['plans'][] = $url;
-            }
-        }
-        
-        if (isset($data['plan_image']) && !empty($data['plan_image'])) {
-            $url = $this->extractUrl($data['plan_image']);
-            if ($url) {
-                $images['plans'][] = $url;
-            }
-        }
-        
-        if (isset($data['plans']) && is_array($data['plans'])) {
-            foreach ($data['plans'] as $plan) {
-                $url = $this->extractUrl($plan);
-                if ($url) {
-                    $images['plans'][] = $url;
-                }
-            }
-        }
-        
-        // Виды
-        if (isset($data['view_image']) && !empty($data['view_image'])) {
-            $url = $this->extractUrl($data['view_image']);
-            if ($url) {
-                $images['views'][] = $url;
-            }
-        }
-        
-        if (isset($data['view']) && !empty($data['view'])) {
-            $url = $this->extractUrl($data['view']);
-            if ($url) {
-                $images['views'][] = $url;
-            }
-        }
-        
-        // Убираем дубликаты
-        foreach ($images as $category => $urls) {
-            $images[$category] = array_unique($urls);
-        }
-        
-        return $images;
-    }
-    
-    /**
-     * Обновить URL в данных объекта на локальные пути
-     * 
-     * @param array $data Данные объекта
-     * @param array $downloadedImages Массив скачанных изображений
-     * @return array Обновленные данные
-     */
-    public function updateImageUrls(array $data, array $downloadedImages): array
-    {
-        // Создаем маппинг оригинальных URL на локальные
-        $urlMapping = [];
-        foreach ($downloadedImages as $img) {
-            $urlMapping[$img['original_url']] = $img['public_url'];
-        }
-        
-        // Рекурсивно обновляем URL в данных
-        return $this->replaceUrlsRecursive($data, $urlMapping);
-    }
-    
-    /**
-     * Создать миниатюру изображения
-     */
-    protected function createThumbnail(string $originalPath, string $type, string $objectId, string $category, string $hash, string $extension): void
-    {
-        try {
-            $thumbnailPath = "{$this->thumbnailPath}/{$type}/{$objectId}/{$category}/{$hash}_thumb.{$extension}";
-            $fullThumbnailPath = storage_path("app/public/{$thumbnailPath}");
-            
-            // Проверяем существование
-            if (Storage::disk('public')->exists($thumbnailPath)) {
-                return;
-            }
-            
-            // Создаем директорию
-            $directory = dirname($fullThumbnailPath);
-            if (!is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
-            
-            // Создаем миниатюру
-            $image = $this->imageManager->read($originalPath);
-            $image->scale(width: 800, height: 800);
-            $image->save($fullThumbnailPath, quality: 85);
-            
-        } catch (\Exception $e) {
-            Log::warning('Error creating thumbnail', [
-                'path' => $originalPath,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
-    
-    /**
-     * Получить информацию об изображении
-     */
-    protected function getImageInfo(string $relativePath, string $originalUrl, string $type, string $objectId, string $category): array
-    {
-        $fullPath = storage_path("app/public/{$relativePath}");
-        $publicUrl = Storage::disk('public')->url($relativePath);
-        
-        $info = [
-            'original_url' => $originalUrl,
-            'local_path' => $relativePath,
-            'public_url' => $publicUrl,
-            'type' => $type,
-            'object_id' => $objectId,
-            'category' => $category,
-            'file_size' => filesize($fullPath),
-            'downloaded_at' => now()->toIso8601String()
-        ];
-        
-        // Получаем размеры изображения
-        try {
-            $image = $this->imageManager->read($fullPath);
-            $info['width'] = $image->width();
-            $info['height'] = $image->height();
-            $info['mime_type'] = mime_content_type($fullPath);
-        } catch (\Exception $e) {
-            Log::warning('Error getting image dimensions', ['path' => $fullPath]);
-        }
-        
-        return $info;
-    }
-    
-    /**
-     * Извлечь URL из различных форматов данных изображения
-     */
-    protected function extractUrl($image): ?string
-    {
-        if (is_string($image)) {
-            return $this->normalizeUrl($image);
-        }
-        
-        if (is_array($image)) {
-            // Различные варианты ключей
-            $urlKeys = ['url', 'src', 'image', 'image_url', 'original_url', 'path'];
-            foreach ($urlKeys as $key) {
-                if (isset($image[$key]) && !empty($image[$key])) {
-                    return $this->normalizeUrl($image[$key]);
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Нормализовать URL (добавить протокол если нужно)
-     */
-    protected function normalizeUrl(string $url): string
-    {
-        $url = trim($url);
-        
-        // Если URL начинается с //, добавляем https:
-        if (strpos($url, '//') === 0) {
-            $url = 'https:' . $url;
-        }
-        
-        // Если URL относительный, добавляем базовый домен
-        if (strpos($url, 'http') !== 0) {
-            // Предполагаем, что это URL от selcdn.trendagent.ru
-            if (strpos($url, '/') === 0) {
-                $url = 'https://selcdn.trendagent.ru' . $url;
-            }
-        }
-        
-        return $url;
-    }
-    
+
     /**
      * Получить расширение файла из URL
      */
@@ -343,60 +288,82 @@ class ImageDownloader
         $path = parse_url($url, PHP_URL_PATH);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         
-        // Если расширение не найдено, пытаемся определить по Content-Type
-        if (empty($extension)) {
-            return 'jpg'; // По умолчанию
+        // Если расширения нет или оно странное - используем jpg по умолчанию
+        if (empty($extension) || !in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            return 'jpg';
         }
         
         return strtolower($extension);
     }
-    
+
     /**
-     * Скачать изображение по URL
+     * Обработать массив изображений
+     * 
+     * @param array $imageUrls Массив URL изображений
+     * @param string $objectType Тип объекта
+     * @param string $objectId ID объекта
+     * @param string $imageType Тип изображения
+     * @return array Массив обработанных изображений
      */
-    protected function fetchImage(string $url): ?string
-    {
-        try {
-            $response = Http::timeout(30)
-                ->withOptions([
-                    'verify' => false,
-                    'allow_redirects' => true,
-                    'max_redirects' => 5,
-                ])
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                ])
-                ->get($url);
-            
-            if (!$response->successful()) {
-                Log::warning('HTTP error downloading image', ['url' => $url, 'code' => $response->status()]);
-                return null;
+    public function processImages(
+        array $imageUrls,
+        string $objectType,
+        string $objectId,
+        string $imageType = 'gallery'
+    ): array {
+        $processedImages = [];
+        
+        foreach ($imageUrls as $index => $imageUrl) {
+            if (empty($imageUrl)) {
+                continue;
             }
             
-            return $response->body();
-            
-        } catch (\Exception $e) {
-            Log::error('Exception downloading image', ['url' => $url, 'error' => $e->getMessage()]);
-            return null;
-        }
-    }
-    
-    /**
-     * Рекурсивно заменить URL в массиве данных
-     */
-    protected function replaceUrlsRecursive($data, array $urlMapping)
-    {
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                $data[$key] = $this->replaceUrlsRecursive($value, $urlMapping);
-            }
-        } elseif (is_string($data)) {
-            // Проверяем, является ли строка URL из маппинга
-            if (isset($urlMapping[$data])) {
-                return $urlMapping[$data];
-            }
+            $processedImages[] = $this->processImage(
+                $imageUrl,
+                $objectType,
+                $objectId,
+                $imageType,
+                $index + 1
+            );
         }
         
-        return $data;
+        return $processedImages;
+    }
+
+    /**
+     * Получить статистику обработки
+     */
+    public function getStats(): array
+    {
+        return $this->stats;
+    }
+
+    /**
+     * Сбросить статистику
+     */
+    public function resetStats(): void
+    {
+        $this->stats = [
+            'total_urls' => 0,
+            'downloaded' => 0,
+            'skipped' => 0,
+            'errors' => 0,
+        ];
+    }
+
+    /**
+     * Включить/выключить скачивание
+     */
+    public function setDownloadEnabled(bool $enabled): void
+    {
+        $this->downloadEnabled = $enabled;
+    }
+
+    /**
+     * Проверить, включено ли скачивание
+     */
+    public function isDownloadEnabled(): bool
+    {
+        return $this->downloadEnabled;
     }
 }
