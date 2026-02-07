@@ -441,6 +441,59 @@
   color: #1a1a1a;
 }
 
+.houses-table-section,
+.houses-plans-section,
+.houses-map-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.houses-table-section h2,
+.houses-plans-section h2,
+.houses-map-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.houses-table-content,
+.houses-plans-content,
+.houses-map-content {
+  min-height: 200px;
+  color: #6b7280;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.plan-card {
+  background: #f9fafb;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.plan-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.plan-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
 @media (max-width: 1024px) {
   .village-detail-header {
     grid-template-columns: 1fr;
