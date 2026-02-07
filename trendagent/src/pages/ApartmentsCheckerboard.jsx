@@ -207,9 +207,11 @@ const ApartmentsCheckerboard = () => {
       }
 
       // Фильтр по статусу
-      const status = apt.status?.name || apt.status || apt.booking_status || 'Свободная'
-      const isSold = status.toLowerCase().includes('продан') || status.toLowerCase().includes('sold')
-      const isBooked = status.toLowerCase().includes('забронирован') || status.toLowerCase().includes('booked')
+      const statusRaw = apt.status?.name || apt.status || apt.booking_status || 'Свободная'
+      const status = typeof statusRaw === 'string' ? statusRaw : String(statusRaw || 'Свободная')
+      const statusLower = status.toLowerCase()
+      const isSold = statusLower.includes('продан') || statusLower.includes('sold')
+      const isBooked = statusLower.includes('забронирован') || statusLower.includes('booked')
       
       if (hideSold && isSold) return false
       if (hideBooked && isBooked) return false
@@ -682,9 +684,11 @@ const ApartmentsCheckerboard = () => {
                                       )
                                     }
 
-                                    const status = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
-                                    const isSold = status.toLowerCase().includes('продан') || status.toLowerCase().includes('sold')
-                                    const isBooked = status.toLowerCase().includes('забронирован') || status.toLowerCase().includes('booked')
+                                    const statusRaw = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
+                                    const status = typeof statusRaw === 'string' ? statusRaw : String(statusRaw || 'Свободная')
+                                    const statusLower = status.toLowerCase()
+                                    const isSold = statusLower.includes('продан') || statusLower.includes('sold')
+                                    const isBooked = statusLower.includes('забронирован') || statusLower.includes('booked')
                                     
                                     const bgColor = isSold ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)'
                                     const textColor = isSold ? 'rgb(255, 255, 255)' : 'rgb(51, 51, 51)'
