@@ -4650,9 +4650,28 @@ class TrendSsoApiAuth
                     throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
                 }
 
+                // Проверяем структуру ответа - может быть data.results или просто data
+                $apartmentsData = null;
+                if (isset($data['data']['results']) && is_array($data['data']['results'])) {
+                    // Новая структура: объект с results внутри data
+                    $apartmentsData = $data['data']['results'];
+                } elseif (isset($data['data']) && is_array($data['data'])) {
+                    // Старая структура: массив квартир в data
+                    if (isset($data['data']['results']) && is_array($data['data']['results'])) {
+                        $apartmentsData = $data['data']['results'];
+                    } else {
+                        $apartmentsData = $data['data'];
+                    }
+                } elseif (isset($data['results']) && is_array($data['results'])) {
+                    // Альтернативная структура: results на верхнем уровне
+                    $apartmentsData = $data['results'];
+                } else {
+                    $apartmentsData = $data['data'] ?? $data;
+                }
+
                 return [
                     'success' => true,
-                    'data' => $data['data'] ?? $data,
+                    'data' => $apartmentsData,
                     'raw_response' => $data,
                 ];
             } catch (GuzzleException $e) {
