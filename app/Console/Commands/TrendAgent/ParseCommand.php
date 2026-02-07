@@ -1,0 +1,384 @@
+<?php
+
+namespace App\Console\Commands\TrendAgent;
+
+use Illuminate\Console\Command;
+use App\Services\TrendAgent\TrendAgentApiClient;
+use Illuminate\Support\Facades\Storage;
+use Exception;
+
+class ParseCommand extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'trendagent:parse
+                            {--region=spb : Регион для парсинга (spb, msk, и т.д.)}
+                            {--type=all : Тип объектов (all, apartments, parkings, houses, plots, commercial, complexes)}
+                            {--limit=100 : Лимит объектов для парсинга}
+                            {--offset=0 : Смещение для продолжения парсинга}
+                            {--details : Парсить детальные страницы}
+                            {--save-raw : Сохранять сырые данные}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Парсинг данных TrendAgent для указанного региона и типа объектов';
+
+    private TrendAgentApiClient $apiClient;
+    private string $region;
+    private string $type;
+    private int $limit;
+    private int $offset;
+    private bool $parseDetails;
+    private bool $saveRaw;
+
+    private array $statistics = [
+        'started_at' => null,
+        'finished_at' => null,
+        'total_processed' => 0,
+        'total_errors' => 0,
+        'by_type' => [],
+    ];
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $this->statistics['started_at'] = now()->toIso8601String();
+        
+        $this->apiClient = new TrendAgentApiClient();
+        $this->region = $this->option('region');
+        $this->type = $this->option('type');
+        $this->limit = (int) $this->option('limit');
+        $this->offset = (int) $this->option('offset');
+        $this->parseDetails = $this->option('details');
+        $this->saveRaw = $this->option('save-raw') ?? true;
+
+        $this->info("🚀 Начинаю парсинг TrendAgent");
+        $this->info("📍 Регион: {$this->region}");
+        $this->info("📦 Тип: {$this->type}");
+        $this->info("📊 Лимит: {$this->limit}, Offset: {$this->offset}");
+        $this->newLine();
+
+        try {
+            // Проверяем аутентификацию
+            $this->info("🔐 Проверка аутентификации...");
+            $authResult = $this->apiClient->authenticate($this->region);
+            $this->info("✅ Аутентификация успешна");
+            $this->newLine();
+
+            // Парсим данные по типам
+            if ($this->type === 'all') {
+                $types = ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial'];
+                foreach ($types as $type) {
+                    $this->parseType($type);
+                    $this->newLine();
+                }
+            } else {
+                $this->parseType($this->type);
+            }
+
+            // Сохраняем статистику
+            $this->statistics['finished_at'] = now()->toIso8601String();
+            $this->saveStatistics();
+
+            // Выводим итоги
+            $this->newLine();
+            $this->info("✅ Парсинг завершён успешно!");
+            $this->table(
+                ['Метрика', 'Значение'],
+                [
+                    ['Обработано объектов', $this->statistics['total_processed']],
+                    ['Ошибок', $this->statistics['total_errors']],
+                    ['Время начала', $this->statistics['started_at']],
+                    ['Время окончания', $this->statistics['finished_at']],
+                ]
+            );
+
+            if (!empty($this->statistics['by_type'])) {
+                $this->newLine();
+                $this->info("📊 Статистика по типам:");
+                $rows = [];
+                foreach ($this->statistics['by_type'] as $type => $count) {
+                    $rows[] = [$type, $count];
+                }
+                $this->table(['Тип', 'Количество'], $rows);
+            }
+
+            return Command::SUCCESS;
+
+        } catch (Exception $e) {
+            $this->error("❌ Ошибка при парсинге: " . $e->getMessage());
+            $this->error($e->getTraceAsString());
+            
+            $this->saveError($e);
+            
+            return Command::FAILURE;
+        }
+    }
+
+    /**
+     * Парсинг объектов указанного типа
+     */
+    private function parseType(string $type): void
+    {
+        $this->info("📦 Парсинг типа: {$type}");
+        
+        $bar = $this->output->createProgressBar($this->limit);
+        $bar->start();
+
+        $processed = 0;
+        $errors = 0;
+        $currentOffset = $this->offset;
+
+        try {
+            switch ($type) {
+                case 'complexes':
+                    $result = $this->parseComplexes($currentOffset, $bar);
+                    break;
+                case 'apartments':
+                    $result = $this->parseApartments($currentOffset, $bar);
+                    break;
+                case 'parkings':
+                    $result = $this->parseParkings($currentOffset, $bar);
+                    break;
+                case 'houses':
+                    $result = $this->parseHouses($currentOffset, $bar);
+                    break;
+                case 'plots':
+                    $result = $this->parsePlots($currentOffset, $bar);
+                    break;
+                case 'commercial':
+                    $result = $this->parseCommercial($currentOffset, $bar);
+                    break;
+                default:
+                    $this->warn("⚠️  Неизвестный тип: {$type}");
+                    return;
+            }
+
+            $processed = $result['processed'];
+            $errors = $result['errors'];
+
+        } catch (Exception $e) {
+            $this->error("\n❌ Ошибка при парсинге {$type}: " . $e->getMessage());
+            $errors++;
+        }
+
+        $bar->finish();
+        $this->newLine();
+
+        $this->statistics['total_processed'] += $processed;
+        $this->statistics['total_errors'] += $errors;
+        $this->statistics['by_type'][$type] = $processed;
+
+        $this->info("✅ {$type}: обработано {$processed}, ошибок {$errors}");
+    }
+
+    /**
+     * Парсинг комплексов
+     */
+    private function parseComplexes(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getObjectsList($this->region, null, $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('complexes', 'list', $offset, $data);
+        }
+
+        $items = $data['objects'] ?? $data['data'] ?? [];
+        $processed = 0;
+
+        foreach ($items as $item) {
+            $bar->advance();
+            $processed++;
+
+            if ($this->parseDetails && isset($item['id'])) {
+                try {
+                    $details = $this->apiClient->getApartmentDetails($item['id']);
+                    $this->saveDetailedData('complexes', $item['id'], $details);
+                } catch (Exception $e) {
+                    $this->warn("\n⚠️  Ошибка при загрузке деталей комплекса {$item['id']}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Парсинг квартир
+     */
+    private function parseApartments(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getApartments($this->region, [], $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('apartments', 'list', $offset, $data);
+        }
+
+        $items = $data['apartments'] ?? $data['data'] ?? [];
+        $processed = count($items);
+        
+        $bar->advance($processed);
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Парсинг паркингов
+     */
+    private function parseParkings(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getParkings($this->region, [], $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('parkings', 'list', $offset, $data);
+        }
+
+        $items = $data['parkings'] ?? $data['data'] ?? [];
+        $processed = count($items);
+        
+        $bar->advance($processed);
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Парсинг домов
+     */
+    private function parseHouses(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getHouses($this->region, [], $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('houses', 'list', $offset, $data);
+        }
+
+        $items = $data['houses'] ?? $data['data'] ?? [];
+        $processed = count($items);
+        
+        $bar->advance($processed);
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Парсинг участков
+     */
+    private function parsePlots(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getPlots($this->region, [], $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('plots', 'list', $offset, $data);
+        }
+
+        $items = $data['plots'] ?? $data['data'] ?? [];
+        $processed = count($items);
+        
+        $bar->advance($processed);
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Парсинг коммерции
+     */
+    private function parseCommercial(int $offset, $bar): array
+    {
+        $data = $this->apiClient->getCommercial($this->region, [], $this->limit, $offset);
+        
+        if ($this->saveRaw) {
+            $this->saveRawData('commercial', 'list', $offset, $data);
+        }
+
+        $items = $data['commercial'] ?? $data['data'] ?? [];
+        $processed = count($items);
+        
+        $bar->advance($processed);
+
+        return ['processed' => $processed, 'errors' => 0];
+    }
+
+    /**
+     * Сохранить сырые данные списка
+     */
+    private function saveRawData(string $type, string $dataType, int $offset, array $data): void
+    {
+        $filename = "trendagent/parsing/{$this->region}/raw/{$type}/{$dataType}_offset_{$offset}.json";
+        
+        $content = [
+            'metadata' => [
+                'region' => $this->region,
+                'type' => $type,
+                'data_type' => $dataType,
+                'timestamp' => now()->toIso8601String(),
+                'offset' => $offset,
+                'limit' => $this->limit,
+                'items_count' => count($data),
+            ],
+            'data' => $data,
+        ];
+
+        Storage::put($filename, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Сохранить детальные данные объекта
+     */
+    private function saveDetailedData(string $type, string $id, array $data): void
+    {
+        $filename = "trendagent/parsing/{$this->region}/details/{$type}/{$id}.json";
+        
+        $content = [
+            'metadata' => [
+                'region' => $this->region,
+                'type' => $type,
+                'id' => $id,
+                'timestamp' => now()->toIso8601String(),
+            ],
+            'data' => $data,
+        ];
+
+        Storage::put($filename, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Сохранить статистику парсинга
+     */
+    private function saveStatistics(): void
+    {
+        $filename = "trendagent/parsing/{$this->region}/metadata/statistics.json";
+        Storage::put($filename, json_encode($this->statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Сохранить информацию об ошибке
+     */
+    private function saveError(Exception $e): void
+    {
+        $filename = "trendagent/parsing/{$this->region}/metadata/errors.json";
+        
+        $errors = [];
+        if (Storage::exists($filename)) {
+            $errors = json_decode(Storage::get($filename), true) ?? [];
+        }
+
+        $errors[] = [
+            'timestamp' => now()->toIso8601String(),
+            'type' => $this->type,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ];
+
+        Storage::put($filename, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+}
