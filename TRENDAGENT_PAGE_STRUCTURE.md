@@ -682,6 +682,36 @@ Query: `apartments-room=30`, `apartments-room=40`; для checkerboard возм�
 
 ---
 
+## 4.3 Поэтажный план (floor plan) на странице квартиры (flat)
+
+**Контекст:** страница квартиры `https://spb.trendagent.ru/object/{slug}/flat/{apartmentId}`. В блоке галереи/планов есть кнопка **«Поэтажный план»** (`<button class="btn btn_secondary px-4">Поэтажный план</button>`). По клику открывается интерактивный поэтажный план этажа с выбором корпуса, секции и этажа.
+
+### Плагин / приложение
+
+- **Микроприложение:** **flatpage** — загружается с `modules.trendagent.ru/apps/flatpage/12944/flatpage.main.js` (и чанки, напр. `flatpage.263.*.js`). Страница квартиры и поэтажный план реализованы внутри этого React-приложения.
+- **Отрисовка плана:** не отдельный сторонний плагин, а часть flatpage. План этажа рисуется по данным API (геометрия/полигоны квартир, подписи площадей, иконки санузлов и т.д.) — типично через **SVG** или **Canvas** (например Konva.js/Fabric.js, либо своя отрисовка). Подсветка текущей квартиры (синяя рамка) и тултипы по hover делаются на клиенте.
+
+### API для поэтажного плана (по сетевым запросам)
+
+| Домен | Метод и путь | Параметры query | Описание |
+|-------|--------------|-----------------|----------|
+| **api.trendagent.ru** | `GET /v4_29/apartments/floor_plan/directory/{blockId}` | `auth_token`, `city`, `lang` | Справочник для выбора: список корпусов, секций и этажей по объекту. **blockId** — ID блока (ЖК), напр. `63c50acc9a85d53360f63a76`. Вызывается при открытии блока «Поэтажный план» и при инициализации. |
+| **api.trendagent.ru** | `GET /v4_29/apartments/floor_plan` | **`building_id`**, **`section_id`**, **`floor_number`**, `auth_token`, `city`, `lang` | Данные плана этажа для выбранных корпуса, секции и этажа. Возвращает геометрию/данные для отрисовки плана (квартиры, площади, номера, выделение текущей квартиры). Пример: `building_id=63c50b9b28d3bc6085083704&floor_number=9&section_id=63c5131828d3bc859e083ba3`. |
+
+При смене «Корпус», «Секция» или «Этаж» в дропдаунах отправляется новый запрос к `GET /v4_29/apartments/floor_plan` с соответствующими `building_id`, `section_id`, `floor_number`.
+
+### Элементы интерфейса поэтажного плана
+
+- Выпадающие списки: **Корпус** (напр. «Корпус 1 · Очередь 1»), **Секция** (напр. «Секция 4»), **Этаж** (напр. «Этаж 9»).
+- Кнопки: **Увеличить** / **Уменьшить** (zoom), **Выровнять по сторонам света**, **Скачать**, **Полноэкранный режим**.
+- На плане: подписи площадей по комнатам, тип квартиры (1K, 2K и т.д.), иконки санузлов/кухни; текущая квартира выделена (синяя рамка); при наведении на другую квартиру — тултип (название, площадь, цена, статус, №).
+
+### Связь с данными квартиры
+
+- Данные самой квартиры (для подсветки на плане и шапки) приходят с `GET /v4_29/apartments/63c5612628d3bc68fa0860a0/unified/` (или `apartments/block/{blockId}/apartment/{apartmentId}/`). В ответе есть привязка к корпусу, секции, этажу — по ним выбираются значения в дропдаунах и запрашивается нужный `floor_plan`.
+
+---
+
 # ЧАСТЬ V. ПОСЁЛКИ (villages)
 
 **Базовый URL:** `https://spb.trendagent.ru/villages/`
@@ -886,6 +916,9 @@ Query: `apartments-room=30`, `apartments-room=40`; для checkerboard возм�
 | GET | `/apartments/block/{blockId}/search/` | room, sort, sort_order, count | Квартиры объекта |
 | GET | `/apartments/block/{blockId}/apartment/{apartmentId}/` | — | Детальная карточка квартиры |
 | GET | `/apartments/{apartmentId}/` | — | Детальная квартира (fallback) |
+| GET | `/apartments/{apartmentId}/unified/` | auth_token, city, lang | Unified-данные квартиры (в т.ч. для страницы flat и поэтажного плана) |
+| GET | `/apartments/floor_plan/directory/{blockId}` | auth_token, city, lang | Справочник корпусов/секций/этажей для поэтажного плана |
+| GET | `/apartments/floor_plan` | **building_id**, **section_id**, **floor_number**, auth_token, city, lang | Данные плана этажа (геометрия, квартиры) для отрисовки «Поэтажный план» |
 | GET | `/checkerboards/{blockId}/apartments/buildings/` | room (многократно) | Корпуса для шахматки |
 | GET | `/checkerboards/{blockId}/apartments/` | **building_id** | Квартиры по корпусу (шахматка) |
 | GET | `/media/block/{blockId}/plans/` | cache, formating | Планировки |

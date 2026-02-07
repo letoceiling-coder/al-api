@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
 import { getImageUrl, getImageUrlFull, getImageUrls } from '../utils/imageUtils'
@@ -26,32 +26,96 @@ const FlatDetail = () => {
   const [finishingsData, setFinishingsData] = useState(null)
   const [phone, setPhone] = useState('+79045393434')
   const [password, setPassword] = useState('nwBvh4q')
+
+  // Слайдер фото (как у донора): один главный слайд, счётчик, миниатюры
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [imageType, setImageType] = useState('plans') // 'plans' или 'finishing'
+  const [imageType, setImageType] = useState('plans') // 'plans' | 'finishing'
+
+  // Поэтажный план (интерактивный режим как у донора)
+  const [floorPlanDirectory, setFloorPlanDirectory] = useState(null)
+  const [floorPlanDirectoryLoading, setFloorPlanDirectoryLoading] = useState(false)
+  const [floorPlanData, setFloorPlanData] = useState(null)
+  const [floorPlanLoading, setFloorPlanLoading] = useState(false)
+  const [selectedBuilding, setSelectedBuilding] = useState(null)
+  const [selectedSection, setSelectedSection] = useState(null)
+  const [selectedFloor, setSelectedFloor] = useState(null)
+  const [floorPlanZoom, setFloorPlanZoom] = useState(1)
+  const [floorPlanFullscreen, setFloorPlanFullscreen] = useState(false)
 
   useEffect(() => {
     loadFlatDetail()
   }, [blockId, apartmentId])
 
-  // Сбрасываем индекс при смене типа изображения
   useEffect(() => {
     if (apartmentData) {
       setCurrentImageIndex(0)
     }
   }, [imageType, apartmentData])
 
+  // Загрузка справочника поэтажного плана при наличии blockId
+  useEffect(() => {
+    if (!blockId || !phone || !password) return
+    let cancelled = false
+    setFloorPlanDirectoryLoading(true)
+    trendAgentAPI.getFloorPlanDirectory(blockId, { phone, password })
+      .then((res) => {
+        if (cancelled) return
+        const raw = res.data ?? res
+        setFloorPlanDirectory(raw)
+        // Выставить начальные значения из квартиры, если есть
+        if (apartmentData) {
+          const apt = apartmentData.data || apartmentData
+          const buildingId = apt.building_id || apt.building?.id || apt.building?._id
+          const sectionId = apt.section_id || apt.section?.id || apt.section?._id
+          const floorNum = apt.floor ?? apt.floor_number
+          if (buildingId) setSelectedBuilding(buildingId)
+          if (sectionId) setSelectedSection(sectionId)
+          if (floorNum != null) setSelectedFloor(floorNum)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setFloorPlanDirectory(null)
+      })
+      .finally(() => {
+        if (!cancelled) setFloorPlanDirectoryLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [blockId, phone, password])
+
+  // Загрузка плана этажа при смене корпус/секция/этаж
+  useEffect(() => {
+    if (!selectedBuilding || !selectedSection || selectedFloor == null || selectedFloor === '' || !blockId) {
+      setFloorPlanData(null)
+      return
+    }
+    let cancelled = false
+    setFloorPlanLoading(true)
+    trendAgentAPI.getFloorPlan(blockId, {
+      phone,
+      password,
+      building_id: selectedBuilding,
+      section_id: selectedSection,
+      floor_number: selectedFloor,
+    })
+      .then((res) => {
+        if (cancelled) return
+        setFloorPlanData(res.data ?? res)
+      })
+      .catch(() => {
+        if (!cancelled) setFloorPlanData(null)
+      })
+      .finally(() => {
+        if (!cancelled) setFloorPlanLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [blockId, phone, password, selectedBuilding, selectedSection, selectedFloor])
+
   const loadFlatDetail = async () => {
     setLoading(true)
     setError(null)
-
     try {
-      const params = {
-        phone,
-        password,
-      }
-
+      const params = { phone, password }
       const response = await trendAgentAPI.getApartmentFlatDetail(blockId, apartmentId, params)
-
       if (response.success) {
         setApartmentData(response.data?.apartment || response.data)
         setBlockData(response.data?.block || null)
@@ -66,7 +130,7 @@ const FlatDetail = () => {
       }
     } catch (err) {
       console.error('Ошибка загрузки данных квартиры:', err)
-      setError(err.message || 'Ошибка загрузки данных квартиры')
+      setError(err.message || err?.message || 'Ошибка загрузки данных квартиры')
     } finally {
       setLoading(false)
     }
@@ -93,34 +157,150 @@ const FlatDetail = () => {
 
   const getStatus = (apt) => {
     if (!apt) return 'Свободна'
-    if (typeof apt.status === 'string') {
-      return apt.status
-    }
-    if (apt.status?.name) {
-      return apt.status.name
-    }
-    if (apt.booking_status) {
-      return apt.booking_status
-    }
-    if (apt.is_booked) {
-      return 'Забронирована'
-    }
+    if (typeof apt.status === 'string') return apt.status
+    if (apt.status?.name) return apt.status.name
+    if (apt.booking_status) return apt.booking_status
+    if (apt.is_booked) return 'Забронирована'
     return 'Свободна'
   }
 
   const getStatusClass = (status) => {
-    const statusLower = String(status).toLowerCase().replace(/\s+/g, '-')
-    if (statusLower.includes('свободн') || statusLower.includes('available')) {
-      return 'status-available'
-    }
-    if (statusLower.includes('забронирован') || statusLower.includes('booked')) {
-      return 'status-booked'
-    }
-    if (statusLower.includes('продан') || statusLower.includes('sold')) {
-      return 'status-sold'
-    }
+    const s = String(status).toLowerCase().replace(/\s+/g, '-')
+    if (s.includes('свободн') || s.includes('available')) return 'status-available'
+    if (s.includes('забронирован') || s.includes('booked')) return 'status-booked'
+    if (s.includes('продан') || s.includes('sold')) return 'status-sold'
     return 'status-default'
   }
+
+  // Нормализация справочника поэтажного плана (разные форматы API)
+  const getFloorPlanOptions = () => {
+    const dir = floorPlanDirectory?.data ?? floorPlanDirectory
+    if (!dir || typeof dir !== 'object') return { buildings: [], sections: [], floors: [] }
+    const buildings = dir.buildings ?? dir.building_list ?? dir.corpus ?? []
+    const sections = dir.sections ?? dir.section_list ?? []
+    const floors = dir.floors ?? dir.floor_list ?? []
+    return {
+      buildings: Array.isArray(buildings) ? buildings : [],
+      sections: Array.isArray(sections) ? sections : [],
+      floors: Array.isArray(floors) ? floors : [],
+    }
+  }
+
+  const getFloorPlanImageUrl = () => {
+    const data = floorPlanData?.data ?? floorPlanData
+    if (!data) return null
+    if (typeof data === 'string' && (data.startsWith('http') || data.startsWith('/'))) return data
+    const url = data.image_url ?? data.image ?? data.url ?? data.plan_image ?? data.src
+    if (url) return getImageUrlFull(url) || getImageUrl(url)
+    if (data.svg) return null
+    return null
+  }
+
+  const getFloorPlanSvg = () => {
+    const data = floorPlanData?.data ?? floorPlanData
+    if (!data || typeof data !== 'object') return null
+    return data.svg ?? null
+  }
+
+  const imagesByType = (() => {
+    const apt = apartmentData?.data || apartmentData
+    const plans = []
+    const finishing = []
+    const photos = []
+
+    if (apt?.plan) {
+      const u = getImageUrlFull(apt.plan) || getImageUrl(apt.plan)
+      if (u) plans.push({ url: u, urlFull: u, type: 'plan' })
+    }
+    if (apt?.plan_image) {
+      const u = getImageUrlFull(apt.plan_image) || getImageUrl(apt.plan_image)
+      if (u && !plans.find(i => i.url === u)) plans.push({ url: u, urlFull: u, type: 'plan_image' })
+    }
+    if (Array.isArray(apt?.plans)) {
+      apt.plans.forEach(img => {
+        const u = getImageUrlFull(img) || getImageUrl(img)
+        if (u && !plans.find(i => i.url === u)) plans.push({ url: u, urlFull: u, type: 'plan' })
+      })
+    }
+    if (plansData?.data && Array.isArray(plansData.data)) {
+      plansData.data.forEach(plan => {
+        const u = getImageUrlFull(plan) || getImageUrl(plan)
+        if (u && !plans.find(i => i.url === u)) plans.push({ url: u, urlFull: u, type: 'plan' })
+      })
+    }
+
+    if (apt?.finishing_image) {
+      const u = getImageUrlFull(apt.finishing_image) || getImageUrl(apt.finishing_image)
+      if (u) finishing.push({ url: u, urlFull: u, type: 'finishing' })
+    }
+    if (Array.isArray(apt?.finishing_images)) {
+      apt.finishing_images.forEach(img => {
+        const u = getImageUrlFull(img) || getImageUrl(img)
+        if (u && !finishing.find(i => i.url === u)) finishing.push({ url: u, urlFull: u, type: 'finishing' })
+      })
+    }
+    if (finishingsData?.data && Array.isArray(finishingsData.data)) {
+      finishingsData.data.forEach(fin => {
+        if (fin.image) {
+          const u = getImageUrlFull(fin.image) || getImageUrl(fin.image)
+          if (u && !finishing.find(i => i.url === u)) finishing.push({ url: u, urlFull: u, type: 'finishing' })
+        }
+      })
+    }
+
+    if (Array.isArray(apt?.images)) {
+      apt.images.forEach(img => {
+        const u = getImageUrlFull(img) || getImageUrl(img)
+        if (u) photos.push({ url: u, urlFull: u, type: 'photo' })
+      })
+    }
+    if (apt?.image) {
+      const u = getImageUrlFull(apt.image) || getImageUrl(apt.image)
+      if (u && !photos.find(i => i.url === u)) photos.push({ url: u, urlFull: u, type: 'photo' })
+    }
+    if (Array.isArray(apt?.renderer)) {
+      apt.renderer.forEach(img => {
+        const u = getImageUrlFull(img) || getImageUrl(img)
+        if (u && !photos.find(i => i.url === u)) photos.push({ url: u, urlFull: u, type: 'renderer' })
+      })
+    }
+
+    return { plans, finishing, photos }
+  })()
+
+  const getCurrentImages = () => {
+    if (imageType === 'plans') return imagesByType.plans.length > 0 ? imagesByType.plans : imagesByType.photos
+    if (imageType === 'finishing') return imagesByType.finishing.length > 0 ? imagesByType.finishing : imagesByType.photos
+    return imagesByType.photos
+  }
+
+  const images = getCurrentImages()
+  const currentImage = images[currentImageIndex] || null
+  const hasGallery = imagesByType.plans.length > 0 || imagesByType.finishing.length > 0 || imagesByType.photos.length > 0
+  const fpOptions = getFloorPlanOptions()
+  const hasFloorPlanInteractive = fpOptions.buildings.length > 0 && blockId
+
+  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length)
+  const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+  const selectImage = (index) => setCurrentImageIndex(index)
+
+  const apartment = apartmentData?.data || apartmentData
+  const block = blockData?.data || blockData
+  const number = apartment?.number || apartment?.apartment_number || '—'
+  const floor = apartment?.floor ?? '—'
+  const section = (apartment?.section_name || apartment?.section) ?? '—'
+  const building = (apartment?.building_name || apartment?.building || apartment?.corpus) ?? '—'
+  const area = apartment?.privArea ?? apartment?.area ?? apartment?.area_total ?? null
+  const kitchenArea = apartment?.kitchenArea ?? apartment?.kitchen_area ?? null
+  const livingArea = apartment?.livingArea ?? apartment?.living_area ?? null
+  const finishing = apartment?.finishing_name || apartment?.finishing || '—'
+  const basePrice = apartment?.base_price ?? null
+  const fullPrice = apartment?.price ?? apartment?.full_price ?? null
+  const pricePerM2 = area && basePrice ? formatPricePerM2(basePrice, area) : '—'
+  const status = getStatus(apartment)
+  const rooms = apartment?.rooms ?? apartment?.room ?? null
+  const view = apartment?.view_image ?? apartment?.view ?? null
+  const exclusive = apartment?.exclusive ?? apartment?.is_exclusive ?? false
 
   if (loading) {
     return (
@@ -138,9 +318,7 @@ const FlatDetail = () => {
       <div className="flat-detail-container">
         <div className="error-message">
           <p>{error}</p>
-          <button className="btn btn-primary" onClick={() => navigate(-1)}>
-            Назад
-          </button>
+          <button className="btn btn-primary" onClick={() => navigate(-1)}>Назад</button>
         </div>
       </div>
     )
@@ -151,162 +329,14 @@ const FlatDetail = () => {
       <div className="flat-detail-container">
         <div className="error-message">
           <p>Данные квартиры не найдены</p>
-          <button className="btn btn-primary" onClick={() => navigate(-1)}>
-            Назад
-          </button>
+          <button className="btn btn-primary" onClick={() => navigate(-1)}>Назад</button>
         </div>
       </div>
     )
   }
 
-  const apartment = apartmentData.data || apartmentData
-  const block = blockData?.data || blockData
-
-  // Собираем все изображения квартиры, группируя по типам
-  const getImagesByType = () => {
-    const apartment = apartmentData?.data || apartmentData
-    const plans = []
-    const finishing = []
-    const photos = []
-    
-    // Планы (plan, plan_image, plans)
-    if (apartment?.plan) {
-      const imgUrl = getImageUrlFull(apartment.plan) || getImageUrl(apartment.plan)
-      if (imgUrl) {
-        plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
-      }
-    }
-    
-    if (apartment?.plan_image) {
-      const imgUrl = getImageUrlFull(apartment.plan_image) || getImageUrl(apartment.plan_image)
-      if (imgUrl && !plans.find(img => img.url === imgUrl)) {
-        plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan_image' })
-      }
-    }
-    
-    if (apartment?.plans && Array.isArray(apartment.plans)) {
-      apartment.plans.forEach(img => {
-        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
-        if (imgUrl && !plans.find(i => i.url === imgUrl)) {
-          plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
-        }
-      })
-    }
-    
-    // Добавляем планы из plansData (если есть)
-    if (plansData?.data && Array.isArray(plansData.data)) {
-      plansData.data.forEach(plan => {
-        const imgUrl = getImageUrlFull(plan) || getImageUrl(plan)
-        if (imgUrl && !plans.find(i => i.url === imgUrl)) {
-          plans.push({ url: imgUrl, urlFull: imgUrl, type: 'plan' })
-        }
-      })
-    }
-    
-    // Отделка (finishing, finishing_images)
-    if (apartment?.finishing_image) {
-      const imgUrl = getImageUrlFull(apartment.finishing_image) || getImageUrl(apartment.finishing_image)
-      if (imgUrl) {
-        finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
-      }
-    }
-    
-    if (apartment?.finishing_images && Array.isArray(apartment.finishing_images)) {
-      apartment.finishing_images.forEach(img => {
-        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
-        if (imgUrl && !finishing.find(i => i.url === imgUrl)) {
-          finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
-        }
-      })
-    }
-    
-    // Добавляем отделку из finishingsData (если есть)
-    if (finishingsData?.data && Array.isArray(finishingsData.data)) {
-      finishingsData.data.forEach(fin => {
-        if (fin.image) {
-          const imgUrl = getImageUrlFull(fin.image) || getImageUrl(fin.image)
-          if (imgUrl && !finishing.find(i => i.url === imgUrl)) {
-            finishing.push({ url: imgUrl, urlFull: imgUrl, type: 'finishing' })
-          }
-        }
-      })
-    }
-    
-    // Фото (images, image, renderer)
-    if (apartment?.images && Array.isArray(apartment.images)) {
-      apartment.images.forEach(img => {
-        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
-        if (imgUrl) {
-          photos.push({ url: imgUrl, urlFull: imgUrl, type: 'photo' })
-        }
-      })
-    }
-    
-    if (apartment?.image) {
-      const imgUrl = getImageUrlFull(apartment.image) || getImageUrl(apartment.image)
-      if (imgUrl && !photos.find(img => img.url === imgUrl)) {
-        photos.push({ url: imgUrl, urlFull: imgUrl, type: 'photo' })
-      }
-    }
-    
-    if (apartment?.renderer && Array.isArray(apartment.renderer)) {
-      apartment.renderer.forEach(img => {
-        const imgUrl = getImageUrlFull(img) || getImageUrl(img)
-        if (imgUrl && !photos.find(i => i.url === imgUrl)) {
-          photos.push({ url: imgUrl, urlFull: imgUrl, type: 'renderer' })
-        }
-      })
-    }
-    
-    return { plans, finishing, photos }
-  }
-
-  const imagesByType = getImagesByType()
-  
-  // Определяем, какие изображения показывать в зависимости от выбранного типа
-  const getCurrentImages = () => {
-    if (imageType === 'plans') {
-      return imagesByType.plans.length > 0 ? imagesByType.plans : imagesByType.photos
-    } else if (imageType === 'finishing') {
-      return imagesByType.finishing.length > 0 ? imagesByType.finishing : imagesByType.photos
-    }
-    return imagesByType.photos
-  }
-
-  const images = getCurrentImages()
-  const currentImage = images[currentImageIndex] || null
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length)
-  }
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
-  }
-
-  const selectImage = (index) => {
-    setCurrentImageIndex(index)
-  }
-
-  const number = apartment.number || apartment.apartment_number || '—'
-  const floor = apartment.floor || '—'
-  const section = apartment.section_name || apartment.section || '—'
-  const building = apartment.building_name || apartment.building || apartment.corpus || '—'
-  const area = apartment.privArea || apartment.area || apartment.area_total || null
-  const kitchenArea = apartment.kitchenArea || apartment.kitchen_area || null
-  const livingArea = apartment.livingArea || apartment.living_area || null
-  const finishing = apartment.finishing_name || apartment.finishing || '—'
-  const basePrice = apartment.base_price || null
-  const fullPrice = apartment.price || apartment.full_price || null
-  const pricePerM2 = area && basePrice ? formatPricePerM2(basePrice, area) : '—'
-  const status = getStatus(apartment)
-  const rooms = apartment.rooms || apartment.room || null
-  const view = apartment.view_image || apartment.view || null
-  const exclusive = apartment.exclusive || apartment.is_exclusive || false
-
   return (
     <div className="flat-detail-container">
-      {/* Хлебные крошки */}
       <div className="breadcrumbs">
         <button className="btn-back" onClick={() => navigate(-1)}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -314,225 +344,262 @@ const FlatDetail = () => {
           </svg>
           Назад
         </button>
-        {block && (
-          <span className="breadcrumb-separator">/</span>
-        )}
-        {block && (
-          <span className="breadcrumb-item">{block.name || block.title || 'Объект'}</span>
-        )}
+        {block && <span className="breadcrumb-separator">/</span>}
+        {block && <span className="breadcrumb-item">{block.name || block.title || 'Объект'}</span>}
         <span className="breadcrumb-separator">/</span>
         <span className="breadcrumb-item active">Квартира {number}</span>
       </div>
 
-      {/* Заголовок */}
       <div className="flat-header">
         <h1>Квартира {number}</h1>
-        {block && (
-          <p className="block-name">{block.name || block.title}</p>
-        )}
+        {block && <p className="block-name">{block.name || block.title}</p>}
       </div>
 
       <div className="flat-content">
         <div className="flat-main">
-          {/* Галерея изображений */}
-          {(imagesByType.plans.length > 0 || imagesByType.finishing.length > 0 || imagesByType.photos.length > 0) && (
+          {/* Галерея: слайдер фото + вкладки Поэтажный план | Отделка — как у донора */}
+          {(hasGallery || hasFloorPlanInteractive) && (
             <div className="flat-gallery-section">
-              <h2>Планировка</h2>
               <div className="flat-gallery">
-                <div className="gallery-main">
-                  {currentImage && (
-                    <>
-                      {images.length > 1 && (
-                        <button 
-                          className="gallery-nav-btn gallery-nav-btn-prev"
-                          onClick={prevImage}
-                          aria-label="Предыдущее изображение"
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      <img
-                        src={currentImage.urlFull || currentImage.url}
-                        alt={`Квартира ${number} - ${imageType === 'plans' ? 'план' : imageType === 'finishing' ? 'отделка' : 'фото'} ${currentImageIndex + 1}`}
-                        className="gallery-main-image"
-                        onError={(e) => { e.target.style.display = 'none' }}
-                      />
-                      {images.length > 1 && (
-                        <button 
-                          className="gallery-nav-btn gallery-nav-btn-next"
-                          onClick={nextImage}
-                          aria-label="Следующее изображение"
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {images.length > 1 && (
-                        <div className="gallery-counter">
-                          {currentImageIndex + 1} / {images.length}
-                        </div>
-                      )}
-                    </>
+                {/* Табы как у донора */}
+                <div className="gallery-tabs">
+                  <button
+                    type="button"
+                    className={`btn btn_secondary px-4 gallery-tab ${imageType === 'plans' ? 'active' : ''}`}
+                    onClick={() => setImageType('plans')}
+                  >
+                    <span className="btn__content justify-content-center">Поэтажный план</span>
+                  </button>
+                  {imagesByType.finishing.length > 0 && (
+                    <button
+                      type="button"
+                      className={`btn btn_secondary px-4 gallery-tab ${imageType === 'finishing' ? 'active' : ''}`}
+                      onClick={() => setImageType('finishing')}
+                    >
+                      <span className="btn__content justify-content-center">Отделка</span>
+                    </button>
                   )}
                 </div>
-                
-                {/* Переключение между типами изображений */}
-                {(imagesByType.plans.length > 0 || imagesByType.finishing.length > 0) && (
-                  <div className="gallery-type-switcher">
-                    {imagesByType.plans.length > 0 && (
+
+                {/* Режим интерактивного поэтажного плана (корпус/секция/этаж) */}
+                {imageType === 'plans' && hasFloorPlanInteractive && (
+                  <div className="floor-plan-interactive">
+                    <div className="floor-plan-dropdowns">
+                      <div className="floor-plan-select-wrap">
+                        <label>Корпус</label>
+                        <select
+                          value={selectedBuilding || ''}
+                          onChange={(e) => {
+                            setSelectedBuilding(e.target.value || null)
+                            setFloorPlanData(null)
+                          }}
+                          className="floor-plan-select"
+                        >
+                          <option value="">—</option>
+                          {fpOptions.buildings.map((b) => (
+                            <option key={b.id || b._id || b.value} value={b.id || b._id || b.value}>
+                              {b.name || b.title || b.label || `Корпус ${b.id || b._id}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="floor-plan-select-wrap">
+                        <label>Секция</label>
+                        <select
+                          value={selectedSection || ''}
+                          onChange={(e) => {
+                            setSelectedSection(e.target.value || null)
+                            setFloorPlanData(null)
+                          }}
+                          className="floor-plan-select"
+                        >
+                          <option value="">—</option>
+                          {fpOptions.sections.map((s) => (
+                            <option key={s.id || s._id || s.value} value={s.id || s._id || s.value}>
+                              {s.name || s.title || s.label || `Секция ${s.id || s._id}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="floor-plan-select-wrap">
+                        <label>Этаж</label>
+                        <select
+                          value={selectedFloor ?? ''}
+                          onChange={(e) => {
+                            setSelectedFloor(e.target.value === '' ? null : e.target.value)
+                            setFloorPlanData(null)
+                          }}
+                          className="floor-plan-select"
+                        >
+                          <option value="">—</option>
+                          {fpOptions.floors.map((f) => (
+                            <option key={f.id ?? f._id ?? f.value ?? f} value={f.id ?? f._id ?? f.value ?? f}>
+                              {f.name ?? f.title ?? f.label ?? `Этаж ${f.id ?? f._id ?? f}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="floor-plan-toolbar">
                       <button
-                        className={`gallery-type-btn ${imageType === 'plans' ? 'active' : ''}`}
-                        onClick={() => setImageType('plans')}
+                        type="button"
+                        className="floor-plan-zoom-btn"
+                        onClick={() => setFloorPlanZoom((z) => Math.min(3, z + 0.25))}
+                        aria-label="Увеличить"
                       >
-                        Поэтажный план
+                        +
                       </button>
-                    )}
-                    {imagesByType.finishing.length > 0 && (
                       <button
-                        className={`gallery-type-btn ${imageType === 'finishing' ? 'active' : ''}`}
-                        onClick={() => setImageType('finishing')}
+                        type="button"
+                        className="floor-plan-zoom-btn"
+                        onClick={() => setFloorPlanZoom((z) => Math.max(0.5, z - 0.25))}
+                        aria-label="Уменьшить"
                       >
-                        Отделка
+                        −
                       </button>
-                    )}
+                      <button
+                        type="button"
+                        className="floor-plan-fullscreen-btn"
+                        onClick={() => setFloorPlanFullscreen((v) => !v)}
+                        aria-label="Полноэкранный режим"
+                      >
+                        ⛶
+                      </button>
+                      {getFloorPlanImageUrl() && (
+                        <a
+                          href={getFloorPlanImageUrl()}
+                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="floor-plan-download-btn"
+                        >
+                          Скачать
+                        </a>
+                      )}
+                    </div>
+
+                    <div className={`floor-plan-view ${floorPlanFullscreen ? 'fullscreen' : ''}`}>
+                      {floorPlanLoading && (
+                        <div className="floor-plan-loading">
+                          <div className="spinner"></div>
+                          <p>Загрузка плана этажа...</p>
+                        </div>
+                      )}
+                      {!floorPlanLoading && getFloorPlanImageUrl() && (
+                        <div className="floor-plan-image-wrap" style={{ transform: `scale(${floorPlanZoom})` }}>
+                          <img
+                            src={getFloorPlanImageUrl()}
+                            alt="План этажа"
+                            className="floor-plan-image"
+                            draggable={false}
+                          />
+                        </div>
+                      )}
+                      {!floorPlanLoading && getFloorPlanSvg() && (
+                        <div
+                          className="floor-plan-svg-wrap"
+                          style={{ transform: `scale(${floorPlanZoom})` }}
+                          dangerouslySetInnerHTML={{ __html: getFloorPlanSvg() }}
+                        />
+                      )}
+                      {!floorPlanLoading && !getFloorPlanImageUrl() && !getFloorPlanSvg() && selectedBuilding && selectedSection && selectedFloor != null && (
+                        <div className="floor-plan-placeholder">
+                          План этажа для выбранных корпуса, секции и этажа недоступен или загружается.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-                
-                {images.length > 1 && (
-                  <div className="gallery-thumbnails">
-                    {images.map((img, index) => (
-                      <div
-                        key={index}
-                        className={`gallery-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                        onClick={() => selectImage(index)}
-                      >
-                        <img
-                          src={img.url || img.urlFull}
-                          alt={`Миниатюра ${index + 1}`}
-                          onError={(e) => { e.target.style.display = 'none' }}
-                        />
+
+                {/* Слайдер фото (планы/отделка) — как у донора */}
+                {images.length > 0 && (
+                  imageType === 'finishing' ||
+                  (imageType === 'plans' && !hasFloorPlanInteractive) ||
+                  (imageType === 'plans' && hasFloorPlanInteractive && (!selectedBuilding || !selectedSection || selectedFloor == null))
+                ) && (
+                  <>
+                    <div className="gallery-main">
+                      {currentImage && (
+                        <>
+                          {images.length > 1 && (
+                            <button className="gallery-nav-btn gallery-nav-btn-prev" onClick={prevImage} aria-label="Предыдущее изображение">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          )}
+                          <img
+                            src={currentImage.urlFull || currentImage.url}
+                            alt={`Квартира ${number} - ${imageType === 'plans' ? 'план' : 'отделка'} ${currentImageIndex + 1}`}
+                            className="gallery-main-image"
+                            onError={(e) => { e.target.style.display = 'none' }}
+                          />
+                          {images.length > 1 && (
+                            <button className="gallery-nav-btn gallery-nav-btn-next" onClick={nextImage} aria-label="Следующее изображение">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          )}
+                          {images.length > 1 && (
+                            <div className="gallery-counter">
+                              {currentImageIndex + 1} / {images.length}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {images.length > 1 && (
+                      <div className="gallery-thumbnails">
+                        {images.map((img, index) => (
+                          <div
+                            key={index}
+                            className={`gallery-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                            onClick={() => selectImage(index)}
+                          >
+                            <img src={img.url || img.urlFull} alt="" onError={(e) => { e.target.style.display = 'none' }} />
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
           )}
 
-          {/* Характеристики */}
           <div className="flat-specs-section">
             <h2>Характеристики</h2>
             <div className="specs-grid">
-              {rooms && (
-                <div className="spec-item">
-                  <span className="spec-label">Комнат:</span>
-                  <span className="spec-value">{rooms === 1 ? 'Студия' : `${rooms}-комн.`}</span>
-                </div>
-              )}
-              {area && (
-                <div className="spec-item">
-                  <span className="spec-label">Общая площадь:</span>
-                  <span className="spec-value">{area} м²</span>
-                </div>
-              )}
-              {livingArea && (
-                <div className="spec-item">
-                  <span className="spec-label">Жилая площадь:</span>
-                  <span className="spec-value">{livingArea} м²</span>
-                </div>
-              )}
-              {kitchenArea && (
-                <div className="spec-item">
-                  <span className="spec-label">Площадь кухни:</span>
-                  <span className="spec-value">{kitchenArea} м²</span>
-                </div>
-              )}
-              <div className="spec-item">
-                <span className="spec-label">Этаж:</span>
-                <span className="spec-value">{floor}</span>
-              </div>
-              {section !== '—' && (
-                <div className="spec-item">
-                  <span className="spec-label">Секция:</span>
-                  <span className="spec-value">{section}</span>
-                </div>
-              )}
-              {building !== '—' && (
-                <div className="spec-item">
-                  <span className="spec-label">Корпус:</span>
-                  <span className="spec-value">{building}</span>
-                </div>
-              )}
-              <div className="spec-item">
-                <span className="spec-label">Отделка:</span>
-                <span className="spec-value">{finishing}</span>
-              </div>
-              {view && (
-                <div className="spec-item">
-                  <span className="spec-label">Вид:</span>
-                  <span className="spec-value">{view}</span>
-                </div>
-              )}
-              <div className="spec-item">
-                <span className="spec-label">Эксклюзив:</span>
-                <span className="spec-value">{exclusive ? 'Да' : 'Нет'}</span>
-              </div>
+              {rooms && <div className="spec-item"><span className="spec-label">Комнат:</span><span className="spec-value">{rooms === 1 ? 'Студия' : `${rooms}-комн.`}</span></div>}
+              {area && <div className="spec-item"><span className="spec-label">Общая площадь:</span><span className="spec-value">{area} м²</span></div>}
+              {livingArea && <div className="spec-item"><span className="spec-label">Жилая площадь:</span><span className="spec-value">{livingArea} м²</span></div>}
+              {kitchenArea && <div className="spec-item"><span className="spec-label">Площадь кухни:</span><span className="spec-value">{kitchenArea} м²</span></div>}
+              <div className="spec-item"><span className="spec-label">Этаж:</span><span className="spec-value">{floor}</span></div>
+              {section !== '—' && <div className="spec-item"><span className="spec-label">Секция:</span><span className="spec-value">{section}</span></div>}
+              {building !== '—' && <div className="spec-item"><span className="spec-label">Корпус:</span><span className="spec-value">{building}</span></div>}
+              <div className="spec-item"><span className="spec-label">Отделка:</span><span className="spec-value">{finishing}</span></div>
+              {view && <div className="spec-item"><span className="spec-label">Вид:</span><span className="spec-value">{view}</span></div>}
+              <div className="spec-item"><span className="spec-label">Эксклюзив:</span><span className="spec-value">{exclusive ? 'Да' : 'Нет'}</span></div>
             </div>
           </div>
         </div>
 
         <div className="flat-sidebar apartment-col apartment-rside col">
-          {/* Блок вознаграждения */}
           <FlatRewardCard rewardsData={rewardsData} />
-
-          {/* Блоки акций, ипотеки, рассрочки */}
-          <FlatHighlights 
-            discountsData={discountsData}
-            mortgageData={mortgageData}
-            installmentsData={installmentsData}
-          />
-
-          {/* Паспорт квартиры */}
+          <FlatHighlights discountsData={discountsData} mortgageData={mortgageData} installmentsData={installmentsData} />
           <FlatPassport apartment={apartment} block={block} />
-
-          {/* Информация о застройщике и объекте */}
           <FlatBlockInfo block={block} />
-
-          {/* Действия */}
           <div className="apartment-passport__actions row">
             <div className="col-6">
-              <div>
-                <div className="shell-element shell-element_md shell-element_secondary shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper btn-wrapper_press-effect-animation">
-                  <button iconPosition="left" tabIndex="0" className="btn btn_secondary px-sm" type="button">
-                    <span className="btn__content justify-content-center">
-                      <span>Контакты</span>
-                    </span>
-                  </button>
-                </div>
+              <div className="shell-element shell-element_md shell-element_secondary shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper">
+                <button type="button" className="btn btn_secondary px-sm"><span className="btn__content justify-content-center">Контакты</span></button>
               </div>
             </div>
             <div className="col-6">
-              <div>
-                <div className="shell-element shell-element_md shell-element_brand shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper btn-wrapper_press-effect-animation">
-                  <button iconPosition="left" tabIndex="0" className="btn btn_brand px-sm" type="button">
-                    <span className="btn__content justify-content-center">
-                      <span>Забронировать</span>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="col-12">
-              <div className="apartment-form__control">
-                <div className="apartment-files__item">
-                  <svg className="svg-icon trend-ui-icon-root trend-ui-icon-root__File trend-ui-icon-root__File-20" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
-                    <path xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd" d="M2.00012 3.35C2.00012 1.99029 3.18409 1 4.50012 1H10.7501C10.949 1 11.1398 1.07902 11.2805 1.21967L17.7805 7.71967C17.9211 7.86032 18.0001 8.05109 18.0001 8.25V16.65C18.0001 18.0097 16.8162 19 15.5001 19H4.50012C3.18409 19 2.00012 18.0097 2.00012 16.65V3.35ZM4.50012 2.5C3.88316 2.5 3.50012 2.9424 3.50012 3.35V16.65C3.50012 17.0576 3.88316 17.5 4.50012 17.5H15.5001C16.1171 17.5 16.5001 17.0576 16.5001 16.65V9L10.7501 9.00002C10.5512 9.00003 10.3604 8.92101 10.2198 8.78036C10.0791 8.6397 10.0001 8.44894 10.0001 8.25002V2.5H4.50012ZM11.5001 3.56066L15.4395 7.50001L11.5001 7.50002V3.56066Z" fill="#4C4C4C"></path>
-                  </svg>
-                  Регламент взаимодействия
-                </div>
+              <div className="shell-element shell-element_md shell-element_brand shell-element_radius-lg shell-element_full shell-element_radius btn-wrapper">
+                <button type="button" className="btn btn_brand px-sm"><span className="btn__content justify-content-center">Забронировать</span></button>
               </div>
             </div>
           </div>

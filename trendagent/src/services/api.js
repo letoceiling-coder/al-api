@@ -77,6 +77,18 @@ export const trendAgentAPI = {
     return response.data
   },
 
+  // Поэтажный план: справочник корпусов/секций/этажей
+  getFloorPlanDirectory: async (blockId, params) => {
+    const response = await apiClient.post(`/apartments/${blockId}/floor-plan/directory`, params)
+    return response.data
+  },
+
+  // Поэтажный план: данные плана этажа
+  getFloorPlan: async (blockId, params) => {
+    const response = await apiClient.post(`/apartments/${blockId}/floor-plan`, params)
+    return response.data
+  },
+
   // Паркинги
   getParkings: async (params) => {
     const response = await apiClient.post('/parkings', params)

@@ -5055,8 +5055,131 @@ class TrendSsoApiAuth
     }
 
     /**
+     * Справочник для поэтажного плана: корпуса, секции, этажи по блоку
+     * GET api.trendagent.ru/v4_29/apartments/floor_plan/directory/{blockId}
+     *
+     * @param string $blockId ID блока (ЖК)
+     * @param array $params city, lang
+     * @return array
+     * @throws \Exception
+     */
+    public function getFloorPlanDirectory(string $blockId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+
+            $apiUrl = "https://api.trendagent.ru/v4_29/apartments/floor_plan/directory/{$blockId}";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+                'raw_response' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении справочника поэтажного плана: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Данные плана этажа для отрисовки поэтажного плана
+     * GET api.trendagent.ru/v4_29/apartments/floor_plan?building_id=&section_id=&floor_number=
+     *
+     * @param string $buildingId ID корпуса
+     * @param string $sectionId ID секции
+     * @param int|string $floorNumber Номер этажа
+     * @param array $params city, lang
+     * @return array
+     * @throws \Exception
+     */
+    public function getFloorPlan(string $buildingId, string $sectionId, $floorNumber, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+                'building_id' => $buildingId,
+                'section_id' => $sectionId,
+                'floor_number' => (string) $floorNumber,
+            ];
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+
+            $apiUrl = 'https://api.trendagent.ru/v4_29/apartments/floor_plan';
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+                'raw_response' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении поэтажного плана: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Получение вознаграждений
-     * 
+     *
      * @param string $blockId ID блока
      * @param string|null $builderId ID застройщика
      * @return array Данные о вознаграждениях

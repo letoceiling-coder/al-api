@@ -602,6 +602,114 @@ class ApartmentsController
             ], 500);
         }
     }
+
+    /**
+     * Справочник для поэтажного плана: корпуса, секции, этажи
+     *
+     * @param Request $request
+     * @param string $id ID блока
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function floorPlanDirectory(Request $request, string $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            $result = $apiAuth->getFloorPlanDirectory($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения справочника поэтажного плана', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Данные плана этажа (поэтажный план)
+     *
+     * @param Request $request
+     * @param string $id ID блока (не используется в API, для единообразия роутов)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function floorPlan(Request $request, string $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+            'building_id' => 'required|string',
+            'section_id' => 'required|string',
+            'floor_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+            $buildingId = $request->input('building_id');
+            $sectionId = $request->input('section_id');
+            $floorNumber = $request->input('floor_number');
+
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            $result = $apiAuth->getFloorPlan($buildingId, $sectionId, $floorNumber);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения поэтажного плана', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 
 
