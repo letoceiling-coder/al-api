@@ -4641,80 +4641,125 @@ class TrendSsoApiAuth
             throw new \Exception('Необходимо сначала выполнить авторизацию');
         }
 
-        try {
-            $authToken = $this->getAuthToken();
-            if (empty($authToken)) {
-                throw new \Exception('Токен авторизации не найден');
-            }
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('apartment_detail', [
+            'apartment_id' => $apartmentId,
+            'block_id' => $blockId,
+            'params' => $params,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($apartmentId, $blockId, $params) {
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден');
+                }
 
-            $defaultParams = [
-                'city' => '58c665588b6aa52311afa01b',
-                'lang' => 'ru',
-            ];
-            $queryParams = array_merge($defaultParams, $params);
-            $queryParams['auth_token'] = $authToken;
+                $defaultParams = [
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
 
-            // Пробуем сначала с blockId, если передан
-            if ($blockId) {
-                $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/apartment/{$apartmentId}/";
-            } else {
-                $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
-            }
-            
-            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
-
-            Log::info('Запрос к API apartment detail', [
-                'apartment_id' => $apartmentId,
-                'block_id' => $blockId,
-                'url' => $apiUrl,
-            ]);
-
-            $response = $this->client->get($fullUrl, [
-                'headers' => $this->getAuthHeaders(),
-                'timeout' => 30,
-                'verify' => false,
-            ]);
-
-            $statusCode = $response->getStatusCode();
-            $body = $response->getBody()->getContents();
-
-            if ($statusCode !== 200) {
-                // Если запрос с blockId не сработал, пробуем без него
-                if ($blockId && $statusCode === 404) {
-                    Log::info('Попытка получить квартиру без blockId', [
-                        'apartment_id' => $apartmentId,
-                    ]);
+                // Пробуем сначала с blockId, если передан
+                if ($blockId) {
+                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/apartment/{$apartmentId}/";
+                } else {
                     $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
-                    $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
-                    
-                    $response = $this->client->get($fullUrl, [
-                        'headers' => $this->getAuthHeaders(),
-                        'timeout' => 30,
-                        'verify' => false,
-                    ]);
-                    
-                    $statusCode = $response->getStatusCode();
-                    $body = $response->getBody()->getContents();
                 }
                 
+                $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+                Log::info('Запрос к API apartment detail', [
+                    'apartment_id' => $apartmentId,
+                    'block_id' => $blockId,
+                    'url' => $apiUrl,
+                    'full_url' => $fullUrl,
+                ]);
+
+                $response = $this->client->get($fullUrl, [
+                    'headers' => $this->getAuthHeaders(),
+                    'timeout' => 30,
+                    'verify' => false,
+                ]);
+
+                $statusCode = $response->getStatusCode();
+                $body = $response->getBody()->getContents();
+
                 if ($statusCode !== 200) {
-                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                    // Если запрос с blockId не сработал, пробуем без него
+                    if ($blockId && $statusCode === 404) {
+                        Log::info('Попытка получить квартиру без blockId', [
+                            'apartment_id' => $apartmentId,
+                        ]);
+                        $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
+                        $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                        
+                        $response = $this->client->get($fullUrl, [
+                            'headers' => $this->getAuthHeaders(),
+                            'timeout' => 30,
+                            'verify' => false,
+                        ]);
+                        
+                        $statusCode = $response->getStatusCode();
+                        $body = $response->getBody()->getContents();
+                    }
+                    
+                    if ($statusCode !== 200) {
+                        // Улучшенная обработка ошибок
+                        $errorMessage = "API вернул статус {$statusCode}";
+                        if (strlen($body) > 0) {
+                            // Если ответ HTML, пытаемся извлечь текст ошибки
+                            if (strpos($body, '<') !== false) {
+                                preg_match('/<pre>(.*?)<\/pre>/s', $body, $matches);
+                                if (!empty($matches[1])) {
+                                    $errorMessage .= ': ' . trim(strip_tags($matches[1]));
+                                } else {
+                                    $errorMessage .= ': ' . substr(strip_tags($body), 0, 200);
+                                }
+                            } else {
+                                $errorMessage .= ': ' . substr($body, 0, 200);
+                            }
+                        }
+                        Log::error('Ошибка при получении детальной информации о квартире', [
+                            'apartment_id' => $apartmentId,
+                            'block_id' => $blockId,
+                            'status_code' => $statusCode,
+                            'url' => $fullUrl,
+                            'body_preview' => substr($body, 0, 500),
+                        ]);
+                        throw new \Exception($errorMessage);
+                    }
                 }
-            }
 
-            $data = json_decode($body, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
-            }
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+                }
 
-            return [
-                'success' => true,
-                'data' => $data['data'] ?? $data,
-                'raw_response' => $data,
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception('Ошибка при получении детальной информации о квартире: ' . $e->getMessage());
-        }
+                return [
+                    'success' => true,
+                    'data' => $data['data'] ?? $data,
+                    'raw_response' => $data,
+                ];
+            } catch (GuzzleException $e) {
+                Log::error('GuzzleException при получении детальной информации о квартире', [
+                    'apartment_id' => $apartmentId,
+                    'block_id' => $blockId,
+                    'error' => $e->getMessage(),
+                ]);
+                throw new \Exception('Ошибка при получении детальной информации о квартире: ' . $e->getMessage());
+            } catch (\Exception $e) {
+                Log::error('Общая ошибка при получении детальной информации о квартире', [
+                    'apartment_id' => $apartmentId,
+                    'block_id' => $blockId,
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+        });
     }
 
     /**

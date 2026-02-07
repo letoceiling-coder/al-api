@@ -954,3 +954,4 @@ Query: `apartments-room=30`, `apartments-room=40`; для checkerboard возм�
 - **house-api.trendagent.ru** используется для разделов: villages (посёлки), plots (участки), houseprojects (подрядчики/проекты домов). Остальные объекты (ЖК, квартиры, шахматка) — **api.trendagent.ru** и **apartment-api.trendagent.ru**.
 
 *Документ составлен по анализу сетевых запросов и кода проекта (TRENDAGENT_PAGE_STRUCTURE, TrendSsoApiAuth, routes). Обновлено: страницы object/flat, checkerboard, villages (list/plots/map), village, plot, houseprojects, houseproject (07.02.2026).*
+
