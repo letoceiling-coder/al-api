@@ -155,6 +155,7 @@ const FlatDetail = () => {
 
   // Собираем все изображения квартиры, группируя по типам
   const getImagesByType = () => {
+    const apartment = apartmentData?.data || apartmentData
     const plans = []
     const finishing = []
     const photos = []
