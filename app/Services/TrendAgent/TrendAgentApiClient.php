@@ -167,7 +167,7 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
-            $result = $this->auth->sendRequest("blocks/{$id}/", $params);
+            $result = $this->auth->getBlockUnified($id, $params);
             
             return [
                 'success' => true,
@@ -191,7 +191,7 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
-            $result = $this->auth->sendRequest("blocks/{$blockId}/flat/{$flatId}/", $params);
+            $result = $this->auth->getApartmentDetail($flatId, $blockId, $params);
             
             return [
                 'success' => true,
@@ -215,7 +215,7 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
-            $result = $this->auth->sendRequest("blocks/{$id}/checkerboard/buildings/", $params);
+            $result = $this->auth->getCheckerboardBuildings($id, $params);
             
             return [
                 'success' => true,
@@ -233,18 +233,39 @@ class TrendAgentApiClient
 
     /**
      * Получить квартиры для шахматки
+     * Метод возвращает список всех квартир комплекса (не требует buildingId)
      */
     public function getApartmentCheckerboardApartments(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
         
         try {
-            $result = $this->auth->sendRequest("blocks/{$id}/checkerboard/apartments/", $params);
+            // Сначала получаем список зданий
+            $buildings = $this->auth->getCheckerboardBuildings($id, $params);
+            
+            $allApartments = [];
+            $buildingsList = $buildings['buildings'] ?? $buildings['data'] ?? [];
+            
+            // Для каждого здания получаем квартиры
+            foreach ($buildingsList as $building) {
+                $buildingId = $building['_id'] ?? $building['id'] ?? null;
+                if ($buildingId) {
+                    try {
+                        $apartmentsData = $this->auth->getCheckerboardApartments($id, $buildingId, $params);
+                        $apartments = $apartmentsData['apartments'] ?? $apartmentsData['data'] ?? [];
+                        $allApartments = array_merge($allApartments, $apartments);
+                    } catch (Exception $e) {
+                        Log::warning("TrendAgentApiClient: Ошибка получения квартир для здания {$buildingId}", [
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
             
             return [
                 'success' => true,
-                'data' => $result['data'] ?? $result,
-                'total' => $result['total'] ?? count($result['data'] ?? []),
+                'data' => $allApartments,
+                'total' => count($allApartments),
             ];
             
         } catch (Exception $e) {

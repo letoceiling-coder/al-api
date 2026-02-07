@@ -256,24 +256,28 @@ class ParseCommand extends Command
     private function parseComplexApartments(string $blockId): void
     {
         try {
-            // Получаем здания для шахматки
-            $buildingsData = $this->apiClient->getApartmentCheckerboardBuildings($blockId);
+            // Получаем квартиры через детальную страницу (как на /trendagent/apartments/{id})
+            // Это более полный список чем через шахматку
+            $apartmentsData = $this->apiClient->getApartmentDetails($blockId);
             
             if ($this->saveRaw) {
-                $this->saveRawData('complexes', 'buildings', $blockId, $buildingsData);
+                $this->saveRawData('complexes', 'apartments_list', $blockId, $apartmentsData);
             }
             
-            // Получаем все квартиры через шахматку
-            $apartmentsData = $this->apiClient->getApartmentCheckerboardApartments($blockId);
-            
-            if ($this->saveRaw) {
-                $this->saveRawData('complexes', 'checkerboard_apartments', $blockId, $apartmentsData);
+            // Также получаем через шахматку для сравнения
+            try {
+                $checkerboardData = $this->apiClient->getApartmentCheckerboardApartments($blockId);
+                
+                if ($this->saveRaw) {
+                    $this->saveRawData('complexes', 'checkerboard_apartments', $blockId, $checkerboardData);
+                }
+                
+                $checkerboardCount = count($checkerboardData['data'] ?? []);
+                $this->info("\n   └── Комплекс {$blockId}: {$checkerboardCount} квартир через шахматку");
+                
+            } catch (Exception $e) {
+                $this->warn("\n   └── ⚠️  Ошибка получения квартир через шахматку для {$blockId}: " . $e->getMessage());
             }
-            
-            $apartments = $apartmentsData['data'] ?? [];
-            $this->statistics['images']['total_urls'] += count($apartments);
-            
-            $this->info("\n   └── Комплекс {$blockId}: " . count($apartments) . " квартир");
             
         } catch (Exception $e) {
             $this->warn("\n   └── ⚠️  Ошибка парсинга квартир комплекса {$blockId}: " . $e->getMessage());
