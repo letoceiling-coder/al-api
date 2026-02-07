@@ -54,6 +54,17 @@ const FlatDetail = () => {
     }
   }, [imageType, apartmentData])
 
+  // При переключении на таб "Поэтажный план" открываем интерактивный режим, если доступен
+  useEffect(() => {
+    if (imageType === 'plans' && hasFloorPlanInteractive && !showFloorPlanInteractive) {
+      // Автоматически открываем интерактивный режим при переключении на таб "Поэтажный план"
+      // Но только если есть данные для автозаполнения или справочник загружен
+      if (floorPlanDirectory || (selectedBuilding && selectedSection && selectedFloor != null)) {
+        setShowFloorPlanInteractive(true)
+      }
+    }
+  }, [imageType, hasFloorPlanInteractive, floorPlanDirectory, selectedBuilding, selectedSection, selectedFloor])
+
   // Загрузка справочника поэтажного плана при наличии blockId
   useEffect(() => {
     if (!blockId || !phone || !password) return
@@ -73,6 +84,11 @@ const FlatDetail = () => {
           if (buildingId) setSelectedBuilding(buildingId)
           if (sectionId) setSelectedSection(sectionId)
           if (floorNum != null) setSelectedFloor(floorNum)
+          
+          // Если все данные есть и мы на табе "Поэтажный план", автоматически открываем интерактивный режим
+          if (buildingId && sectionId && floorNum != null && imageType === 'plans') {
+            setShowFloorPlanInteractive(true)
+          }
         }
       })
       .catch(() => {
