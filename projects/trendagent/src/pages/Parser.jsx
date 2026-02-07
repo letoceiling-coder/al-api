@@ -36,7 +36,7 @@ const Parser = () => {
   // Обновление статуса
   const updateStatus = async () => {
     try {
-      const response = await axios.get('/trendagent/parser/status');
+      const response = await axios.get('/api/trendagent/parser/status');
       setStatus(response.data);
     } catch (error) {
       console.error('Error updating status:', error);
@@ -46,7 +46,7 @@ const Parser = () => {
   // Обновление логов
   const updateLogs = async () => {
     try {
-      const response = await axios.get('/trendagent/parser/logs?lines=200');
+      const response = await axios.get('/api/trendagent/parser/logs?lines=200');
       if (response.data.success) {
         setLogs(response.data.logs);
       }
@@ -58,8 +58,12 @@ const Parser = () => {
   // Обновление статистики
   const updateStatistics = async () => {
     try {
-      const response = await axios.get('/trendagent/parser/statistics');
-      setStatistics(response.data);
+      const response = await axios.get('/api/trendagent/parser/statistics');
+      setStatistics({
+        total_files: response.data.total_files || 0,
+        total_size_mb: response.data.total_size_mb || 0,
+        by_type: response.data.by_type || {},
+      });
     } catch (error) {
       console.error('Error updating statistics:', error);
     }
@@ -70,7 +74,7 @@ const Parser = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('/trendagent/parser/start', formData);
+      const response = await axios.post('/api/trendagent/parser/start', formData);
       
       if (response.data.success) {
         showMessage('Парсер запущен!', 'success');
@@ -84,7 +88,7 @@ const Parser = () => {
   // Остановка парсера
   const handleStop = async () => {
     try {
-      const response = await axios.post('/trendagent/parser/stop');
+      const response = await axios.post('/api/trendagent/parser/stop');
       
       if (response.data.success) {
         showMessage('Парсер остановлен!', 'success');
@@ -247,7 +251,7 @@ const Parser = () => {
             </div>
           </div>
           
-          {Object.keys(statistics.by_type).length > 0 && (
+          {statistics.by_type && Object.keys(statistics.by_type).length > 0 && (
             <div className="type-stats">
               {Object.entries(statistics.by_type).map(([type, data]) => (
                 <div key={type} className="type-stat-item">
