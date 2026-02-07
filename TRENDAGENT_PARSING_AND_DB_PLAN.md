@@ -224,6 +224,58 @@ storage/trendagent/parsing/
 - Поэтажный план: `POST /api/trendagent/v1/apartments/{id}/floor-plan/directory`
 - Поэтажный план данные: `POST /api/trendagent/v1/apartments/{id}/floor-plan`
 
+**⭐ ВАЖНО: Полный парсинг всех квартир комплекса**
+
+При парсинге комплекса нужно сохранить **ВСЕ** квартиры со всеми деталями:
+
+1. **Из шахматки получить полный список квартир:**
+   - ID квартиры
+   - Номер квартиры
+   - Корпус, секция, этаж
+   - Площадь (общая, кухня, жилая)
+   - Количество комнат
+   - Цены (базовая, полная, за м²)
+   - Статус (свободна, бронь, продана)
+   - Тип отделки
+   - Вид из окон
+   - Является ли эксклюзивной
+
+2. **Для каждой квартиры сохранить:**
+   - План квартиры (изображение)
+   - Детальную информацию через API: `/apartments/{complexId}/flat/{apartmentId}`
+   - Все фотографии (галерея, виды из окон)
+   - Характеристики (балкон, лоджия, и т.д.)
+
+3. **Сохранить фильтры и сортировку:**
+   - По цене (от-до)
+   - По площади (от-до)
+   - По этажу (от-до)
+   - По количеству комнат
+   - По типу отделки
+   - По статусу
+   - По дедлайну сдачи
+
+4. **Структура сохранения квартир комплекса:**
+```
+storage/trendagent/parsing/spb/details/complexes/{complex_id}/
+├── complex_info.json              # Основная информация о комплексе
+├── apartments_list.json           # Список всех квартир из шахматки
+├── apartments/                    # Детальная информация каждой квартиры
+│   ├── {apartment_id_1}.json
+│   ├── {apartment_id_2}.json
+│   └── ...
+├── images/                        # Изображения комплекса
+│   ├── gallery/
+│   ├── plans/
+│   └── views/
+└── apartments_images/             # Изображения квартир
+    ├── {apartment_id_1}/
+    │   ├── plan.png
+    │   ├── gallery/
+    │   └── views/
+    └── ...
+```
+
 #### 1.3.2 Детали квартиры
 **API Endpoint:** `POST /api/trendagent/v1/apartments/{id}/flat/{apartmentId}`
 **Laravel Route:** `ApartmentsController@flatDetail`
@@ -237,6 +289,29 @@ storage/trendagent/parsing/
 - `ParkingsController@show`
 - `ParkingsController@places`
 **Файл:** `storage/trendagent/parsing/spb/details/parkings/{parking_id}.json`
+
+**⭐ ВАЖНО: Полный парсинг всех мест парковки**
+
+При парсинге паркинга нужно сохранить **ВСЕ** места со всеми деталями:
+
+1. **Из API получить:**
+   - Информацию о паркинге (тип, всего мест, доступно)
+   - Список всех парковочных мест
+   - Для каждого места: номер, уровень, статус, цена
+   - План парковки (если есть)
+   - Фотографии парковки
+
+2. **Структура сохранения:**
+```
+storage/trendagent/parsing/spb/details/parkings/{parking_id}/
+├── parking_info.json              # Основная информация
+├── places_list.json               # Список всех мест
+├── images/                        # Изображения парковки
+│   ├── gallery/
+│   └── plans/
+└── places/                        # Детали каждого места (если есть)
+    └── {place_id}.json
+```
 
 #### 1.3.4 Детали дома
 **API Endpoint:** `POST /api/trendagent/v1/houses/{id}`
@@ -255,6 +330,31 @@ storage/trendagent/parsing/
 - `PlotsController@plotDetail`
 **Файл:** `storage/trendagent/parsing/spb/details/plots/{plot_id}.json`
 
+**⭐ ВАЖНО: Полный парсинг всех участков в поселке**
+
+При парсинге поселка нужно сохранить **ВСЕ** участки со всеми деталями:
+
+1. **Из API получить:**
+   - Информацию о поселке
+   - Список всех участков
+   - Для каждого участка: номер, площадь, кадастровый номер, цена, коммуникации
+   - План поселка (генплан)
+   - Фотографии поселка и участков
+
+2. **Структура сохранения:**
+```
+storage/trendagent/parsing/spb/details/plots/{settlement_id}/
+├── settlement_info.json           # Информация о поселке
+├── plots_list.json                # Список всех участков
+├── images/                        # Изображения поселка
+│   ├── gallery/
+│   └── plans/
+└── plots/                         # Детали каждого участка
+    ├── {plot_id_1}.json
+    ├── {plot_id_2}.json
+    └── ...
+```
+
 #### 1.3.6 Детали коммерции
 **API Endpoint:** `POST /api/trendagent/v1/commercial/{id}`
 **Laravel Route:** `CommercialController@show`
@@ -268,30 +368,225 @@ storage/app/public/trendagent/
 ├── images/
 │   ├── complexes/
 │   │   └── {complex_id}/
-│   │       ├── gallery/
+│   │       ├── gallery/          # Фото комплекса
 │   │       │   ├── {image_hash}.jpg
 │   │       │   └── ...
-│   │       └── plans/
+│   │       ├── plans/            # Планы комплекса (генплан, и т.д.)
+│   │       └── apartments/       # Планы квартир
+│   │           ├── {apt_id}_plan.png
+│   │           └── ...
 │   ├── apartments/
 │   │   └── {apartment_id}/
+│   │       ├── plan.png          # План квартиры
+│   │       ├── gallery/          # Фото квартиры
+│   │       └── views/            # Виды из окон
+│   ├── parkings/
+│   │   └── {parking_id}/
+│   │       ├── gallery/
+│   │       └── plans/
+│   ├── houses/
+│   │   └── {house_id}/
 │   │       ├── gallery/
 │   │       ├── plans/
 │   │       └── views/
-│   ├── parkings/
-│   ├── houses/
 │   ├── plots/
+│   │   └── {settlement_id}/
+│   │       ├── gallery/          # Фото поселка
+│   │       ├── genplan/          # Генплан поселка
+│   │       └── plots/            # Фото участков
+│   │           └── {plot_id}/
 │   └── commercial/
-└── thumbnails/  # Миниатюры для быстрой загрузки
+│       └── {commercial_id}/
+│           ├── gallery/
+│           ├── plans/
+│           └── views/
+└── thumbnails/                    # Миниатюры для быстрой загрузки
     └── {same_structure}
+```
+
+### 1.5 Сохранение данных с поддержкой фильтров и сортировки
+
+**⭐ КРИТИЧЕСКИ ВАЖНО:** При парсинге нужно сохранять данные так, чтобы можно было применять фильтры и сортировку БЕЗ повторного запроса к TrendAgent API.
+
+#### 1.5.1 Структура данных для фильтрации
+
+Для каждого типа объектов сохранять:
+
+**Квартиры:**
+```json
+{
+  "metadata": {
+    "complex_id": "63c50acc9a85d53360f63a76",
+    "complex_name": "Дом на Набережной",
+    "total_apartments": 150,
+    "available_apartments": 39,
+    "timestamp": "2026-02-07T15:00:00Z"
+  },
+  "filters": {
+    "rooms": [0, 1, 2, 3, 4],
+    "price_range": {"min": 2201500, "max": 15000000},
+    "area_range": {"min": 23.5, "max": 95.0},
+    "floor_range": {"min": 1, "max": 14},
+    "finishing_types": ["Без отделки", "С отделкой", "White Box"],
+    "statuses": ["Свободная", "Бронь", "Продана"],
+    "deadlines": ["2023-Q2", "2023-Q4", "2024-Q1"],
+    "buildings": ["1", "2", "3"],
+    "sections": ["1", "2", "3", "4"]
+  },
+  "apartments": [
+    {
+      "id": "63c5614728d3bcf2420860b1",
+      "number": "169",
+      "rooms": 0,
+      "corpus": "1",
+      "section": "4",
+      "floor": 7,
+      "area_total": 25.9,
+      "area_kitchen": 9.1,
+      "area_living": null,
+      "price_base": 2201500,
+      "price_full": 2201500,
+      "price_per_sqm": 85000,
+      "finishing_type": "С отделкой",
+      "finishing_type_id": 2,
+      "status": "Свободная",
+      "status_id": 1,
+      "is_exclusive": false,
+      "view_type": "Во двор",
+      "view_type_id": 1,
+      "deadline": "2023-Q2",
+      "has_balcony": false,
+      "has_loggia": true,
+      "plan_image_url": "https://selcdn.trendagent.ru/images/9s/ry/m_b7eb828fbd2cf76ed684c93e1855787a.png",
+      "plan_image_local": "/storage/trendagent/images/apartments/63c5614728d3bcf2420860b1/plan.png",
+      "gallery_images": [
+        "https://...",
+        "..."
+      ],
+      "detail_url": "/trendagent/apartments/63c50acc9a85d53360f63a76/flat/63c5614728d3bcf2420860b1",
+      "raw_data": {...}  // Полный JSON от API
+    },
+    // ... остальные квартиры
+  ]
+}
+```
+
+**Паркинги:**
+```json
+{
+  "metadata": {...},
+  "filters": {
+    "parking_types": ["Подземный", "Наземный", "Крытый"],
+    "price_range": {"min": 500000, "max": 3000000},
+    "levels": [-2, -1, 1, 2],
+    "statuses": ["Свободно", "Бронь", "Продано"]
+  },
+  "places": [
+    {
+      "id": "...",
+      "number": "A-123",
+      "level": -1,
+      "parking_type": "Подземный",
+      "price": 800000,
+      "status": "Свободно",
+      "plan_image_url": "...",
+      "raw_data": {...}
+    }
+  ]
+}
+```
+
+**Дома:**
+```json
+{
+  "metadata": {...},
+  "filters": {
+    "price_range": {"min": 5000000, "max": 50000000},
+    "land_area_range": {"min": 500, "max": 5000},
+    "house_area_range": {"min": 100, "max": 500},
+    "floors": [1, 2, 3],
+    "rooms": [3, 4, 5, 6],
+    "statuses": [...]
+  },
+  "houses": [...]
+}
+```
+
+**Участки:**
+```json
+{
+  "metadata": {...},
+  "filters": {
+    "price_range": {"min": 1000000, "max": 10000000},
+    "area_range": {"min": 600, "max": 3000},
+    "utilities": ["Электричество", "Газ", "Вода", "Канализация"],
+    "statuses": [...]
+  },
+  "plots": [...]
+}
+```
+
+**Коммерция:**
+```json
+{
+  "metadata": {...},
+  "filters": {
+    "commercial_types": ["Офис", "Торговое помещение", "Склад"],
+    "business_types": ["Продажа", "Аренда"],
+    "price_range": {...},
+    "area_range": {...},
+    "floor_range": {...},
+    "statuses": [...]
+  },
+  "commercial": [...]
+}
+```
+
+#### 1.5.2 Поддержка сортировки
+
+Для каждого списка сохранять несколько версий с разной сортировкой:
+
+```
+storage/trendagent/parsing/spb/details/complexes/{complex_id}/
+├── apartments_sorted_by_price_asc.json
+├── apartments_sorted_by_price_desc.json
+├── apartments_sorted_by_area_asc.json
+├── apartments_sorted_by_area_desc.json
+├── apartments_sorted_by_floor_asc.json
+├── apartments_sorted_by_floor_desc.json
+└── apartments_sorted_by_deadline.json
+```
+
+Или сохранять один файл и сортировать на фронтенде:
+```json
+{
+  "metadata": {...},
+  "sort_options": [
+    {"field": "price_base", "direction": "asc", "label": "По цене ↑"},
+    {"field": "price_base", "direction": "desc", "label": "По цене ↓"},
+    {"field": "area_total", "direction": "asc", "label": "По площади ↑"},
+    {"field": "area_total", "direction": "desc", "label": "По площади ↓"},
+    {"field": "floor", "direction": "asc", "label": "По этажу ↑"},
+    {"field": "deadline", "direction": "asc", "label": "По сроку сдачи"}
+  ],
+  "apartments": [...]
+}
 ```
 
 #### 1.4.2 Логика скачивания изображений
 **Принципы:**
 1. Скачивать все изображения с донора (selcdn.trendagent.ru, api.trendagent.ru)
 2. Сохранять с оригинальным именем или хешем URL
-3. Создавать миниатюры для галерей
+3. Создавать миниатюры для галерей (300x300, 800x800)
 4. Обновлять URL в JSON данных на локальные пути
 5. Проверять существование перед скачиванием (избегать дубликатов)
+6. **Сохранять ВСЕ типы изображений:**
+   - Планы квартир/домов/участков
+   - Фотогалереи
+   - Виды из окон
+   - Генпланы комплексов/поселков
+   - Поэтажные планы
+   - 3D-визуализации (если есть)
 
 **Формат сохранения:**
 - Оригиналы: `storage/app/public/trendagent/images/{type}/{object_id}/gallery/{hash}.{ext}`
@@ -306,6 +601,9 @@ storage/app/public/trendagent/
   - width, height
   - file_size
   - mime_type
+  - image_type (gallery, plan, view, genplan)
+  - object_type (complex, apartment, parking, house, plot, commercial)
+  - object_id
   - downloaded_at
 
 #### 1.4.3 Обработка изображений
@@ -314,6 +612,7 @@ storage/app/public/trendagent/
 - **Планы** - планировки квартир, поэтажные планы
 - **Виды** - виды из окон
 - **Иконки** - маленькие превью
+- **Генпланы** - планы комплексов, поселков
 
 **Оптимизация:**
 - Создавать миниатюры (300x300, 800x800)
@@ -321,19 +620,93 @@ storage/app/public/trendagent/
 - Конвертировать в WebP для современных браузеров
 - Ленивая загрузка больших изображений
 
-### 1.5 Логика парсинга
+### 1.6 Логика парсинга (обновлённая)
 
-#### 1.5.1 Последовательность парсинга
+#### 1.6.1 Последовательность парсинга (полная)
 1. **Шаг 1:** Получить список всех комплексов (блоков)
+   ```
+   POST /api/trendagent/v1/objects/list
+   → storage/.../raw/complexes/list_offset_0.json
+   ```
+
 2. **Шаг 2:** Для каждого комплекса получить детальную информацию
-3. **Шаг 3:** Скачать все изображения комплекса
-4. **Шаг 4:** Из детальной информации комплекса извлечь связанные объекты:
-   - Квартиры (если есть)
-   - Паркинги (если есть)
-   - Коммерция (если есть)
-5. **Шаг 5:** Для каждого связанного объекта скачать изображения
-6. **Шаг 6:** Парсить списки объектов по типам (для объектов без комплекса)
-7. **Шаг 7:** Для каждого объекта получить детальную информацию и скачать изображения
+   ```
+   POST /api/trendagent/v1/apartments/{id}
+   → storage/.../details/complexes/{id}/complex_info.json
+   ```
+
+3. **Шаг 3:** Для каждого комплекса получить **ВСЕ квартиры** через шахматку
+   ```
+   POST /api/trendagent/v1/apartments/{id}/checkerboard/apartments
+   → storage/.../details/complexes/{id}/apartments_list.json
+   ```
+
+4. **Шаг 4:** Для **КАЖДОЙ** квартиры получить детальную информацию
+   ```
+   POST /api/trendagent/v1/apartments/{complexId}/flat/{apartmentId}
+   → storage/.../details/complexes/{id}/apartments/{apt_id}.json
+   ```
+
+5. **Шаг 5:** Скачать **ВСЕ** изображения комплекса и квартир
+   - Фото комплекса (галерея)
+   - Планы каждой квартиры
+   - Виды из окон
+   - Генплан комплекса
+
+6. **Шаг 6:** Аналогично для паркингов:
+   ```
+   POST /api/trendagent/v1/parkings
+   → список паркингов
+   
+   POST /api/trendagent/v1/parkings/{id}
+   → детали паркинга
+   
+   POST /api/trendagent/v1/parkings/{id}/places
+   → ВСЕ места парковки
+   
+   Скачать изображения
+   ```
+
+7. **Шаг 7:** Аналогично для домов:
+   ```
+   POST /api/trendagent/v1/houses
+   → список домов
+   
+   POST /api/trendagent/v1/houses/{id}
+   → детали дома + изображения
+   ```
+
+8. **Шаг 8:** Аналогично для участков:
+   ```
+   POST /api/trendagent/v1/plots
+   → список поселков
+   
+   POST /api/trendagent/v1/plots/{id}
+   → детали поселка
+   
+   POST /api/trendagent/v1/plots/{id}/plot/{plotId}
+   → детали КАЖДОГО участка
+   
+   Скачать изображения (генплан, фото)
+   ```
+
+9. **Шаг 9:** Аналогично для коммерции:
+   ```
+   POST /api/trendagent/v1/commercial
+   → список коммерции
+   
+   POST /api/trendagent/v1/commercial/{id}
+   → детали + изображения
+   ```
+
+10. **Шаг 10:** Создать индексные файлы с фильтрами и сортировкой
+    ```
+    → apartments_with_filters.json
+    → parkings_with_filters.json
+    → houses_with_filters.json
+    → plots_with_filters.json
+    → commercial_with_filters.json
+    ```
 
 #### 1.4.2 Обработка ошибок
 - Логировать все ошибки в `metadata/errors.json`
