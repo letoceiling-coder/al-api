@@ -163,19 +163,19 @@ const ObjectsList = () => {
           </button>
           <button
             className="view-tab"
-            onClick={() => navigate('/trendagent/objects/table')}
+            onClick={() => navigate('/objects/table')}
           >
             Квартиры
           </button>
           <button
             className="view-tab"
-            onClick={() => navigate('/trendagent/objects/plans')}
+            onClick={() => navigate('/objects/plans')}
           >
             Планировки
           </button>
           <button
             className="view-tab"
-            onClick={() => navigate('/trendagent/objects/map')}
+            onClick={() => navigate('/objects/map')}
           >
             На карте
           </button>
