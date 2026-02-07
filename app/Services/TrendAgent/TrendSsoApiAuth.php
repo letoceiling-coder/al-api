@@ -4663,16 +4663,23 @@ class TrendSsoApiAuth
                 $queryParams = array_merge($defaultParams, $params);
                 $queryParams['auth_token'] = $authToken;
 
+                // Согласно документации TRENDAGENT_PAGE_STRUCTURE.md:
+                // Правильный формат: GET /v4_29/apartments/block/{blockId}/apartment/{apartmentId}/
                 // Пробуем сначала с blockId, если передан
                 if ($blockId) {
-                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/apartment/{$apartmentId}/";
+                    // Формат: /v4_29/apartments/block/{blockId}/apartment/{apartmentId}/
+                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/apartment/{$apartmentId}";
                 } else {
-                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
+                    // Fallback: /v4_29/apartments/{apartmentId}/
+                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}";
                 }
                 
                 // Убираем слэш в конце URL перед добавлением query параметров
                 $apiUrl = rtrim($apiUrl, '/');
-                $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                
+                // Формируем query string, убеждаясь что параметры правильно закодированы
+                $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+                $fullUrl = $apiUrl . '?' . $queryString;
 
                 Log::info('Запрос к API apartment detail', [
                     'apartment_id' => $apartmentId,
@@ -4682,66 +4689,110 @@ class TrendSsoApiAuth
                     'query_params' => array_merge($queryParams, ['auth_token' => '***']), // Не логируем токен
                 ]);
 
-                $response = $this->client->get($fullUrl, [
-                    'headers' => $this->getAuthHeaders(),
-                    'timeout' => 30,
-                    'verify' => false,
-                ]);
+                $response = null;
+                $statusCode = null;
+                $body = null;
+                $useFallback = false;
 
-                $statusCode = $response->getStatusCode();
-                $body = $response->getBody()->getContents();
+                try {
+                    $response = $this->client->get($fullUrl, [
+                        'headers' => $this->getAuthHeaders(),
+                        'timeout' => 30,
+                        'verify' => false,
+                        'http_errors' => false, // Не выбрасывать исключение при 4xx/5xx
+                    ]);
 
-                if ($statusCode !== 200) {
+                    $statusCode = $response->getStatusCode();
+                    $body = $response->getBody()->getContents();
+
+                    // Если запрос с blockId не сработал (404 или 400), пробуем без него
+                    if ($blockId && ($statusCode === 404 || $statusCode === 400)) {
+                        Log::info('Попытка получить квартиру без blockId (fallback)', [
+                            'apartment_id' => $apartmentId,
+                            'original_status' => $statusCode,
+                        ]);
+                        $useFallback = true;
+                    }
+                } catch (\GuzzleHttp\Exception\ClientException $e) {
+                    // Guzzle выбрасывает ClientException при 4xx статусах
+                    $response = $e->hasResponse() ? $e->getResponse() : null;
+                    $statusCode = $response ? $response->getStatusCode() : 0;
+                    $body = $response ? $response->getBody()->getContents() : $e->getMessage();
+                    
                     // Если запрос с blockId не сработал, пробуем без него
-                    if ($blockId && $statusCode === 404) {
-                        Log::info('Попытка получить квартиру без blockId', [
+                    if ($blockId && ($statusCode === 404 || $statusCode === 400)) {
+                        Log::info('Попытка получить квартиру без blockId (fallback из catch)', [
                             'apartment_id' => $apartmentId,
+                            'original_status' => $statusCode,
                         ]);
-                        $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}";
-                        $apiUrl = rtrim($apiUrl, '/');
-                        $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
-                        
-                        Log::info('Fallback URL для apartment detail', [
-                            'apartment_id' => $apartmentId,
-                            'url' => $apiUrl,
-                            'full_url' => $fullUrl,
-                        ]);
-                        
+                        $useFallback = true;
+                    } else {
+                        // Если это не 404/400 или нет blockId, пробрасываем исключение дальше
+                        throw $e;
+                    }
+                }
+
+                // Выполняем fallback, если нужно
+                if ($useFallback) {
+                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}";
+                    $apiUrl = rtrim($apiUrl, '/');
+                    $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+                    $fullUrl = $apiUrl . '?' . $queryString;
+                    
+                    Log::info('Fallback URL для apartment detail', [
+                        'apartment_id' => $apartmentId,
+                        'url' => $apiUrl,
+                        'full_url' => $fullUrl,
+                    ]);
+                    
+                    try {
                         $response = $this->client->get($fullUrl, [
                             'headers' => $this->getAuthHeaders(),
                             'timeout' => 30,
                             'verify' => false,
+                            'http_errors' => false,
                         ]);
                         
                         $statusCode = $response->getStatusCode();
                         $body = $response->getBody()->getContents();
-                    }
-                    
-                    if ($statusCode !== 200) {
-                        // Улучшенная обработка ошибок
-                        $errorMessage = "API вернул статус {$statusCode}";
-                        if (strlen($body) > 0) {
-                            // Если ответ HTML, пытаемся извлечь текст ошибки
-                            if (strpos($body, '<') !== false) {
-                                preg_match('/<pre>(.*?)<\/pre>/s', $body, $matches);
-                                if (!empty($matches[1])) {
-                                    $errorMessage .= ': ' . trim(strip_tags($matches[1]));
-                                } else {
-                                    $errorMessage .= ': ' . substr(strip_tags($body), 0, 200);
-                                }
-                            } else {
-                                $errorMessage .= ': ' . substr($body, 0, 200);
-                            }
-                        }
-                        Log::error('Ошибка при получении детальной информации о квартире', [
+                        
+                        Log::info('Fallback запрос завершен', [
                             'apartment_id' => $apartmentId,
-                            'block_id' => $blockId,
                             'status_code' => $statusCode,
-                            'url' => $fullUrl,
-                            'body_preview' => substr($body, 0, 500),
                         ]);
-                        throw new \Exception($errorMessage);
+                    } catch (\Exception $e) {
+                        Log::error('Ошибка при fallback запросе', [
+                            'apartment_id' => $apartmentId,
+                            'error' => $e->getMessage(),
+                        ]);
+                        throw $e;
                     }
+                }
+                
+                if ($statusCode !== 200) {
+                    // Улучшенная обработка ошибок
+                    $errorMessage = "API вернул статус {$statusCode}";
+                    if (strlen($body) > 0) {
+                        // Если ответ HTML, пытаемся извлечь текст ошибки
+                        if (strpos($body, '<') !== false) {
+                            preg_match('/<pre>(.*?)<\/pre>/s', $body, $matches);
+                            if (!empty($matches[1])) {
+                                $errorMessage .= ': ' . trim(strip_tags($matches[1]));
+                            } else {
+                                $errorMessage .= ': ' . substr(strip_tags($body), 0, 200);
+                            }
+                        } else {
+                            $errorMessage .= ': ' . substr($body, 0, 200);
+                        }
+                    }
+                    Log::error('Ошибка при получении детальной информации о квартире', [
+                        'apartment_id' => $apartmentId,
+                        'block_id' => $blockId,
+                        'status_code' => $statusCode,
+                        'url' => $fullUrl,
+                        'body_preview' => substr($body, 0, 500),
+                    ]);
+                    throw new \Exception($errorMessage);
                 }
 
                 $data = json_decode($body, true);
