@@ -144,10 +144,33 @@
 
 .apartments-table-container-inner {
   overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.apartments-table-container-inner::-webkit-scrollbar {
+  height: 8px;
+}
+
+.apartments-table-container-inner::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.apartments-table-container-inner::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.apartments-table-container-inner::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .apartments-table {
   width: 100%;
+  min-width: 1400px;
   border-collapse: collapse;
   font-size: 0.875rem;
 }

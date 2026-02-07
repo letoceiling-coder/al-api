@@ -65,6 +65,18 @@
   scroll-margin-top: 100px;
 }
 
+/* Секция apartments с горизонтальным скроллом */
+#apartments {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+#apartments .apartments-table-container {
+  width: 100%;
+  min-width: 100%;
+}
+
 .error-message {
   text-align: center;
   padding: 2rem;
