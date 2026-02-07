@@ -473,8 +473,33 @@ class ApartmentsController
                 throw new \Exception('Авторизация не удалась');
             }
 
-            // Получаем детальную информацию о квартире
-            $apartmentData = $apiAuth->getApartmentDetail($apartmentId, $id);
+            // Извлекаем дополнительные параметры из query string (sort, sort_order, open и т.д.)
+            $params = [];
+            if ($request->has('sort')) {
+                $params['sort'] = $request->input('sort');
+            }
+            if ($request->has('sort_order')) {
+                $params['sort_order'] = $request->input('sort_order');
+            }
+            if ($request->has('open')) {
+                $params['open'] = $request->input('open');
+            }
+            // Передаем все остальные query параметры (кроме phone, password, block, guid)
+            $excludedParams = ['phone', 'password', 'block', 'guid'];
+            foreach ($request->query() as $key => $value) {
+                if (!in_array($key, $excludedParams) && !isset($params[$key])) {
+                    $params[$key] = $value;
+                }
+            }
+            
+            Log::info('ApartmentsController::flatDetail - параметры запроса', [
+                'apartment_id' => $apartmentId,
+                'block_id' => $id,
+                'params' => $params,
+            ]);
+            
+            // Получаем детальную информацию о квартире с параметрами
+            $apartmentData = $apiAuth->getApartmentDetail($apartmentId, $id, $params);
 
             // Также получаем данные блока для контекста
             $blockData = null;
