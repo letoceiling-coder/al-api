@@ -2,47 +2,63 @@
 
 namespace App\Services\TrendAgent;
 
-use Illuminate\Support\Facades\Http;
+use App\Services\TrendAgent\TrendSsoApiAuth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 /**
- * TrendAgent API Client
- * 
- * Клиент для работы с API TrendAgent через прокси-сервер.
- * Использует внутренние Laravel маршруты /api/trendagent/v1/*
+ * Клиент для работы с TrendAgent API
+ * Использует TrendSsoApiAuth для авторизации и запросов к внешнему API
  */
 class TrendAgentApiClient
 {
-    private string $baseUrl;
-    private string $bearerToken;
-    private string $phone;
-    private string $password;
-    private int $timeout;
-    private int $retryTimes;
-    private int $retryDelay;
+    protected TrendSsoApiAuth $auth;
+    protected string $phone;
+    protected string $password;
+    protected bool $authenticated = false;
 
     public function __construct()
     {
-        $this->baseUrl = config('app.url') . '/api/trendagent/v1';
-        $this->bearerToken = '8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF';
-        $this->phone = '+79045393434';
-        $this->password = 'nwBvh4q';
-        $this->timeout = 120; // 2 минуты
-        $this->retryTimes = 3;
-        $this->retryDelay = 2000; // 2 секунды
+        // Получаем данные из .env или конфигурации
+        $this->phone = env('TRENDAGENT_PHONE', '+7 999 637 11 82');
+        $this->password = env('TRENDAGENT_PASSWORD', 'Tanya123qwe');
+        $this->auth = new TrendSsoApiAuth();
     }
 
     /**
-     * Аутентификация в TrendAgent
+     * Аутентификация
      */
-    public function authenticate(string $city = 'spb'): array
+    public function authenticate(): array
     {
-        return $this->post('/authenticate', [
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-        ]);
+        try {
+            Log::info('TrendAgentApiClient: Начинаю аутентификацию');
+            
+            $authData = $this->auth->authenticate($this->phone, $this->password);
+            
+            if (!($authData['authenticated'] ?? false)) {
+                throw new Exception('Авторизация не удалась');
+            }
+            
+            $this->authenticated = true;
+            
+            Log::info('TrendAgentApiClient: Аутентификация успешна');
+            
+            return [
+                'success' => true,
+                'message' => 'Аутентификация успешна',
+                'token' => $authData['token'] ?? null,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка аутентификации', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
     }
 
     /**
@@ -50,312 +66,542 @@ class TrendAgentApiClient
      */
     public function getCities(): array
     {
-        return $this->post('/cities', [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить список объектов (комплексов/блоков)
-     */
-    public function getObjectsList(string $city, ?string $objectType = null, int $count = 100, int $offset = 0): array
-    {
-        return $this->post('/objects/list', [
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'object_type' => $objectType,
-            'count' => $count,
-            'offset' => $offset,
-        ]);
-    }
-
-    /**
-     * Получить список квартир
-     */
-    public function getApartments(string $city, array $filters = [], int $count = 100, int $offset = 0): array
-    {
-        $params = array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'count' => $count,
-            'offset' => $offset,
-        ], $filters);
-
-        return $this->post('/apartments', $params);
-    }
-
-    /**
-     * Получить детали комплекса/квартир
-     */
-    public function getApartmentDetails(string $id, array $options = []): array
-    {
-        $defaultOptions = [
-            'unified' => true,
-            'buildings' => true,
-            'apartments' => true,
-            'plans' => true,
-            'progress' => true,
-            'finishings' => true,
-            'advantages' => true,
-            'nearby_places' => true,
-            'min_price' => true,
-            'videos' => true,
-            'files' => true,
-        ];
-
-        return $this->post("/apartments/{$id}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'options' => array_merge($defaultOptions, $options),
-        ]);
-    }
-
-    /**
-     * Получить детали конкретной квартиры
-     */
-    public function getFlatDetails(string $complexId, string $apartmentId): array
-    {
-        return $this->post("/apartments/{$complexId}/flat/{$apartmentId}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить шахматку корпусов
-     */
-    public function getCheckerboardBuildings(string $id): array
-    {
-        return $this->post("/apartments/{$id}/checkerboard/buildings", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить шахматку квартир
-     */
-    public function getCheckerboardApartments(string $id, array $filters = []): array
-    {
-        return $this->post("/apartments/{$id}/checkerboard/apartments", array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ], $filters));
-    }
-
-    /**
-     * Получить директорию поэтажных планов
-     */
-    public function getFloorPlanDirectory(string $id): array
-    {
-        return $this->post("/apartments/{$id}/floor-plan/directory", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить поэтажный план
-     */
-    public function getFloorPlan(string $id, array $params = []): array
-    {
-        return $this->post("/apartments/{$id}/floor-plan", array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ], $params));
-    }
-
-    /**
-     * Получить список паркингов
-     */
-    public function getParkings(string $city, array $filters = [], int $count = 100, int $offset = 0): array
-    {
-        return $this->post('/parkings', array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'count' => $count,
-            'offset' => $offset,
-        ], $filters));
-    }
-
-    /**
-     * Получить детали паркинга
-     */
-    public function getParkingDetails(string $id): array
-    {
-        return $this->post("/parkings/{$id}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить места в паркинге
-     */
-    public function getParkingPlaces(string $id, array $filters = []): array
-    {
-        return $this->post("/parkings/{$id}/places", array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ], $filters));
-    }
-
-    /**
-     * Получить список домов
-     */
-    public function getHouses(string $city, array $filters = [], int $count = 100, int $offset = 0): array
-    {
-        return $this->post('/houses', array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'count' => $count,
-            'offset' => $offset,
-        ], $filters));
-    }
-
-    /**
-     * Получить детали дома
-     */
-    public function getHouseDetails(string $id): array
-    {
-        return $this->post("/houses/{$id}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить список участков
-     */
-    public function getPlots(string $city, array $filters = [], int $count = 100, int $offset = 0): array
-    {
-        return $this->post('/plots', array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'count' => $count,
-            'offset' => $offset,
-        ], $filters));
-    }
-
-    /**
-     * Получить детали поселка
-     */
-    public function getPlotDetails(string $id): array
-    {
-        return $this->post("/plots/{$id}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить детали конкретного участка
-     */
-    public function getSpecificPlotDetails(string $settlementId, string $plotId): array
-    {
-        return $this->post("/plots/{$settlementId}/plot/{$plotId}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Получить список коммерческой недвижимости
-     */
-    public function getCommercial(string $city, array $filters = [], int $count = 100, int $offset = 0): array
-    {
-        return $this->post('/commercial', array_merge([
-            'phone' => $this->phone,
-            'password' => $this->password,
-            'city' => $city,
-            'count' => $count,
-            'offset' => $offset,
-        ], $filters));
-    }
-
-    /**
-     * Получить детали коммерческого объекта
-     */
-    public function getCommercialDetails(string $id): array
-    {
-        return $this->post("/commercial/{$id}", [
-            'phone' => $this->phone,
-            'password' => $this->password,
-        ]);
-    }
-
-    /**
-     * Выполнить POST запрос к API
-     */
-    private function post(string $endpoint, array $data = []): array
-    {
-        $url = $this->baseUrl . $endpoint;
+        $this->ensureAuthenticated();
         
         try {
-            $response = Http::withHeaders([
-                'Authorization' => "Bearer {$this->bearerToken}",
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])
-            ->timeout($this->timeout)
-            ->retry($this->retryTimes, $this->retryDelay, function ($exception) {
-                return $exception instanceof \Illuminate\Http\Client\ConnectionException;
-            })
-            ->post($url, $data);
-
-            if ($response->failed()) {
-                Log::error("TrendAgent API request failed", [
-                    'endpoint' => $endpoint,
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-
-                throw new Exception("API request failed with status {$response->status()}");
-            }
-
-            return $response->json();
-
+            // Используем метод TrendSsoApiAuth
+            $result = $this->auth->sendRequest('cities/', []);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+            ];
+            
         } catch (Exception $e) {
-            Log::error("TrendAgent API error", [
-                'endpoint' => $endpoint,
+            Log::error('TrendAgentApiClient: Ошибка получения городов', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
-
+            
             throw $e;
         }
     }
 
     /**
-     * Установить таймаут запросов
+     * Получить список комплексов/объектов
      */
-    public function setTimeout(int $timeout): self
+    public function getObjectsList(string $city = 'spb', ?string $objectType = null, int $count = 100, int $offset = 0): array
     {
-        $this->timeout = $timeout;
-        return $this;
+        $this->ensureAuthenticated();
+        
+        try {
+            $params = [
+                'city' => $this->getCityId($city),
+                'count' => $count,
+                'offset' => $offset,
+                'show_type' => 'list',
+            ];
+            
+            if ($objectType) {
+                $params['object_type'] = $objectType;
+            }
+            
+            $result = $this->auth->getBlocksSearch($params);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения списка объектов', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
     }
 
     /**
-     * Установить количество попыток retry
+     * Получить список квартир
      */
-    public function setRetryTimes(int $times): self
+    public function getApartments(array $params = []): array
     {
-        $this->retryTimes = $times;
-        return $this;
+        $this->ensureAuthenticated();
+        
+        try {
+            $defaultParams = [
+                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+                'show_type' => 'list',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['apartments_count'] ?? $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения квартир', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
     }
 
     /**
-     * Установить задержку между retry
+     * Получить детали комплекса/объекта
      */
-    public function setRetryDelay(int $delay): self
+    public function getApartmentDetails(string $id, array $params = []): array
     {
-        $this->retryDelay = $delay;
-        return $this;
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$id}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей комплекса {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали конкретной квартиры
+     */
+    public function getApartmentFlatDetails(string $blockId, string $flatId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$blockId}/flat/{$flatId}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей квартиры {$flatId} в комплексе {$blockId}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить корпуса комплекса для шахматки
+     */
+    public function getApartmentCheckerboardBuildings(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$id}/checkerboard/buildings/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения корпусов для шахматки {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить квартиры для шахматки
+     */
+    public function getApartmentCheckerboardApartments(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$id}/checkerboard/apartments/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+                'total' => $result['total'] ?? count($result['data'] ?? []),
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения квартир для шахматки {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить справочник планировок
+     */
+    public function getApartmentFloorPlanDirectory(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$id}/floor-plan/directory/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения справочника планировок {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить поэтажный план
+     */
+    public function getApartmentFloorPlan(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("blocks/{$id}/floor-plan/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения поэтажного плана {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список паркингов
+     */
+    public function getParkings(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $defaultParams = [
+                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+                'object_type' => 'parking',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['parkings_count'] ?? $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения паркингов', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали парковки
+     */
+    public function getParkingDetails(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("parkings/{$id}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей парковки {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить места парковки
+     */
+    public function getParkingPlaces(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("parkings/{$id}/places/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+                'total' => $result['total'] ?? count($result['data'] ?? []),
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения мест парковки {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список домов
+     */
+    public function getHouses(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $defaultParams = [
+                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+                'object_type' => 'house',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['houses_count'] ?? $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения домов', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали дома
+     */
+    public function getHouseDetails(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("houses/{$id}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей дома {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список участков
+     */
+    public function getPlots(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $defaultParams = [
+                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+                'object_type' => 'land_plot',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['plots_count'] ?? $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения участков', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали поселка
+     */
+    public function getPlotDetails(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("land_plots/{$id}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей поселка {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали конкретного участка
+     */
+    public function getPlotSpecificDetails(string $plotId, string $specificPlotId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("land_plots/{$plotId}/plot/{$specificPlotId}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей участка {$specificPlotId} в поселке {$plotId}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список коммерческой недвижимости
+     */
+    public function getCommercial(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $defaultParams = [
+                'city' => $this->getCityId($params['city'] ?? 'spb'),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+                'object_type' => 'commercial',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['commercial_count'] ?? $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения коммерческой недвижимости', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали коммерческой недвижимости
+     */
+    public function getCommercialDetails(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->sendRequest("commercial/{$id}/", $params);
+            
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей коммерческой недвижимости {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Проверка аутентификации
+     */
+    protected function ensureAuthenticated(): void
+    {
+        if (!$this->authenticated && !$this->auth->isAuthenticated()) {
+            $result = $this->authenticate();
+            if (!$result['success']) {
+                throw new Exception('Требуется аутентификация');
+            }
+        }
+    }
+
+    /**
+     * Получить ID города по коду
+     */
+    protected function getCityId(string $cityCode): string
+    {
+        $cityMap = [
+            'spb' => '58c665588b6aa52311afa01b', // Санкт-Петербург
+            'msk' => '58c665598b6aa55612afa068', // Москва
+            'ekb' => '58c665598b6aa52e0fafa05e', // Екатеринбург
+            'nsk' => '58c665598b6aa53611afa072', // Новосибирск
+        ];
+        
+        return $cityMap[$cityCode] ?? $cityMap['spb'];
     }
 }
