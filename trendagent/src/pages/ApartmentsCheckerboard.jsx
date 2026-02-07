@@ -111,10 +111,8 @@ const ApartmentsCheckerboard = () => {
         phone,
         password,
         building_id: selectedBuilding,
-      }
-
-      if (searchParams.get('apartments-onrequest') === 'true') {
-        params.onrequest = true
+        // НЕ передаем onrequest в запрос квартир - он фильтрует неправильно
+        // Параметр onrequest используется только для фильтрации зданий
       }
 
       const response = await trendAgentAPI.getApartmentsCheckerboardApartments(id, params)

@@ -4574,9 +4574,26 @@ class TrendSsoApiAuth
                     throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
                 }
 
+                // Проверяем структуру ответа - может быть data.results или просто data
+                $buildingsList = [];
+                if (isset($data['data']) && is_array($data['data'])) {
+                    if (isset($data['data']['results']) && is_array($data['data']['results'])) {
+                        // Новая структура: объект с results внутри data
+                        $buildingsList = $data['data']['results'];
+                    } else {
+                        // Старая структура: массив зданий в data
+                        $buildingsList = $data['data'];
+                    }
+                } elseif (isset($data['results']) && is_array($data['results'])) {
+                    // Альтернативная структура: results на верхнем уровне
+                    $buildingsList = $data['results'];
+                } else {
+                    $buildingsList = $data['data'] ?? $data;
+                }
+
                 return [
                     'success' => true,
-                    'data' => $data['data'] ?? $data,
+                    'data' => $buildingsList,
                     'raw_response' => $data,
                 ];
             } catch (GuzzleException $e) {
@@ -4620,7 +4637,13 @@ class TrendSsoApiAuth
                     'lang' => 'ru',
                     'building_id' => $buildingId,
                 ];
-                $queryParams = array_merge($defaultParams, $params);
+                
+                // Убираем onrequest из запроса квартир - он фильтрует неправильно
+                // Параметр onrequest используется только для фильтрации зданий
+                $filteredParams = $params;
+                unset($filteredParams['onrequest']);
+                
+                $queryParams = array_merge($defaultParams, $filteredParams);
                 $queryParams['auth_token'] = $authToken;
 
                 $apiUrl = "https://api.trendagent.ru/v4_29/checkerboards/{$blockId}/apartments/";
