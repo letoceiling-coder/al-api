@@ -19,6 +19,29 @@ use App\Http\Controllers\TrendAgent\CommercialController;
 |
 */
 
+// Информация об API (без middleware для доступа)
+Route::get('/trendagent/', function () {
+    return response()->json([
+        'name' => 'TrendAgent API',
+        'version' => '1.0.0',
+        'description' => 'API для получения данных о недвижимости с сайта trendagent.ru',
+        'documentation' => url('/trendagent/swagger'),
+        'endpoints' => [
+            'authentication' => '/trendagent/authenticate',
+            'cities' => '/trendagent/cities',
+            'apartments' => '/trendagent/apartments',
+            'parkings' => '/trendagent/parkings',
+            'houses' => '/trendagent/houses',
+            'plots' => '/trendagent/plots',
+            'commercial' => '/trendagent/commercial',
+        ],
+        'authentication' => [
+            'type' => 'Bearer Token',
+            'header' => 'Authorization: Bearer {token}',
+        ],
+    ], 200)->header('Content-Type', 'application/json');
+})->name('trendagent.index');
+
 // Swagger документация (без middleware для доступа)
 Route::get('/trendagent/swagger', function () {
     if (!view()->exists('trendagent.swagger')) {
