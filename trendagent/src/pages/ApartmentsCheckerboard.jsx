@@ -44,15 +44,34 @@ const ApartmentsCheckerboard = () => {
 
       const response = await trendAgentAPI.getApartmentsCheckerboardBuildings(id, params)
 
+      console.log('Checkerboard buildings response:', response)
+
       if (response.success) {
-        const buildingsData = Array.isArray(response.data) 
-          ? response.data 
-          : (response.data?.buildings ? response.data.buildings : [])
+        // Обрабатываем различные структуры ответа
+        let buildingsData = []
+        
+        if (Array.isArray(response.data)) {
+          buildingsData = response.data
+        } else if (response.data && typeof response.data === 'object') {
+          // Может быть объект с массивом buildings или плоский объект
+          if (Array.isArray(response.data.buildings)) {
+            buildingsData = response.data.buildings
+          } else if (Array.isArray(response.data.data)) {
+            buildingsData = response.data.data
+          } else if (response.data.id || response.data._id || response.data.building_id) {
+            // Один корпус в виде объекта
+            buildingsData = [response.data]
+          }
+        }
+        
+        console.log('Parsed buildings data:', buildingsData)
         setBuildings(buildingsData)
         
         // Автоматически выбираем первый корпус, если есть
         if (buildingsData.length > 0 && !selectedBuilding) {
-          setSelectedBuilding(buildingsData[0].id || buildingsData[0]._id || buildingsData[0].building_id)
+          const firstBuildingId = buildingsData[0].id || buildingsData[0]._id || buildingsData[0].building_id
+          console.log('Auto-selecting first building:', firstBuildingId)
+          setSelectedBuilding(firstBuildingId)
         }
       } else {
         setError(response.message || 'Ошибка загрузки корпусов')
@@ -78,10 +97,54 @@ const ApartmentsCheckerboard = () => {
         building_id: selectedBuilding,
       }
 
+      // Проверяем параметр apartments-onrequest из URL
+      if (searchParams.get('apartments-onrequest') === 'true') {
+        params.onrequest = true
+      }
+
       const response = await trendAgentAPI.getApartmentsCheckerboardApartments(id, params)
 
+      console.log('Checkerboard apartments response:', response)
+
       if (response.success) {
-        setApartments(response.data)
+        // Обрабатываем различные структуры ответа
+        let apartmentsData = null
+        
+        if (Array.isArray(response.data)) {
+          apartmentsData = response.data
+        } else if (response.data && typeof response.data === 'object') {
+          // Может быть объект с данными по этажам/секциям
+          if (Array.isArray(response.data.apartments)) {
+            apartmentsData = response.data.apartments
+          } else if (Array.isArray(response.data.data)) {
+            apartmentsData = response.data.data
+          } else if (response.data.floors || response.data.sections) {
+            // Данные структурированы по этажам/секциям - нужно распаковать
+            apartmentsData = []
+            const floors = response.data.floors || []
+            const sections = response.data.sections || []
+            
+            // Собираем все квартиры из этажей
+            floors.forEach(floor => {
+              if (floor.apartments && Array.isArray(floor.apartments)) {
+                apartmentsData.push(...floor.apartments)
+              }
+            })
+            
+            // Собираем все квартиры из секций
+            sections.forEach(section => {
+              if (section.apartments && Array.isArray(section.apartments)) {
+                apartmentsData.push(...section.apartments)
+              }
+            })
+          } else {
+            // Плоский объект - одна квартира
+            apartmentsData = [response.data]
+          }
+        }
+        
+        console.log('Parsed apartments data:', apartmentsData)
+        setApartments(apartmentsData)
       } else {
         setError(response.message || 'Ошибка загрузки квартир')
       }
