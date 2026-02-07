@@ -107,18 +107,20 @@ class ParserController extends Controller
         
         if (!Storage::exists('parser_log.txt')) {
             return response()->json([
-                'success' => false,
-                'message' => 'Лог файл не найден',
-            ], 404);
+                'success' => true,
+                'logs' => 'Логи отсутствуют. Запустите парсер для генерации логов.',
+                'total_lines' => 0,
+            ]);
         }
         
         $logFile = Storage::get('parser_log.txt');
         
         if (!file_exists($logFile)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Лог файл не найден',
-            ], 404);
+                'success' => true,
+                'logs' => 'Лог-файл не найден.',
+                'total_lines' => 0,
+            ]);
         }
         
         // Читаем последние N строк
