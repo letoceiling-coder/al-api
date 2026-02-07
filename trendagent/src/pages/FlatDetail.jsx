@@ -22,6 +22,8 @@ const FlatDetail = () => {
   const [discountsData, setDiscountsData] = useState(null)
   const [mortgageData, setMortgageData] = useState(null)
   const [installmentsData, setInstallmentsData] = useState(null)
+  const [plansData, setPlansData] = useState(null)
+  const [finishingsData, setFinishingsData] = useState(null)
   const [phone, setPhone] = useState('+79045393434')
   const [password, setPassword] = useState('nwBvh4q')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
