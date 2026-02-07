@@ -4670,6 +4670,8 @@ class TrendSsoApiAuth
                     $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
                 }
                 
+                // Убираем слэш в конце URL перед добавлением query параметров
+                $apiUrl = rtrim($apiUrl, '/');
                 $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
 
                 Log::info('Запрос к API apartment detail', [
@@ -4677,6 +4679,7 @@ class TrendSsoApiAuth
                     'block_id' => $blockId,
                     'url' => $apiUrl,
                     'full_url' => $fullUrl,
+                    'query_params' => array_merge($queryParams, ['auth_token' => '***']), // Не логируем токен
                 ]);
 
                 $response = $this->client->get($fullUrl, [
@@ -4694,8 +4697,15 @@ class TrendSsoApiAuth
                         Log::info('Попытка получить квартиру без blockId', [
                             'apartment_id' => $apartmentId,
                         ]);
-                        $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
+                        $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}";
+                        $apiUrl = rtrim($apiUrl, '/');
                         $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                        
+                        Log::info('Fallback URL для apartment detail', [
+                            'apartment_id' => $apartmentId,
+                            'url' => $apiUrl,
+                            'full_url' => $fullUrl,
+                        ]);
                         
                         $response = $this->client->get($fullUrl, [
                             'headers' => $this->getAuthHeaders(),
