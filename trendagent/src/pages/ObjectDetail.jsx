@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
 import ObjectHeader from '../components/detail/ObjectHeader'
-import ObjectApartments from '../components/detail/ObjectApartments'
+import ApartmentsTable from '../components/detail/ApartmentsTable'
 import ObjectParkings from '../components/detail/ObjectParkings'
 import ObjectCommerce from '../components/detail/ObjectCommerce'
 import ObjectLocation from '../components/detail/ObjectLocation'
@@ -18,7 +18,15 @@ import VillageMiniPassport from '../components/detail/VillageMiniPassport'
 import VillageReward from '../components/detail/VillageReward'
 import VillageDetail from '../components/detail/VillageDetail'
 import HousesTable from '../components/detail/HousesTable'
+import HousesPlans from '../components/detail/HousesPlans'
 import HousesMap from '../components/detail/HousesMap'
+import ObjectRewards from '../components/detail/ObjectRewards'
+import ObjectDiscounts from '../components/detail/ObjectDiscounts'
+import ObjectMortgage from '../components/detail/ObjectMortgage'
+import ObjectInstallments from '../components/detail/ObjectInstallments'
+import ObjectBanks from '../components/detail/ObjectBanks'
+import ObjectContacts from '../components/detail/ObjectContacts'
+import Object3DTour from '../components/detail/Object3DTour'
 import { getImageUrl } from '../utils/imageUtils'
 
 const formatPrice = (price) => {
@@ -52,11 +60,16 @@ const ObjectDetail = () => {
       { id: 'mortgage', label: 'Ипотека' },
     ] : []),
     ...(objectType === 'houses' ? [
-      { id: 'houses-table', label: 'Таблица' },
-      { id: 'houses-plans', label: 'Планы' },
+      { id: 'apartments', label: 'Квартиры' }, // Секция с переключателем видов (Таблица/Планировки)
       { id: 'houses-map', label: 'Карта' },
     ] : []),
-    { id: 'apartments', label: 'Квартиры' },
+    ...(objectType !== 'houses' && objectType !== 'plots' ? [
+      { id: 'apartments', label: 'Квартиры' },
+    ] : []),
+    { id: 'rewards', label: 'Вознаграждения' },
+    { id: 'discounts', label: 'Акции и скидки' },
+    ...(objectType !== 'plots' ? [{ id: 'mortgage', label: 'Ипотека' }] : []),
+    { id: 'installments', label: 'Рассрочка' },
     { id: 'parkings', label: 'Паркинги' },
     { id: 'commerce', label: 'Коммерция' },
     { id: 'location', label: 'Расположение' },
@@ -64,7 +77,10 @@ const ObjectDetail = () => {
     { id: 'videos', label: 'Видео' },
     { id: 'finishing', label: 'Отделка' },
     { id: 'progress', label: 'Ход строительства' },
+    { id: '3d-tour', label: '3D-тур' },
+    { id: 'banks', label: 'Банки эскроу' },
     { id: 'files', label: 'Файлы' },
+    { id: 'contacts', label: 'Контакты' },
     { id: 'advantages', label: 'Преимущества' },
   ]
 
@@ -92,6 +108,13 @@ const ObjectDetail = () => {
           min_price: true,
           videos: true,
           files: true,
+          rewards: true,
+          discounts: true,
+          mortgage: true,
+          installments: true,
+          banks: true,
+          contacts: true,
+          '3d_tour': true,
         },
       }
 
@@ -117,7 +140,8 @@ const ObjectDetail = () => {
       } else if (objectType === 'houses') {
         response = await trendAgentAPI.getHouseDetail(objectId, params)
       } else if (objectType === 'plots') {
-        response = await trendAgentAPI.getPlotDetail(objectId, params)
+        // Для поселков используем старый формат (village detail)
+        response = await trendAgentAPI.getPlotDetail(objectId, null, params)
       } else if (objectType === 'commercial') {
         response = await trendAgentAPI.getCommercialDetail(objectId, params)
       } else {
@@ -126,6 +150,13 @@ const ObjectDetail = () => {
 
       if (response.success) {
         setObjectData(response.data)
+        // Сохраняем block_id для использования в компонентах
+        if (response.block_id) {
+          response.data.block_id = response.block_id
+        }
+        if (response.block_guid) {
+          response.data.block_guid = response.block_guid
+        }
         console.log('ObjectDetail: Data loaded successfully', {
           block_id: response.block_id,
           block_guid: response.block_guid,
@@ -223,6 +254,13 @@ const ObjectDetail = () => {
   const nearbyPlacesData = objectData.nearby_places || {}
   const videosData = objectData.videos || {}
   const filesData = objectData.files || {}
+  const rewardsData = objectData.rewards || {}
+  const discountsData = objectData.discounts || {}
+  const mortgageData = objectData.mortgage || {}
+  const installmentsData = objectData.installments || {}
+  const banksData = objectData.banks || {}
+  const contactsData = objectData.contacts || {}
+  const tour3DData = objectData.tour_3d || objectData['3d_tour'] || {}
 
   return (
     <div className="object-detail">
@@ -358,65 +396,31 @@ const ObjectDetail = () => {
             </>
           )}
 
-          {/* Квартиры */}
+          {/* Квартиры - Секция "Квартиры" с переключателем видов */}
           {objectType === 'apartments' && (
             <section id="apartments" className="detail-section">
-              <ObjectApartments
-                apartmentsData={apartmentsData}
+              <ApartmentsTable 
+                apartmentsData={apartmentsData} 
+                unifiedData={unifiedData}
+                objectType={objectType}
                 plansData={plansData}
-                buildingsData={buildingsData}
+                blockId={objectData?.block_id || id}
+                blockGuid={objectData?.block_guid || guid}
               />
             </section>
           )}
 
-          {/* Дома - Таблица */}
+          {/* Дома - Секция "Квартиры" с переключателем видов */}
           {objectType === 'houses' && (
-            <section id="houses-table" className="detail-section">
+            <section id="apartments" className="detail-section">
               <HousesTable 
                 housesData={apartmentsData} 
                 unifiedData={unifiedData}
                 objectType={objectType}
+                plansData={plansData}
+                blockId={objectData?.block_id || id}
+                blockGuid={objectData?.block_guid || guid}
               />
-            </section>
-          )}
-
-          {/* Дома - Планы */}
-          {objectType === 'houses' && plansData && (
-            <section id="houses-plans" className="detail-section">
-              <div className="houses-plans-section">
-                <h2>Планы домов</h2>
-                <div className="houses-plans-content">
-                  {Array.isArray(plansData?.data) && plansData.data.length > 0 ? (
-                    <div className="plans-grid">
-                      {plansData.data.map((plan, index) => {
-                        const planImage = plan.image?.url || 
-                                        (plan.images && plan.images.length > 0 ? getImageUrl(plan.images[0]) : null) ||
-                                        plan.image
-                        return (
-                          <div key={index} className="plan-card">
-                            {planImage && (
-                              <img src={planImage} alt={plan.name || 'План'} />
-                            )}
-                            {plan.name && <h3>{plan.name}</h3>}
-                            {plan.area && (
-                              <div className="plan-info">
-                                <span>Площадь: {plan.area} м²</span>
-                              </div>
-                            )}
-                            {plan.rooms && (
-                              <div className="plan-info">
-                                <span>Комнат: {plan.rooms}</span>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <p>Планы домов будут отображаться здесь</p>
-                  )}
-                </div>
-              </div>
             </section>
           )}
 
@@ -482,10 +486,59 @@ const ObjectDetail = () => {
             </section>
           )}
 
+          {/* Вознаграждения - показываем только если есть данные */}
+          {(rewardsData?.data?.length > 0 || rewardsData?.length > 0) && (
+            <section id="rewards" className="detail-section">
+              <ObjectRewards rewardsData={rewardsData} />
+            </section>
+          )}
+
+          {/* Акции и скидки - показываем только если есть данные */}
+          {(discountsData?.data?.length > 0 || discountsData?.length > 0) && (
+            <section id="discounts" className="detail-section">
+              <ObjectDiscounts discountsData={discountsData} />
+            </section>
+          )}
+
+          {/* Ипотека - показываем только для не-участков (для участков уже в секции выше) */}
+          {objectType !== 'plots' && (mortgageData?.data?.length > 0 || mortgageData?.length > 0) && (
+            <section id="mortgage" className="detail-section">
+              <ObjectMortgage mortgageData={mortgageData} />
+            </section>
+          )}
+
+          {/* Рассрочка - показываем только если есть данные */}
+          {(installmentsData?.data?.length > 0 || installmentsData?.length > 0) && (
+            <section id="installments" className="detail-section">
+              <ObjectInstallments installmentsData={installmentsData} />
+            </section>
+          )}
+
           {/* Файлы - показываем только если есть данные */}
           {(filesData?.data?.length > 0 || filesData?.length > 0) && (
             <section id="files" className="detail-section">
               <ObjectFiles files={filesData} />
+            </section>
+          )}
+
+          {/* 3D-тур - показываем только если есть данные */}
+          {(tour3DData?.data || tour3DData?.url || tour3DData?.iframe_url) && (
+            <section id="3d-tour" className="detail-section">
+              <Object3DTour tourData={tour3DData} />
+            </section>
+          )}
+
+          {/* Банки эскроу - показываем только если есть данные */}
+          {(banksData?.data?.length > 0 || banksData?.length > 0) && (
+            <section id="banks" className="detail-section">
+              <ObjectBanks banksData={banksData} />
+            </section>
+          )}
+
+          {/* Контакты - показываем только если есть данные */}
+          {(contactsData?.data?.length > 0 || contactsData?.length > 0) && (
+            <section id="contacts" className="detail-section">
+              <ObjectContacts contactsData={contactsData} />
             </section>
           )}
 

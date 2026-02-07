@@ -10,6 +10,7 @@ const ObjectsList = () => {
   const navigate = useNavigate()
   const [authData, setAuthData] = useState(null)
   const [selectedObjectType, setSelectedObjectType] = useState('apartments')
+  const [viewType, setViewType] = useState('list') // 'list', 'table', 'plans', 'map'
   const [objects, setObjects] = useState([])
   const [loading, setLoading] = useState(false)
   const [totalCount, setTotalCount] = useState(0)
@@ -150,6 +151,36 @@ const ObjectsList = () => {
         selectedType={selectedObjectType}
         onChange={handleObjectTypeChange}
       />
+
+      {/* Вкладки для объектов (Комплексы/Квартиры/Планировки/На карте) */}
+      {selectedObjectType === 'apartments' && (
+        <div className="objects-view-tabs">
+          <button
+            className={`view-tab ${viewType === 'list' ? 'active' : ''}`}
+            onClick={() => setViewType('list')}
+          >
+            Комплексы
+          </button>
+          <button
+            className="view-tab"
+            onClick={() => navigate('/trendagent/objects/table')}
+          >
+            Квартиры
+          </button>
+          <button
+            className="view-tab"
+            onClick={() => navigate('/trendagent/objects/plans')}
+          >
+            Планировки
+          </button>
+          <button
+            className="view-tab"
+            onClick={() => navigate('/trendagent/objects/map')}
+          >
+            На карте
+          </button>
+        </div>
+      )}
 
       <SearchFilters
         objectType={selectedObjectType}

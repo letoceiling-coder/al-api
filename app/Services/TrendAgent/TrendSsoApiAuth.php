@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Оптимизированная авторизация через SSO API
@@ -870,6 +871,28 @@ class TrendSsoApiAuth
     }
 
     /**
+     * Генерация ключа кэша на основе метода и параметров
+     * 
+     * @param string $method Название метода
+     * @param array $params Параметры запроса
+     * @return string Ключ кэша
+     */
+    private function getCacheKey(string $method, array $params = []): string
+    {
+        // Исключаем auth_token из ключа кэша, так как он может меняться
+        $cacheParams = $params;
+        unset($cacheParams['auth_token']);
+        
+        // Сортируем параметры для консистентности ключа
+        ksort($cacheParams);
+        
+        // Генерируем хэш из параметров
+        $paramsHash = md5(json_encode($cacheParams));
+        
+        return "trendagent:{$method}:" . $paramsHash;
+    }
+
+    /**
      * Получение данных объектов через API blocks/search
      * 
      * @param array $params Параметры запроса (show_type, sort, sort_order, count, city, lang и т.д.)
@@ -882,31 +905,36 @@ class TrendSsoApiAuth
             throw new \Exception('Необходимо сначала выполнить авторизацию');
         }
 
-        try {
-            // Получаем токен авторизации
-            $authToken = $this->getAuthToken();
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('blocks_search', $params);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($params) {
+            try {
+                // Получаем токен авторизации
+                $authToken = $this->getAuthToken();
 
-            if (empty($authToken)) {
-                throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
-            }
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+                }
 
-            // Формируем URL API
-            $apiUrl = 'https://api.trendagent.ru/v4_29/blocks/search/';
-            
-            // Параметры по умолчанию
-            $defaultParams = [
-                'show_type' => 'list',
-                'sort' => 'price',
-                'sort_order' => 'asc',
-                'count' => 20,
-                'offset' => 0, // Смещение для пагинации
-                'city' => '58c665588b6aa52311afa01b', // Санкт-Петербург
-                'lang' => 'ru',
-            ];
+                // Формируем URL API
+                $apiUrl = 'https://api.trendagent.ru/v4_29/blocks/search/';
+                
+                // Параметры по умолчанию
+                $defaultParams = [
+                    'show_type' => 'list',
+                    'sort' => 'price',
+                    'sort_order' => 'asc',
+                    'count' => 20,
+                    'offset' => 0, // Смещение для пагинации
+                    'city' => '58c665588b6aa52311afa01b', // Санкт-Петербург
+                    'lang' => 'ru',
+                ];
 
-            // Объединяем параметры
-            $queryParams = array_merge($defaultParams, $params);
-            $queryParams['auth_token'] = $authToken;
+                // Объединяем параметры
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
 
             // Обрабатываем параметр room для правильного формирования URL
             // room может быть массивом [30, 40] и должен стать room=30&room=40
@@ -1054,26 +1082,27 @@ class TrendSsoApiAuth
                 ]);
             }
 
-            return [
-                'success' => true,
-                'data' => $processedResults,
-                'total' => count($processedResults),
-                'blocks_count' => $data['data']['blocksCount'] ?? 0,
-                'prelaunches_count' => $data['data']['prelaunchesCount'] ?? 0,
-                'apartments_count' => $data['data']['apartmentsCount'] ?? 0,
-                'booked_apartments_count' => $data['data']['bookedApartmentsCount'] ?? 0,
-                'view_apartments_count' => $data['data']['viewApartmentsCount'] ?? 0,
-                'source' => 'api',
-                'raw_response' => $data,
-            ];
+                return [
+                    'success' => true,
+                    'data' => $processedResults,
+                    'total' => count($processedResults),
+                    'blocks_count' => $data['data']['blocksCount'] ?? 0,
+                    'prelaunches_count' => $data['data']['prelaunchesCount'] ?? 0,
+                    'apartments_count' => $data['data']['apartmentsCount'] ?? 0,
+                    'booked_apartments_count' => $data['data']['bookedApartmentsCount'] ?? 0,
+                    'view_apartments_count' => $data['data']['viewApartmentsCount'] ?? 0,
+                    'source' => 'api',
+                    'raw_response' => $data,
+                ];
 
-        } catch (GuzzleException $e) {
-            Log::error('Ошибка при запросе к API blocks/search', [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-            ]);
-            throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
-        }
+            } catch (GuzzleException $e) {
+                Log::error('Ошибка при запросе к API blocks/search', [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                ]);
+                throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
+            }
+        });
     }
 
     /**
@@ -1546,6 +1575,209 @@ class TrendSsoApiAuth
         } catch (\Exception $e) {
             Log::error('Ошибка при получении данных участков', [
                 'message' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Получение детальной информации об участке
+     * 
+     * @param string $plotId ID участка
+     * @param array $params Дополнительные параметры
+     * @return array Детальная информация об участке
+     * @throws \Exception
+     */
+    public function getPlotDetail(string $plotId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            // Получаем токен авторизации
+            $authToken = $this->getAuthToken();
+
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+            }
+
+            // Формируем URL API для детальной информации об участке
+            $apiUrl = "https://house-api.trendagent.ru/v1/plots/{$plotId}";
+            
+            $queryParams = [
+                'auth_token' => $authToken,
+                'lang' => 'ru',
+            ];
+            
+            // Добавляем дополнительные параметры
+            if (isset($params['city'])) {
+                $queryParams['city'] = $params['city'];
+            }
+            
+            // Формируем полный URL
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+
+            Log::info('Запрос к API plot detail', [
+                'url' => $apiUrl,
+                'plot_id' => $plotId,
+                'has_token' => !empty($authToken),
+            ]);
+
+            // Выполняем запрос к API
+            $response = $this->client->get($fullUrl, [
+                'headers' => [
+                    'Accept' => 'application/json, text/plain, */*',
+                    'Accept-Language' => 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Accept-Encoding' => 'gzip, deflate, br',
+                    'Origin' => 'https://house.trendagent.ru',
+                    'Referer' => 'https://house.trendagent.ru/',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                    'Sec-Ch-Ua' => '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+                    'Sec-Ch-Ua-Mobile' => '?0',
+                    'Sec-Ch-Ua-Platform' => '"Windows"',
+                    'Sec-Fetch-Dest' => 'empty',
+                    'Sec-Fetch-Mode' => 'cors',
+                    'Sec-Fetch-Site' => 'same-site',
+                    'Priority' => 'u=1, i',
+                ],
+                'timeout' => 30,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                Log::error('Ошибка при запросе к API детальной информации об участке', [
+                    'status_code' => $statusCode,
+                    'url' => $fullUrl,
+                    'plot_id' => $plotId,
+                    'response_body' => substr($body, 0, 1000),
+                ]);
+                
+                // Если 404, пробуем найти участок в списке
+                if ($statusCode === 404) {
+                    Log::warning('Endpoint для детальной информации участка не найден, используем данные из списка');
+                    try {
+                        $searchResult = $this->getPlotsSearch([
+                            'count' => 1000,
+                            'offset' => 0,
+                        ]);
+                        
+                        if ($searchResult['success'] && !empty($searchResult['data'])) {
+                            foreach ($searchResult['data'] as $plot) {
+                                if ((isset($plot['_id']) && $plot['_id'] === $plotId) ||
+                                    (isset($plot['id']) && $plot['id'] === $plotId)) {
+                                    // Используем данные из списка как детальную информацию
+                                    return [
+                                        'success' => true,
+                                        'block_id' => $plot['_id'] ?? $plot['id'] ?? null,
+                                        'block_guid' => $plot['guid'] ?? $plotId,
+                                        'data' => [
+                                            'unified' => [
+                                                'data' => $plot,
+                                            ],
+                                        ],
+                                        'raw_response' => $plot,
+                                        'source' => 'search_list',
+                                    ];
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Не удалось получить данные из списка', ['error' => $e->getMessage()]);
+                    }
+                }
+                
+                throw new \Exception("Ошибка при запросе к API детальной информации об участке: HTTP {$statusCode}");
+            }
+
+            // Декодируем JSON ответ
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка декодирования JSON ответа: ' . json_last_error_msg());
+            }
+
+            // Обрабатываем данные участка аналогично getPlotsSearch
+            $plot = $data;
+            
+            // Обрабатываем изображения
+            $images = [];
+            if (isset($plot['images']) && is_array($plot['images'])) {
+                foreach ($plot['images'] as $img) {
+                    if (isset($img['path']) && isset($img['file_name'])) {
+                        $path = rtrim($img['path'], '/');
+                        $path = ltrim($path, '/');
+                        $fileName = $img['file_name'];
+                        $images[] = [
+                            'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                            'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                            'path' => $img['path'],
+                            'file_name' => $img['file_name'],
+                        ];
+                    }
+                }
+            }
+
+            // Обрабатываем минимальные цены
+            $minPrices = [];
+            if (isset($plot['min_prices']) && is_array($plot['min_prices'])) {
+                foreach ($plot['min_prices'] as $priceItem) {
+                    $minPrices[] = [
+                        'label' => $priceItem['label'] ?? null,
+                        'value' => $priceItem['value'] ?? null,
+                        'unit' => $priceItem['unit'] ?? '₽',
+                    ];
+                }
+            }
+
+            $processedPlot = [
+                'id' => $plot['_id'] ?? $plotId,
+                '_id' => $plot['_id'] ?? $plotId,
+                'guid' => $plot['guid'] ?? null,
+                'name' => $plot['name'] ?? $plot['village_name'] ?? null,
+                'village_name' => $plot['village_name'] ?? null,
+                'address' => $plot['address'] ?? null,
+                'area' => $plot['area'] ?? $plot['area_total'] ?? null,
+                'area_total' => $plot['area_total'] ?? $plot['area'] ?? null,
+                'price' => $plot['price'] ?? null,
+                'min_prices' => $minPrices,
+                'images' => $images,
+                'status' => $plot['status'] ?? null,
+                'plan' => $plot['plan'] ?? $plot['plan_image'] ?? null,
+                'village_id' => $plot['village_id'] ?? null,
+                'builder' => $plot['builder'] ?? null,
+                'deadline' => $plot['deadline'] ?? null,
+                'reward' => $plot['reward'] ?? null,
+            ];
+
+            return [
+                'success' => true,
+                'block_id' => $processedPlot['_id'],
+                'block_guid' => $processedPlot['guid'],
+                'data' => [
+                    'unified' => [
+                        'data' => $processedPlot,
+                    ],
+                ],
+                'raw_response' => $plot,
+                'source' => 'api',
+            ];
+
+        } catch (GuzzleException $e) {
+            Log::error('Ошибка Guzzle при получении детальной информации об участке', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'plot_id' => $plotId,
+            ]);
+            throw new \Exception('Ошибка при получении детальной информации об участке: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            Log::error('Ошибка при получении детальной информации об участке', [
+                'message' => $e->getMessage(),
+                'plot_id' => $plotId,
             ]);
             throw $e;
         }
@@ -3236,21 +3468,29 @@ class TrendSsoApiAuth
             throw new \Exception('Необходимо сначала выполнить авторизацию');
         }
 
-        try {
-            $authToken = $this->getAuthToken();
-            if (empty($authToken)) {
-                throw new \Exception('Токен авторизации не найден');
-            }
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('block_apartments', [
+            'block_id' => $blockId,
+            'params' => $params,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($blockId, $params) {
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден');
+                }
 
-            $defaultParams = [
-                'city' => '58c665588b6aa52311afa01b',
-                'lang' => 'ru',
-            ];
-            $queryParams = array_merge($defaultParams, $params);
-            $queryParams['auth_token'] = $authToken;
+                $defaultParams = [
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
 
-            $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/search/";
-            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/search/";
+                $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
 
             $response = $this->client->get($fullUrl, [
                 'headers' => $this->getAuthHeaders(),
@@ -3279,7 +3519,9 @@ class TrendSsoApiAuth
             $apiData = $data['data'] ?? $data;
             
             // Извлекаем квартиры из группированной структуры
+            // Сохраняем группировку для отображения в таблице (важно для домов)
             $results = [];
+            $groupedResults = []; // Сохраняем группированную структуру
             
             // Проверяем наличие results
             if (isset($apiData['results'])) {
@@ -3292,9 +3534,12 @@ class TrendSsoApiAuth
                         // Пропускаем числовые ключи, если это не массив групп
                         if (is_array($groupsArray)) {
                             // $groupsArray - массив групп
+                            $groupedResults[$key] = [];
                             foreach ($groupsArray as $group) {
                                 if (isset($group['apartments']) && is_array($group['apartments'])) {
-                                    // Добавляем все квартиры из группы
+                                    // Сохраняем группу с квартирами
+                                    $groupedResults[$key][] = $group;
+                                    // Добавляем все квартиры из группы в плоский массив
                                     foreach ($group['apartments'] as $apartment) {
                                         $results[] = $apartment;
                                     }
@@ -3317,9 +3562,12 @@ class TrendSsoApiAuth
                     
                     if (is_array($value)) {
                         // $value - массив групп
+                        $groupedResults[$key] = [];
                         foreach ($value as $group) {
                             if (isset($group['apartments']) && is_array($group['apartments'])) {
-                                // Добавляем все квартиры из группы
+                                // Сохраняем группу с квартирами
+                                $groupedResults[$key][] = $group;
+                                // Добавляем все квартиры из группы в плоский массив
                                 foreach ($group['apartments'] as $apartment) {
                                     $results[] = $apartment;
                                 }
@@ -3339,6 +3587,7 @@ class TrendSsoApiAuth
             Log::info('getBlockApartments - извлечение квартир', [
                 'total_from_api' => $total,
                 'results_count' => count($results),
+                'grouped_results_count' => count($groupedResults),
                 'on_request_count' => $onRequestCount,
                 'booked_count' => $bookedCount,
                 'api_data_keys' => array_keys($apiData),
@@ -3347,16 +3596,18 @@ class TrendSsoApiAuth
             return [
                 'success' => true,
                 'data' => $results, // Плоский массив квартир
-                'total' => $total,
-                'count' => count($results),
-                'apartments_count' => $total,
-                'on_request_count' => $onRequestCount,
-                'booked_count' => $bookedCount,
-                'raw_response' => $data,
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception('Ошибка при получении квартир: ' . $e->getMessage());
-        }
+                'grouped_data' => $groupedResults, // Группированная структура (для таблицы домов)
+                    'total' => $total,
+                    'count' => count($results),
+                    'apartments_count' => $total,
+                    'on_request_count' => $onRequestCount,
+                    'booked_count' => $bookedCount,
+                    'raw_response' => $data,
+                ];
+            } catch (GuzzleException $e) {
+                throw new \Exception('Ошибка при получении квартир: ' . $e->getMessage());
+            }
+        });
     }
 
     /**
@@ -3456,50 +3707,59 @@ class TrendSsoApiAuth
             throw new \Exception('Необходимо сначала выполнить авторизацию');
         }
 
-        try {
-            $authToken = $this->getAuthToken();
-            if (empty($authToken)) {
-                throw new \Exception('Токен авторизации не найден');
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('block_plans', [
+            'block_id' => $blockId,
+            'params' => $params,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($blockId, $params) {
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден');
+                }
+
+                $defaultParams = [
+                    'cache' => 'false',
+                    'formating' => 'true',
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
+
+                $apiUrl = "https://api.trendagent.ru/v4_29/media/block/{$blockId}/plans/";
+                $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+                $response = $this->client->get($fullUrl, [
+                    'headers' => $this->getAuthHeaders(),
+                    'timeout' => 30,
+                    'verify' => false,
+                ]);
+
+                $statusCode = $response->getStatusCode();
+                $body = $response->getBody()->getContents();
+
+                if ($statusCode !== 200) {
+                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                }
+
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+                }
+
+                return [
+                    'success' => true,
+                    'data' => $data['data'] ?? $data,
+                    'raw_response' => $data,
+                ];
+            } catch (GuzzleException $e) {
+                throw new \Exception('Ошибка при получении планировок: ' . $e->getMessage());
             }
-
-            $defaultParams = [
-                'cache' => 'false',
-                'formating' => 'true',
-                'city' => '58c665588b6aa52311afa01b',
-                'lang' => 'ru',
-            ];
-            $queryParams = array_merge($defaultParams, $params);
-            $queryParams['auth_token'] = $authToken;
-
-            $apiUrl = "https://api.trendagent.ru/v4_29/media/block/{$blockId}/plans/";
-            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
-
-            $response = $this->client->get($fullUrl, [
-                'headers' => $this->getAuthHeaders(),
-                'timeout' => 30,
-                'verify' => false,
-            ]);
-
-            $statusCode = $response->getStatusCode();
-            $body = $response->getBody()->getContents();
-
-            if ($statusCode !== 200) {
-                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
-            }
-
-            $data = json_decode($body, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
-            }
-
-            return [
-                'success' => true,
-                'data' => $data['data'] ?? $data,
-                'raw_response' => $data,
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception('Ошибка при получении планировок: ' . $e->getMessage());
-        }
+        });
     }
 
     /**
@@ -3941,17 +4201,32 @@ class TrendSsoApiAuth
             'min_price' => true,
             'videos' => true,
             'files' => true,
+            'rewards' => false,
+            'discounts' => false,
+            'mortgage' => false,
+            'installments' => false,
+            'banks' => false,
+            'contacts' => false,
+            '3d_tour' => false,
         ];
         $options = array_merge($defaultOptions, $options);
 
-        $result = [
-            'success' => true,
-            'block_id' => null,
-            'block_guid' => null,
-            'data' => [],
-        ];
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('block_full_data', [
+            'block_id_or_guid' => $blockIdOrGuid,
+            'options' => $options,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($blockIdOrGuid, $options) {
+            $result = [
+                'success' => true,
+                'block_id' => null,
+                'block_guid' => null,
+                'data' => [],
+            ];
 
-        try {
+            try {
             // Определяем, это ID или GUID
             $isGuid = !preg_match('/^[a-f0-9]{24}$/i', $blockIdOrGuid);
             
@@ -4099,13 +4374,732 @@ class TrendSsoApiAuth
                 }
             }
 
-            return $result;
-        } catch (\Exception $e) {
-            Log::error('Ошибка при получении полных данных блока', [
-                'block_id_or_guid' => $blockIdOrGuid,
-                'error' => $e->getMessage(),
+            if ($options['rewards']) {
+                try {
+                    $builderId = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    $result['data']['rewards'] = $this->getRewards($blockId, $builderId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки rewards', ['error' => $e->getMessage()]);
+                    $result['data']['rewards'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['discounts']) {
+                try {
+                    $builderId = $result['data']['unified']['data']['builder_id'] ?? $result['data']['unified']['data']['builder'] ?? null;
+                    $result['data']['discounts'] = $this->getDiscounts($blockId, $builderId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки discounts', ['error' => $e->getMessage()]);
+                    $result['data']['discounts'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['mortgage']) {
+                try {
+                    $result['data']['mortgage'] = $this->getMortgage($blockId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки mortgage', ['error' => $e->getMessage()]);
+                    $result['data']['mortgage'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['installments']) {
+                try {
+                    $result['data']['installments'] = $this->getInstallments($blockId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки installments', ['error' => $e->getMessage()]);
+                    $result['data']['installments'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['banks']) {
+                try {
+                    $result['data']['banks'] = $this->getBanks($blockId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки banks', ['error' => $e->getMessage()]);
+                    $result['data']['banks'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['contacts']) {
+                try {
+                    $result['data']['contacts'] = $this->getContacts($blockId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки contacts', ['error' => $e->getMessage()]);
+                    $result['data']['contacts'] = ['error' => $e->getMessage()];
+                }
+            }
+
+            if ($options['3d_tour']) {
+                try {
+                    $result['data']['tour_3d'] = $this->get3DTour($blockId);
+                } catch (\Exception $e) {
+                    Log::warning('Ошибка загрузки 3d_tour', ['error' => $e->getMessage()]);
+                    $result['data']['tour_3d'] = ['error' => $e->getMessage()];
+                }
+            }
+
+                return $result;
+            } catch (\Exception $e) {
+                Log::error('Ошибка при получении полных данных блока', [
+                    'block_id_or_guid' => $blockIdOrGuid,
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+        });
+    }
+
+    /**
+     * Получение списка корпусов для шахматки
+     * 
+     * @param string $blockId ID блока
+     * @param array $params Параметры запроса (room, city, lang)
+     * @return array Список корпусов с количеством квартир
+     * @throws \Exception
+     */
+    public function getCheckerboardBuildings(string $blockId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('checkerboard_buildings', [
+            'block_id' => $blockId,
+            'params' => $params,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($blockId, $params) {
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден');
+                }
+
+                $defaultParams = [
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                
+                // Обрабатываем параметр room для правильного формирования URL
+                $roomParams = [];
+                if (isset($queryParams['room']) && is_array($queryParams['room'])) {
+                    $roomParams = $queryParams['room'];
+                    unset($queryParams['room']);
+                } elseif (isset($queryParams['room'])) {
+                    $roomParams = [$queryParams['room']];
+                    unset($queryParams['room']);
+                }
+                
+                $queryParams['auth_token'] = $authToken;
+                
+                // Формируем базовый query string
+                $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+                
+                // Добавляем параметры room отдельно (room=30&room=40)
+                if (!empty($roomParams)) {
+                    $roomQuery = [];
+                    foreach ($roomParams as $room) {
+                        $roomQuery[] = 'room=' . urlencode($room);
+                    }
+                    if (!empty($queryString)) {
+                        $queryString .= '&' . implode('&', $roomQuery);
+                    } else {
+                        $queryString = implode('&', $roomQuery);
+                    }
+                }
+                
+                $apiUrl = "https://api.trendagent.ru/v4_29/checkerboards/{$blockId}/apartments/buildings/";
+                $fullUrl = $apiUrl . '?' . $queryString;
+
+                Log::info('Запрос к API checkerboard buildings', [
+                    'block_id' => $blockId,
+                    'url' => $apiUrl,
+                    'room_params' => $roomParams,
+                ]);
+
+                $response = $this->client->get($fullUrl, [
+                    'headers' => $this->getAuthHeaders(),
+                    'timeout' => 30,
+                    'verify' => false,
+                ]);
+
+                $statusCode = $response->getStatusCode();
+                $body = $response->getBody()->getContents();
+
+                if ($statusCode !== 200) {
+                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                }
+
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+                }
+
+                return [
+                    'success' => true,
+                    'data' => $data['data'] ?? $data,
+                    'raw_response' => $data,
+                ];
+            } catch (GuzzleException $e) {
+                throw new \Exception('Ошибка при получении корпусов для шахматки: ' . $e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Получение квартир по этажам для выбранного корпуса (шахматка)
+     * 
+     * @param string $blockId ID блока
+     * @param string $buildingId ID корпуса
+     * @param array $params Дополнительные параметры
+     * @return array Квартиры по этажам/секциям
+     * @throws \Exception
+     */
+    public function getCheckerboardApartments(string $blockId, string $buildingId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('checkerboard_apartments', [
+            'block_id' => $blockId,
+            'building_id' => $buildingId,
+            'params' => $params,
+        ]);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        return Cache::remember($cacheKey, 60 * 60, function () use ($blockId, $buildingId, $params) {
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден');
+                }
+
+                $defaultParams = [
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                    'building_id' => $buildingId,
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
+
+                $apiUrl = "https://api.trendagent.ru/v4_29/checkerboards/{$blockId}/apartments/";
+                $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+                Log::info('Запрос к API checkerboard apartments', [
+                    'block_id' => $blockId,
+                    'building_id' => $buildingId,
+                    'url' => $apiUrl,
+                ]);
+
+                $response = $this->client->get($fullUrl, [
+                    'headers' => $this->getAuthHeaders(),
+                    'timeout' => 30,
+                    'verify' => false,
+                ]);
+
+                $statusCode = $response->getStatusCode();
+                $body = $response->getBody()->getContents();
+
+                if ($statusCode !== 200) {
+                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                }
+
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+                }
+
+                return [
+                    'success' => true,
+                    'data' => $data['data'] ?? $data,
+                    'raw_response' => $data,
+                ];
+            } catch (GuzzleException $e) {
+                throw new \Exception('Ошибка при получении квартир для шахматки: ' . $e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Получение детальной информации о квартире
+     * 
+     * @param string $apartmentId ID квартиры
+     * @param string|null $blockId ID блока (опционально)
+     * @param array $params Дополнительные параметры
+     * @return array Детальная информация о квартире
+     * @throws \Exception
+     */
+    public function getApartmentDetail(string $apartmentId, ?string $blockId = null, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+
+            // Пробуем сначала с blockId, если передан
+            if ($blockId) {
+                $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/apartment/{$apartmentId}/";
+            } else {
+                $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
+            }
+            
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            Log::info('Запрос к API apartment detail', [
+                'apartment_id' => $apartmentId,
+                'block_id' => $blockId,
+                'url' => $apiUrl,
             ]);
-            throw $e;
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                // Если запрос с blockId не сработал, пробуем без него
+                if ($blockId && $statusCode === 404) {
+                    Log::info('Попытка получить квартиру без blockId', [
+                        'apartment_id' => $apartmentId,
+                    ]);
+                    $apiUrl = "https://api.trendagent.ru/v4_29/apartments/{$apartmentId}/";
+                    $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                    
+                    $response = $this->client->get($fullUrl, [
+                        'headers' => $this->getAuthHeaders(),
+                        'timeout' => 30,
+                        'verify' => false,
+                    ]);
+                    
+                    $statusCode = $response->getStatusCode();
+                    $body = $response->getBody()->getContents();
+                }
+                
+                if ($statusCode !== 200) {
+                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                }
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+                'raw_response' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении детальной информации о квартире: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение вознаграждений
+     * 
+     * @param string $blockId ID блока
+     * @param string|null $builderId ID застройщика
+     * @return array Данные о вознаграждениях
+     * @throws \Exception
+     */
+    public function getRewards(string $blockId, ?string $builderId = null): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+                'block' => $blockId,
+            ];
+            if ($builderId) {
+                $queryParams['builder'] = $builderId;
+            }
+
+            $apiUrl = "https://rewards-api.trendagent.ru/builder-reward-settings";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении вознаграждений: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение акций и скидок
+     * 
+     * @param string $blockId ID блока
+     * @param string|null $builderId ID застройщика
+     * @return array Данные об акциях и скидках
+     * @throws \Exception
+     */
+    public function getDiscounts(string $blockId, ?string $builderId = null): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+            ];
+            if ($builderId) {
+                $queryParams['builder'] = $builderId;
+            }
+
+            $apiUrl = "https://discounts.trendagent.ru/blocks/{$blockId}/discounts";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении акций и скидок: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение программ ипотеки
+     * 
+     * @param string $blockId ID блока
+     * @return array Данные об ипотечных программах
+     * @throws \Exception
+     */
+    public function getMortgage(string $blockId): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+                'premiseType' => 'apartment',
+            ];
+
+            $apiUrl = "https://mortgage-api.trendagent.ru/blocks/{$blockId}/";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении программ ипотеки: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение программ рассрочки
+     * 
+     * @param string $blockId ID блока
+     * @return array Данные о программах рассрочки
+     * @throws \Exception
+     */
+    public function getInstallments(string $blockId): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+            ];
+
+            $apiUrl = "https://tiny-installments-api.trendagent.ru/v1/blocks/{$blockId}";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении программ рассрочки: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение банков эскроу
+     * 
+     * @param string $blockId ID блока
+     * @return array Данные о банках эскроу
+     * @throws \Exception
+     */
+    public function getBanks(string $blockId): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+                'cache' => 'false',
+                'formating' => 'true',
+            ];
+            $queryParams = array_merge($defaultParams, []);
+            $queryParams['auth_token'] = $authToken;
+
+            $apiUrl = "https://api.trendagent.ru/v4_29/blocks/{$blockId}/bank/";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении банков эскроу: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение контактов объекта
+     * 
+     * @param string $blockId ID блока
+     * @return array Данные о контактах
+     * @throws \Exception
+     */
+    public function getContacts(string $blockId): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+            ];
+
+            $apiUrl = "https://contacts-api.trendagent.ru/contacts/blocks/{$blockId}";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении контактов: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение метаданных 3D тура
+     * 
+     * @param string $blockId ID блока
+     * @return array Данные о 3D туре
+     * @throws \Exception
+     */
+    public function get3DTour(string $blockId): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $queryParams = [
+                'auth_token' => $authToken,
+            ];
+
+            $apiUrl = "https://3d-tour-api.trendagent.ru/v1/blocks/{$blockId}";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении 3D тура: ' . $e->getMessage());
         }
     }
 }

@@ -6,31 +6,198 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.houses-table-section h2 {
-  margin: 0 0 1.5rem 0;
+.houses-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.houses-table-header h2 {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: #1a1a1a;
+}
+
+.houses-view-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.view-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.view-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4c4c4c;
+  transition: all 0.2s ease;
+}
+
+.view-type-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.view-type-btn.active {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.view-type-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.checkerboard-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  color: #4c4c4c;
+  transition: all 0.2s ease;
+}
+
+.checkerboard-link:hover {
+  border-color: #d0d0d0;
+  background: #f9fafb;
+  color: #1a1a1a;
+}
+
+.checkerboard-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+}
+
+.sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4c4c4c;
+  transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+  border-color: #d0d0d0;
+  background: #f9fafb;
+}
+
+.sort-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.sort-btn svg.sort-asc {
+  transform: rotate(180deg);
 }
 
 .houses-table-content {
   overflow-x: auto;
 }
 
-.houses-table-wrapper {
-  width: 100%;
+.houses-group {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.houses-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.houses-group-header:hover {
+  background: #f0f0f0;
+}
+
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.group-count {
+  font-weight: 400;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.group-toggle {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+  color: #666;
+}
+
+.group-toggle.expanded {
+  transform: rotate(180deg);
+}
+
+.houses-group-content {
+  background: #fff;
+}
+
+.scrollable-table {
   overflow-x: auto;
+  width: 100%;
 }
 
 .houses-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  min-width: 1200px;
 }
 
 .houses-table thead {
   background: #f9fafb;
   border-bottom: 2px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .houses-table th {
@@ -39,6 +206,19 @@
   font-weight: 600;
   color: #374151;
   white-space: nowrap;
+  position: relative;
+}
+
+.houses-table th.sticky {
+  position: sticky;
+  background: #f9fafb;
+  z-index: 5;
+}
+
+.houses-table th:first-child {
+  left: 0;
+  z-index: 15;
+  background: #f9fafb;
 }
 
 .houses-table td {
@@ -58,13 +238,27 @@
 .table-image {
   width: 80px;
   padding: 0.5rem !important;
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 1;
 }
 
-.table-image img {
+.house-plan-image {
   width: 80px;
   height: 60px;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.house-plan-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .image-placeholder {
@@ -79,34 +273,15 @@
   font-size: 0.75rem;
 }
 
-.table-name {
-  font-weight: 500;
+.table-cell {
+  white-space: nowrap;
   color: #1a1a1a;
-  min-width: 200px;
 }
 
-.table-area {
-  color: #4b5563;
-  white-space: nowrap;
-}
-
-.table-price {
-  white-space: nowrap;
-}
-
-.price-value {
+.table-cell.base-price,
+.table-cell.full-price {
   font-weight: 600;
   color: #059669;
-  font-size: 0.9375rem;
-}
-
-.table-deadline {
-  color: #4b5563;
-  white-space: nowrap;
-}
-
-.table-status {
-  white-space: nowrap;
 }
 
 .status-badge {
@@ -115,29 +290,85 @@
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
-.status-доступен,
+.status-свободная,
 .status-available {
   background: #d1fae5;
   color: #065f46;
+  border-color: #a7f3d0;
 }
 
 .status-забронирован,
 .status-booked {
   background: #fee2e2;
   color: #991b1b;
+  border-color: #fecaca;
 }
 
 .status-продан,
 .status-sold {
   background: #f3f4f6;
   color: #374151;
+  border-color: #e5e7eb;
+}
+
+.view-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.table-actions {
+  width: 50px;
+  padding: 0.5rem !important;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #4c4c4c;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.houses-plans-view {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
 }
 
 @media (max-width: 768px) {
+  .houses-table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .houses-view-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
   .houses-table {
     font-size: 0.75rem;
   }
@@ -151,7 +382,7 @@
     width: 60px;
   }
   
-  .table-image img {
+  .house-plan-image {
     width: 60px;
     height: 45px;
   }

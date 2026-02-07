@@ -322,6 +322,194 @@ class ApartmentsController
             ], 500);
         }
     }
+
+    /**
+     * Получение корпусов для шахматки
+     * 
+     * @param Request $request
+     * @param string $id ID блока
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkerboardBuildings(Request $request, string $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            $params = [];
+            if ($request->has('room')) {
+                $params['room'] = is_array($request->input('room')) 
+                    ? $request->input('room') 
+                    : [$request->input('room')];
+            }
+
+            $result = $apiAuth->getCheckerboardBuildings($id, $params);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения корпусов для шахматки', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Получение квартир для шахматки по корпусу
+     * 
+     * @param Request $request
+     * @param string $id ID блока
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkerboardApartments(Request $request, string $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+            'building_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+            $buildingId = $request->input('building_id');
+
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            $result = $apiAuth->getCheckerboardApartments($id, $buildingId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения квартир для шахматки', [
+                'id' => $id,
+                'building_id' => $request->input('building_id'),
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Получение детальной информации о квартире
+     * 
+     * @param Request $request
+     * @param string $id ID блока
+     * @param string $apartmentId ID квартиры
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function flatDetail(Request $request, string $id, string $apartmentId)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            // Получаем детальную информацию о квартире
+            $apartmentData = $apiAuth->getApartmentDetail($apartmentId, $id);
+
+            // Также получаем данные блока для контекста
+            $blockData = null;
+            try {
+                $blockData = $apiAuth->getBlockUnified($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные блока для flat detail', [
+                    'block_id' => $id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'block_id' => $id,
+                'apartment_id' => $apartmentId,
+                'data' => [
+                    'apartment' => $apartmentData['data'] ?? $apartmentData,
+                    'block' => $blockData['data'] ?? $blockData,
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения детальной информации о квартире', [
+                'block_id' => $id,
+                'apartment_id' => $apartmentId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 
 

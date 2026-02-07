@@ -140,6 +140,7 @@ const ObjectHeader = ({ objectData, advantages, buildings }) => {
                   src={images[0].urlFull || images[0].url}
                   alt={getName()}
                   className="gallery-main-image"
+                  onError={(e) => { e.target.style.display = 'none' }}
                 />
               )}
             </div>
@@ -151,6 +152,7 @@ const ObjectHeader = ({ objectData, advantages, buildings }) => {
                     src={img.url}
                     alt={`${getName()} - ${index + 2}`}
                     className="gallery-thumbnail"
+                    onError={(e) => { e.target.style.display = 'none' }}
                   />
                 ))}
               </div>

@@ -334,4 +334,82 @@ class PlotsController
             ], 500);
         }
     }
+
+    /**
+     * Получение детальной информации об участке
+     * 
+     * @param Request $request
+     * @param string $id ID поселка (для контекста)
+     * @param string $plotId ID участка
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function plotDetail(Request $request, string $id, string $plotId)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка валидации',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $phone = $request->input('phone');
+            $password = $request->input('password');
+
+            // Авторизация через API
+            $apiAuth = new TrendSsoApiAuth();
+            $authData = $apiAuth->authenticate($phone, $password);
+
+            if (!($authData['authenticated'] ?? false)) {
+                throw new \Exception('Авторизация не удалась');
+            }
+
+            // Получаем детальную информацию об участке
+            $plotData = $apiAuth->getPlotDetail($plotId, [
+                'city' => $request->input('city', '58c665588b6aa52311afa01b'),
+            ]);
+
+            // Получаем данные поселка для контекста (если нужно)
+            $villageData = null;
+            try {
+                $villageData = $apiAuth->getVillageById($id);
+            } catch (\Exception $e) {
+                Log::warning('Не удалось получить данные поселка для контекста', [
+                    'village_id' => $id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'block_id' => $plotData['block_id'] ?? $plotId,
+                'block_guid' => $plotData['block_guid'] ?? null,
+                'data' => $plotData['data'] ?? [],
+                'village' => $villageData,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Ошибка получения детальной информации об участке', [
+                'message' => $e->getMessage(),
+                'plot_id' => $plotId,
+                'village_id' => $id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ],
+            ], 500);
+        }
+    }
 }

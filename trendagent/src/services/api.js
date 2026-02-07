@@ -60,6 +60,23 @@ export const trendAgentAPI = {
     return response.data
   },
 
+  // Шахматка для квартир
+  getApartmentsCheckerboardBuildings: async (id, params) => {
+    const response = await apiClient.post(`/apartments/${id}/checkerboard/buildings`, params)
+    return response.data
+  },
+
+  getApartmentsCheckerboardApartments: async (id, params) => {
+    const response = await apiClient.post(`/apartments/${id}/checkerboard/apartments`, params)
+    return response.data
+  },
+
+  // Детальная информация о квартире
+  getApartmentFlatDetail: async (blockId, apartmentId, params) => {
+    const response = await apiClient.post(`/apartments/${blockId}/flat/${apartmentId}`, params)
+    return response.data
+  },
+
   // Паркинги
   getParkings: async (params) => {
     const response = await apiClient.post('/parkings', params)
@@ -87,14 +104,31 @@ export const trendAgentAPI = {
     return response.data
   },
 
+  // Шахматка для домов
+  getCheckerboardBuildings: async (id, params) => {
+    const response = await apiClient.post(`/houses/${id}/checkerboard/buildings`, params)
+    return response.data
+  },
+
+  getCheckerboardApartments: async (id, params) => {
+    const response = await apiClient.post(`/houses/${id}/checkerboard/apartments`, params)
+    return response.data
+  },
+
   // Участки
   getPlots: async (params) => {
     const response = await apiClient.post('/plots', params)
     return response.data
   },
 
-  getPlotDetail: async (id, params) => {
-    const response = await apiClient.post(`/plots/${id}`, params)
+  getPlotDetail: async (villageId, plotId, params) => {
+    // Если plotId не передан, используем старый формат (village detail)
+    if (!plotId && typeof villageId === 'string') {
+      const response = await apiClient.post(`/plots/${villageId}`, params)
+      return response.data
+    }
+    // Новый формат: детальная информация об участке
+    const response = await apiClient.post(`/plots/${villageId}/plot/${plotId}`, params)
     return response.data
   },
 
@@ -113,6 +147,23 @@ export const trendAgentAPI = {
   getObjectsList: async (objectType, params) => {
     const response = await apiClient.post('/objects/list', {
       object_type: objectType,
+      ...params,
+    })
+    return response.data
+  },
+
+  // Проекты домов / Подрядчики
+  getHouseProjects: async (params) => {
+    const response = await apiClient.post('/houseprojects', {
+      object_type: 'contractors',
+      ...params,
+    })
+    return response.data
+  },
+
+  getHouseProjectDetail: async (id, params) => {
+    const response = await apiClient.post(`/houseprojects/${id}`, {
+      object_type: 'contractors',
       ...params,
     })
     return response.data
