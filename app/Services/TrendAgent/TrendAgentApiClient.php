@@ -104,8 +104,10 @@ class TrendAgentApiClient
             if ($objectType) {
                 $params['object_type'] = $objectType;
             }
-            
-            $result = $this->auth->getBlocksSearch($params);
+
+            $result = $this->executeWithRetry(function() use ($params) {
+                return $this->auth->getBlocksSearch($params);
+            });
             
             return [
                 'success' => true,
@@ -167,7 +169,9 @@ class TrendAgentApiClient
         $this->ensureAuthenticated();
         
         try {
-            $result = $this->auth->getBlockUnified($id, $params);
+            $result = $this->executeWithRetry(function() use ($id, $params) {
+                return $this->auth->getBlockUnified($id, $params);
+            });
             
             return [
                 'success' => true,
@@ -633,6 +637,41 @@ class TrendAgentApiClient
                 throw new Exception('Требуется аутентификация: ' . ($result['message'] ?? 'Unknown error'));
             }
         }
+    }
+    
+    /**
+     * Выполнить запрос с автоматической переаутентификацией при 401
+     */
+    protected function executeWithRetry(callable $callback, int $maxRetries = 1): mixed
+    {
+        $attempts = 0;
+        
+        while ($attempts <= $maxRetries) {
+            try {
+                return $callback();
+            } catch (Exception $e) {
+                $attempts++;
+                
+                // Проверяем, является ли это 401 ошибкой
+                if (str_contains($e->getMessage(), '401') && $attempts <= $maxRetries) {
+                    Log::warning('TrendAgentApiClient: Получена ошибка 401, переаутентификация', [
+                        'attempt' => $attempts,
+                    ]);
+                    
+                    // Сбрасываем флаг аутентификации и переаутентифицируемся
+                    $this->authenticated = false;
+                    $this->ensureAuthenticated();
+                    
+                    // Повторяем запрос
+                    continue;
+                }
+                
+                // Если это не 401 или достигнут лимит попыток - пробрасываем исключение
+                throw $e;
+            }
+        }
+        
+        throw new Exception('Не удалось выполнить запрос после переаутентификации');
     }
     
     /**
