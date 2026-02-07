@@ -3995,12 +3995,19 @@ class TrendSsoApiAuth
                     if (isset($options['apartments_params']) && is_array($options['apartments_params'])) {
                         $apartmentsParams = $options['apartments_params'];
                     }
+                    
+                    // Для домов добавляем фильтр room=[30, 40] (коттеджи и таунхаусы)
+                    if (isset($options['object_type']) && $options['object_type'] === 'houses') {
+                        $apartmentsParams['room'] = [30, 40];
+                    }
+                    
                     // НЕ устанавливаем onrequest по умолчанию - показываем ВСЕ доступные квартиры
                     // onrequest будет использоваться только если явно указан в запросе
                     
                     Log::info('getBlockFullData - запрос getBlockApartments', [
                         'block_id' => $blockId,
                         'apartments_params' => $apartmentsParams,
+                        'object_type' => $options['object_type'] ?? null,
                     ]);
                     
                     $apartmentsResult = $this->getBlockApartments($blockId, $apartmentsParams);
