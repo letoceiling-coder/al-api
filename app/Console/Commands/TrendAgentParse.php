@@ -1793,6 +1793,66 @@ class TrendAgentParse extends Command
     }
 
     /**
+     * Вывести сводную статистику по всем регионам
+     */
+    protected function displayAllRegionsStatistics(): void
+    {
+        if (empty($this->allRegionsStatistics)) {
+            // Если парсился один регион, используем текущую статистику
+            $this->displayStatistics();
+            return;
+        }
+        
+        $this->info("📊 СВОДНАЯ СТАТИСТИКА ПО ВСЕМ РЕГИОНАМ:");
+        $this->newLine();
+        
+        // Подсчитываем общую статистику
+        $totalStats = [
+            'complexes' => ['parsed' => 0, 'errors' => 0],
+            'apartments' => ['parsed' => 0, 'errors' => 0],
+            'parkings' => ['parsed' => 0, 'errors' => 0],
+            'houses' => ['parsed' => 0, 'errors' => 0],
+            'plots' => ['parsed' => 0, 'errors' => 0],
+            'commercial' => ['parsed' => 0, 'errors' => 0],
+            'contractors' => ['parsed' => 0, 'errors' => 0],
+        ];
+        
+        foreach ($this->allRegionsStatistics as $regionCode => $stats) {
+            foreach ($totalStats as $type => &$totals) {
+                $totals['parsed'] += $stats[$type]['parsed'] ?? 0;
+                $totals['errors'] += $stats[$type]['errors'] ?? 0;
+            }
+        }
+        
+        $this->table(
+            ['Тип', 'Обработано', 'Ошибок'],
+            [
+                ['Комплексы', $totalStats['complexes']['parsed'], $totalStats['complexes']['errors']],
+                ['Квартиры', $totalStats['apartments']['parsed'], $totalStats['apartments']['errors']],
+                ['Паркинги', $totalStats['parkings']['parsed'], $totalStats['parkings']['errors']],
+                ['Дома', $totalStats['houses']['parsed'], $totalStats['houses']['errors']],
+                ['Участки', $totalStats['plots']['parsed'], $totalStats['plots']['errors']],
+                ['Коммерция', $totalStats['commercial']['parsed'], $totalStats['commercial']['errors']],
+                ['Подрядчики', $totalStats['contractors']['parsed'], $totalStats['contractors']['errors']],
+            ]
+        );
+        
+        $this->newLine();
+        $this->info("📋 Статистика по регионам:");
+        foreach ($this->allRegionsStatistics as $regionCode => $stats) {
+            $regionName = $this->getRegionName($regionCode);
+            $totalParsed = ($stats['complexes']['parsed'] ?? 0) + 
+                          ($stats['apartments']['parsed'] ?? 0) + 
+                          ($stats['parkings']['parsed'] ?? 0) + 
+                          ($stats['houses']['parsed'] ?? 0) + 
+                          ($stats['plots']['parsed'] ?? 0) + 
+                          ($stats['commercial']['parsed'] ?? 0) + 
+                          ($stats['contractors']['parsed'] ?? 0);
+            $this->line("  {$regionCode} ({$regionName}): {$totalParsed} объектов");
+        }
+    }
+
+    /**
      * Вывести отчет по парсингу и БД
      */
     protected function displayParsingAndDbReport(): void
@@ -1801,19 +1861,53 @@ class TrendAgentParse extends Command
         $this->info("📊 ОТЧЕТ ПО ПАРСИНГУ И БД");
         $this->newLine();
         
-        $this->info("📥 Данные из парсинга:");
-        $this->table(
-            ['Тип', 'Обработано', 'Ошибок'],
-            [
-                ['Комплексы', $this->statistics['complexes']['parsed'] ?? 0, $this->statistics['complexes']['errors'] ?? 0],
-                ['Квартиры', $this->statistics['apartments']['parsed'] ?? 0, $this->statistics['apartments']['errors'] ?? 0],
-                ['Паркинги', $this->statistics['parkings']['parsed'] ?? 0, $this->statistics['parkings']['errors'] ?? 0],
-                ['Дома', $this->statistics['houses']['parsed'] ?? 0, $this->statistics['houses']['errors'] ?? 0],
-                ['Участки', $this->statistics['plots']['parsed'] ?? 0, $this->statistics['plots']['errors'] ?? 0],
-                ['Коммерция', $this->statistics['commercial']['parsed'] ?? 0, $this->statistics['commercial']['errors'] ?? 0],
-                ['Подрядчики', $this->statistics['contractors']['parsed'] ?? 0, $this->statistics['contractors']['errors'] ?? 0],
-            ]
-        );
+        // Если парсились все регионы, используем сводную статистику
+        if (!empty($this->allRegionsStatistics)) {
+            $totalStats = [
+                'complexes' => ['parsed' => 0, 'errors' => 0],
+                'apartments' => ['parsed' => 0, 'errors' => 0],
+                'parkings' => ['parsed' => 0, 'errors' => 0],
+                'houses' => ['parsed' => 0, 'errors' => 0],
+                'plots' => ['parsed' => 0, 'errors' => 0],
+                'commercial' => ['parsed' => 0, 'errors' => 0],
+                'contractors' => ['parsed' => 0, 'errors' => 0],
+            ];
+            
+            foreach ($this->allRegionsStatistics as $stats) {
+                foreach ($totalStats as $type => &$totals) {
+                    $totals['parsed'] += $stats[$type]['parsed'] ?? 0;
+                    $totals['errors'] += $stats[$type]['errors'] ?? 0;
+                }
+            }
+            
+            $this->info("📥 Данные из парсинга (все регионы):");
+            $this->table(
+                ['Тип', 'Обработано', 'Ошибок'],
+                [
+                    ['Комплексы', $totalStats['complexes']['parsed'], $totalStats['complexes']['errors']],
+                    ['Квартиры', $totalStats['apartments']['parsed'], $totalStats['apartments']['errors']],
+                    ['Паркинги', $totalStats['parkings']['parsed'], $totalStats['parkings']['errors']],
+                    ['Дома', $totalStats['houses']['parsed'], $totalStats['houses']['errors']],
+                    ['Участки', $totalStats['plots']['parsed'], $totalStats['plots']['errors']],
+                    ['Коммерция', $totalStats['commercial']['parsed'], $totalStats['commercial']['errors']],
+                    ['Подрядчики', $totalStats['contractors']['parsed'], $totalStats['contractors']['errors']],
+                ]
+            );
+        } else {
+            $this->info("📥 Данные из парсинга:");
+            $this->table(
+                ['Тип', 'Обработано', 'Ошибок'],
+                [
+                    ['Комплексы', $this->statistics['complexes']['parsed'] ?? 0, $this->statistics['complexes']['errors'] ?? 0],
+                    ['Квартиры', $this->statistics['apartments']['parsed'] ?? 0, $this->statistics['apartments']['errors'] ?? 0],
+                    ['Паркинги', $this->statistics['parkings']['parsed'] ?? 0, $this->statistics['parkings']['errors'] ?? 0],
+                    ['Дома', $this->statistics['houses']['parsed'] ?? 0, $this->statistics['houses']['errors'] ?? 0],
+                    ['Участки', $this->statistics['plots']['parsed'] ?? 0, $this->statistics['plots']['errors'] ?? 0],
+                    ['Коммерция', $this->statistics['commercial']['parsed'] ?? 0, $this->statistics['commercial']['errors'] ?? 0],
+                    ['Подрядчики', $this->statistics['contractors']['parsed'] ?? 0, $this->statistics['contractors']['errors'] ?? 0],
+                ]
+            );
+        }
         
         $this->newLine();
         $this->info("💾 Данные в БД:");
