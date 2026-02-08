@@ -252,6 +252,11 @@ class TrendAgentParse extends Command
                 break;
             }
             
+            // Сохраняем total из API (если еще не сохранен)
+            if (!isset($this->statistics['by_type_total']['apartments']) && isset($data['total'])) {
+                $this->statistics['by_type_total']['apartments'] = $data['total'];
+            }
+            
             $items = $data['data'];
             $this->statistics['apartments']['total'] += count($items);
             
