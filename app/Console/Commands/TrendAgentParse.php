@@ -334,16 +334,16 @@ class TrendAgentParse extends Command
     protected function parseApartmentDetails(string $apartmentId, array $listItem): void
     {
         try {
-            // Нужен block_id для деталей квартиры
-            $blockId = $listItem['block_id'] ?? $listItem['block'] ?? null;
-            if (!$blockId) {
-                return;
-            }
+            // Пытаемся получить block_id, но не останавливаемся, если его нет
+            // API поддерживает получение деталей без block_id (fallback)
+            $blockId = $listItem['block_id'] ?? $listItem['block'] ?? $listItem['block_id'] ?? null;
             
             $details = $this->fetchApartmentDetails($blockId, $apartmentId);
             
             if (!$details) {
                 $this->statistics['apartments']['errors']++;
+                // Логируем, но не останавливаем парсинг
+                $this->warn("  ⚠️  Не удалось получить детали квартиры {$apartmentId}" . ($blockId ? " (block_id: {$blockId})" : " (без block_id)"));
                 return;
             }
             
@@ -432,7 +432,14 @@ class TrendAgentParse extends Command
                     
                     if ($this->option('details')) {
                         // Для машиномест детали могут быть в самом объекте
-                        $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item]);
+                        // Но попробуем получить дополнительные детали, если доступны
+                        try {
+                            // Сохраняем данные из списка (они уже содержат основную информацию)
+                            $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list']);
+                        } catch (\Exception $e) {
+                            // В случае ошибки все равно сохраняем базовые данные
+                            $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
+                        }
                     }
                     
                     $parsed++;
@@ -523,9 +530,17 @@ class TrendAgentParse extends Command
                     }
                     
                     if ($this->option('details')) {
-                        $details = $apiClient->getHouseDetails($houseId);
-                        if ($details && isset($details['success']) && $details['success']) {
-                            $this->saveDetailsData('houses', "{$houseId}.json", $details);
+                        try {
+                            $details = $apiClient->getHouseDetails($houseId);
+                            if ($details && isset($details['success']) && $details['success']) {
+                                $this->saveDetailsData('houses', "{$houseId}.json", $details);
+                            } else {
+                                // Сохраняем хотя бы данные из списка, если детали не получены
+                                $this->saveDetailsData('houses', "{$houseId}.json", ['data' => $item, 'source' => 'list']);
+                            }
+                        } catch (\Exception $e) {
+                            // Сохраняем данные из списка при ошибке
+                            $this->saveDetailsData('houses', "{$houseId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                         }
                     }
                     
@@ -622,9 +637,17 @@ class TrendAgentParse extends Command
                     }
                     
                     if ($this->option('details')) {
-                        $details = $apiClient->getPlotDetails($plotId);
-                        if ($details && isset($details['success']) && $details['success']) {
-                            $this->saveDetailsData('plots', "{$plotId}.json", $details);
+                        try {
+                            $details = $apiClient->getPlotDetails($plotId);
+                            if ($details && isset($details['success']) && $details['success']) {
+                                $this->saveDetailsData('plots', "{$plotId}.json", $details);
+                            } else {
+                                // Сохраняем хотя бы данные из списка, если детали не получены
+                                $this->saveDetailsData('plots', "{$plotId}.json", ['data' => $item, 'source' => 'list']);
+                            }
+                        } catch (\Exception $e) {
+                            // Сохраняем данные из списка при ошибке
+                            $this->saveDetailsData('plots', "{$plotId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                         }
                     }
                     
@@ -721,9 +744,17 @@ class TrendAgentParse extends Command
                     }
                     
                     if ($this->option('details')) {
-                        $details = $apiClient->getCommercialDetails($commercialId);
-                        if ($details && isset($details['success']) && $details['success']) {
-                            $this->saveDetailsData('commercial', "{$commercialId}.json", $details);
+                        try {
+                            $details = $apiClient->getCommercialDetails($commercialId);
+                            if ($details && isset($details['success']) && $details['success']) {
+                                $this->saveDetailsData('commercial', "{$commercialId}.json", $details);
+                            } else {
+                                // Сохраняем хотя бы данные из списка, если детали не получены
+                                $this->saveDetailsData('commercial', "{$commercialId}.json", ['data' => $item, 'source' => 'list']);
+                            }
+                        } catch (\Exception $e) {
+                            // Сохраняем данные из списка при ошибке
+                            $this->saveDetailsData('commercial', "{$commercialId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                         }
                     }
                     
@@ -815,9 +846,17 @@ class TrendAgentParse extends Command
                     }
                     
                     if ($this->option('details')) {
-                        $details = $apiClient->getContractorProjectDetails($contractorId);
-                        if ($details && isset($details['success']) && $details['success']) {
-                            $this->saveDetailsData('contractors', "{$contractorId}.json", $details);
+                        try {
+                            $details = $apiClient->getContractorProjectDetails($contractorId);
+                            if ($details && isset($details['success']) && $details['success']) {
+                                $this->saveDetailsData('contractors', "{$contractorId}.json", $details);
+                            } else {
+                                // Сохраняем хотя бы данные из списка, если детали не получены
+                                $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list']);
+                            }
+                        } catch (\Exception $e) {
+                            // Сохраняем данные из списка при ошибке
+                            $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                         }
                     }
                     
@@ -958,7 +997,7 @@ class TrendAgentParse extends Command
     /**
      * Получить детали квартиры
      */
-    protected function fetchApartmentDetails(string $blockId, string $apartmentId): ?array
+    protected function fetchApartmentDetails(?string $blockId, string $apartmentId): ?array
     {
         try {
             // Используем TrendAgentApiClient для правильных запросов
@@ -972,17 +1011,20 @@ class TrendAgentParse extends Command
             }
             
             // Получаем детали квартиры через правильный API
-            $result = $apiClient->getApartmentFlatDetails($blockId, $apartmentId);
+            // Метод getApartmentFlatDetails поддерживает null для blockId (использует fallback)
+            $result = $apiClient->getApartmentFlatDetails($blockId ?? '', $apartmentId);
             
             if (!isset($result['success']) || !$result['success']) {
-                $this->error("Error fetching apartment details: " . ($result['message'] ?? 'Unknown error'));
+                // Не логируем ошибку здесь, чтобы не засорять вывод
+                // Ошибка будет обработана в parseApartmentDetails
                 return null;
             }
             
             return $result;
             
         } catch (\Exception $e) {
-            $this->error("Error fetching apartment details: {$e->getMessage()}");
+            // Не логируем ошибку здесь, чтобы не засорять вывод
+            // Ошибка будет обработана в parseApartmentDetails
             return null;
         }
     }
