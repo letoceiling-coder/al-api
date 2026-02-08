@@ -1,186 +1,89 @@
-# Инструкции по обновлению файлов на сервере
+# 🔄 Инструкции по обновлению парсера на сервере
 
-**Дата:** 2026-02-07  
-**Коммит:** `efe593c` - Fix: Исправлен роут для детальной страницы квартиры, добавлено кэширование на 60 минут, создана Swagger документация
+## Проблема
 
----
+На сервере используется старая версия команды `TrendAgentParse.php`, которая не полностью реализована:
+- ❌ Квартиры - HTTP 405 ошибка
+- ❌ Паркинги - не реализовано
+- ❌ Дома - не реализовано
+- ❌ Участки - не реализовано
+- ❌ Коммерция - не реализовано
 
-## Быстрое обновление
+## Решение
 
-### Вариант 1: Использование скрипта (рекомендуется)
-
-```bash
-# Подключиться к серверу
-ssh root@89.169.39.244
-
-# Перейти в директорию проекта
-cd /var/www/AL
-
-# Скачать скрипт обновления (если его нет)
-# Или выполнить команды вручную:
-
-# 1. Получить изменения из GitHub
-git pull origin main
-
-# 2. Очистить кэш
-php artisan route:clear
-php artisan config:clear
-php artisan view:clear
-
-# 3. Обновить зависимости (если нужно)
-composer install --no-dev --optimize-autoloader
-
-# 4. Пересобрать кэш
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-echo "✅ Обновление завершено!"
-```
-
-### Вариант 2: Ручное выполнение команд
+### 1. Обновить код на сервере
 
 ```bash
-# 1. Подключиться к серверу
-ssh root@89.169.39.244
-
-# 2. Перейти в директорию проекта
 cd /var/www/AL
 
-# 3. Проверить текущий статус
-git status
+# Обновить из Git
+git pull
 
-# 4. Получить последние изменения
-git pull origin main
-
-# 5. Очистить все кэши
-php artisan route:clear
+# Очистить кеш Laravel
 php artisan config:clear
 php artisan cache:clear
-php artisan view:clear
+php artisan route:clear
+```
 
-# 6. Обновить зависимости (если composer.json изменился)
-composer install --no-dev --optimize-autoloader
+### 2. Проверить, что используется правильная команда
 
-# 7. Пересобрать кэш для производительности
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+```bash
+# Проверить список команд
+php artisan list | grep trendagent
 
-# 8. Проверить, что роуты зарегистрированы правильно
-php artisan route:list --path=trendagent/apartments/flat
+# Должны быть доступны:
+# - trendagent:parse
+# - trendagent:analyze-data
+```
+
+### 3. Запустить парсер снова
+
+```bash
+php artisan trendagent:parse --region=spb --type=all --details --save-raw
 ```
 
 ---
 
-## Что было изменено
+## Альтернатива: Использовать новую команду
 
-### 1. Исправлен роут для детальной страницы квартиры
-- Изменен порядок роутов в `routes/trendagent.php`
-- Более специфичный роут `/{id}/flat/{apartmentId}` теперь определен раньше `/{id}`
-- Добавлены ограничения на параметры роутов
+Если старая команда все еще не работает, можно использовать новую команду `ParseCommand.php`:
 
-### 2. Добавлено кэширование на 60 минут
-- Кэширование для методов в `TrendSsoApiAuth.php`:
-  - `getBlocksSearch()`
-  - `getBlockFullData()`
-  - `getBlockApartments()`
-  - `getBlockPlans()`
-  - `getCheckerboardBuildings()`
-  - `getCheckerboardApartments()`
+```bash
+# Проверить, какая команда используется
+php artisan list | grep "trendagent:parse"
 
-### 3. Создана Swagger документация
-- Добавлен контроллер `TrendAgentSwaggerController.php`
-- Добавлены роуты для Swagger UI
-- Создана полная документация API в `TRENDAGENT_API_DOCUMENTATION.md`
+# Если есть две команды, можно переименовать старую или удалить её
+```
 
 ---
 
 ## Проверка после обновления
 
-### 1. Проверить роуты
-```bash
-php artisan route:list --path=trendagent/apartments
-```
-
-Должен быть виден роут:
-```
-POST api/trendagent/apartments/{id}/flat/{apartmentId} ... TrendAgent\ApartmentsController@flatDetail
-```
-
-### 2. Проверить работу API
-```bash
-# Проверить доступность Swagger
-curl https://api.siteaccess.ru/trendagent/swagger.json
-
-# Проверить роут для детальной страницы квартиры
-curl -X POST https://api.siteaccess.ru/api/trendagent/apartments/63c50acc9a85d53360f63a76/flat/63c5614728d3bcf2420860b1 \
-  -H "Authorization: Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF" \
-  -H "Content-Type: application/json" \
-  -d '{"phone":"+79045393434","password":"nwBvh4q"}'
-```
-
-### 3. Проверить кэширование
-```bash
-# Проверить, что кэш работает
-php artisan tinker
->>> Cache::get('trendagent:blocks_search:*');
-```
+После обновления должны работать:
+- ✅ Комплексы
+- ✅ Квартиры (исправлена HTTP 405)
+- ✅ Паркинги (реализовано)
+- ✅ Дома (реализовано)
+- ✅ Участки (реализовано)
+- ✅ Коммерция (реализовано)
+- ✅ Подрядчики (реализовано)
 
 ---
 
-## Возможные проблемы
+## Если проблемы остаются
 
-### Проблема 1: Конфликт при git pull
+1. Проверить права доступа:
 ```bash
-# Если есть конфликты, можно сделать hard reset
-git fetch origin
-git reset --hard origin/main
+chmod -R 775 storage/trendagent/
+chown -R www-data:www-data storage/trendagent/
 ```
 
-### Проблема 2: Ошибки при очистке кэша
+2. Проверить логи:
 ```bash
-# Если есть проблемы с БД для кэша, можно очистить файловый кэш
-rm -rf storage/framework/cache/data/*
-rm -rf storage/framework/views/*
+tail -f storage/logs/laravel.log
 ```
 
-### Проблема 3: Роут все еще не работает
-```bash
-# Убедиться, что роут зарегистрирован
-php artisan route:clear
-php artisan route:cache
-php artisan route:list --path=trendagent/apartments
-```
-
----
-
-## Дополнительные команды
-
-### Очистка всех кэшей
+3. Очистить кеш полностью:
 ```bash
 php artisan optimize:clear
 ```
-
-### Пересборка всех кэшей
-```bash
-php artisan optimize
-```
-
-### Проверка конфигурации
-```bash
-php artisan config:show
-```
-
----
-
-## Контакты
-
-При возникновении проблем:
-1. Проверить логи: `tail -f storage/logs/laravel.log`
-2. Проверить права доступа: `ls -la storage/ bootstrap/cache/`
-3. Проверить версию PHP: `php -v` (должна быть >= 8.1)
-
----
-
-**Статус:** ✅ Готово к обновлению
