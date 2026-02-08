@@ -311,8 +311,12 @@ server {
         add_header Access-Control-Allow-Headers "Content-Type";
     }
 
-    # TrendAgent DB Interface - Laravel view
+    # TrendAgent DB Interface - Laravel view (ПЕРЕД location /trendagent/!)
     location = /trendagent/db {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /trendagent-db {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
@@ -575,6 +579,9 @@ Route::get('/trendagent-db', [Controller::class, 'method']);  // Специфи�
 location = /trendagent/db {  # Точное совпадение (более специфичное)
     try_files $uri $uri/ /index.php?$query_string;
 }
+location = /trendagent-db {  # Альтернативный URL
+    try_files $uri $uri/ /index.php?$query_string;
+}
 location /trendagent/ {  # Префикс (менее специфичное)
     alias /var/www/AL/public/trendagent/;
     try_files $uri $uri/ /trendagent/index.html;
@@ -589,7 +596,31 @@ location = /trendagent/db {  # Никогда не сработает!
 }
 ```
 
-### Проблема 5: API роуты возвращают 404
+### Проблема 5: `/trendagent-db` перехватывается React приложением
+
+**Причина:** `location /` определен ПЕРЕД `location = /trendagent-db`.
+
+**Решение:** Специфичные роуты должны быть ПЕРЕД общим `location /`:
+
+```nginx
+# ✅ Правильно
+location = /trendagent-db {  # Специфичный роут
+    try_files $uri $uri/ /index.php?$query_string;
+}
+location / {  # Общий роут (последний!)
+    try_files $uri $uri/ /index.html /index.php?$query_string;
+}
+
+# ❌ Неправильно
+location / {  # Общий роут (перехватит /trendagent-db)
+    try_files $uri $uri/ /index.html;
+}
+location = /trendagent-db {  # Никогда не сработает!
+    try_files $uri $uri/ /index.php?$query_string;
+}
+```
+
+### Проблема 6: API роуты возвращают 404
 
 **Причина:** Роут не зарегистрирован или неправильный префикс.
 
