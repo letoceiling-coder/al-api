@@ -415,34 +415,68 @@ class DeployTrendagentCommand extends Command
     private function clearCache(): array
     {
         $results = [];
+        $errors = [];
         
         try {
-            // Очистка кеша приложения
-            Artisan::call('cache:clear');
-            $results[] = 'Кеш приложения очищен';
+            // Очистка кеша приложения (может требовать Redis, игнорируем ошибки)
+            try {
+                Artisan::call('cache:clear');
+                $results[] = 'Кеш приложения очищен';
+            } catch (\Exception $e) {
+                if (str_contains($e->getMessage(), 'predis') || str_contains($e->getMessage(), 'redis')) {
+                    $results[] = 'Кеш приложения: Redis не настроен (пропущено)';
+                } else {
+                    $errors[] = 'cache:clear: ' . $e->getMessage();
+                }
+            }
             
             // Очистка кеша конфигурации
-            Artisan::call('config:clear');
-            $results[] = 'Кеш конфигурации очищен';
+            try {
+                Artisan::call('config:clear');
+                $results[] = 'Кеш конфигурации очищен';
+            } catch (\Exception $e) {
+                $errors[] = 'config:clear: ' . $e->getMessage();
+            }
             
             // Очистка кеша маршрутов
-            Artisan::call('route:clear');
-            $results[] = 'Кеш маршрутов очищен';
+            try {
+                Artisan::call('route:clear');
+                $results[] = 'Кеш маршрутов очищен';
+            } catch (\Exception $e) {
+                $errors[] = 'route:clear: ' . $e->getMessage();
+            }
             
             // Очистка кеша представлений
-            Artisan::call('view:clear');
-            $results[] = 'Кеш представлений очищен';
+            try {
+                Artisan::call('view:clear');
+                $results[] = 'Кеш представлений очищен';
+            } catch (\Exception $e) {
+                $errors[] = 'view:clear: ' . $e->getMessage();
+            }
             
             // Оптимизация
-            Artisan::call('config:cache');
-            $results[] = 'Конфигурация закэширована';
+            try {
+                Artisan::call('config:cache');
+                $results[] = 'Конфигурация закэширована';
+            } catch (\Exception $e) {
+                $errors[] = 'config:cache: ' . $e->getMessage();
+            }
             
-            Artisan::call('route:cache');
-            $results[] = 'Маршруты закэшированы';
+            try {
+                Artisan::call('route:cache');
+                $results[] = 'Маршруты закэшированы';
+            } catch (\Exception $e) {
+                $errors[] = 'route:cache: ' . $e->getMessage();
+            }
+            
+            $message = 'Кеш очищен и оптимизирован';
+            if (!empty($errors)) {
+                $message .= ' (некоторые операции пропущены: ' . implode(', ', $errors) . ')';
+            }
             
             return [
                 'success' => true,
-                'message' => 'Кеш очищен и оптимизирован',
+                'message' => $message,
                 'output' => implode("\n", $results)
             ];
         } catch (\Exception $e) {
