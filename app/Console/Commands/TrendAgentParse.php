@@ -44,7 +44,9 @@ class TrendAgentParse extends Command
         'houses' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'plots' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'commercial' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+        'contractors' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'images' => ['total' => 0, 'downloaded' => 0, 'errors' => 0],
+        'by_type_total' => [], // Сохраняем total из API для каждого типа
     ];
 
     /**
@@ -82,6 +84,11 @@ class TrendAgentParse extends Command
         
         $this->info('Parsing completed!');
         $this->displayStatistics();
+        
+        // Выводим точные данные из API
+        $this->newLine();
+        $this->info("📊 Точные данные из API:");
+        $this->displayExactData();
         
         // Очищаем PID файл после завершения (если запущен через веб-интерфейс)
         $this->clearParserPid();
@@ -150,6 +157,11 @@ class TrendAgentParse extends Command
             
             if (!$data || empty($data['data'] ?? [])) {
                 break;
+            }
+            
+            // Сохраняем total из API (если еще не сохранен)
+            if (!isset($this->statistics['by_type_total']['complexes']) && isset($data['total'])) {
+                $this->statistics['by_type_total']['complexes'] = $data['total'];
             }
             
             $items = $data['data'];
@@ -414,6 +426,11 @@ class TrendAgentParse extends Command
                     break;
                 }
                 
+                // Сохраняем total из API (если еще не сохранен)
+                if (!isset($this->statistics['by_type_total']['houses']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['houses'] = $data['total'];
+                }
+                
                 $items = $data['data'];
                 $this->statistics['houses']['total'] += count($items);
                 
@@ -485,6 +502,11 @@ class TrendAgentParse extends Command
                     break;
                 }
                 
+                // Сохраняем total из API (если еще не сохранен)
+                if (!isset($this->statistics['by_type_total']['plots']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['plots'] = $data['total'];
+                }
+                
                 $items = $data['data'];
                 $this->statistics['plots']['total'] += count($items);
                 
@@ -554,6 +576,11 @@ class TrendAgentParse extends Command
                 
                 if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
                     break;
+                }
+                
+                // Сохраняем total из API (если еще не сохранен)
+                if (!isset($this->statistics['by_type_total']['commercial']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['commercial'] = $data['total'];
                 }
                 
                 $items = $data['data'];
@@ -914,8 +941,8 @@ class TrendAgentParse extends Command
     {
         $this->info("\n=== Statistics ===");
         foreach ($this->statistics as $type => $stats) {
-            // Пропускаем тип 'images', так как у него другая структура
-            if ($type === 'images') {
+            // Пропускаем тип 'images' и 'by_type_total', так как у них другая структура
+            if ($type === 'images' || $type === 'by_type_total') {
                 continue;
             }
             
@@ -929,6 +956,53 @@ class TrendAgentParse extends Command
                     $this->line("{$type}: {$parsed}/{$total} (errors: {$errors})");
                 }
             }
+        }
+    }
+    
+    /**
+     * Вывод точных данных из API
+     */
+    protected function displayExactData(): void
+    {
+        $typeNames = [
+            'complexes' => 'Комплексы (ЖК)',
+            'apartments' => 'Квартиры',
+            'parkings' => 'Паркинги (машиноместа)',
+            'houses' => 'Дома',
+            'plots' => 'Участки',
+            'commercial' => 'Коммерция (помещения)',
+            'contractors' => 'Подрядчики (проекты домов)',
+        ];
+
+        $rows = [];
+        $hasData = false;
+
+        foreach ($typeNames as $type => $name) {
+            $parsed = $this->statistics[$type]['parsed'] ?? 0;
+            $total = $this->statistics['by_type_total'][$type] ?? $this->statistics[$type]['total'] ?? null;
+            
+            // Выводим данные, если они были обработаны или есть total из API
+            if ($parsed > 0 || $total !== null) {
+                $hasData = true;
+                if ($total !== null && $total > 0) {
+                    $rows[] = [$name, number_format($total, 0, ',', ' ')];
+                } elseif ($parsed > 0) {
+                    $rows[] = [$name, number_format($parsed, 0, ',', ' ') . " (total из API недоступен)"];
+                } else {
+                    $rows[] = [$name, "0"];
+                }
+            } else {
+                // Выводим 0, если тип был в списке для парсинга, но данных нет
+                $rows[] = [$name, "0 (не обработано)"];
+                $hasData = true;
+            }
+        }
+
+        // Если есть данные, выводим таблицу
+        if ($hasData) {
+            $this->table(['Тип объекта', 'Всего в API'], $rows);
+        } else {
+            $this->warn("⚠️  Данные из API недоступны");
         }
     }
     
