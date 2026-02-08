@@ -1,3 +1,14 @@
+#!/bin/bash
+# Восстановление полной конфигурации Nginx для api.siteaccess.ru
+
+CONFIG_FILE="/etc/nginx/sites-available/api.siteaccess.ru"
+BACKUP_FILE="/etc/nginx/sites-available/api.siteaccess.ru.backup_certbot_$(date +%Y%m%d_%H%M%S)"
+
+# Создаем резервную копию текущей конфигурации
+cp "$CONFIG_FILE" "$BACKUP_FILE"
+
+# Создаем полную конфигурацию
+cat > "$CONFIG_FILE" << 'EOF'
 server {
     listen 80;
     listen [::]:80;
@@ -12,6 +23,9 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/api.siteaccess.ru/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/api.siteaccess.ru/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -40,7 +54,7 @@ server {
     
     # Статические файлы React приложения TrendAgent
     location /trendagent/ {
-        alias /var/www/AL/public/trendagent/;
+        alias /var/www/AL/public/trendagent_asset/;
         try_files $uri $uri/ /trendagent/index.html;
         index index.html;
         autoindex off;
@@ -76,7 +90,18 @@ server {
     location ~ \.php$ {
         fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
 }
+EOF
+
+# Проверяем конфигурацию
+if nginx -t; then
+    systemctl reload nginx
+    echo "✅ Конфигурация Nginx восстановлена и перезагружена"
+else
+    echo "❌ Ошибка в конфигурации Nginx! Восстанавливаем резервную копию..."
+    cp "$BACKUP_FILE" "$CONFIG_FILE"
+    exit 1
+fi
