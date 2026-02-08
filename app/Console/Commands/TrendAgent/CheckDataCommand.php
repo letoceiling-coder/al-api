@@ -52,30 +52,42 @@ class CheckDataCommand extends Command
         foreach ($regions as $region) {
             $apartmentsCount = 0;
             
+            // Получаем city ID для региона из CityService
+            $cityInfo = CityService::getCityByKey($region->code);
+            
             // Способ 1: Через комплексы (если комплексы есть)
             $apartmentsViaComplexes = Apartment::whereHas('complex', function($query) use ($region) {
                 $query->where('region_id', $region->id);
             })->count();
             
-            // Способ 2: Через raw_data (если комплексов нет)
-            if ($apartmentsViaComplexes == 0) {
-                // Получаем city ID для региона из CityService
-                $cityInfo = CityService::getCityByKey($region->code);
-                if ($cityInfo && isset($cityInfo['id'])) {
-                    // Ищем по city.id в raw_data
-                    $apartmentsViaCityId = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) = ?", [$cityInfo['id']])
-                        ->count();
-                    $apartmentsCount += $apartmentsViaCityId;
-                }
-                
-                // Также ищем по city.guid (на случай, если используется guid вместо id)
-                $apartmentsViaGuid = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$region->code])
-                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) != ?", [$cityInfo['id'] ?? ''])
-                    ->count();
-                $apartmentsCount += $apartmentsViaGuid;
-            } else {
-                $apartmentsCount = $apartmentsViaComplexes;
+            // Способ 2: Через raw_data по city.id (приоритетный способ)
+            if ($cityInfo && isset($cityInfo['id'])) {
+                $apartmentsViaCityId = Apartment::whereDoesntHave('complex', function($query) {
+                    $query->whereNotNull('region_id');
+                })
+                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) = ?", [$cityInfo['id']])
+                ->count();
+                $apartmentsCount += $apartmentsViaCityId;
             }
+            
+            // Способ 3: Через raw_data по city.guid (если city.id не найден)
+            // Используем маппинг subdomain для guid
+            $apartmentsViaGuid = Apartment::whereDoesntHave('complex', function($query) {
+                $query->whereNotNull('region_id');
+            })
+            ->where(function($query) use ($region, $cityInfo) {
+                // Ищем по коду региона
+                $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$region->code]);
+                
+                // Или по subdomain (если guid не совпадает с кодом)
+                if ($cityInfo && isset($cityInfo['subdomain']) && $cityInfo['subdomain'] !== $region->code) {
+                    $query->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$cityInfo['subdomain']]);
+                }
+            })
+            ->whereRaw("(JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) != ?)", [$cityInfo['id'] ?? ''])
+            ->count();
+            
+            $apartmentsCount += $apartmentsViaComplexes + $apartmentsViaGuid;
             
             $tableData[] = [
                 $region->code,
