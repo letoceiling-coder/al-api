@@ -690,4 +690,39 @@ class TrendAgentParse extends Command
             }
         }
     }
+    
+    /**
+     * Очистить PID файл парсера после завершения
+     */
+    protected function clearParserPid(): void
+    {
+        try {
+            $pidFile = storage_path('app/parser_pid.txt');
+            if (file_exists($pidFile)) {
+                // Проверяем, что процесс действительно завершен
+                $pid = trim(file_get_contents($pidFile));
+                if (!empty($pid)) {
+                    if (PHP_OS_FAMILY === 'Windows') {
+                        exec("tasklist /FI \"PID eq {$pid}\" /NH", $output);
+                        $isRunning = count($output) > 0 && strpos($output[0], (string)$pid) !== false;
+                    } else {
+                        exec("ps -p {$pid} 2>/dev/null", $output);
+                        $isRunning = count($output) > 1;
+                    }
+                    
+                    // Если процесс не запущен, удаляем PID файл
+                    if (!$isRunning) {
+                        @unlink($pidFile);
+                        // Также удаляем связанные файлы
+                        $logFile = storage_path('app/parser_log.txt');
+                        $startedAtFile = storage_path('app/parser_started_at.txt');
+                        if (file_exists($logFile)) @unlink($logFile);
+                        if (file_exists($startedAtFile)) @unlink($startedAtFile);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Игнорируем ошибки при очистке PID
+        }
+    }
 }
