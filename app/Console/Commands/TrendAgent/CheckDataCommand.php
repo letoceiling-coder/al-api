@@ -71,17 +71,35 @@ class CheckDataCommand extends Command
         }
         
         // Также показываем квартиры без региона (NULL или неизвестный регион)
-        $apartmentsWithoutRegion = Apartment::whereDoesntHave('complex', function($query) {
-            $query->whereNotNull('region_id');
-        })
-        ->whereRaw("(JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) NOT IN (SELECT code FROM trendagent_regions))")
-        ->count();
+        // Сначала проверяем, какие city.guid есть в raw_data
+        $unknownRegions = Apartment::selectRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) as city_guid, COUNT(*) as count")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NOT NULL")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) NOT IN (SELECT code FROM trendagent_regions)")
+            ->groupBy('city_guid')
+            ->get();
         
-        if ($apartmentsWithoutRegion > 0) {
+        foreach ($unknownRegions as $unknown) {
+            if ($unknown->city_guid) {
+                $tableData[] = [
+                    $unknown->city_guid,
+                    'Неизвестный регион (' . $unknown->city_guid . ')',
+                    number_format($unknown->count, 0, ',', ' '),
+                ];
+            }
+        }
+        
+        // Квартиры без city.guid в raw_data
+        $apartmentsWithoutCityGuid = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NULL")
+            ->whereDoesntHave('complex', function($query) {
+                $query->whereNotNull('region_id');
+            })
+            ->count();
+        
+        if ($apartmentsWithoutCityGuid > 0) {
             $tableData[] = [
                 '?',
-                'Неизвестный регион',
-                number_format($apartmentsWithoutRegion, 0, ',', ' '),
+                'Без региона (NULL)',
+                number_format($apartmentsWithoutCityGuid, 0, ',', ' '),
             ];
         }
 
