@@ -1068,50 +1068,53 @@ class TrendAgentParse extends Command
     }
     
     /**
-     * Вывод точных данных из API
+     * Вывод точных данных из API в указанном формате
      */
     protected function displayExactData(): void
     {
-        $typeNames = [
-            'complexes' => 'Комплексы (ЖК)',
-            'apartments' => 'Квартиры',
-            'parkings' => 'Паркинги (машиноместа)',
-            'houses' => 'Дома',
-            'plots' => 'Участки',
-            'commercial' => 'Коммерция (помещения)',
-            'contractors' => 'Подрядчики (проекты домов)',
-        ];
-
-        $rows = [];
-        $hasData = false;
-
-        foreach ($typeNames as $type => $name) {
-            $parsed = $this->statistics[$type]['parsed'] ?? 0;
-            $total = $this->statistics['by_type_total'][$type] ?? $this->statistics[$type]['total'] ?? null;
-            
-            // Выводим данные, если они были обработаны или есть total из API
-            if ($parsed > 0 || $total !== null) {
-                $hasData = true;
-                if ($total !== null && $total > 0) {
-                    $rows[] = [$name, number_format($total, 0, ',', ' ')];
-                } elseif ($parsed > 0) {
-                    $rows[] = [$name, number_format($parsed, 0, ',', ' ') . " (total из API недоступен)"];
-                } else {
-                    $rows[] = [$name, "0"];
-                }
-            } else {
-                // Выводим 0, если тип был в списке для парсинга, но данных нет
-                $rows[] = [$name, "0 (не обработано)"];
-                $hasData = true;
-            }
-        }
-
-        // Если есть данные, выводим таблицу
-        if ($hasData) {
-            $this->table(['Тип объекта', 'Всего в API'], $rows);
-        } else {
-            $this->warn("⚠️  Данные из API недоступны");
-        }
+        $this->newLine();
+        $this->info("📊 Точные данные из API:");
+        $this->newLine();
+        
+        // Комплексы (ЖК)
+        $complexesTotal = $this->statistics['by_type_total']['complexes'] ?? $this->statistics['complexes']['total'] ?? 0;
+        $this->line("Комплексы (ЖК): " . number_format($complexesTotal, 0, ',', ' '));
+        
+        // Подрядчики
+        $contractorsTotal = $this->statistics['by_type_total']['contractors'] ?? $this->statistics['contractors']['total'] ?? 0;
+        $this->line("Подрядчики: " . number_format($contractorsTotal, 0, ',', ' '));
+        
+        // Поселки
+        $villagesTotal = $this->statistics['by_type_total']['villages'] ?? 0;
+        $this->line("Поселки: " . number_format($villagesTotal, 0, ',', ' '));
+        
+        $this->newLine();
+        
+        // Квартиры
+        $apartmentsTotal = $this->statistics['by_type_total']['apartments'] ?? $this->statistics['apartments']['total'] ?? 0;
+        $this->line("Квартиры: " . number_format($apartmentsTotal, 0, ',', ' '));
+        
+        // Паркинги (машиноместа)
+        $parkingsTotal = $this->statistics['by_type_total']['parkings'] ?? $this->statistics['parkings']['total'] ?? 0;
+        $this->line("Паркинги (машиноместа): " . number_format($parkingsTotal, 0, ',', ' '));
+        
+        // Дома
+        $housesTotal = $this->statistics['by_type_total']['houses'] ?? $this->statistics['houses']['total'] ?? 0;
+        $this->line("Дома: " . number_format($housesTotal, 0, ',', ' '));
+        
+        // Участки
+        $plotsTotal = $this->statistics['by_type_total']['plots'] ?? $this->statistics['plots']['total'] ?? 0;
+        $this->line("Участки: " . number_format($plotsTotal, 0, ',', ' '));
+        
+        // Коммерция (помещения)
+        $commercialTotal = $this->statistics['by_type_total']['commercial'] ?? $this->statistics['commercial']['total'] ?? 0;
+        $this->line("Коммерция (помещения): " . number_format($commercialTotal, 0, ',', ' '));
+        
+        // Проекты домов (это то же самое, что подрядчики)
+        $houseProjectsTotal = $this->statistics['by_type_total']['contractors'] ?? $this->statistics['contractors']['total'] ?? 0;
+        $this->line("Проекты домов: " . number_format($houseProjectsTotal, 0, ',', ' '));
+        
+        $this->newLine();
     }
     
     /**

@@ -1041,6 +1041,7 @@ class TrendSsoApiAuth
 
             // Обрабатываем результаты: добавляем полные URL для изображений
             $results = $data['data']['results'] ?? [];
+            $blocksCount = $data['data']['blocksCount'] ?? 0; // Сохраняем blocksCount из API
             $processedResults = array_map(function($item) {
                 // Обрабатываем изображение, если оно есть
                 if (isset($item['image']) && is_array($item['image'])) {
@@ -1084,11 +1085,12 @@ class TrendSsoApiAuth
                 ]);
             }
 
+                $blocksCount = $data['data']['blocksCount'] ?? 0;
                 return [
                     'success' => true,
                     'data' => $processedResults,
-                    'total' => count($processedResults),
-                    'blocks_count' => $data['data']['blocksCount'] ?? 0,
+                    'total' => $blocksCount > 0 ? $blocksCount : count($processedResults), // Используем blocksCount из API
+                    'blocks_count' => $blocksCount,
                     'prelaunches_count' => $data['data']['prelaunchesCount'] ?? 0,
                     'apartments_count' => $data['data']['apartmentsCount'] ?? 0,
                     'booked_apartments_count' => $data['data']['bookedApartmentsCount'] ?? 0,
@@ -5785,14 +5787,44 @@ class TrendSsoApiAuth
 
             // Объединяем параметры
             $queryParams = array_merge($defaultParams, $params);
+            
+            // Обрабатываем параметр room для правильного формирования URL
+            // room может быть массивом [30, 40] и должен стать room=30&room=40
+            $roomParams = [];
+            if (isset($queryParams['room']) && is_array($queryParams['room'])) {
+                $roomParams = $queryParams['room'];
+                unset($queryParams['room']); // Удаляем из основных параметров
+            } elseif (isset($queryParams['room'])) {
+                // Если одно значение, делаем массив
+                $roomParams = [$queryParams['room']];
+                unset($queryParams['room']);
+            }
+            
             $queryParams['auth_token'] = $authToken;
             
+            // Формируем базовый query string
+            $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+            
+            // Добавляем параметры room отдельно (room=30&room=40)
+            if (!empty($roomParams)) {
+                $roomQuery = [];
+                foreach ($roomParams as $room) {
+                    $roomQuery[] = 'room=' . urlencode($room);
+                }
+                if (!empty($queryString)) {
+                    $queryString .= '&' . implode('&', $roomQuery);
+                } else {
+                    $queryString = implode('&', $roomQuery);
+                }
+            }
+            
             // Формируем полный URL
-            $fullUrl = $apiUrl . '?' . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+            $fullUrl = $apiUrl . '?' . $queryString;
 
             Log::info('Запрос к API apartments/search', [
                 'url' => $apiUrl,
                 'has_token' => !empty($authToken),
+                'has_room_filter' => !empty($roomParams),
             ]);
 
             // Выполняем запрос к API

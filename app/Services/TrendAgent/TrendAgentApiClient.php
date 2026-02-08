@@ -483,6 +483,7 @@ class TrendAgentApiClient
                 $apiParams['room'] = [30, 40];
             }
             
+            // Используем getApartmentsSearch с фильтром room для домов
             $result = $this->auth->getApartmentsSearch($apiParams);
             
             return [
