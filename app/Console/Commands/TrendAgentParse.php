@@ -1540,7 +1540,7 @@ class TrendAgentParse extends Command
                 'raw_data' => $complexData,
             ];
 
-            $complex =             // Используем модель для правильной обработки casts
+            // Используем модель для правильной обработки casts
             $complex = Complex::firstOrNew(['external_id' => $externalId]);
             
             // Устанавливаем обычные поля
