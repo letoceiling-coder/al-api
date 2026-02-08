@@ -349,27 +349,25 @@ class TrendAgentParse extends Command
     protected function fetchObjectsList(string $type, int $offset, int $count): ?array
     {
         try {
-            $phone = env('TRENDAGENT_PHONE', '+79045393434');
-            $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+            // Используем TrendAgentApiClient для правильных запросов
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
             
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF',
-                'Content-Type' => 'application/json',
-            ])->post('https://api.siteaccess.ru/trendagent/objects/list', [
-                'phone' => $phone,
-                'password' => $password,
-                'city' => $this->region,
-                'count' => $count,
-                'offset' => $offset,
-            ]);
-            
-            if (!$response->successful()) {
-                $this->error("HTTP error: {$response->status()}");
+            // Аутентификация
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed: " . ($authResult['message'] ?? 'Unknown error'));
                 return null;
             }
             
-            $data = $response->json();
-            return $data['data'] ?? $data;
+            // Получаем список объектов через правильный API
+            $result = $apiClient->getObjectsList($this->region, $type, $count, $offset);
+            
+            if (!isset($result['success']) || !$result['success']) {
+                $this->error("Error fetching objects list: " . ($result['message'] ?? 'Unknown error'));
+                return null;
+            }
+            
+            return $result;
             
         } catch (\Exception $e) {
             $this->error("Error fetching objects list: {$e->getMessage()}");
@@ -541,12 +539,23 @@ class TrendAgentParse extends Command
         $path = "{$this->basePath}/raw/{$type}/{$filename}";
         $directory = dirname($path);
         
+        // Создаем директорию с правильными правами
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
+            chmod($directory, 0755);
         }
         
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        file_put_contents($path, $json);
+        
+        // Сохраняем с проверкой прав
+        if (is_writable($directory)) {
+            file_put_contents($path, $json);
+            chmod($path, 0644);
+        } else {
+            // Fallback на Storage facade
+            $relativePath = "trendagent/parsing/{$this->region}/raw/{$type}/{$filename}";
+            \Illuminate\Support\Facades\Storage::put($relativePath, $json);
+        }
     }
     
     /**
@@ -557,12 +566,23 @@ class TrendAgentParse extends Command
         $path = "{$this->basePath}/details/{$type}/{$filename}";
         $directory = dirname($path);
         
+        // Создаем директорию с правильными правами
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
+            chmod($directory, 0755);
         }
         
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        file_put_contents($path, $json);
+        
+        // Сохраняем с проверкой прав
+        if (is_writable($directory)) {
+            file_put_contents($path, $json);
+            chmod($path, 0644);
+        } else {
+            // Fallback на Storage facade
+            $relativePath = "trendagent/parsing/{$this->region}/details/{$type}/{$filename}";
+            \Illuminate\Support\Facades\Storage::put($relativePath, $json);
+        }
     }
     
     /**
@@ -571,6 +591,14 @@ class TrendAgentParse extends Command
     protected function logError(string $type, string $objectId, string $message): void
     {
         $errorsPath = "{$this->basePath}/metadata/errors.json";
+        $directory = dirname($errorsPath);
+        
+        // Создаем директорию с правильными правами
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+            chmod($directory, 0755);
+        }
+        
         $errors = [];
         
         if (file_exists($errorsPath)) {
@@ -584,7 +612,17 @@ class TrendAgentParse extends Command
             'timestamp' => now()->toIso8601String(),
         ];
         
-        file_put_contents($errorsPath, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $json = json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        
+        // Сохраняем с проверкой прав
+        if (is_writable($directory) || is_writable(dirname($errorsPath))) {
+            file_put_contents($errorsPath, $json);
+            chmod($errorsPath, 0644);
+        } else {
+            // Fallback на Storage facade
+            $relativePath = "trendagent/parsing/{$this->region}/metadata/errors.json";
+            \Illuminate\Support\Facades\Storage::put($relativePath, $json);
+        }
     }
     
     /**
@@ -595,8 +633,11 @@ class TrendAgentParse extends Command
         $statisticsPath = "{$this->basePath}/metadata/statistics.json";
         $directory = dirname($statisticsPath);
         
+        // Создаем директорию с правильными правами
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
+            // Устанавливаем права на запись для веб-сервера
+            chmod($directory, 0755);
         }
         
         $statistics = [
@@ -605,7 +646,21 @@ class TrendAgentParse extends Command
             'statistics' => $this->statistics,
         ];
         
-        file_put_contents($statisticsPath, json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $json = json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        
+        // Используем Storage facade для надежности
+        $relativePath = "trendagent/parsing/{$this->region}/metadata/statistics.json";
+        try {
+            \Illuminate\Support\Facades\Storage::put($relativePath, $json);
+        } catch (\Exception $e) {
+            // Fallback на file_put_contents с проверкой прав
+            if (is_writable($directory) || is_writable(dirname($statisticsPath))) {
+                file_put_contents($statisticsPath, $json);
+                chmod($statisticsPath, 0644);
+            } else {
+                throw new \Exception("Не удалось сохранить статистику: нет прав на запись в {$directory}");
+            }
+        }
     }
     
     /**
