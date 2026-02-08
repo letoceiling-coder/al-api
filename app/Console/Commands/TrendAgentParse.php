@@ -1553,7 +1553,7 @@ class TrendAgentParse extends Command
         } catch (\Exception $e) {
             $errorMsg = "Ошибка сохранения комплекса {$externalId} в БД: {$e->getMessage()}";
             $this->error("  ❌ {$errorMsg}");
-            LogFacade::error("Parser: Failed to save complex", [
+            Log::error("Parser: Failed to save complex", [
                 'external_id' => $externalId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -1646,7 +1646,7 @@ class TrendAgentParse extends Command
             if (($this->statistics['apartments']['parsed'] ?? 0) % 100 == 0) {
                 $this->error("  ❌ {$errorMsg}");
             }
-            LogFacade::error("Parser: Failed to save apartment", [
+            Log::error("Parser: Failed to save apartment", [
                 'external_id' => $apartmentId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
