@@ -21,6 +21,8 @@ use App\Models\TrendAgent\Commercial;
 use App\Models\TrendAgent\Contractor;
 use App\Models\TrendAgent\ContractorProject;
 use App\Services\TrendAgent\CityService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log as LogFacade;
 
 class TrendAgentParse extends Command
 {
@@ -1503,6 +1505,19 @@ class TrendAgentParse extends Command
                 $latitude = $complexData['geometry']['coordinates'][1] ?? null;
             }
 
+            // Подготавливаем массивы для JSON полей (Laravel автоматически конвертирует через casts)
+            $images = $complexData['plan'] ?? $complexData['images'] ?? [];
+            $advantages = $complexData['advantage'] ?? $complexData['advantages'] ?? [];
+            $nearbyPlaces = $complexData['nearby_places'] ?? [];
+            $videos = $complexData['videos'] ?? [];
+            $files = $complexData['files'] ?? [];
+            
+            if (!is_array($images)) $images = [];
+            if (!is_array($advantages)) $advantages = [];
+            if (!is_array($nearbyPlaces)) $nearbyPlaces = [];
+            if (!is_array($videos)) $videos = [];
+            if (!is_array($files)) $files = [];
+            
             $dbData = [
                 'region_id' => $this->regionModel->id,
                 'external_id' => $externalId,
@@ -1517,20 +1532,32 @@ class TrendAgentParse extends Command
                 'deadline' => $complexData['deadline'] ?? null,
                 'status' => $complexData['status'] ?? (is_numeric($complexData['status'] ?? null) ? (string)$complexData['status'] : null),
                 'min_price' => $complexData['min_price'] ?? null,
-                'images' => $complexData['plan'] ?? $complexData['images'] ?? [],
-                'advantages' => $complexData['advantage'] ?? $complexData['advantages'] ?? [],
-                'nearby_places' => $complexData['nearby_places'] ?? [],
-                'videos' => $complexData['videos'] ?? [],
-                'files' => $complexData['files'] ?? [],
+                'images' => $images,
+                'advantages' => $advantages,
+                'nearby_places' => $nearbyPlaces,
+                'videos' => $videos,
+                'files' => $files,
                 'raw_data' => $complexData,
             ];
 
-            Complex::updateOrCreate(
+            $complex = Complex::updateOrCreate(
                 ['external_id' => $externalId],
                 $dbData
             );
+            
+            if ($this->option('verbose')) {
+                if ($complex->wasRecentlyCreated) {
+                    $this->line("  ✅ Комплекс {$externalId} создан в БД");
+                }
+            }
         } catch (\Exception $e) {
-            $this->warn("  ⚠️  Ошибка сохранения комплекса {$externalId} в БД: {$e->getMessage()}");
+            $errorMsg = "Ошибка сохранения комплекса {$externalId} в БД: {$e->getMessage()}";
+            $this->error("  ❌ {$errorMsg}");
+            LogFacade::error("Parser: Failed to save complex", [
+                'external_id' => $externalId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -1576,6 +1603,12 @@ class TrendAgentParse extends Command
                 $complexId = $complex?->id;
             }
 
+            // Подготавливаем массивы для JSON полей (Laravel автоматически конвертирует через casts)
+            $images = $apartmentData['images'] ?? $apartmentData['gallery_images'] ?? [];
+            if (!is_array($images)) {
+                $images = [];
+            }
+            
             $dbData = [
                 'complex_id' => $complexId,
                 'external_id' => $externalId,
@@ -1588,20 +1621,36 @@ class TrendAgentParse extends Command
                 'price_base' => $apartmentData['price_base'] ?? $apartmentData['price'] ?? null,
                 'price_full' => $apartmentData['price_full'] ?? null,
                 'price_per_sqm' => $apartmentData['price_per_sqm'] ?? null,
-                'is_exclusive' => $apartmentData['is_exclusive'] ?? false,
-                'is_booked' => $apartmentData['is_booked'] ?? false,
-                'is_on_request' => $apartmentData['is_on_request'] ?? false,
+                'is_exclusive' => (bool)($apartmentData['is_exclusive'] ?? false),
+                'is_booked' => (bool)($apartmentData['is_booked'] ?? false),
+                'is_on_request' => (bool)($apartmentData['is_on_request'] ?? false),
                 'plan_image_url' => $apartmentData['plan_image']['url'] ?? $apartmentData['plan_image_url'] ?? null,
-                'images' => $apartmentData['images'] ?? $apartmentData['gallery_images'] ?? [],
+                'images' => $images,
                 'raw_data' => $apartmentData,
             ];
 
-            Apartment::updateOrCreate(
+            $apartment = Apartment::updateOrCreate(
                 ['external_id' => $externalId],
                 $dbData
             );
+            
+            // Логируем только каждую 1000-ю квартиру, чтобы не засорять вывод
+            if (($this->statistics['apartments']['parsed'] ?? 0) % 1000 == 0 && $this->option('verbose')) {
+                if ($apartment->wasRecentlyCreated) {
+                    $this->line("  ✅ Квартира {$externalId} создана в БД (всего: {$this->statistics['apartments']['parsed']})");
+                }
+            }
         } catch (\Exception $e) {
-            $this->warn("  ⚠️  Ошибка сохранения квартиры {$apartmentId} в БД: {$e->getMessage()}");
+            $errorMsg = "Ошибка сохранения квартиры {$apartmentId} в БД: {$e->getMessage()}";
+            // Логируем только каждую 100-ю ошибку, чтобы не засорять вывод
+            if (($this->statistics['apartments']['parsed'] ?? 0) % 100 == 0) {
+                $this->error("  ❌ {$errorMsg}");
+            }
+            LogFacade::error("Parser: Failed to save apartment", [
+                'external_id' => $apartmentId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -1620,6 +1669,10 @@ class TrendAgentParse extends Command
                 $complexId = $complex?->id;
             }
 
+            // Подготавливаем массивы для JSON полей
+            $images = $parkingData['images'] ?? [];
+            if (!is_array($images)) $images = [];
+            
             $dbData = [
                 'complex_id' => $complexId,
                 'external_id' => $externalId,
@@ -1628,7 +1681,7 @@ class TrendAgentParse extends Command
                 'available_places' => $parkingData['available_places'] ?? null,
                 'price_base' => $parkingData['price_base'] ?? $parkingData['price'] ?? null,
                 'price_per_month' => $parkingData['price_per_month'] ?? null,
-                'images' => $parkingData['images'] ?? [],
+                'images' => $images,
                 'raw_data' => $parkingData,
             ];
 
@@ -1649,6 +1702,10 @@ class TrendAgentParse extends Command
         try {
             $houseData = $data['data']['data'] ?? $data['data'] ?? $data;
 
+            // Подготавливаем массивы для JSON полей
+            $images = $houseData['images'] ?? [];
+            if (!is_array($images)) $images = [];
+            
             $dbData = [
                 'region_id' => $this->regionModel->id,
                 'external_id' => $externalId,
@@ -1660,7 +1717,7 @@ class TrendAgentParse extends Command
                 'floors_count' => $houseData['floors_count'] ?? null,
                 'rooms_count' => $houseData['rooms_count'] ?? $houseData['rooms'] ?? null,
                 'price_base' => $houseData['price_base'] ?? $houseData['price'] ?? null,
-                'images' => $houseData['images'] ?? [],
+                'images' => $images,
                 'raw_data' => $houseData,
             ];
 
@@ -1695,6 +1752,10 @@ class TrendAgentParse extends Command
                 $settlementId = $settlement->id;
             }
 
+            // Подготавливаем массивы для JSON полей
+            $utilities = $plotData['utilities'] ?? [];
+            if (!is_array($utilities)) $utilities = [];
+            
             $dbData = [
                 'region_id' => $this->regionModel->id,
                 'settlement_id' => $settlementId,
@@ -1703,7 +1764,7 @@ class TrendAgentParse extends Command
                 'area' => $plotData['area'] ?? null,
                 'cadastral_number' => $plotData['cadastral_number'] ?? null,
                 'price_base' => $plotData['price_base'] ?? $plotData['price'] ?? null,
-                'utilities' => $plotData['utilities'] ?? [],
+                'utilities' => $utilities,
                 'raw_data' => $plotData,
             ];
 
@@ -1731,6 +1792,10 @@ class TrendAgentParse extends Command
                 $complexId = $complex?->id;
             }
 
+            // Подготавливаем массивы для JSON полей
+            $images = $commercialData['images'] ?? [];
+            if (!is_array($images)) $images = [];
+            
             $dbData = [
                 'complex_id' => $complexId,
                 'external_id' => $externalId,
@@ -1739,7 +1804,7 @@ class TrendAgentParse extends Command
                 'price_base' => $commercialData['price_base'] ?? $commercialData['price'] ?? null,
                 'rent_price' => $commercialData['rent_price'] ?? null,
                 'floor' => $commercialData['floor'] ?? null,
-                'images' => $commercialData['images'] ?? [],
+                'images' => $images,
                 'raw_data' => $commercialData,
             ];
 
