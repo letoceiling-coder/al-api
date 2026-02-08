@@ -117,6 +117,57 @@ class CityService
     }
 
     /**
+     * Получение ключа города по ID
+     * 
+     * @param string $id ID города (MongoDB ObjectId)
+     * @return string|null Ключ города (msk, spb и т.д.) или null, если не найден
+     */
+    public static function getCityKeyById(string $id): ?string
+    {
+        $cities = self::getAllCities();
+        
+        foreach ($cities as $key => $city) {
+            if ($city['id'] === $id) {
+                return $key;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Получение ключа города по subdomain или guid
+     * 
+     * @param string $subdomainOrGuid Subdomain (krasnodar) или guid (krasnodar)
+     * @return string|null Ключ города (krd) или null, если не найден
+     */
+    public static function getCityKeyBySubdomain(string $subdomainOrGuid): ?string
+    {
+        $cities = self::getAllCities();
+        
+        // Маппинг subdomain/guid на ключ
+        $subdomainMap = [
+            'krasnodar' => 'krd',
+            'rostovnadonu' => 'rnd',
+            'rostov' => 'rnd',
+        ];
+        
+        // Сначала проверяем маппинг
+        if (isset($subdomainMap[$subdomainOrGuid])) {
+            return $subdomainMap[$subdomainOrGuid];
+        }
+        
+        // Затем ищем по subdomain в городах
+        foreach ($cities as $key => $city) {
+            if ($city['subdomain'] === $subdomainOrGuid || $key === $subdomainOrGuid) {
+                return $key;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
      * Получение ID города по ключу
      * 
      * @param string $key Ключ города

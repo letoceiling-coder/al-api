@@ -11,6 +11,7 @@ use App\Models\TrendAgent\House;
 use App\Models\TrendAgent\Plot;
 use App\Models\TrendAgent\Commercial;
 use App\Models\TrendAgent\Contractor;
+use App\Services\TrendAgent\CityService;
 
 class CheckDataCommand extends Command
 {
@@ -45,6 +46,9 @@ class CheckDataCommand extends Command
         $regions = Region::all();
         $tableData = [];
         
+        // Получаем все city ID из CityService для сопоставления
+        $allCities = CityService::getAllCities();
+        
         foreach ($regions as $region) {
             $apartmentsCount = 0;
             
@@ -55,10 +59,20 @@ class CheckDataCommand extends Command
             
             // Способ 2: Через raw_data (если комплексов нет)
             if ($apartmentsViaComplexes == 0) {
-                // Ищем в raw_data поле city.guid
-                $apartmentsViaRawData = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$region->code])
+                // Получаем city ID для региона из CityService
+                $cityInfo = CityService::getCityByKey($region->code);
+                if ($cityInfo && isset($cityInfo['id'])) {
+                    // Ищем по city.id в raw_data
+                    $apartmentsViaCityId = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) = ?", [$cityInfo['id']])
+                        ->count();
+                    $apartmentsCount += $apartmentsViaCityId;
+                }
+                
+                // Также ищем по city.guid (на случай, если используется guid вместо id)
+                $apartmentsViaGuid = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$region->code])
+                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) != ?", [$cityInfo['id'] ?? ''])
                     ->count();
-                $apartmentsCount = $apartmentsViaRawData;
+                $apartmentsCount += $apartmentsViaGuid;
             } else {
                 $apartmentsCount = $apartmentsViaComplexes;
             }
@@ -70,36 +84,82 @@ class CheckDataCommand extends Command
             ];
         }
         
-        // Также показываем квартиры без региона (NULL или неизвестный регион)
-        // Сначала проверяем, какие city.guid есть в raw_data
-        $unknownRegions = Apartment::selectRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) as city_guid, COUNT(*) as count")
-            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NOT NULL")
-            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) NOT IN (SELECT code FROM trendagent_regions)")
-            ->groupBy('city_guid')
+        // Проверяем квартиры с неизвестными city.id или city.guid
+        // Сначала получаем все известные city ID
+        $knownCityIds = array_column($allCities, 'id');
+        $knownCityKeys = array_keys($allCities);
+        
+        // Ищем квартиры с city.id, которых нет в CityService
+        $unknownCityIds = Apartment::selectRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) as city_id, COUNT(*) as count")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NOT NULL")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) NOT IN ('" . implode("','", $knownCityIds) . "')")
+            ->groupBy('city_id')
             ->get();
         
-        foreach ($unknownRegions as $unknown) {
-            if ($unknown->city_guid) {
+        foreach ($unknownCityIds as $unknown) {
+            if ($unknown->city_id) {
                 $tableData[] = [
-                    $unknown->city_guid,
-                    'Неизвестный регион (' . $unknown->city_guid . ')',
+                    $unknown->city_id,
+                    'Неизвестный регион (ID: ' . substr($unknown->city_id, 0, 8) . '...)',
                     number_format($unknown->count, 0, ',', ' '),
                 ];
             }
         }
         
-        // Квартиры без city.guid в raw_data
-        $apartmentsWithoutCityGuid = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NULL")
+        // Ищем квартиры с city.guid, которых нет в известных ключах
+        $unknownGuids = Apartment::selectRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) as city_guid, COUNT(*) as count")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NOT NULL")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NULL")
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) NOT IN ('" . implode("','", $knownCityKeys) . "')")
+            ->groupBy('city_guid')
+            ->get();
+        
+        foreach ($unknownGuids as $unknown) {
+            if ($unknown->city_guid) {
+                // Пробуем найти через subdomain маппинг
+                $mappedKey = CityService::getCityKeyBySubdomain($unknown->city_guid);
+                if ($mappedKey) {
+                    // Если нашли через маппинг, добавляем к соответствующему региону
+                    $found = false;
+                    foreach ($tableData as &$row) {
+                        if ($row[0] === $mappedKey) {
+                            $row[2] = number_format((int)str_replace(' ', '', $row[2]) + $unknown->count, 0, ',', ' ');
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $region = Region::where('code', $mappedKey)->first();
+                        if ($region) {
+                            $tableData[] = [
+                                $mappedKey,
+                                $region->name,
+                                number_format($unknown->count, 0, ',', ' '),
+                            ];
+                        }
+                    }
+                } else {
+                    $tableData[] = [
+                        $unknown->city_guid,
+                        'Неизвестный регион (guid: ' . $unknown->city_guid . ')',
+                        number_format($unknown->count, 0, ',', ' '),
+                    ];
+                }
+            }
+        }
+        
+        // Квартиры без city.id и city.guid в raw_data
+        $apartmentsWithoutCity = Apartment::whereRaw("(JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) IS NULL AND JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NULL)")
             ->whereDoesntHave('complex', function($query) {
                 $query->whereNotNull('region_id');
             })
             ->count();
         
-        if ($apartmentsWithoutCityGuid > 0) {
+        if ($apartmentsWithoutCity > 0) {
             $tableData[] = [
                 '?',
                 'Без региона (NULL)',
-                number_format($apartmentsWithoutCityGuid, 0, ',', ' '),
+                number_format($apartmentsWithoutCity, 0, ',', ' '),
             ];
         }
 
