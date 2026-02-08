@@ -331,11 +331,38 @@ class DeployTrendagentCommand extends Command
             ];
         }
 
+        // Добавляем версию к assets для обхода кеша браузера
+        $this->addVersionToIndexHtml();
+
         return [
             'success' => true,
             'message' => 'Проект успешно собран',
             'output' => $result['output']
         ];
+    }
+
+    /**
+     * Добавление версии к assets в index.html для обхода кеша браузера
+     */
+    private function addVersionToIndexHtml(): void
+    {
+        $indexPath = public_path('trendagent/index.html');
+        
+        if (!File::exists($indexPath)) {
+            return;
+        }
+
+        $content = File::get($indexPath);
+        $version = time(); // Используем timestamp как версию
+        
+        // Заменяем пути к assets, добавляя версию
+        $content = preg_replace(
+            '/(src|href)=["\'](\/trendagent\/assets\/[^"\']+)["\']/',
+            '$1="$2?v=' . $version . '"',
+            $content
+        );
+
+        File::put($indexPath, $content);
     }
 
     /**
