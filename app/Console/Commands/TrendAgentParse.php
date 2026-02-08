@@ -69,7 +69,7 @@ class TrendAgentParse extends Command
         
         $type = $this->option('type');
         $types = $type === 'all' 
-            ? ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial']
+            ? ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors']
             : [$type];
         
         foreach ($types as $objectType) {
@@ -315,8 +315,70 @@ class TrendAgentParse extends Command
      */
     protected function parseParkings(): void
     {
-        // Аналогично parseApartments
-        $this->info("Parkings parsing not yet implemented");
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 100;
+        $parsed = 0;
+        
+        $this->info("Fetching parkings list...");
+        
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed");
+                return;
+            }
+            
+            do {
+                $params = [
+                    'city' => $this->region,
+                    'count' => $count,
+                    'offset' => $offset,
+                ];
+                
+                $data = $apiClient->getParkings($params);
+                
+                if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
+                    break;
+                }
+                
+                $items = $data['data'];
+                $this->statistics['parkings']['total'] += count($items);
+                
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+                    
+                    $blockId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$blockId) {
+                        continue;
+                    }
+                    
+                    if ($this->option('save-raw')) {
+                        $this->saveRawData('parkings', "list_offset_{$offset}.json", $data);
+                    }
+                    
+                    if ($this->option('details')) {
+                        $details = $apiClient->getParkingDetails($blockId);
+                        if ($details && isset($details['success']) && $details['success']) {
+                            $this->saveDetailsData('parkings', "{$blockId}.json", $details);
+                        }
+                    }
+                    
+                    $parsed++;
+                    $this->statistics['parkings']['parsed']++;
+                    $this->line("  Parsed parking: {$blockId} ({$parsed})");
+                }
+                
+                $offset += $count;
+            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            
+        } catch (\Exception $e) {
+            $this->error("Error parsing parkings: {$e->getMessage()}");
+            $this->statistics['parkings']['errors']++;
+        }
     }
     
     /**
@@ -324,8 +386,70 @@ class TrendAgentParse extends Command
      */
     protected function parseHouses(): void
     {
-        // Аналогично parseApartments
-        $this->info("Houses parsing not yet implemented");
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 100;
+        $parsed = 0;
+        
+        $this->info("Fetching houses list...");
+        
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed");
+                return;
+            }
+            
+            do {
+                $params = [
+                    'city' => $this->region,
+                    'count' => $count,
+                    'offset' => $offset,
+                ];
+                
+                $data = $apiClient->getHouses($params);
+                
+                if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
+                    break;
+                }
+                
+                $items = $data['data'];
+                $this->statistics['houses']['total'] += count($items);
+                
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+                    
+                    $houseId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$houseId) {
+                        continue;
+                    }
+                    
+                    if ($this->option('save-raw')) {
+                        $this->saveRawData('houses', "list_offset_{$offset}.json", $data);
+                    }
+                    
+                    if ($this->option('details')) {
+                        $details = $apiClient->getHouseDetails($houseId);
+                        if ($details && isset($details['success']) && $details['success']) {
+                            $this->saveDetailsData('houses', "{$houseId}.json", $details);
+                        }
+                    }
+                    
+                    $parsed++;
+                    $this->statistics['houses']['parsed']++;
+                    $this->line("  Parsed house: {$houseId} ({$parsed})");
+                }
+                
+                $offset += $count;
+            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            
+        } catch (\Exception $e) {
+            $this->error("Error parsing houses: {$e->getMessage()}");
+            $this->statistics['houses']['errors']++;
+        }
     }
     
     /**
@@ -333,8 +457,70 @@ class TrendAgentParse extends Command
      */
     protected function parsePlots(): void
     {
-        // Аналогично parseApartments
-        $this->info("Plots parsing not yet implemented");
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 100;
+        $parsed = 0;
+        
+        $this->info("Fetching plots list...");
+        
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed");
+                return;
+            }
+            
+            do {
+                $params = [
+                    'city' => $this->region,
+                    'count' => $count,
+                    'offset' => $offset,
+                ];
+                
+                $data = $apiClient->getPlots($params);
+                
+                if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
+                    break;
+                }
+                
+                $items = $data['data'];
+                $this->statistics['plots']['total'] += count($items);
+                
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+                    
+                    $plotId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$plotId) {
+                        continue;
+                    }
+                    
+                    if ($this->option('save-raw')) {
+                        $this->saveRawData('plots', "list_offset_{$offset}.json", $data);
+                    }
+                    
+                    if ($this->option('details')) {
+                        $details = $apiClient->getPlotDetails($plotId);
+                        if ($details && isset($details['success']) && $details['success']) {
+                            $this->saveDetailsData('plots', "{$plotId}.json", $details);
+                        }
+                    }
+                    
+                    $parsed++;
+                    $this->statistics['plots']['parsed']++;
+                    $this->line("  Parsed plot: {$plotId} ({$parsed})");
+                }
+                
+                $offset += $count;
+            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            
+        } catch (\Exception $e) {
+            $this->error("Error parsing plots: {$e->getMessage()}");
+            $this->statistics['plots']['errors']++;
+        }
     }
     
     /**
@@ -342,8 +528,70 @@ class TrendAgentParse extends Command
      */
     protected function parseCommercial(): void
     {
-        // Аналогично parseApartments
-        $this->info("Commercial parsing not yet implemented");
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 100;
+        $parsed = 0;
+        
+        $this->info("Fetching commercial list...");
+        
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed");
+                return;
+            }
+            
+            do {
+                $params = [
+                    'city' => $this->region,
+                    'count' => $count,
+                    'offset' => $offset,
+                ];
+                
+                $data = $apiClient->getCommercial($params);
+                
+                if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
+                    break;
+                }
+                
+                $items = $data['data'];
+                $this->statistics['commercial']['total'] += count($items);
+                
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+                    
+                    $commercialId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$commercialId) {
+                        continue;
+                    }
+                    
+                    if ($this->option('save-raw')) {
+                        $this->saveRawData('commercial', "list_offset_{$offset}.json", $data);
+                    }
+                    
+                    if ($this->option('details')) {
+                        $details = $apiClient->getCommercialDetails($commercialId);
+                        if ($details && isset($details['success']) && $details['success']) {
+                            $this->saveDetailsData('commercial', "{$commercialId}.json", $details);
+                        }
+                    }
+                    
+                    $parsed++;
+                    $this->statistics['commercial']['parsed']++;
+                    $this->line("  Parsed commercial: {$commercialId} ({$parsed})");
+                }
+                
+                $offset += $count;
+            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            
+        } catch (\Exception $e) {
+            $this->error("Error parsing commercial: {$e->getMessage()}");
+            $this->statistics['commercial']['errors']++;
+        }
     }
     
     /**
@@ -384,27 +632,31 @@ class TrendAgentParse extends Command
     protected function fetchApartmentsList(int $offset, int $count): ?array
     {
         try {
-            $phone = env('TRENDAGENT_PHONE', '+79045393434');
-            $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+            // Используем TrendAgentApiClient для правильных запросов
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
             
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF',
-                'Content-Type' => 'application/json',
-            ])->post('https://api.siteaccess.ru/trendagent/apartments', [
-                'phone' => $phone,
-                'password' => $password,
-                'city' => $this->region,
-                'count' => $count,
-                'offset' => $offset,
-            ]);
-            
-            if (!$response->successful()) {
-                $this->error("HTTP error: {$response->status()}");
+            // Аутентификация
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed: " . ($authResult['message'] ?? 'Unknown error'));
                 return null;
             }
             
-            $data = $response->json();
-            return $data['data'] ?? $data;
+            // Получаем список квартир через правильный API
+            $params = [
+                'city' => $this->region,
+                'count' => $count,
+                'offset' => $offset,
+            ];
+            
+            $result = $apiClient->getApartments($params);
+            
+            if (!isset($result['success']) || !$result['success']) {
+                $this->error("Error fetching apartments list: " . ($result['message'] ?? 'Unknown error'));
+                return null;
+            }
+            
+            return $result;
             
         } catch (\Exception $e) {
             $this->error("Error fetching apartments list: {$e->getMessage()}");
@@ -418,37 +670,25 @@ class TrendAgentParse extends Command
     protected function fetchComplexDetails(string $complexId): ?array
     {
         try {
-            $phone = env('TRENDAGENT_PHONE', '+79045393434');
-            $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+            // Используем TrendAgentApiClient для правильных запросов
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
             
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF',
-                'Content-Type' => 'application/json',
-            ])->post("https://api.siteaccess.ru/trendagent/apartments/{$complexId}", [
-                'phone' => $phone,
-                'password' => $password,
-                'options' => [
-                    'unified' => true,
-                    'buildings' => true,
-                    'apartments' => true,
-                    'plans' => true,
-                    'progress' => true,
-                    'finishings' => true,
-                    'advantages' => true,
-                    'nearby_places' => true,
-                    'min_price' => true,
-                    'videos' => true,
-                    'files' => true,
-                ],
-            ]);
-            
-            if (!$response->successful()) {
-                $this->error("HTTP error: {$response->status()}");
+            // Аутентификация
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed: " . ($authResult['message'] ?? 'Unknown error'));
                 return null;
             }
             
-            $data = $response->json();
-            return $data['data'] ?? $data;
+            // Получаем детали комплекса через правильный API
+            $result = $apiClient->getApartmentDetails($complexId);
+            
+            if (!isset($result['success']) || !$result['success']) {
+                $this->error("Error fetching complex details: " . ($result['message'] ?? 'Unknown error'));
+                return null;
+            }
+            
+            return $result;
             
         } catch (\Exception $e) {
             $this->error("Error fetching complex details: {$e->getMessage()}");
@@ -462,24 +702,25 @@ class TrendAgentParse extends Command
     protected function fetchApartmentDetails(string $blockId, string $apartmentId): ?array
     {
         try {
-            $phone = env('TRENDAGENT_PHONE', '+79045393434');
-            $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+            // Используем TrendAgentApiClient для правильных запросов
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
             
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF',
-                'Content-Type' => 'application/json',
-            ])->post("https://api.siteaccess.ru/trendagent/apartments/{$blockId}/flat/{$apartmentId}", [
-                'phone' => $phone,
-                'password' => $password,
-            ]);
-            
-            if (!$response->successful()) {
-                $this->error("HTTP error: {$response->status()}");
+            // Аутентификация
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed: " . ($authResult['message'] ?? 'Unknown error'));
                 return null;
             }
             
-            $data = $response->json();
-            return $data['data'] ?? $data;
+            // Получаем детали квартиры через правильный API
+            $result = $apiClient->getApartmentFlatDetails($blockId, $apartmentId);
+            
+            if (!isset($result['success']) || !$result['success']) {
+                $this->error("Error fetching apartment details: " . ($result['message'] ?? 'Unknown error'));
+                return null;
+            }
+            
+            return $result;
             
         } catch (\Exception $e) {
             $this->error("Error fetching apartment details: {$e->getMessage()}");
