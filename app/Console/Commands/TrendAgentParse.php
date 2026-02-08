@@ -131,9 +131,12 @@ class TrendAgentParse extends Command
             
             // Определяем типы объектов для парсинга
             $type = $this->option('type');
-            $types = $type === 'all' 
-                ? ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors']
-                : [$type];
+            if (empty($type) || $type === 'all') {
+                // По умолчанию парсим все типы
+                $types = ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors'];
+            } else {
+                $types = [$type];
+            }
             
             // Парсим каждый тип объекта
             foreach ($types as $objectType) {
@@ -2015,6 +2018,71 @@ class TrendAgentParse extends Command
                           ($stats['apartments']['parsed'] ?? 0) + 
                           ($stats['parkings']['parsed'] ?? 0) + 
                           ($stats['houses']['parsed'] ?? 0) + 
+                          ($stats['plots']['parsed'] ?? 0) + 
+                          ($stats['commercial']['parsed'] ?? 0) + 
+                          ($stats['contractors']['parsed'] ?? 0);
+            $this->line("  {$regionCode} ({$regionName}): {$totalParsed} объектов");
+        }
+        
+        $this->newLine();
+        $this->info("📊 Точные данные из API:");
+        $this->newLine();
+        
+        // Собираем total из всех регионов
+        $allTotals = [
+            'complexes' => 0,
+            'contractors' => 0,
+            'villages' => 0,
+            'apartments' => 0,
+            'parkings' => 0,
+            'houses' => 0,
+            'plots' => 0,
+            'commercial' => 0,
+        ];
+        
+        foreach ($this->allRegionsStatistics as $regionCode => $stats) {
+            if (isset($stats['by_type_total'])) {
+                foreach ($allTotals as $key => &$value) {
+                    if (isset($stats['by_type_total'][$key])) {
+                        $value += $stats['by_type_total'][$key];
+                    }
+                }
+            }
+        }
+        
+        // Комплексы (ЖК)
+        $this->line("Комплексы (ЖК): " . number_format($allTotals['complexes'], 0, ',', ' '));
+        
+        // Подрядчики
+        $this->line("Подрядчики: " . number_format($allTotals['contractors'], 0, ',', ' '));
+        
+        // Поселки
+        $this->line("Поселки: " . number_format($allTotals['villages'], 0, ',', ' '));
+        
+        $this->newLine();
+        
+        // Квартиры
+        $this->line("Квартиры: " . number_format($allTotals['apartments'], 0, ',', ' '));
+        
+        // Паркинги (машиноместа)
+        $this->line("Паркинги (машиноместа): " . number_format($allTotals['parkings'], 0, ',', ' '));
+        
+        // Дома
+        $this->line("Дома: " . number_format($allTotals['houses'], 0, ',', ' '));
+        
+        // Участки
+        $this->line("Участки: " . number_format($allTotals['plots'], 0, ',', ' '));
+        
+        // Коммерция (помещения)
+        $this->line("Коммерция (помещения): " . number_format($allTotals['commercial'], 0, ',', ' '));
+        
+        // Проекты домов (это то же самое, что подрядчики)
+        $this->line("Проекты домов: " . number_format($allTotals['contractors'], 0, ',', ' '));
+        
+        $this->newLine();
+        
+        // Удаляем дублирующий вывод "Точные данные из API"
+        // (он уже был выведен выше) 
                           ($stats['plots']['parsed'] ?? 0) + 
                           ($stats['commercial']['parsed'] ?? 0) + 
                           ($stats['contractors']['parsed'] ?? 0);
