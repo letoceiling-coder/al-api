@@ -1721,10 +1721,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $houseData,
             ];
 
-            House::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $house = House::firstOrNew(['external_id' => $externalId]);
+            $house->fill($dbData);
+            $house->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения дома {$externalId} в БД: {$e->getMessage()}");
         }
@@ -1768,10 +1768,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $plotData,
             ];
 
-            Plot::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $plot = Plot::firstOrNew(['external_id' => $externalId]);
+            $plot->fill($dbData);
+            $plot->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения участка {$externalId} в БД: {$e->getMessage()}");
         }
@@ -1836,10 +1836,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $contractorData,
             ];
 
-            $contractor = Contractor::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $contractor = Contractor::firstOrNew(['external_id' => $externalId]);
+            $contractor->fill($dbData);
+            $contractor->save();
 
             // Импортируем проекты подрядчика
             if (isset($contractorData['projects']) && is_array($contractorData['projects'])) {
