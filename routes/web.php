@@ -21,3 +21,7 @@ Route::get('/swagger/{project}', function (string $project) {
     
     return view('swagger.project', compact('project'));
 })->name('swagger.project');
+
+// TrendAgent DB Interface
+Route::get('/trendagent/db', [\App\Http\Controllers\TrendAgent\TrendAgentDbController::class, 'index'])
+    ->name('trendagent.db');
