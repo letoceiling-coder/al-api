@@ -226,27 +226,30 @@ class TrendAgentParse extends Command
         try {
             $details = $this->fetchComplexDetails($complexId);
             
-            if (!$details) {
-                $this->statistics['complexes']['errors']++;
-                return;
-            }
-            
             // Сохраняем детальные данные
             if ($this->option('details')) {
-                $this->saveDetailsData('complexes', "{$complexId}.json", $details);
+                if ($details && isset($details['success']) && $details['success']) {
+                    $this->saveDetailsData('complexes', "{$complexId}.json", $details);
+                } else {
+                    // Сохраняем хотя бы данные из списка, если детали не получены
+                    $this->saveDetailsData('complexes', "{$complexId}.json", ['data' => $listItem, 'source' => 'list']);
+                    $this->statistics['complexes']['errors']++;
+                }
             }
             
-            // Скачиваем изображения
-            if ($this->option('images')) {
+            // Скачиваем изображения (только если детали получены)
+            if ($this->option('images') && $details && isset($details['success']) && $details['success']) {
                 $this->downloadObjectImages('complex', $complexId, $details);
-            }
-            
-            // Обновляем URL изображений в данных
-            if ($this->option('images')) {
+                
+                // Обновляем URL изображений в данных
                 $details = $this->updateImageUrlsInData($details, 'complex', $complexId);
             }
             
         } catch (\Exception $e) {
+            // Сохраняем данные из списка при ошибке
+            if ($this->option('details')) {
+                $this->saveDetailsData('complexes', "{$complexId}.json", ['data' => $listItem, 'source' => 'list', 'error' => $e->getMessage()]);
+            }
             $this->error("Error parsing complex {$complexId}: {$e->getMessage()}");
             $this->statistics['complexes']['errors']++;
             $this->logError('complexes', $complexId, $e->getMessage());
