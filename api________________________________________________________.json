@@ -1,0 +1,432 @@
+{
+    "total_count": 149,
+    "result_count": 5,
+    "list": [
+        {
+            "_id": "683db476e92855d2ef1568ce",
+            "guid": "dk177-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-172"
+            },
+            "images": [
+                {
+                    "path": "w5\/b6\/",
+                    "file_name": "c125b8983a9ebca8203656a7c5e2df67.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "5m\/q4\/",
+                    "file_name": "a59ca6ca5fe86cf87dfc7f3c0674952f.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "2",
+                "unit": "санузла"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "2 959 340 – 5 910 860"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Без отделки, Чистовая"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "60",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "22.11",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "18.48",
+                "unit": "м²"
+            }
+        },
+        {
+            "_id": "683ef19ce92855d2ef156b81",
+            "guid": "dk171-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-204"
+            },
+            "images": [
+                {
+                    "path": "gf\/tn\/",
+                    "file_name": "36c476a99c2c829147ee8395ca6e1e50.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "mn\/1l\/",
+                    "file_name": "75b7bf78658a61bd1307ba18ace2b4db.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "1",
+                "unit": "санузел"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "3 105 330 – 8 269 400"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Без отделки"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "48",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "12.54",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "12.88",
+                "unit": "м²"
+            }
+        },
+        {
+            "_id": "683ef5bee92855d2ef156bd2",
+            "guid": "dk204-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-219"
+            },
+            "images": [
+                {
+                    "path": "pi\/7u\/",
+                    "file_name": "0c27f273063f5b40faac99314d846deb.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "re\/9w\/",
+                    "file_name": "3ca3e636d584ab344e7f777775e91160.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "1",
+                "unit": "санузел"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "3 402 440 – 8 269 400"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Без отделки"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "48",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "11.76",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "18.48",
+                "unit": "м²"
+            }
+        },
+        {
+            "_id": "67c84083cfede6bb20388293",
+            "guid": "kdt18-",
+            "name": {
+                "label": "Проект",
+                "value": "АНОЛА-60"
+            },
+            "images": [
+                {
+                    "path": "91\/me\/",
+                    "file_name": "45aafcfd8bb855f4582fa23cbdc68c0f.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "6r\/12\/",
+                    "file_name": "af2bed56708b2d493d24d01564451feb.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "7k\/sm\/",
+                    "file_name": "53da2cb8aa1a863dc09a2fc3a5468e0f.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "gb\/ci\/",
+                    "file_name": "4ed9377a3c9ee40065a4fb67efdd4b7d.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "6"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "unit": "м²",
+                "value": 14.94
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "67c6a66ecfede6bb20387b44",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "Белый остров"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "1",
+                "unit": "санузел"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "3 900 000 – 5 900 000"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Без отделки, Подчистовая, Чистовая"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "53.4",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "21.24",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "14",
+                "unit": "м²"
+            }
+        },
+        {
+            "_id": "683a001fe92855d2ef156438",
+            "guid": "dk181-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-184"
+            },
+            "images": [
+                {
+                    "path": "2w\/mz\/",
+                    "file_name": "8c2bb172bd6b30072bba9fb0544d6366.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "hl\/ey\/",
+                    "file_name": "ed9a43b4d13b3f627e46213ad752a7ca.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "xb\/bd\/",
+                    "file_name": "9fbe88362742dad46d1da34c74a1242e.jpg",
+                    "is_need_no_crop": true
+                },
+                {
+                    "path": "r0\/om\/",
+                    "file_name": "d23bd02b5a44e90e990e9d0503ae9b45.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "2",
+                "unit": "этажа"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "3",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "2",
+                "unit": "санузла"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "4 054 170 – 7 271 880"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Чистовая"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "112",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "24.17",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "33.88",
+                "unit": "м²"
+            }
+        }
+    ]
+}

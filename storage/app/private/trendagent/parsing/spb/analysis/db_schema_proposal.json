@@ -1,0 +1,15 @@
+{
+    "tables": {
+        "trendagent_regions": {
+            "fields": {
+                "id": "bigIncrements",
+                "code": "string",
+                "name": "string",
+                "created_at": "timestamp",
+                "updated_at": "timestamp"
+            }
+        }
+    },
+    "relationships": [],
+    "indexes": []
+}

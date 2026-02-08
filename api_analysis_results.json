@@ -1,0 +1,171 @@
+[
+    {
+        "category": "Квартиры",
+        "name": "Список квартир",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/apartments\/search\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "errors",
+            "data"
+        ]
+    },
+    {
+        "category": "Квартиры",
+        "name": "Детальная информация о квартире",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/apartments\/63c5614728d3bcf2420860b1",
+        "status": "error",
+        "success": false,
+        "error": "Server error: `GET https:\/\/api.trendagent.ru\/v4_29\/apartments\/63c5614728d3bcf2420860b1?auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM&city=58c665588b6aa52311afa01b&lang=ru` resulted in a `500 Internal Server Error` response:\n{\"errors\":{\"ok\":0,\"code\":17124,\"codeName\":\"Location17124\",\"$clusterTime\":{\"clusterTime\":\"7604421747131023361\",\"signature (truncated...)\n"
+    },
+    {
+        "category": "Квартиры",
+        "name": "Планировки квартир",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/checkerboard\/63c50acc9a85d53360f63a76\/apartments\/",
+        "status": 404,
+        "success": false,
+        "error": "Client error: `GET https:\/\/api.trendagent.ru\/v4_29\/checkerboard\/63c50acc9a85d53360f63a76\/apartments\/?auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM&city=58c665588b6aa52311afa01b&lang=ru` resulted in a `404 Not Found` response:\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error<\/title>\n<\/head>\n<body>\n<pre>Cannot GET \/chec (truncated...)\n"
+    },
+    {
+        "category": "Квартиры",
+        "name": "Список комплексов (list)",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/blocks\/search\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "errors",
+            "data"
+        ]
+    },
+    {
+        "category": "Квартиры",
+        "name": "Карта комплексов (map)",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/blocks\/search\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "errors",
+            "data"
+        ]
+    },
+    {
+        "category": "Паркинги",
+        "name": "Машиноместа",
+        "url": "https:\/\/parkings-api.trendagent.ru\/search\/places\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "blocksCount",
+            "placesCount",
+            "bookedPlacesCount",
+            "results"
+        ]
+    },
+    {
+        "category": "Паркинги",
+        "name": "Блоки паркингов",
+        "url": "https:\/\/parkings-api.trendagent.ru\/search\/blocks\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "blocksCount",
+            "placesCount",
+            "bookedPlacesCount",
+            "results"
+        ]
+    },
+    {
+        "category": "Дома",
+        "name": "Список домов",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/apartments\/search\/",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "errors",
+            "data"
+        ]
+    },
+    {
+        "category": "Дома",
+        "name": "Детальная информация о доме",
+        "url": "https:\/\/api.trendagent.ru\/v4_29\/apartments\/64dcedbb77be5275aff41ef9",
+        "status": "error",
+        "success": false,
+        "error": "Server error: `GET https:\/\/api.trendagent.ru\/v4_29\/apartments\/64dcedbb77be5275aff41ef9?room%5B0%5D=30&room%5B1%5D=40&auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM&city=58c665588b6aa52311afa01b&lang=ru` resulted in a `500 Internal Server Error` response:\n{\"errors\":{\"ok\":0,\"code\":17124,\"codeName\":\"Location17124\",\"$clusterTime\":{\"clusterTime\":\"7604421794375663622\",\"signature (truncated...)\n"
+    },
+    {
+        "category": "Участки",
+        "name": "Список поселков",
+        "url": "https:\/\/house-api.trendagent.ru\/v1\/search\/villages",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "total_count",
+            "result_count",
+            "plots_count",
+            "list"
+        ]
+    },
+    {
+        "category": "Участки",
+        "name": "Детальная информация о поселке",
+        "url": "https:\/\/house-api.trendagent.ru\/v1\/villages\/692578d2a5e15b2a6c65fdbd",
+        "status": 404,
+        "success": false,
+        "error": "Client error: `GET https:\/\/house-api.trendagent.ru\/v1\/villages\/692578d2a5e15b2a6c65fdbd?city=58c665588b6aa52311afa01b&lang=ru&auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM` resulted in a `404 Not Found` response:\n{\"statusCode\":404,\"message\":{\"message\":\"Cannot GET \/v1\/villages\/692578d2a5e15b2a6c65fdbd?city=58c665588b6aa52311afa01b&l (truncated...)\n"
+    },
+    {
+        "category": "Коммерция",
+        "name": "Помещения",
+        "url": "https:\/\/commerce-api.trendagent.ru\/search\/premises",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "premises_count",
+            "blocks_count",
+            "booked_premises_count",
+            "result"
+        ]
+    },
+    {
+        "category": "Коммерция",
+        "name": "Блоки коммерции",
+        "url": "https:\/\/commerce.trendagent.ru\/search\/blocks",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "premises_count",
+            "blocks_count",
+            "booked_premises_count",
+            "result"
+        ]
+    },
+    {
+        "category": "Коммерция",
+        "name": "Детальная информация о помещении",
+        "url": "https:\/\/commerce-api.trendagent.ru\/premises\/66d02665d5fa3023a711487c",
+        "status": 404,
+        "success": false,
+        "error": "Client error: `GET https:\/\/commerce-api.trendagent.ru\/premises\/66d02665d5fa3023a711487c?city=58c665588b6aa52311afa01b&lang=ru&auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM` resulted in a `404 Not Found` response:\n{\"message\":\"Cannot GET \/premises\/66d02665d5fa3023a711487c?city=58c665588b6aa52311afa01b&lang=ru&auth_token=eyJhbGciOiJSU (truncated...)\n"
+    },
+    {
+        "category": "Проекты домов",
+        "name": "Список проектов",
+        "url": "https:\/\/house-api.trendagent.ru\/v1\/projects\/search",
+        "status": 200,
+        "success": true,
+        "keys": [
+            "total_count",
+            "result_count",
+            "list"
+        ]
+    },
+    {
+        "category": "Проекты домов",
+        "name": "Детальная информация о проекте",
+        "url": "https:\/\/house-api.trendagent.ru\/v1\/projects\/dk177-kopiya",
+        "status": 404,
+        "success": false,
+        "error": "Client error: `GET https:\/\/house-api.trendagent.ru\/v1\/projects\/dk177-kopiya?city=58c665588b6aa52311afa01b&lang=ru&auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTg4NTU0NzEwN2YwM2ZlM2ZiNGM2MWYiLCJ0b2tlbl9pZCI6IjY5ODg1NTQ3MTA3ZjAzZmUzZmI0YzYxZiIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNTQyNDA3LCJleHAiOjE3NzA1NDI3MDd9.Nn44pTCRtHRb4fqnSRvHFZ_mfePBqgVx_gFKm4mzavNjZxxeckV00e7n2WNM9biWLDbODOejr-obYO2F25NDon7vJQjSE9q5NBR5rqBjlat7s3fS3yVay9XswSgLq622i8gplOiRa0Dyp1-p1J5RxJBrKKi8fLpKP7WQqIBBXEM` resulted in a `404 Not Found` response:\n{\"statusCode\":404,\"message\":{\"message\":\"Cannot GET \/v1\/projects\/dk177-kopiya?city=58c665588b6aa52311afa01b&lang=ru&auth_ (truncated...)\n"
+    }
+]

@@ -1,0 +1,675 @@
+{
+    "errors": null,
+    "data": {
+        "bookedApartmentsCount": 2512,
+        "apartmentsCount": 55545,
+        "viewApartmentsCount": 2428,
+        "blocksCount": 344,
+        "prelaunchesCount": 8,
+        "prelaunchesEoiCount": 0,
+        "results": [
+            {
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "_id": "58c665588b6aa52311afa01b"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "builder": {
+                    "guid": "city-solutions",
+                    "name": "City Solutions",
+                    "crm_id": 1545145,
+                    "_id": "648078b4ebb354e3a41bd69a"
+                },
+                "_id": "65c8b45523bccfa820bfaf73",
+                "crm_id": 5997265230282341,
+                "name": "Villa Marina",
+                "guid": "villa-marina",
+                "region": {
+                    "guid": "petrogradskiy",
+                    "name": "Петроградский р-н",
+                    "_id": "5983801cd07ed144bb7cca23",
+                    "crm_id": 32
+                },
+                "subways": [
+                    {
+                        "_id": "58c665598b6aa52311afa20c",
+                        "geometry": {
+                            "coordinates": [
+                                30.259491205215458,
+                                59.971813270233696
+                            ],
+                            "type": "Point"
+                        },
+                        "line": 5,
+                        "city": "58c665588b6aa52311afa01b",
+                        "guid": "krestovskiy_ostrov",
+                        "name": "Крестовский остров",
+                        "crm_id": 56,
+                        "priority": 30,
+                        "line_id": "5a61a4d16770e84a4536382a",
+                        "line_number": 5,
+                        "distance_timing": 15,
+                        "distance_type": "пешком",
+                        "distance_type_id": 1,
+                        "color": "#77369a"
+                    }
+                ],
+                "point_distance": [],
+                "view": [
+                    1
+                ],
+                "is_suite": false,
+                "address": [
+                    "пр-кт Динамо"
+                ],
+                "sales_start_at": [],
+                "edit_mode": 1,
+                "status": 1,
+                "deadline": "Сдан",
+                "deadline_ext": [
+                    {
+                        "deadline": "2024-12-30T21:00:00.000Z",
+                        "deadline_over_check": true
+                    }
+                ],
+                "finishing": "Без отделки",
+                "installments": [
+                    false
+                ],
+                "min_price": 1,
+                "max_price": 1,
+                "apart_count": 3,
+                "view_apart_count": 2,
+                "min_prices": [
+                    {
+                        "room": 23,
+                        "price": 1,
+                        "rooms": "3Е-к.кв"
+                    },
+                    {
+                        "room": 24,
+                        "price": 1,
+                        "rooms": "4Е-к.кв"
+                    }
+                ],
+                "reward": [
+                    {
+                        "view": 1,
+                        "label": "3%"
+                    }
+                ],
+                "exclusive_apartments_count": 0,
+                "exclusive": false,
+                "image": {
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "file_name": "d105213c0175bd7719f04919df6d05cd.jpg",
+                    "path": "93\/xx\/"
+                },
+                "сontractTypes": [
+                    "КП"
+                ],
+                "marked": false,
+                "payment": [],
+                "advantages": [
+                    "Без отделки",
+                    "КП"
+                ],
+                "latitude": 59.972650709346404,
+                "longitude": 30.282428716097034
+            },
+            {
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "_id": "58c665588b6aa52311afa01b"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "builder": {
+                    "guid": "atlantika",
+                    "name": "Атлантика",
+                    "crm_id": 673498,
+                    "_id": "65f1d8c92731c97e0c045bf1"
+                },
+                "_id": "63c50acc9a85d53360f63a76",
+                "crm_id": 5989440932348836,
+                "name": "Дом на набережной. Атлантика",
+                "guid": "dom-na-naberezhnoy-st",
+                "region": {
+                    "guid": "volhovskij",
+                    "name": "Волховский р-н, ЛО",
+                    "_id": "5983801cd07ed144bb7cca0c",
+                    "crm_id": 9
+                },
+                "subways": [
+                    {
+                        "_id": "58c665598b6aa52311afa209",
+                        "geometry": {
+                            "coordinates": [
+                                30.483351051807407,
+                                59.9074573827228
+                            ],
+                            "type": "Point"
+                        },
+                        "line": 4,
+                        "city": "58c665588b6aa52311afa01b",
+                        "guid": "dybenko",
+                        "name": "Улица Дыбенко",
+                        "crm_id": 53,
+                        "priority": 80,
+                        "line_id": "5a61a4c56770e84a4536381c",
+                        "line_number": 4,
+                        "distance_timing": 105,
+                        "distance_type": "транспортом",
+                        "distance_type_id": 2,
+                        "color": "#edc738"
+                    }
+                ],
+                "point_distance": [],
+                "view": [
+                    1
+                ],
+                "is_suite": false,
+                "address": [
+                    "г Волхов, Волховский пр-кт"
+                ],
+                "sales_start_at": [
+                    {
+                        "building_name": "1",
+                        "date": "2023-01-18T12:00:00.000Z"
+                    }
+                ],
+                "edit_mode": 1,
+                "status": 1,
+                "deadline": "Сдан",
+                "deadline_ext": [
+                    {
+                        "deadline": "2023-06-30T12:00:00.000Z",
+                        "deadline_over_check": true
+                    }
+                ],
+                "finishing": "Без отделки, Подчистовая, Чистовая",
+                "installments": [
+                    true
+                ],
+                "min_price": 2201500,
+                "max_price": 4186365,
+                "apart_count": 39,
+                "view_apart_count": 23,
+                "min_prices": [
+                    {
+                        "room": 1,
+                        "price": 2201500,
+                        "rooms": "1-к.кв"
+                    },
+                    {
+                        "room": 2,
+                        "price": 3918500,
+                        "rooms": "2-к.кв"
+                    }
+                ],
+                "reward": [
+                    {
+                        "view": 1,
+                        "label": "2%"
+                    }
+                ],
+                "exclusive_apartments_count": 0,
+                "exclusive": true,
+                "image": {
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "file_name": "9ed48e9ca5efcb695ad795d88c8e6eef.png",
+                    "path": "y5\/sb\/"
+                },
+                "сontractTypes": [
+                    "КП"
+                ],
+                "marked": false,
+                "payment": [
+                    "Ипотека",
+                    "Военная ипотека"
+                ],
+                "advantages": [
+                    "Без отделки, Подчистовая, Чистовая",
+                    "Ипотека, Военная ипотека",
+                    "КП"
+                ],
+                "latitude": 59.89450581274186,
+                "longitude": 32.3488804319639
+            },
+            {
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "_id": "58c665588b6aa52311afa01b"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "crm_id": 31
+                },
+                "builder": {
+                    "guid": "nk-razvitie",
+                    "name": "НК Развитие",
+                    "crm_id": 564,
+                    "_id": "684dbc8e1fb09a5570cb61d9"
+                },
+                "_id": "684dc6ea9b433c83aa0cc253",
+                "crm_id": 895647,
+                "name": "LIBERTY DOM",
+                "guid": "liberty-dom",
+                "region": {
+                    "guid": "tosnenskiy",
+                    "name": "Тосненский р-н, ЛО",
+                    "_id": "5983801cd07ed144bb7cca0d",
+                    "crm_id": 10
+                },
+                "subways": [
+                    {
+                        "_id": "58c665598b6aa52311afa1e7",
+                        "geometry": {
+                            "coordinates": [
+                                30.250035077333454,
+                                59.84206769299653
+                            ],
+                            "type": "Point"
+                        },
+                        "line": 1,
+                        "city": "58c665588b6aa52311afa01b",
+                        "guid": "pr_veteranov",
+                        "name": "Проспект Ветеранов",
+                        "crm_id": 19,
+                        "priority": 190,
+                        "line_id": "5a61a47a6770e84a453637fa",
+                        "line_number": 1,
+                        "distance_timing": 40,
+                        "distance_type": "транспортом",
+                        "distance_type_id": 2,
+                        "color": "#bb2f30"
+                    }
+                ],
+                "point_distance": [],
+                "view": [
+                    1
+                ],
+                "is_suite": false,
+                "address": [
+                    "гп Форносово, ул Круговая"
+                ],
+                "sales_start_at": [
+                    {
+                        "building_name": "1",
+                        "date": "2025-04-15T12:00:00.000Z"
+                    },
+                    {
+                        "building_name": "2",
+                        "date": "2025-04-15T12:00:00.000Z"
+                    }
+                ],
+                "edit_mode": 1,
+                "status": 1,
+                "deadline": "3 кв. 2026",
+                "deadline_ext": [
+                    {
+                        "deadline": "2026-09-30T12:00:00.000Z",
+                        "deadline_over_check": false
+                    }
+                ],
+                "finishing": "Подчистовая",
+                "installments": [
+                    true
+                ],
+                "min_price": 2644800,
+                "max_price": 6703440,
+                "apart_count": 62,
+                "view_apart_count": 0,
+                "min_prices": [
+                    {
+                        "room": 0,
+                        "price": 2644800,
+                        "rooms": "Студии"
+                    },
+                    {
+                        "room": 1,
+                        "price": 4413240,
+                        "rooms": "1-к.кв"
+                    },
+                    {
+                        "room": 2,
+                        "price": 6146620,
+                        "rooms": "2-к.кв"
+                    }
+                ],
+                "reward": [
+                    {
+                        "view": 1,
+                        "label": "2.4%"
+                    }
+                ],
+                "exclusive_apartments_count": 0,
+                "exclusive": true,
+                "image": {
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "file_name": "5f88c0ce490c2a621810d4a2c8e785ab.jpg",
+                    "path": "sb\/r0\/"
+                },
+                "сontractTypes": [
+                    "ДДУ"
+                ],
+                "marked": false,
+                "payment": [
+                    "Рассрочка",
+                    "Ипотека",
+                    "Военная ипотека"
+                ],
+                "advantages": [
+                    "Подчистовая",
+                    "Рассрочка, Ипотека, Военная ипотека",
+                    "ДДУ"
+                ],
+                "latitude": 59.56854971360776,
+                "longitude": 30.550896860165913
+            },
+            {
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "_id": "58c665588b6aa52311afa01b"
+                },
+                "location": {
+                    "_id": "6780cd1c0f13780f1f4892f0",
+                    "guid": "d-luppolovo",
+                    "name": "д. Лупполово",
+                    "crm_id": 6015400130270216
+                },
+                "builder": {
+                    "guid": "gk-razvitie-yukki",
+                    "name": "ГК Развитие. Юкки",
+                    "crm_id": 4998,
+                    "_id": "68ff8e5a146ea413d15b5b39"
+                },
+                "_id": "690077d80d05add15d2bbe9c",
+                "crm_id": 6015154130266981,
+                "name": "Панорама Юкки",
+                "guid": "panorama-yukki",
+                "region": {
+                    "guid": "vsevolozhskiy",
+                    "name": "Всеволожский р-н, ЛО",
+                    "_id": "5983801cd07ed144bb7cca05",
+                    "crm_id": 1
+                },
+                "subways": [
+                    {
+                        "_id": "58c665598b6aa52311afa1e8",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                30.334249734878544,
+                                60.06701236108178
+                            ]
+                        },
+                        "line": 2,
+                        "city": "58c665588b6aa52311afa01b",
+                        "guid": "parnas",
+                        "name": "Парнас",
+                        "crm_id": 20,
+                        "priority": 10,
+                        "line_id": "5a61a4a76770e84a4536380e",
+                        "line_number": 2,
+                        "distance_timing": 20,
+                        "distance_type": "транспортом",
+                        "distance_type_id": 2,
+                        "color": "#4b74c0"
+                    }
+                ],
+                "point_distance": [],
+                "view": [
+                    1
+                ],
+                "is_suite": false,
+                "address": [
+                    "Юкковское сельское поселение, ул Центральная"
+                ],
+                "sales_start_at": [],
+                "edit_mode": 1,
+                "status": 1,
+                "deadline": "2 кв. 2028",
+                "deadline_ext": [
+                    {
+                        "deadline": "2028-06-30T12:00:00.000Z",
+                        "deadline_over_check": false
+                    }
+                ],
+                "finishing": "Без отделки, Подчистовая, Подчистовая дозаказ, Чистовая дозаказ",
+                "installments": [
+                    false
+                ],
+                "min_price": 3063707,
+                "max_price": 10082429,
+                "apart_count": 175,
+                "view_apart_count": 22,
+                "min_prices": [
+                    {
+                        "room": 0,
+                        "price": 3063707,
+                        "rooms": "Студии"
+                    },
+                    {
+                        "room": 1,
+                        "price": 3853165,
+                        "rooms": "1-к.кв"
+                    },
+                    {
+                        "room": 2,
+                        "price": 5475761,
+                        "rooms": "2-к.кв"
+                    },
+                    {
+                        "room": 3,
+                        "price": 6073171,
+                        "rooms": "3-к.кв"
+                    },
+                    {
+                        "room": 4,
+                        "price": 10082429,
+                        "rooms": "4-к.кв"
+                    }
+                ],
+                "reward": [
+                    {
+                        "view": 1,
+                        "label": "4.4%"
+                    }
+                ],
+                "exclusive_apartments_count": 0,
+                "exclusive": false,
+                "image": {
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "file_name": "08018f8e3504a7e1cc6d085423590453.jpg",
+                    "path": "e7\/xm\/"
+                },
+                "сontractTypes": [
+                    "ДДУ"
+                ],
+                "marked": false,
+                "payment": [
+                    "Рассрочка",
+                    "Ипотека",
+                    "Субcидия"
+                ],
+                "advantages": [
+                    "Без отделки, Подчистовая, Подчистовая дозаказ, Чистовая дозаказ",
+                    "Рассрочка, Ипотека, Субcидия",
+                    "ДДУ"
+                ],
+                "latitude": 60.151471304174116,
+                "longitude": 30.267336796991867
+            },
+            {
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "_id": "58c665588b6aa52311afa01b"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "crm_id": 31
+                },
+                "builder": {
+                    "guid": "gk-nsk",
+                    "name": "ГК НСК",
+                    "crm_id": 116,
+                    "_id": "58c665588b6aa52311afa0d6"
+                },
+                "_id": "654b4f099032d681c85a09bd",
+                "crm_id": 5976912930047883,
+                "name": "Аннино Сити",
+                "guid": "annino-siti",
+                "region": {
+                    "guid": "lomonosovskiy",
+                    "name": "Ломоносовский р-н, ЛО",
+                    "_id": "5983801cd07ed144bb7cca0b",
+                    "crm_id": 8
+                },
+                "subways": [
+                    {
+                        "_id": "58c665598b6aa52311afa1e7",
+                        "geometry": {
+                            "coordinates": [
+                                30.250035077333454,
+                                59.84206769299653
+                            ],
+                            "type": "Point"
+                        },
+                        "line": 1,
+                        "city": "58c665588b6aa52311afa01b",
+                        "guid": "pr_veteranov",
+                        "name": "Проспект Ветеранов",
+                        "crm_id": 19,
+                        "priority": 190,
+                        "line_id": "5a61a47a6770e84a453637fa",
+                        "line_number": 1,
+                        "distance_timing": 25,
+                        "distance_type": "транспортом",
+                        "distance_type_id": 2,
+                        "color": "#bb2f30"
+                    }
+                ],
+                "point_distance": [],
+                "view": [
+                    1
+                ],
+                "is_suite": false,
+                "address": [
+                    "Поселок Аннино, ул Якова Золина"
+                ],
+                "sales_start_at": [
+                    {
+                        "building_name": "5",
+                        "date": "2024-05-27T12:00:00.000Z"
+                    }
+                ],
+                "edit_mode": 1,
+                "status": 1,
+                "deadline": "Сдан",
+                "deadline_ext": [
+                    {
+                        "deadline": "2025-12-31T12:00:00.000Z",
+                        "deadline_over_check": true
+                    }
+                ],
+                "finishing": "Без отделки, Чистовая дозаказ",
+                "installments": [
+                    true
+                ],
+                "min_price": 3101460,
+                "max_price": 8840480,
+                "apart_count": 110,
+                "view_apart_count": 0,
+                "min_prices": [
+                    {
+                        "room": 0,
+                        "price": 3101460,
+                        "rooms": "Студии"
+                    },
+                    {
+                        "room": 1,
+                        "price": 4257310,
+                        "rooms": "1-к.кв"
+                    },
+                    {
+                        "room": 22,
+                        "price": 4332130,
+                        "rooms": "2Е-к.кв"
+                    },
+                    {
+                        "room": 2,
+                        "price": 7690640,
+                        "rooms": "2-к.кв"
+                    },
+                    {
+                        "room": 23,
+                        "price": 7685360,
+                        "rooms": "3Е-к.кв"
+                    }
+                ],
+                "reward": [
+                    {
+                        "view": 1,
+                        "label": "4%"
+                    }
+                ],
+                "exclusive_apartments_count": 0,
+                "exclusive": false,
+                "image": {
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "file_name": "981e20f57547fdf9d4435cfdd99c9b5e.jpg",
+                    "path": "sg\/9g\/"
+                },
+                "сontractTypes": [
+                    "КП"
+                ],
+                "marked": false,
+                "payment": [
+                    "Ипотека",
+                    "Военная ипотека"
+                ],
+                "advantages": [
+                    "Без отделки, Чистовая дозаказ",
+                    "Ипотека, Военная ипотека",
+                    "КП"
+                ],
+                "latitude": 59.76912606634882,
+                "longitude": 30.04767095239612
+            }
+        ]
+    }
+}

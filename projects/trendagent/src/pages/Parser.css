@@ -176,6 +176,15 @@
   background: #2563eb;
 }
 
+.btn-success {
+  background: #10b981;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #059669;
+}
+
 .btn-danger {
   background: #ef4444;
   color: white;

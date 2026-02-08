@@ -1,0 +1,22 @@
+{
+    "field_mapping": [],
+    "common_fields": [],
+    "unique_fields": [],
+    "relationships": [],
+    "data_types": [],
+    "db_schema_proposal": {
+        "tables": {
+            "trendagent_regions": {
+                "fields": {
+                    "id": "bigIncrements",
+                    "code": "string",
+                    "name": "string",
+                    "created_at": "timestamp",
+                    "updated_at": "timestamp"
+                }
+            }
+        },
+        "relationships": [],
+        "indexes": []
+    }
+}

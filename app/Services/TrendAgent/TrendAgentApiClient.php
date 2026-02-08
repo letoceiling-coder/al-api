@@ -517,21 +517,9 @@ class TrendAgentApiClient
     {
         $this->ensureAuthenticated();
         
-        try {
-            $result = $this->auth->sendRequest("land_plots/{$id}/", $params);
-            
-            return [
-                'success' => true,
-                'data' => $result,
-            ];
-            
-        } catch (Exception $e) {
-            Log::error("TrendAgentApiClient: Ошибка получения деталей поселка {$id}", [
-                'error' => $e->getMessage(),
-            ]);
-            
-            throw $e;
-        }
+        return $this->executeWithRetry(function() use ($id, $params) {
+            return $this->auth->getPlotDetail($id, $params);
+        });
     }
 
     /**
@@ -573,11 +561,15 @@ class TrendAgentApiClient
                 'city' => $this->getCityId($cityCode),
                 'count' => $params['count'] ?? 100,
                 'offset' => $params['offset'] ?? 0,
-                'object_type' => 'commercial',
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            // ✅ ИСПРАВЛЕНО: Используем правильный метод getCommercialSearch()
+            // вместо getBlocksSearch() который возвращал квартиры
+            $result = $this->executeWithRetry(function() use ($apiParams) {
+                return $this->auth->getCommercialSearch($apiParams);
+            });
             
             return [
                 'success' => true,
@@ -601,21 +593,9 @@ class TrendAgentApiClient
     {
         $this->ensureAuthenticated();
         
-        try {
-            $result = $this->auth->sendRequest("commercial/{$id}/", $params);
-            
-            return [
-                'success' => true,
-                'data' => $result,
-            ];
-            
-        } catch (Exception $e) {
-            Log::error("TrendAgentApiClient: Ошибка получения деталей коммерческой недвижимости {$id}", [
-                'error' => $e->getMessage(),
-            ]);
-            
-            throw $e;
-        }
+        return $this->executeWithRetry(function() use ($id, $params) {
+            return $this->auth->getCommercePremiseDetail($id, $params);
+        });
     }
 
     /**
@@ -712,5 +692,186 @@ class TrendAgentApiClient
         ];
         
         return $cityMap[$cityCode] ?? $cityMap['spb'];
+    }
+
+    /**
+     * Получить паркинги комплекса (машиноместа)
+     */
+    public function getBlockParkings(string $blockId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        return $this->executeWithRetry(function() use ($blockId, $params) {
+            return $this->auth->getBlockParkings($blockId, $params);
+        });
+    }
+
+    /**
+     * Получить дома комплекса
+     */
+    public function getBlockHouses(string $blockId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        return $this->executeWithRetry(function() use ($blockId, $params) {
+            return $this->auth->getBlockHouses($blockId, $params);
+        });
+    }
+
+    /**
+     * Получить коммерческие помещения комплекса
+     */
+    public function getBlockCommercial(string $blockId, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        return $this->executeWithRetry(function() use ($blockId, $params) {
+            return $this->auth->getBlockCommercial($blockId, $params);
+        });
+    }
+
+    /**
+     * Получить комплексы по типу комнат (room)
+     */
+    public function getComplexesByRoom(array $rooms, string $city = 'spb', int $count = 100, int $offset = 0): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $params = [
+                'city' => $this->getCityId($city),
+                'count' => $count,
+                'offset' => $offset,
+                'show_type' => 'list',
+                'room' => $rooms,
+            ];
+
+            $result = $this->executeWithRetry(function() use ($params) {
+                return $this->auth->getBlocksSearch($params);
+            });
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['blocks_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения комплексов по room', [
+                'rooms' => $rooms,
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить токен авторизации
+     */
+    public function getAuthToken(): ?string
+    {
+        $this->ensureAuthenticated();
+        return $this->auth->getAuthToken();
+    }
+
+    /**
+     * Получить коммерческие помещения
+     */
+    public function getCommercePremises(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
+            $defaultParams = [
+                'city' => $this->getCityId($cityCode),
+                'count' => $params['count'] ?? 50,
+                'offset' => $params['offset'] ?? 0,
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            
+            $result = $this->executeWithRetry(function() use ($apiParams) {
+                return $this->auth->getCommercePremises($apiParams);
+            });
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['premises_count'] ?? $result['total'] ?? 0,
+                'premises_count' => $result['premises_count'] ?? 0,
+                'blocks_count' => $result['blocks_count'] ?? 0,
+                'booked_premises_count' => $result['booked_premises_count'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения помещений коммерции', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список подрядчиков (проектов домов)
+     */
+    public function getContractors(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
+            $defaultParams = [
+                'city' => $this->getCityId($cityCode),
+                'count' => $params['count'] ?? 100,
+                'offset' => $params['offset'] ?? 0,
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getContractorsSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['total_count'] ?? $result['total'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения подрядчиков', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить детали проекта подрядчика
+     */
+    public function getContractorProjectDetails(string $id, array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $result = $this->auth->getContractorProjectDetails($id, $params);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error("TrendAgentApiClient: Ошибка получения деталей проекта подрядчика {$id}", [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
     }
 }

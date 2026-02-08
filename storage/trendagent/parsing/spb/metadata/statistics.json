@@ -1,0 +1,41 @@
+{
+    "region": "spb",
+    "parsed_at": "2026-02-08T10:42:44+00:00",
+    "statistics": {
+        "complexes": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "apartments": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "parkings": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "houses": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "plots": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "commercial": {
+            "total": 0,
+            "parsed": 0,
+            "errors": 0
+        },
+        "images": {
+            "total": 0,
+            "downloaded": 0,
+            "errors": 0
+        }
+    }
+}

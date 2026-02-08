@@ -1,0 +1,352 @@
+{
+    "premises_count": 1775,
+    "blocks_count": 168,
+    "booked_premises_count": 149,
+    "result": [
+        {
+            "_id": "66cf3c79c5983b2c858cab4d",
+            "area_total": 5.1,
+            "block_guid": "smart-vosstanovleniya",
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "crm_id": 5879,
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": "2026-12-31T12:00:00.000Z",
+            "deadline_over_check": false,
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "purpose": {
+                "_id": "637f51d7d6b5cb7f95c0a487",
+                "value": "available_appointment",
+                "label": "Свободное назначение"
+            },
+            "finishing_type": {
+                "_id": "637f528ad6b5cb7f95c0a48a",
+                "value": "without_finishing",
+                "label": "Без отделки"
+            },
+            "price": 1606500,
+            "price_m2": 315000,
+            "property_type": {
+                "_id": 201,
+                "value": "new",
+                "label": "Новостройка"
+            },
+            "status": {
+                "_id": "637f3447d6b5cb7f95c0a46f",
+                "value": "available",
+                "label": "Свободно"
+            },
+            "window_view": [],
+            "building_name": "1",
+            "number": "2 2.8",
+            "subway": {
+                "_id": "58c665598b6aa52311afa1e7",
+                "name": "Проспект Ветеранов",
+                "name_en": "Prospekt Veteranov",
+                "guid": "pr_veteranov",
+                "color": "#bb2f30",
+                "line_id": "5a61a47a6770e84a453637fa",
+                "distance_type": 2,
+                "distance_time": 25
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "name": "Квартиры на Юге"
+            },
+            "individual_plan_image": {
+                "file_name": "qf1wkx5udks5il4hpozdn98h.png",
+                "path": "3\/u\/"
+            },
+            "floors": [
+                3
+            ],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "_id": "66d02665d5fa3023a711487c",
+            "area_total": 5.4,
+            "block_guid": "smart-vosstanovleniya",
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "crm_id": 5879,
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": "2026-12-31T12:00:00.000Z",
+            "deadline_over_check": false,
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "purpose": {
+                "_id": "637f51d7d6b5cb7f95c0a487",
+                "value": "available_appointment",
+                "label": "Свободное назначение"
+            },
+            "finishing_type": {
+                "_id": "637f528ad6b5cb7f95c0a48a",
+                "value": "without_finishing",
+                "label": "Без отделки"
+            },
+            "price": 1701000,
+            "price_m2": 315000,
+            "property_type": {
+                "_id": 201,
+                "value": "new",
+                "label": "Новостройка"
+            },
+            "status": {
+                "_id": "637f3447d6b5cb7f95c0a46f",
+                "value": "available",
+                "label": "Свободно"
+            },
+            "window_view": [],
+            "building_name": "1",
+            "number": "2 2.43",
+            "subway": {
+                "_id": "58c665598b6aa52311afa1e7",
+                "name": "Проспект Ветеранов",
+                "name_en": "Prospekt Veteranov",
+                "guid": "pr_veteranov",
+                "color": "#bb2f30",
+                "line_id": "5a61a47a6770e84a453637fa",
+                "distance_type": 2,
+                "distance_time": 25
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "name": "Квартиры на Юге"
+            },
+            "individual_plan_image": {
+                "file_name": "lyt695xbddklzkxxra37w8zx.png",
+                "path": "6\/0\/"
+            },
+            "floors": [
+                3
+            ],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "_id": "66d0291dc5983b2c858d9825",
+            "area_total": 5.4,
+            "block_guid": "smart-vosstanovleniya",
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "crm_id": 5879,
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": "2026-12-31T12:00:00.000Z",
+            "deadline_over_check": false,
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "purpose": {
+                "_id": "637f51d7d6b5cb7f95c0a487",
+                "value": "available_appointment",
+                "label": "Свободное назначение"
+            },
+            "finishing_type": {
+                "_id": "637f528ad6b5cb7f95c0a48a",
+                "value": "without_finishing",
+                "label": "Без отделки"
+            },
+            "price": 1701000,
+            "price_m2": 315000,
+            "property_type": {
+                "_id": 201,
+                "value": "new",
+                "label": "Новостройка"
+            },
+            "status": {
+                "_id": "637f3447d6b5cb7f95c0a46f",
+                "value": "available",
+                "label": "Свободно"
+            },
+            "window_view": [],
+            "building_name": "1",
+            "number": "2 2.44",
+            "subway": {
+                "_id": "58c665598b6aa52311afa1e7",
+                "name": "Проспект Ветеранов",
+                "name_en": "Prospekt Veteranov",
+                "guid": "pr_veteranov",
+                "color": "#bb2f30",
+                "line_id": "5a61a47a6770e84a453637fa",
+                "distance_type": 2,
+                "distance_time": 25
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "name": "Квартиры на Юге"
+            },
+            "individual_plan_image": {
+                "file_name": "d6yz5vzhg0ip551vmdi1ta2u.png",
+                "path": "w\/8\/"
+            },
+            "floors": [
+                3
+            ],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "_id": "66d02a6cc5983b2c858d9c1d",
+            "area_total": 5.4,
+            "block_guid": "smart-vosstanovleniya",
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "crm_id": 5879,
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": "2026-12-31T12:00:00.000Z",
+            "deadline_over_check": false,
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "purpose": {
+                "_id": "637f51d7d6b5cb7f95c0a487",
+                "value": "available_appointment",
+                "label": "Свободное назначение"
+            },
+            "finishing_type": {
+                "_id": "637f528ad6b5cb7f95c0a48a",
+                "value": "without_finishing",
+                "label": "Без отделки"
+            },
+            "price": 1701000,
+            "price_m2": 315000,
+            "property_type": {
+                "_id": 201,
+                "value": "new",
+                "label": "Новостройка"
+            },
+            "status": {
+                "_id": "637f3447d6b5cb7f95c0a46f",
+                "value": "available",
+                "label": "Свободно"
+            },
+            "window_view": [],
+            "building_name": "1",
+            "number": "2 2.75",
+            "subway": {
+                "_id": "58c665598b6aa52311afa1e7",
+                "name": "Проспект Ветеранов",
+                "name_en": "Prospekt Veteranov",
+                "guid": "pr_veteranov",
+                "color": "#bb2f30",
+                "line_id": "5a61a47a6770e84a453637fa",
+                "distance_type": 2,
+                "distance_time": 25
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "name": "Квартиры на Юге"
+            },
+            "individual_plan_image": {
+                "file_name": "6akzg9ktuhs9xdz0h7su37ca.png",
+                "path": "o\/9\/"
+            },
+            "floors": [
+                3
+            ],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "_id": "66d02522d5fa3023a7114575",
+            "area_total": 6.7,
+            "block_guid": "smart-vosstanovleniya",
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "crm_id": 5879,
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": "2026-12-31T12:00:00.000Z",
+            "deadline_over_check": false,
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "purpose": {
+                "_id": "637f51d7d6b5cb7f95c0a487",
+                "value": "available_appointment",
+                "label": "Свободное назначение"
+            },
+            "finishing_type": {
+                "_id": "637f528ad6b5cb7f95c0a48a",
+                "value": "without_finishing",
+                "label": "Без отделки"
+            },
+            "price": 2394000,
+            "price_m2": 357313.43,
+            "property_type": {
+                "_id": 201,
+                "value": "new",
+                "label": "Новостройка"
+            },
+            "status": {
+                "_id": "637f3447d6b5cb7f95c0a46f",
+                "value": "available",
+                "label": "Свободно"
+            },
+            "window_view": [],
+            "building_name": "1",
+            "number": "2 2.23",
+            "subway": {
+                "_id": "58c665598b6aa52311afa1e7",
+                "name": "Проспект Ветеранов",
+                "name_en": "Prospekt Veteranov",
+                "guid": "pr_veteranov",
+                "color": "#bb2f30",
+                "line_id": "5a61a47a6770e84a453637fa",
+                "distance_type": 2,
+                "distance_time": 25
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "name": "Квартиры на Юге"
+            },
+            "individual_plan_image": {
+                "file_name": "4ptrqyzz1umiw4hpz2s9k5fg.png",
+                "path": "q\/e\/"
+            },
+            "floors": [
+                3
+            ],
+            "reward": {
+                "label": "Уточняется"
+            }
+        }
+    ]
+}

@@ -1,0 +1,490 @@
+{
+    "errors": null,
+    "data": {
+        "bookedApartmentsCount": 115,
+        "apartmentsCount": 1023,
+        "blocksCount": 60,
+        "list": [
+            {
+                "status": {
+                    "name": "Свободная",
+                    "name_short": "Свободная",
+                    "crm_id": 0,
+                    "bkgrd_color": "#ffffff",
+                    "border_color": "#f2f2f2",
+                    "bkgrd_image": []
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca08",
+                    "guid": "vyborg",
+                    "name": "Выборгский р-н, ЛО",
+                    "crm_id": 5
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "id": "58c665588b6aa52311afa01b"
+                },
+                "builder": {
+                    "_id": "64db781368f69eab9ab7466e",
+                    "guid": "ooo-inzhenernye-seti",
+                    "name": "Белая дача",
+                    "crm_id": 9368
+                },
+                "finishing": {
+                    "name": "С мягкой мебелью",
+                    "name_short": "С мягкой мебелью",
+                    "crm_id": 4,
+                    "_id": "58c665588b6aa52311afa02b"
+                },
+                "plan": {
+                    "path": "vt\/33\/",
+                    "file_name": "2f5c186c3c29043ec6e86b9e99757765.jpg"
+                },
+                "_id": "64dcedbb77be5275aff41ef9",
+                "crm_id": "14",
+                "is_suite": true,
+                "number": "14",
+                "view": 1,
+                "block_name": "Коттеджный поселок Белая дача",
+                "block_guid": "belaya-dacha",
+                "block_id": "64db7ab977be523b31f3f533",
+                "edit_mode": 1,
+                "deadline": "2026-06-30T12:00:00.000Z",
+                "deadline_over_check": false,
+                "building_name": "14",
+                "room": {
+                    "name_short": "Ктдж",
+                    "name_one": "Коттедж",
+                    "name": "Коттеджи",
+                    "crm_id": 30
+                },
+                "area_given": 116,
+                "area_kitchen": 0,
+                "finishing_main": [
+                    {
+                        "_id": "58c665588b6aa52311afa02b",
+                        "name": "С мягкой мебелью",
+                        "name_short": "С мягкой мебелью",
+                        "crm_id": 4
+                    }
+                ],
+                "finishing_additional": [],
+                "floor": 1,
+                "floors": 2,
+                "price": 1250000,
+                "north": 225,
+                "view_places": [
+                    {
+                        "_id": "64dcb94577be520bc0f41136"
+                    },
+                    {
+                        "_id": "649a95a552a22cea69765278"
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "exclusive": false,
+                "subway": {
+                    "guid": "parnas",
+                    "name": "Парнас",
+                    "line": {
+                        "color": "#4b74c0"
+                    }
+                }
+            },
+            {
+                "status": {
+                    "name": "Свободная",
+                    "name_short": "Свободная",
+                    "crm_id": 0,
+                    "bkgrd_color": "#ffffff",
+                    "border_color": "#f2f2f2",
+                    "bkgrd_image": []
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca08",
+                    "guid": "vyborg",
+                    "name": "Выборгский р-н, ЛО",
+                    "crm_id": 5
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "id": "58c665588b6aa52311afa01b"
+                },
+                "builder": {
+                    "_id": "64db781368f69eab9ab7466e",
+                    "guid": "ooo-inzhenernye-seti",
+                    "name": "Белая дача",
+                    "crm_id": 9368
+                },
+                "finishing": {
+                    "name": "С мягкой мебелью",
+                    "name_short": "С мягкой мебелью",
+                    "crm_id": 4,
+                    "_id": "58c665588b6aa52311afa02b"
+                },
+                "plan": {
+                    "path": "kk\/qk\/",
+                    "file_name": "f21fb08e8e8bbb99594aefb8dfc4f264.jpg"
+                },
+                "_id": "693bdac07bb4c4cf294c65a6",
+                "crm_id": "14",
+                "is_suite": false,
+                "number": "14",
+                "view": 1,
+                "block_name": "Коттеджный поселок Белая дача",
+                "block_guid": "belaya-dacha",
+                "block_id": "64db7ab977be523b31f3f533",
+                "edit_mode": 1,
+                "deadline": "2026-06-30T12:00:00.000Z",
+                "deadline_over_check": false,
+                "building_name": "14",
+                "room": {
+                    "name_short": "Ктдж",
+                    "name_one": "Коттедж",
+                    "name": "Коттеджи",
+                    "crm_id": 30
+                },
+                "area_given": 116,
+                "area_kitchen": 0,
+                "finishing_main": [
+                    {
+                        "_id": "58c665588b6aa52311afa02b",
+                        "name": "С мягкой мебелью",
+                        "name_short": "С мягкой мебелью",
+                        "crm_id": 4
+                    }
+                ],
+                "finishing_additional": [],
+                "floor": 1,
+                "floors": 2,
+                "price": 1250000,
+                "north": 225,
+                "view_places": [
+                    {
+                        "_id": "64dcb94577be520bc0f41136"
+                    },
+                    {
+                        "_id": "649a95a552a22cea69765278"
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "exclusive": false,
+                "subway": {
+                    "guid": "parnas",
+                    "name": "Парнас",
+                    "line": {
+                        "color": "#4b74c0"
+                    }
+                }
+            },
+            {
+                "status": {
+                    "name": "Свободная",
+                    "name_short": "Свободная",
+                    "crm_id": 0,
+                    "bkgrd_color": "#ffffff",
+                    "border_color": "#f2f2f2",
+                    "bkgrd_image": []
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca08",
+                    "guid": "vyborg",
+                    "name": "Выборгский р-н, ЛО",
+                    "crm_id": 5
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "id": "58c665588b6aa52311afa01b"
+                },
+                "builder": {
+                    "_id": "64db781368f69eab9ab7466e",
+                    "guid": "ooo-inzhenernye-seti",
+                    "name": "Белая дача",
+                    "crm_id": 9368
+                },
+                "finishing": {
+                    "name": "С мягкой мебелью",
+                    "name_short": "С мягкой мебелью",
+                    "crm_id": 4,
+                    "_id": "58c665588b6aa52311afa02b"
+                },
+                "plan": {
+                    "path": "kk\/qk\/",
+                    "file_name": "f21fb08e8e8bbb99594aefb8dfc4f264.jpg"
+                },
+                "_id": "693bdc15817c2319be591224",
+                "crm_id": "14",
+                "is_suite": false,
+                "number": "14",
+                "view": 1,
+                "block_name": "Коттеджный поселок Белая дача",
+                "block_guid": "belaya-dacha",
+                "block_id": "64db7ab977be523b31f3f533",
+                "edit_mode": 1,
+                "deadline": "2026-06-30T12:00:00.000Z",
+                "deadline_over_check": false,
+                "building_name": "14",
+                "room": {
+                    "name_short": "Ктдж",
+                    "name_one": "Коттедж",
+                    "name": "Коттеджи",
+                    "crm_id": 30
+                },
+                "area_given": 116,
+                "area_kitchen": 0,
+                "finishing_main": [
+                    {
+                        "_id": "58c665588b6aa52311afa02b",
+                        "name": "С мягкой мебелью",
+                        "name_short": "С мягкой мебелью",
+                        "crm_id": 4
+                    }
+                ],
+                "finishing_additional": [],
+                "floor": 1,
+                "floors": 2,
+                "price": 1250000,
+                "north": 0,
+                "view_places": [
+                    {
+                        "_id": "64dcb94577be520bc0f41136"
+                    },
+                    {
+                        "_id": "649a95a552a22cea69765278"
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "exclusive": false,
+                "subway": {
+                    "guid": "parnas",
+                    "name": "Парнас",
+                    "line": {
+                        "color": "#4b74c0"
+                    }
+                }
+            },
+            {
+                "status": {
+                    "name": "Свободная",
+                    "name_short": "Свободная",
+                    "crm_id": 0,
+                    "bkgrd_color": "#ffffff",
+                    "border_color": "#f2f2f2",
+                    "bkgrd_image": []
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca08",
+                    "guid": "vyborg",
+                    "name": "Выборгский р-н, ЛО",
+                    "crm_id": 5
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "id": "58c665588b6aa52311afa01b"
+                },
+                "builder": {
+                    "_id": "64db781368f69eab9ab7466e",
+                    "guid": "ooo-inzhenernye-seti",
+                    "name": "Белая дача",
+                    "crm_id": 9368
+                },
+                "finishing": {
+                    "name": "С мягкой мебелью",
+                    "name_short": "С мягкой мебелью",
+                    "crm_id": 4,
+                    "_id": "58c665588b6aa52311afa02b"
+                },
+                "plan": {
+                    "path": "kk\/qk\/",
+                    "file_name": "f21fb08e8e8bbb99594aefb8dfc4f264.jpg"
+                },
+                "_id": "693bdca67bb4c422ca4c6efa",
+                "crm_id": "14",
+                "is_suite": false,
+                "number": "14",
+                "view": 1,
+                "block_name": "Коттеджный поселок Белая дача",
+                "block_guid": "belaya-dacha",
+                "block_id": "64db7ab977be523b31f3f533",
+                "edit_mode": 1,
+                "deadline": "2026-06-30T12:00:00.000Z",
+                "deadline_over_check": false,
+                "building_name": "14",
+                "room": {
+                    "name_short": "Ктдж",
+                    "name_one": "Коттедж",
+                    "name": "Коттеджи",
+                    "crm_id": 30
+                },
+                "area_given": 116,
+                "area_kitchen": 0,
+                "finishing_main": [
+                    {
+                        "_id": "58c665588b6aa52311afa02b",
+                        "name": "С мягкой мебелью",
+                        "name_short": "С мягкой мебелью",
+                        "crm_id": 4
+                    }
+                ],
+                "finishing_additional": [],
+                "floor": 1,
+                "floors": 2,
+                "price": 1250000,
+                "north": null,
+                "view_places": [
+                    {
+                        "_id": "64dcb94577be520bc0f41136"
+                    },
+                    {
+                        "_id": "649a95a552a22cea69765278"
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "exclusive": false,
+                "subway": {
+                    "guid": "parnas",
+                    "name": "Парнас",
+                    "line": {
+                        "color": "#4b74c0"
+                    }
+                }
+            },
+            {
+                "status": {
+                    "name": "Свободная",
+                    "name_short": "Свободная",
+                    "crm_id": 0,
+                    "bkgrd_color": "#ffffff",
+                    "border_color": "#f2f2f2",
+                    "bkgrd_image": []
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca08",
+                    "guid": "vyborg",
+                    "name": "Выборгский р-н, ЛО",
+                    "crm_id": 5
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "crm_id": 19
+                },
+                "city": {
+                    "guid": "spb",
+                    "name": "Санкт-Петербург",
+                    "crm_id": 0,
+                    "id": "58c665588b6aa52311afa01b"
+                },
+                "builder": {
+                    "_id": "64db781368f69eab9ab7466e",
+                    "guid": "ooo-inzhenernye-seti",
+                    "name": "Белая дача",
+                    "crm_id": 9368
+                },
+                "finishing": {
+                    "name": "С мягкой мебелью",
+                    "name_short": "С мягкой мебелью",
+                    "crm_id": 4,
+                    "_id": "58c665588b6aa52311afa02b"
+                },
+                "plan": {
+                    "path": "kk\/qk\/",
+                    "file_name": "f21fb08e8e8bbb99594aefb8dfc4f264.jpg"
+                },
+                "_id": "693bdcbd7bb4c4533b4c6f4b",
+                "crm_id": "14",
+                "is_suite": false,
+                "number": "14",
+                "view": 1,
+                "block_name": "Коттеджный поселок Белая дача",
+                "block_guid": "belaya-dacha",
+                "block_id": "64db7ab977be523b31f3f533",
+                "edit_mode": 1,
+                "deadline": "2026-06-30T12:00:00.000Z",
+                "deadline_over_check": false,
+                "building_name": "14",
+                "room": {
+                    "name_short": "Ктдж",
+                    "name_one": "Коттедж",
+                    "name": "Коттеджи",
+                    "crm_id": 30
+                },
+                "area_given": 116,
+                "area_kitchen": 0,
+                "finishing_main": [
+                    {
+                        "_id": "58c665588b6aa52311afa02b",
+                        "name": "С мягкой мебелью",
+                        "name_short": "С мягкой мебелью",
+                        "crm_id": 4
+                    }
+                ],
+                "finishing_additional": [],
+                "floor": 1,
+                "floors": 2,
+                "price": 1250000,
+                "north": 0,
+                "view_places": [
+                    {
+                        "_id": "64dcb94577be520bc0f41136"
+                    },
+                    {
+                        "_id": "649a95a552a22cea69765278"
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "exclusive": false,
+                "subway": {
+                    "guid": "parnas",
+                    "name": "Парнас",
+                    "line": {
+                        "color": "#4b74c0"
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,629 @@
+{
+    "premises_count": 1775,
+    "blocks_count": 168,
+    "booked_premises_count": 149,
+    "result": [
+        {
+            "block_id": "66ce4335ed7175f303a8898d",
+            "block_name": "Smart Восстановления",
+            "address": "г Красное Село, ул Восстановления",
+            "premises_count": 42,
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": [
+                {
+                    "deadline": "2026-12-31T12:00:00.000Z",
+                    "deadline_over_check": false
+                }
+            ],
+            "deadline_over_check": false,
+            "guid": "smart-vosstanovleniya",
+            "images": [
+                {
+                    "_id": "66cf0b570679873f391cb6a1",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "6807b92364bb8c909111b14ae8985230.jpg",
+                    "path": "0g\/vg\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b57067987464a1cb69e",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "46b0cf873643a64d3f94e278bf6bb1fc.jpg",
+                    "path": "64\/vf\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b57067987751d1cb69f",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "35713840ce8788705235c9d4aa2aa4a0.jpg",
+                    "path": "4f\/8s\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b5706798788d71cb69d",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "3af5335a66a420bf42ff0627142304dc.jpg",
+                    "path": "2q\/o4\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b57067987edd81cb6a0",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "c291e99d666372e4e9550df971a69976.jpg",
+                    "path": "xm\/z9\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b5b06798735f21cb6be",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "a2e4a493677762159127a402507a6a22.jpg",
+                    "path": "ql\/6k\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66cf0b5b067987c44f1cb6bf",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "c71bc33411b86ee86a07bcc231744d4a.jpg",
+                    "path": "o3\/cd\/",
+                    "title": ""
+                }
+            ],
+            "min_prices": [
+                {
+                    "purpose": {
+                        "_id": "637f51d7d6b5cb7f95c0a487",
+                        "value": "available_appointment",
+                        "label": "Свободное назначение"
+                    },
+                    "price": 1606500,
+                    "value": "available_appointment"
+                }
+            ],
+            "new_block": false,
+            "property_types": [
+                {
+                    "_id": 201,
+                    "value": "new",
+                    "label": "Новостройка"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "name": "1",
+                    "date": "2024-08-31T12:00:00.000Z"
+                }
+            ],
+            "subways": [
+                {
+                    "name": "Проспект Ветеранов",
+                    "guid": "pr_veteranov",
+                    "_id": "58c665598b6aa52311afa1e7",
+                    "color": "#bb2f30",
+                    "line_id": "5a61a47a6770e84a453637fa",
+                    "distance_type": 2,
+                    "distance_time": 25
+                }
+            ],
+            "district": {
+                "_id": "5983801cd07ed144bb7cca24",
+                "guid": "krasnoselskiy",
+                "name": "Красносельский р-н"
+            },
+            "location": [
+                {
+                    "name": "Квартиры на Юге",
+                    "guid": "south",
+                    "_id": "5983801ed07ed144bb7cccd4"
+                },
+                {
+                    "name": "г. Красное Село",
+                    "guid": "g-krasnoe-selo",
+                    "_id": "635baf99bf518bb0d5a3e60c"
+                }
+            ],
+            "point_distance": [],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "block_id": "678e33280ce43fd5ad317e81",
+            "block_name": "Гаражи",
+            "address": "ул Лагоды",
+            "premises_count": 61,
+            "builder": {
+                "_id": "678e31440ce43f356a316d22",
+                "guid": "gk-start",
+                "name": "ГК Старт"
+            },
+            "deadline": [
+                {
+                    "deadline": "2026-12-31T12:00:00.000Z",
+                    "deadline_over_check": false
+                }
+            ],
+            "deadline_over_check": false,
+            "guid": "apartotel-sota",
+            "images": [
+                {
+                    "_id": "6792511fe5d98cd36da439b8",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "16a4af368ca5752f354c956332d3c993.jpg",
+                    "path": "d4\/v6\/",
+                    "title": ""
+                },
+                {
+                    "_id": "67938c9de5d98c228ca863f4",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "b457f8bc80a07fd1e5098cb65f954a0a.jpeg",
+                    "path": "8x\/y0\/",
+                    "title": ""
+                },
+                {
+                    "_id": "67938c9de5d98c9c0ea863f3",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "5054b7fd76a79ed0e15eaa9737e999a5.jpg",
+                    "path": "s8\/r4\/",
+                    "title": ""
+                },
+                {
+                    "_id": "69450b7368d2bd441bcb1066",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "13c138f96d40bd113462344106e29c74.jpg",
+                    "path": "ih\/vg\/",
+                    "title": ""
+                }
+            ],
+            "min_prices": [
+                {
+                    "purpose": {
+                        "_id": "637f51d7d6b5cb7f95c0a487",
+                        "value": "available_appointment",
+                        "label": "Свободное назначение"
+                    },
+                    "price": 2538900,
+                    "value": "available_appointment"
+                }
+            ],
+            "new_block": false,
+            "property_types": [
+                {
+                    "_id": 201,
+                    "value": "new",
+                    "label": "Новостройка"
+                }
+            ],
+            "sales_start_at": [],
+            "subways": [
+                {
+                    "name": "Ладожская",
+                    "guid": "ladozhskaya",
+                    "_id": "58c665598b6aa52311afa207",
+                    "color": "#edc738",
+                    "line_id": "5a61a4c56770e84a4536381c",
+                    "distance_type": 2,
+                    "distance_time": 10
+                }
+            ],
+            "district": {
+                "_id": "5983801cd07ed144bb7cca20",
+                "guid": "krasnogvardeyskiy",
+                "name": "Красногвардейский р-н"
+            },
+            "location": [
+                {
+                    "name": "Квартиры на Севере",
+                    "guid": "north",
+                    "_id": "5983801ed07ed144bb7cccd2"
+                },
+                {
+                    "name": "м. окр. Пороховые",
+                    "guid": "m-okr-porohovye",
+                    "_id": "678e37380ce43f766931982d"
+                }
+            ],
+            "point_distance": [],
+            "reward": {
+                "label": "2.4%"
+            }
+        },
+        {
+            "block_id": "678f97b4f88f301904f967b7",
+            "block_name": "МФК Кеплер",
+            "address": "Дальневосточный пр-кт",
+            "premises_count": 13,
+            "builder": {
+                "_id": "678e31440ce43f356a316d22",
+                "guid": "gk-start",
+                "name": "ГК Старт"
+            },
+            "deadline": [
+                {
+                    "deadline": "2024-12-31T21:00:00.000Z",
+                    "deadline_over_check": true
+                }
+            ],
+            "deadline_over_check": true,
+            "guid": "mfk-kepler",
+            "images": [
+                {
+                    "_id": "678fa4ece982e70bb613a8c6",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "1555c3a6e7f587080cf54fb41e5ccda3.jpg",
+                    "path": "0l\/od\/",
+                    "title": ""
+                },
+                {
+                    "_id": "678fa4ece982e7c5d013a8c4",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "0e34e0ec5e896f9b4126085ea71cb899.jpg",
+                    "path": "bi\/g0\/",
+                    "title": ""
+                },
+                {
+                    "_id": "679b51caec55270eb056a531",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "3899bdd2f6b9865b2cd99f808880e560.jpg",
+                    "path": "ko\/tt\/",
+                    "title": ""
+                },
+                {
+                    "_id": "679b51caec552765a056a530",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "34af96c2b9f091cd5387023260355b53.jpg",
+                    "path": "l2\/r8\/",
+                    "title": ""
+                }
+            ],
+            "min_prices": [
+                {
+                    "purpose": {
+                        "_id": "637f51d7d6b5cb7f95c0a487",
+                        "value": "available_appointment",
+                        "label": "Свободное назначение"
+                    },
+                    "price": 2821720,
+                    "value": "available_appointment"
+                }
+            ],
+            "new_block": false,
+            "property_types": [
+                {
+                    "_id": 201,
+                    "value": "new",
+                    "label": "Новостройка"
+                }
+            ],
+            "sales_start_at": [],
+            "subways": [
+                {
+                    "name": "Улица Дыбенко",
+                    "guid": "dybenko",
+                    "_id": "58c665598b6aa52311afa209",
+                    "color": "#edc738",
+                    "line_id": "5a61a4c56770e84a4536381c",
+                    "distance_type": 2,
+                    "distance_time": 20
+                }
+            ],
+            "district": {
+                "_id": "5983801cd07ed144bb7cca21",
+                "guid": "nevskiy",
+                "name": "Невский р-н"
+            },
+            "location": [
+                {
+                    "name": "Квартиры на Севере",
+                    "guid": "north",
+                    "_id": "5983801ed07ed144bb7cccd2"
+                }
+            ],
+            "point_distance": [],
+            "reward": {
+                "label": "1.4%"
+            }
+        },
+        {
+            "block_id": "66d8c1a83bd9562bda2a18f6",
+            "block_name": "Smart Ириновский",
+            "address": "Ириновский пр-кт",
+            "premises_count": 42,
+            "builder": {
+                "_id": "66cc74f406798717a7113e91",
+                "guid": "smart-commerce",
+                "name": "Smart commerce"
+            },
+            "deadline": [
+                {
+                    "deadline": "2027-12-30T21:00:00.000Z",
+                    "deadline_over_check": false
+                }
+            ],
+            "deadline_over_check": false,
+            "guid": "smart-irinovskiy",
+            "images": [
+                {
+                    "_id": "66d8c9823bd956094b2a1c2f",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "7e1c0c80eff2463e8542f3a8d8f6f58d.png",
+                    "path": "gm\/h1\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66d8c9823bd95612bc2a1c32",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "2e0686e3e1f8e35283141c715f3de85e.jpg",
+                    "path": "h7\/bn\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66d8c9823bd95618e22a1c30",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "a77c4c97d3acd73f7557034020f990c9.png",
+                    "path": "6i\/2r\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66d8c9823bd956ae522a1c31",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "5cebbe01df3cc16d21e97a94a271a8b4.png",
+                    "path": "xr\/nd\/",
+                    "title": ""
+                },
+                {
+                    "_id": "66d8c9823bd956b50f2a1c2e",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "ed127d57357e4ed6e231b7548037a2d1.png",
+                    "path": "ye\/a2\/",
+                    "title": ""
+                }
+            ],
+            "min_prices": [
+                {
+                    "purpose": {
+                        "_id": "637f51d7d6b5cb7f95c0a487",
+                        "value": "available_appointment",
+                        "label": "Свободное назначение"
+                    },
+                    "price": 3088800,
+                    "value": "available_appointment"
+                }
+            ],
+            "new_block": false,
+            "property_types": [
+                {
+                    "_id": 201,
+                    "value": "new",
+                    "label": "Новостройка"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "name": "1",
+                    "date": "2024-07-30T21:00:00.000Z"
+                }
+            ],
+            "subways": [
+                {
+                    "name": "Ладожская",
+                    "guid": "ladozhskaya",
+                    "_id": "58c665598b6aa52311afa207",
+                    "color": "#edc738",
+                    "line_id": "5a61a4c56770e84a4536381c",
+                    "distance_type": 2,
+                    "distance_time": 10
+                }
+            ],
+            "district": {
+                "_id": "5983801cd07ed144bb7cca20",
+                "guid": "krasnogvardeyskiy",
+                "name": "Красногвардейский р-н"
+            },
+            "location": [
+                {
+                    "name": "Квартиры на Севере",
+                    "guid": "north",
+                    "_id": "5983801ed07ed144bb7cccd2"
+                }
+            ],
+            "point_distance": [],
+            "reward": {
+                "label": "Уточняется"
+            }
+        },
+        {
+            "block_id": "660d77173f6b9869f3aa69fa",
+            "block_name": "Огоньки",
+            "address": "г Всеволожск, ул Взлетная",
+            "premises_count": 6,
+            "builder": {
+                "_id": "660d5c769de6903bc5b02b87",
+                "guid": "gk-nordis",
+                "name": "ГК Nordis"
+            },
+            "deadline": [
+                {
+                    "deadline": "2027-12-31T12:00:00.000Z",
+                    "deadline_over_check": false
+                }
+            ],
+            "deadline_over_check": false,
+            "guid": "ogonki",
+            "images": [
+                {
+                    "_id": "660d7992cce1724724ee2066",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "89ce5fd74b9965a09ebebe4e99e6b21f.jpg",
+                    "path": "zx\/v3\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7992cce1725d38ee2067",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "45802e7926817ffa8971a9d3fa16c00b.jpg",
+                    "path": "or\/pr\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7992cce1728875ee2068",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "1649e7b2a3c8e634d7ba70e0650e6ed3.jpg",
+                    "path": "op\/tv\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7992cce172a5d7ee206a",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "cbdd6d2f40b14d1bb982cd89122493b5.jpg",
+                    "path": "dq\/fa\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7992cce172ffcaee2069",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "38ab4e52b339a0864b559b306a0ce0d3.jpg",
+                    "path": "xn\/cw\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7996cce1722b70ee206e",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "6f56e068c794eecc2811436caf2fad96.jpg",
+                    "path": "km\/3z\/",
+                    "title": ""
+                },
+                {
+                    "_id": "660d7996cce1728624ee206d",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "3a152854753bef2d2777c88e3856b91e.jpg",
+                    "path": "2l\/om\/",
+                    "title": ""
+                },
+                {
+                    "_id": "686f7f0ab13eda0484002da8",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "dfd3c918303f6ae090664201db770b1d.jpg",
+                    "path": "0u\/7b\/",
+                    "title": ""
+                },
+                {
+                    "_id": "686f7f0ab13eda37c0002daa",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "e1490ac83816c392385622f7b03ac675.jpg",
+                    "path": "3p\/rx\/",
+                    "title": ""
+                },
+                {
+                    "_id": "686f7f0ab13eda7d8c002da9",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "3075d5a5da9897934da3143e538e0334.jpg",
+                    "path": "84\/h2\/",
+                    "title": ""
+                },
+                {
+                    "_id": "686f7f0ab13eda8fc7002da7",
+                    "alt": "",
+                    "description": "",
+                    "file_name": "d006b2e9d241d8f3967d3601468d0d54.jpg",
+                    "path": "he\/ee\/",
+                    "title": ""
+                }
+            ],
+            "min_prices": [
+                {
+                    "purpose": {
+                        "_id": "637f51d7d6b5cb7f95c0a487",
+                        "value": "available_appointment",
+                        "label": "Свободное назначение"
+                    },
+                    "price": 3433650,
+                    "value": "available_appointment"
+                }
+            ],
+            "new_block": false,
+            "property_types": [
+                {
+                    "_id": 201,
+                    "value": "new",
+                    "label": "Новостройка"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "name": "3",
+                    "date": "2025-07-07T12:00:00.000Z"
+                }
+            ],
+            "subways": [
+                {
+                    "name": "Гражданский проспект",
+                    "guid": "grazhdanskiy_pr",
+                    "_id": "58c665598b6aa52311afa1d6",
+                    "color": "#bb2f30",
+                    "line_id": "5a61a47a6770e84a453637fa",
+                    "distance_type": 2,
+                    "distance_time": 30
+                },
+                {
+                    "name": "Улица Дыбенко",
+                    "guid": "dybenko",
+                    "_id": "58c665598b6aa52311afa209",
+                    "color": "#edc738",
+                    "line_id": "5a61a4c56770e84a4536381c",
+                    "distance_type": 2,
+                    "distance_time": 35
+                }
+            ],
+            "district": {
+                "_id": "5983801cd07ed144bb7cca05",
+                "guid": "vsevolozhskiy",
+                "name": "Всеволожский р-н, ЛО"
+            },
+            "location": [
+                {
+                    "name": "г. Всеволожск",
+                    "guid": "vsevolozhsk",
+                    "_id": "5983801ed07ed144bb7cccd3"
+                }
+            ],
+            "point_distance": [],
+            "reward": {
+                "label": "3.2%"
+            }
+        }
+    ]
+}

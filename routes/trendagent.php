@@ -83,6 +83,7 @@ Route::get('trendagent/v1/swagger.json', function () {
 // ============================================
 Route::prefix('trendagent/parser')->name('trendagent.parser.')->group(function () {
     Route::post('/start', [ParserController::class, 'start'])->name('start');
+    Route::post('/start-full', [ParserController::class, 'startFull'])->name('start-full');
     Route::post('/stop', [ParserController::class, 'stop'])->name('stop');
     Route::get('/status', [ParserController::class, 'status'])->name('status');
     Route::get('/logs', [ParserController::class, 'logs'])->name('logs');

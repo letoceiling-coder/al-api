@@ -85,6 +85,30 @@ const Parser = () => {
     }
   };
 
+  // Запуск полного парсинга (все типы + автоматический анализ)
+  const handleStartFull = async () => {
+    if (!window.confirm('Запустить полный парсинг всех типов объектов? После завершения автоматически запустится анализ данных.')) {
+      return;
+    }
+    
+    try {
+      const response = await axios.post('/api/trendagent/parser/start-full', {
+        region: formData.region,
+        limit: formData.limit,
+        details: formData.details,
+        save_raw: formData.save_raw,
+        auto_analyze: true,
+      });
+      
+      if (response.data.success) {
+        showMessage(response.data.message || 'Полный парсинг запущен!', 'success');
+        updateStatus();
+      }
+    } catch (error) {
+      showMessage(error.response?.data?.message || 'Ошибка запуска полного парсинга', 'error');
+    }
+  };
+
   // Остановка парсера
   const handleStop = async () => {
     try {
@@ -227,9 +251,19 @@ const Parser = () => {
               </button>
               <button 
                 type="button"
+                className="btn btn-success"
+                onClick={handleStartFull}
+                disabled={status.running}
+                style={{ marginLeft: '10px' }}
+              >
+                🚀 Полный парсинг + Анализ
+              </button>
+              <button 
+                type="button"
                 className="btn btn-danger"
                 onClick={handleStop}
                 disabled={!status.running}
+                style={{ marginLeft: '10px' }}
               >
                 ⏹️ Остановить
               </button>

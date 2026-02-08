@@ -1,0 +1,860 @@
+{
+    "blocksCount": 50,
+    "placesCount": 3644,
+    "bookedPlacesCount": 572,
+    "results": [
+        {
+            "address": [
+                "Пулковское шоссе"
+            ],
+            "places_count": 199,
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "new_block": false,
+            "location": [
+                {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "name_en": "Apartments in the South"
+                }
+            ],
+            "images": [
+                {
+                    "_id": "5e7b743c0f80f60008d71928",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "3s\/9g\/",
+                    "file_name": "a14dffebe488c1a67e8e1a68fe798e7e.png"
+                },
+                {
+                    "_id": "5e7b743c0f80f60008d71929",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "7x\/1l\/",
+                    "file_name": "704d4bc15cae884c24b609973e1568f8.png"
+                },
+                {
+                    "_id": "5e7b74410f80f60008d71932",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "ls\/46\/",
+                    "file_name": "db218057d91ba5b524ddb7d10f01b35d.jpg"
+                },
+                {
+                    "_id": "5e7b74410f80f60008d71933",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "xr\/qo\/",
+                    "file_name": "e7ddb97c62c3ac24bed473a8302248fc.png"
+                },
+                {
+                    "_id": "5e7b75bbe41b9a000873b10b",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "ts\/o6\/",
+                    "file_name": "0584c95b907552128fe6f29cf2e3a87f.jpg"
+                }
+            ],
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "is_sales": false,
+            "min_prices": [
+                {
+                    "place_type": {
+                        "label": "standard",
+                        "value": "Стандартное"
+                    },
+                    "price": 327325
+                },
+                {
+                    "place_type": {
+                        "label": "increased",
+                        "value": "Увеличенное"
+                    },
+                    "price": 332112
+                }
+            ],
+            "region": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "subways": [
+                {
+                    "name": "Звездная",
+                    "guid": "zvezdnaya",
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "color": "#4b74c0",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "distance_time": 15
+                }
+            ],
+            "point_distance": [],
+            "parking_types": [
+                {
+                    "label": "Freestanding",
+                    "value": "Отдельностоящий"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "parking_name": "2",
+                    "date": null
+                },
+                {
+                    "parking_name": "1",
+                    "date": null
+                },
+                {
+                    "parking_name": "3",
+                    "date": null
+                }
+            ],
+            "reward": {
+                "label": "9 000 ₽"
+            },
+            "property_types": [
+                {
+                    "label": "Новостройка",
+                    "value": "new"
+                }
+            ]
+        },
+        {
+            "address": [
+                "ул Кантемировская"
+            ],
+            "places_count": 156,
+            "builder": {
+                "_id": "5be13fb29228ef13de0a3437",
+                "guid": "pik",
+                "name": "ПИК. Санкт-Петербург",
+                "name_en": "PIK. Sankt-Peterburg"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "new_block": false,
+            "location": [
+                {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "name_en": "Apartments in the North"
+                }
+            ],
+            "images": [
+                {
+                    "_id": "63e38340853920115e6423cb",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "vz\/a6\/",
+                    "file_name": "2267dd1bcf31e3c8369dc55cebfa3ad4.jpeg"
+                },
+                {
+                    "_id": "63e3834085392025596423cd",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "9v\/ik\/",
+                    "file_name": "85cdd35747ab37d2cf7e587d24461fe3.jpeg"
+                },
+                {
+                    "_id": "63e3834085392051026423ca",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "40\/m8\/",
+                    "file_name": "cafb6040905db41eb51a25b2d1a7b27b.jpeg"
+                },
+                {
+                    "_id": "63e38340853920644f6423cc",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "il\/73\/",
+                    "file_name": "70a5794f822a4ecd1338cb6b77d2cd31.jpg"
+                },
+                {
+                    "_id": "63e38340853920f9796423ce",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "s8\/8w\/",
+                    "file_name": "ed035979a3aa57376e2fb612cb30a412.jpeg"
+                },
+                {
+                    "_id": "63e38341853920123f6423d0",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "pr\/f1\/",
+                    "file_name": "1db180aa3f69afd846db5da5a3697d01.jpeg"
+                },
+                {
+                    "_id": "64fec06f82fa271cde007453",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "qb\/h4\/",
+                    "file_name": "5e8bf2ac1d90d4077162b7c5fa5b692c.jpg"
+                },
+                {
+                    "_id": "64fec06f82fa27e9ce007454",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "5a\/79\/",
+                    "file_name": "3004002d1858a2b8592b1c19d82e3d3a.jpg"
+                },
+                {
+                    "_id": "656dda647cef00ee27dd829a",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "tz\/eo\/",
+                    "file_name": "20b9b0d053554d08c0e62b3b55527963.jpg"
+                },
+                {
+                    "_id": "66d0ed8177f37919c06c22c3",
+                    "file_name": "b82d03175cef9c5bd10538c9573ea850.jpg",
+                    "path": "mi\/dg\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "66d0ee2077f37913786c23a2",
+                    "file_name": "8d9c801e35b5a466ef9cf66a914a9def.jpg",
+                    "path": "dd\/o7\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "66d0ee2c2dabea6e4d5ee28d",
+                    "file_name": "817230c9c249d736859d8a1971bf0310.jpg",
+                    "path": "og\/52\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                }
+            ],
+            "block_id": "60e5b26e5022dc3ee11ff9e6",
+            "block_guid": "kantemirovskaya-11",
+            "block_name": "Кантемировская, 11",
+            "geometry": {
+                "coordinates": [
+                    30.337425470352176,
+                    59.981729124162726
+                ],
+                "type": "Point"
+            },
+            "is_sales": false,
+            "min_prices": [
+                {
+                    "place_type": {
+                        "label": "standard",
+                        "value": "Стандартное"
+                    },
+                    "price": 387000
+                },
+                {
+                    "place_type": {
+                        "label": "increased",
+                        "value": "Увеличенное"
+                    },
+                    "price": 387900
+                }
+            ],
+            "region": {
+                "_id": "5983801cd07ed144bb7cca26",
+                "guid": "vyborgskiy",
+                "name": "Выборгский р-н",
+                "name_en": "Vyborgsky district"
+            },
+            "subways": [
+                {
+                    "name": "Лесная",
+                    "guid": "lesnaya",
+                    "_id": "58c665598b6aa52311afa1da",
+                    "color": "#bb2f30",
+                    "line_id": "5a61a47a6770e84a453637fa",
+                    "distance_type": 1,
+                    "distance_time": 5
+                },
+                {
+                    "name": "Черная речка",
+                    "guid": "chernaya_rechka",
+                    "_id": "58c665598b6aa52311afa1ed",
+                    "color": "#4b74c0",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "distance_time": 10
+                }
+            ],
+            "point_distance": [],
+            "parking_types": [
+                {
+                    "label": "Freestanding",
+                    "value": "Отдельностоящий"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "parking_name": "9",
+                    "date": null
+                },
+                {
+                    "parking_name": "8",
+                    "date": null
+                }
+            ],
+            "reward": {
+                "label": "3.2%"
+            },
+            "property_types": [
+                {
+                    "label": "Новостройка",
+                    "value": "new"
+                }
+            ]
+        },
+        {
+            "address": [
+                "ул Невзоровой"
+            ],
+            "places_count": 251,
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "new_block": false,
+            "location": [
+                {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "name_en": "Apartments in the South"
+                }
+            ],
+            "images": [
+                {
+                    "_id": "620df4f646b6ccca27c0e574",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "6t\/uu\/",
+                    "file_name": "11a65b70386846315dc4f4aeccc7e8eb.jpg"
+                },
+                {
+                    "_id": "634039dbb6bdfab23abaa96d",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "hf\/56\/",
+                    "file_name": "14e0b1408c3ececde08f2b6818b78858.jpg"
+                },
+                {
+                    "_id": "634039deb6bdfad7bdbaa96f",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "z7\/m8\/",
+                    "file_name": "4e05c2cf0ffc2234e4f35ef2cafe9003.jpg"
+                }
+            ],
+            "block_id": "5b276b952a388f38f9794dc7",
+            "block_guid": "elozarovsiy",
+            "block_name": "ЦДС Елизаровский",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.41359551250935,
+                    59.88849200324741
+                ]
+            },
+            "is_sales": false,
+            "min_prices": [
+                {
+                    "place_type": {
+                        "label": "standard",
+                        "value": "Стандартное"
+                    },
+                    "price": 394416
+                },
+                {
+                    "place_type": {
+                        "label": "increased",
+                        "value": "Увеличенное"
+                    },
+                    "price": 457776
+                }
+            ],
+            "region": {
+                "_id": "5983801cd07ed144bb7cca21",
+                "guid": "nevskiy",
+                "name": "Невский р-н",
+                "name_en": "Nevsky district"
+            },
+            "subways": [
+                {
+                    "name": "Елизаровская",
+                    "guid": "elizarovskaya",
+                    "_id": "58c665598b6aa52311afa1fe",
+                    "color": "#7bbd5a",
+                    "line_id": "5a61a4b96770e84a45363815",
+                    "distance_type": 1,
+                    "distance_time": 10
+                }
+            ],
+            "point_distance": [],
+            "parking_types": [
+                {
+                    "label": "BuiltIn",
+                    "value": "Встроенно-пристроенный"
+                },
+                {
+                    "label": "Freestanding",
+                    "value": "Отдельностоящий"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "parking_name": "1.2",
+                    "date": null
+                },
+                {
+                    "parking_name": "2",
+                    "date": null
+                },
+                {
+                    "parking_name": "1.1",
+                    "date": null
+                }
+            ],
+            "reward": {
+                "label": "9 000 ₽"
+            },
+            "property_types": [
+                {
+                    "label": "Новостройка",
+                    "value": "new"
+                }
+            ]
+        },
+        {
+            "address": [
+                "г Сертолово, Выборгское шоссе"
+            ],
+            "places_count": 242,
+            "builder": {
+                "_id": "58c665588b6aa52311afa19c",
+                "guid": "algoritm-development",
+                "name": "Algoritm Group",
+                "name_en": "Algoritm Group"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан - 2 кв. 2027",
+            "new_block": false,
+            "location": [
+                {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "name_en": "Apartments in the North"
+                }
+            ],
+            "images": [
+                {
+                    "_id": "643fa36fa994e7726476489b",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "gc\/5i\/",
+                    "file_name": "0652055efd80f044549dd56ac769ff4f.jpg"
+                },
+                {
+                    "_id": "643fa36fa994e7976c76489a",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "23\/2q\/",
+                    "file_name": "b2950da4d8a2a445d91425d4178a377d.jpg"
+                },
+                {
+                    "_id": "643fa382a994e72b337648a3",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "k6\/e8\/",
+                    "file_name": "3dafae9094890fe88038c68f33128887.jpg"
+                },
+                {
+                    "_id": "643fa382a994e752487648a1",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "kw\/yb\/",
+                    "file_name": "7f3c9687b505741ff7f710a8bab7073a.jpg"
+                },
+                {
+                    "_id": "643fa382a994e75f5c7648a0",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "nx\/ed\/",
+                    "file_name": "12172244d8f6f37af85ca27330067e4e.jpg"
+                },
+                {
+                    "_id": "643fa382a994e7719c7648a4",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "gs\/wb\/",
+                    "file_name": "244fb28e679d756a04ddd6c47bcdd5fd.jpg"
+                },
+                {
+                    "_id": "643fa382a994e7e33d7648a2",
+                    "description": "",
+                    "alt": "",
+                    "title": "",
+                    "path": "k2\/sm\/",
+                    "file_name": "499ec338ba8c02e04ab0f1e71d933156.jpg"
+                }
+            ],
+            "block_id": "643e383737e3a51f3a16d78a",
+            "block_guid": "sertolovo-park",
+            "block_name": "SERTOLOVO PARK",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.229148109504735,
+                    60.13821547213106
+                ]
+            },
+            "is_sales": false,
+            "min_prices": [
+                {
+                    "place_type": {
+                        "label": "standard",
+                        "value": "Стандартное"
+                    },
+                    "price": 480000
+                },
+                {
+                    "place_type": {
+                        "label": "increased",
+                        "value": "Увеличенное"
+                    },
+                    "price": 500000
+                }
+            ],
+            "region": {
+                "_id": "5983801cd07ed144bb7cca05",
+                "guid": "vsevolozhskiy",
+                "name": "Всеволожский р-н, ЛО",
+                "name_en": "Vsevolozhsky district"
+            },
+            "subways": [
+                {
+                    "name": "Парнас",
+                    "guid": "parnas",
+                    "_id": "58c665598b6aa52311afa1e8",
+                    "color": "#4b74c0",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "distance_time": 20
+                }
+            ],
+            "point_distance": [],
+            "parking_types": [
+                {
+                    "label": "Freestanding",
+                    "value": "Отдельностоящий"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "parking_name": "В 4 корпусе (16 участок)",
+                    "date": null
+                },
+                {
+                    "parking_name": "рядом с 1 корпусом (12 участок)",
+                    "date": "2023-04-19T21:00:00.000Z"
+                }
+            ],
+            "reward": {
+                "label": "1.6%"
+            },
+            "property_types": [
+                {
+                    "label": "Новостройка",
+                    "value": "new"
+                }
+            ]
+        },
+        {
+            "address": [
+                "поселок Парголово, Михайловская дорога"
+            ],
+            "places_count": 283,
+            "builder": {
+                "_id": "58c665588b6aa52311afa105",
+                "guid": "glorax",
+                "name": "GloraX. Санкт-Петербург",
+                "name_en": "GloraX. Sankt-Peterburg"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "new_block": false,
+            "location": [
+                {
+                    "_id": "5983801ed07ed144bb7cccd2",
+                    "guid": "north",
+                    "name": "Квартиры на Севере",
+                    "name_en": "Apartments in the North"
+                }
+            ],
+            "images": [
+                {
+                    "_id": "672cef25f7de853fc39d6e7f",
+                    "file_name": "91c7881d63fa3248a6de336683ca90ec.jpg",
+                    "path": "y1\/yz\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef25f7de8550249d6e7d",
+                    "file_name": "eb662f157e7d6d632123817d232469e8.jpg",
+                    "path": "89\/4b\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef25f7de858afe9d6e7e",
+                    "file_name": "60b56234eabf42aabd2774b39ea57cc7.jpg",
+                    "path": "z5\/3o\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef25f7de85af229d6e7b",
+                    "file_name": "438d7cf834e95314d16b0d65f7320680.jpg",
+                    "path": "ct\/8n\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef25f7de85ddc89d6e7c",
+                    "file_name": "db7908629e18bbf514fc1675cb690b70.jpg",
+                    "path": "re\/k1\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef29f7de8576e89d6e97",
+                    "file_name": "d4cb1ad87b7d4b5e1c928f6855f37841.jpg",
+                    "path": "qb\/m8\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef29f7de857c519d6e96",
+                    "file_name": "528dee874c73c478050cce54daa6c793.jpg",
+                    "path": "tf\/be\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef29f7de85e8fc9d6e95",
+                    "file_name": "ca597d7df20d2686f5d8aa497e8638f6.jpg",
+                    "path": "h4\/g7\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "672cef29f7de85f7c79d6e94",
+                    "file_name": "3b48ff0c9e1e34832599139d401ef7bf.jpg",
+                    "path": "qv\/ex\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "67bd7d64dc444255f94e35ec",
+                    "file_name": "586073a2ea523640d37a7dbe373de653.jpg",
+                    "path": "q3\/s5\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "67bd7d64dc4442667a4e35eb",
+                    "file_name": "77c6fcfcc7460ce8d435cf45d85f62a3.jpg",
+                    "path": "wt\/p2\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "67bd7d64dc4442f81d4e35ed",
+                    "file_name": "03a6fd6dff2c98340f0c34c01e302952.jpg",
+                    "path": "di\/is\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "689e024ad2926c87ff705aca",
+                    "file_name": "6fca73907658d13f831316c581a9182e.jpg",
+                    "path": "mi\/ty\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "692eb6f2621eff2e7d4fb787",
+                    "file_name": "8bf0c3bf94b564ca89b0e8dc597bb03f.jpg",
+                    "path": "yo\/p2\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                },
+                {
+                    "_id": "692eb6f2621eff3e134fb788",
+                    "file_name": "eea173b791a343a470ffaa7d5df6c11b.jpg",
+                    "path": "kx\/ui\/",
+                    "title": "",
+                    "alt": "",
+                    "description": ""
+                }
+            ],
+            "block_id": "64abf9af165948c521970f91",
+            "block_guid": "glorax-pargolovo",
+            "block_name": "GloraX Парголово",
+            "geometry": {
+                "coordinates": [
+                    30.2626638898965,
+                    60.067720273356116
+                ],
+                "type": "Point"
+            },
+            "is_sales": false,
+            "min_prices": [
+                {
+                    "place_type": {
+                        "label": "standard",
+                        "value": "Стандартное"
+                    },
+                    "price": 490000
+                },
+                {
+                    "place_type": {
+                        "label": "increased",
+                        "value": "Увеличенное"
+                    },
+                    "price": 920000
+                }
+            ],
+            "region": {
+                "_id": "5983801cd07ed144bb7cca26",
+                "guid": "vyborgskiy",
+                "name": "Выборгский р-н",
+                "name_en": "Vyborgsky district"
+            },
+            "subways": [
+                {
+                    "name": "Парнас",
+                    "guid": "parnas",
+                    "_id": "58c665598b6aa52311afa1e8",
+                    "color": "#4b74c0",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "distance_time": 15
+                }
+            ],
+            "point_distance": [],
+            "parking_types": [
+                {
+                    "label": "Freestanding",
+                    "value": "Отдельностоящий"
+                }
+            ],
+            "sales_start_at": [
+                {
+                    "parking_name": "1",
+                    "date": "2024-05-06T21:00:00.000Z"
+                }
+            ],
+            "reward": {
+                "label": "0.5%"
+            },
+            "property_types": [
+                {
+                    "label": "Новостройка",
+                    "value": "new"
+                }
+            ]
+        }
+    ]
+}

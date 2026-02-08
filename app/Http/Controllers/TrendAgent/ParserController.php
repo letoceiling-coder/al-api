@@ -141,6 +141,120 @@ class ParserController extends Controller
     {
         return response()->json($this->getStatistics());
     }
+
+    /**
+     * Запустить полный парсинг всех типов объектов с автоматическим запуском анализа
+     */
+    public function startFull(Request $request)
+    {
+        $region = $request->input('region', 'spb');
+        $limit = $request->input('limit', 100000);
+        $details = $request->boolean('details', true);
+        $saveRaw = $request->boolean('save_raw', true);
+        $autoAnalyze = $request->boolean('auto_analyze', true);
+        
+        // Проверяем, не запущен ли уже парсер
+        if ($this->isParserRunning()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Парсер уже запущен',
+            ], 400);
+        }
+        
+        // Формируем команду для полного парсинга
+        $command = 'cd ' . base_path() . ' && php artisan trendagent:parse';
+        $command .= " --region={$region}";
+        $command .= " --type=all";
+        $command .= " --limit={$limit}";
+        
+        if ($details) {
+            $command .= ' --details';
+        }
+        
+        if ($saveRaw) {
+            $command .= ' --save-raw';
+        }
+        
+        // Лог файл
+        $logFile = storage_path("logs/parser_full_{$region}_" . date('Y-m-d_H-i-s') . ".log");
+        
+        // Если нужно автоматически запустить анализ после парсинга
+        if ($autoAnalyze) {
+            // Создаем скрипт, который запустит парсинг, а затем анализ
+            if (PHP_OS_FAMILY === 'Windows') {
+                // Для Windows используем batch файл
+                $scriptPath = storage_path("scripts/full_parse_with_analysis_{$region}_" . date('Y-m-d_H-i-s') . ".bat");
+                $scriptContent = "@echo off\n";
+                $scriptContent .= "cd /d " . base_path() . "\n";
+                $scriptContent .= $command . "\n";
+                $scriptContent .= "echo Парсинг завершен, запускаю анализ...\n";
+                $scriptContent .= "php artisan trendagent:analyze-data --region={$region}\n";
+                $scriptContent .= "echo Анализ завершен!\n";
+                
+                // Сохраняем скрипт
+                if (!is_dir(storage_path('scripts'))) {
+                    mkdir(storage_path('scripts'), 0755, true);
+                }
+                file_put_contents($scriptPath, $scriptContent);
+                
+                // Запускаем через start для фонового выполнения
+                $runCommand = "start /B cmd /c \"{$scriptPath} > {$logFile} 2>&1\"";
+                $pid = 'windows_bg_' . time();
+                pclose(popen($runCommand, 'r'));
+            } else {
+                // Для Linux/Unix используем bash скрипт
+                $scriptPath = storage_path("scripts/full_parse_with_analysis_{$region}_" . date('Y-m-d_H-i-s') . ".sh");
+                $scriptContent = "#!/bin/bash\n";
+                $scriptContent .= "cd " . base_path() . "\n";
+                $scriptContent .= $command . "\n";
+                $scriptContent .= "echo 'Парсинг завершен, запускаю анализ...'\n";
+                $scriptContent .= "php artisan trendagent:analyze-data --region={$region}\n";
+                $scriptContent .= "echo 'Анализ завершен!'\n";
+                
+                // Сохраняем скрипт
+                if (!is_dir(storage_path('scripts'))) {
+                    mkdir(storage_path('scripts'), 0755, true);
+                }
+                file_put_contents($scriptPath, $scriptContent);
+                chmod($scriptPath, 0755);
+                
+                $command = "bash {$scriptPath} > {$logFile} 2>&1 & echo $!";
+                $pid = exec($command);
+            }
+        } else {
+            // Без автоматического анализа
+            if (PHP_OS_FAMILY === 'Windows') {
+                $command .= " > {$logFile} 2>&1";
+                // Для Windows используем start для фонового выполнения
+                $command = "start /B cmd /c \"{$command}\"";
+                $pid = 'windows_bg_' . time();
+                pclose(popen($command, 'r'));
+            } else {
+                $command .= " > {$logFile} 2>&1 & echo $!";
+                $pid = exec($command);
+            }
+        }
+        
+        // Сохраняем PID и инфо
+        Storage::put('parser_pid.txt', $pid);
+        Storage::put('parser_log.txt', $logFile);
+        Storage::put('parser_started_at.txt', now()->toIso8601String());
+        Storage::put('parser_type.txt', 'full');
+        Storage::put('parser_auto_analyze.txt', $autoAnalyze ? '1' : '0');
+        if ($autoAnalyze && isset($scriptPath)) {
+            Storage::put('parser_script.txt', $scriptPath);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => $autoAnalyze 
+                ? 'Полный парсинг запущен. Анализ будет запущен автоматически после завершения парсинга.' 
+                : 'Полный парсинг запущен',
+            'pid' => $pid,
+            'log_file' => basename($logFile),
+            'auto_analyze' => $autoAnalyze,
+        ]);
+    }
     
     /**
      * Проверить, запущен ли парсер

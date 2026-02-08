@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "TrendAgent API",
-    "version": "1.0.0",
-    "description": "API для получения данных о недвижимости с сайта trendagent.ru. Все запросы требуют авторизации через Bearer токен.",
+    "version": "2.0.0",
+    "description": "API для получения данных о недвижимости с сайта trendagent.ru. Все запросы требуют авторизации через Bearer токен. Обновлено: добавлена поддержка unified эндпоинтов, подрядчиков, обновлены методы детальной информации.",
     "contact": {
       "email": "support@siteaccess.ru"
     }
@@ -397,7 +397,11 @@
     },
     {
       "name": "House Projects",
-      "description": "Операции с проектами домов"
+      "description": "Операции с проектами домов (подрядчики)"
+    },
+    {
+      "name": "Contractors",
+      "description": "Операции с подрядчиками и проектами домов"
     },
     {
       "name": "Objects",
@@ -668,7 +672,7 @@
       "post": {
         "tags": ["Apartments"],
         "summary": "Получение детальной информации о квартире",
-        "description": "Возвращает полную информацию о конкретной квартире, включая цены, отделку, планы и другие данные",
+        "description": "Возвращает полную информацию о конкретной квартире через unified эндпоинт. Использует GET /v4_29/apartments/{apartmentId}/unified/ для получения данных.",
         "parameters": [
           {
             "name": "id",
@@ -776,7 +780,7 @@
       "post": {
         "tags": ["Apartments"],
         "summary": "Получение корпусов для шахматки",
-        "description": "Возвращает список корпусов для отображения на шахматке квартир",
+        "description": "Возвращает список корпусов для отображения на шахматке квартир. Использует GET /v4_29/checkerboards/{blockId}/apartments/buildings/",
         "parameters": [
           {
             "name": "id",
@@ -882,7 +886,7 @@
       "post": {
         "tags": ["Apartments"],
         "summary": "Получение квартир для шахматки",
-        "description": "Возвращает список квартир для отображения на шахматке по выбранному корпусу",
+        "description": "Возвращает список квартир для отображения на шахматке по выбранному корпусу. Использует GET /v4_29/checkerboards/{blockId}/apartments/?building_id={buildingId}",
         "parameters": [
           {
             "name": "id",
@@ -1224,6 +1228,479 @@
                       "items": {
                         "type": "object"
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/houseprojects": {
+      "post": {
+        "tags": ["Contractors", "House Projects"],
+        "summary": "Получение списка подрядчиков (проектов домов)",
+        "description": "Возвращает список подрядчиков и их проектов домов. Использует GET https://house-api.trendagent.ru/v1/projects/search",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string",
+                    "example": "+79045393434"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "nwBvh4q"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Город для фильтрации (spb, msk и т.д.)",
+                    "nullable": true
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 20,
+                    "description": "Количество объектов на странице"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Смещение для пагинации"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Номер страницы (альтернатива offset)"
+                  },
+                  "sort_type": {
+                    "type": "string",
+                    "enum": ["price", "deadline", "name"],
+                    "description": "Поле для сортировки (для подрядчиков используется sort_type вместо sort)"
+                  },
+                  "sort_order": {
+                    "type": "string",
+                    "enum": ["asc", "desc"],
+                    "default": "asc"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список подрядчиков",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "description": "ID проекта"
+                          },
+                          "guid": {
+                            "type": "string",
+                            "description": "GUID (slug) проекта"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Название проекта"
+                          },
+                          "contractor": {
+                            "type": "object",
+                            "description": "Информация о подрядчике"
+                          },
+                          "min_price": {
+                            "type": "number",
+                            "description": "Минимальная цена"
+                          },
+                          "area_total": {
+                            "type": "number",
+                            "description": "Общая площадь"
+                          },
+                          "area_living": {
+                            "type": "number",
+                            "description": "Жилая площадь"
+                          },
+                          "construction_time": {
+                            "type": "string",
+                            "description": "Сроки строительства"
+                          },
+                          "technology": {
+                            "type": "string",
+                            "description": "Технология строительства"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Общее количество проектов"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/houseprojects/{id}": {
+      "post": {
+        "tags": ["Contractors", "House Projects"],
+        "summary": "Получение детальной информации о проекте подрядчика",
+        "description": "Возвращает полную информацию о проекте подрядчика. Использует unified эндпоинт GET /v1/projects/{projectId}/unified после получения ID по GUID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID или GUID проекта (если передан GUID, сначала получается ID через /v1/projects/id?guid={slug})"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о проекте",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Детальная информация о проекте в формате unified"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commercial": {
+      "post": {
+        "tags": ["Commercial"],
+        "summary": "Получение списка коммерческих помещений",
+        "description": "Возвращает список коммерческих помещений. Использует GET https://commerce-api.trendagent.ru/search/premises",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "sort": {
+                    "type": "string"
+                  },
+                  "sort_order": {
+                    "type": "string",
+                    "enum": ["asc", "desc"]
+                  },
+                  "price_from": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "price_to": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "area_from": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "area_to": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "description": "Назначение помещения"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список коммерческих помещений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Общее количество помещений"
+                    },
+                    "premises_count": {
+                      "type": "integer"
+                    },
+                    "blocks_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commercial/{id}": {
+      "post": {
+        "tags": ["Commercial"],
+        "summary": "Получение детальной информации о коммерческом помещении",
+        "description": "Возвращает полную информацию о коммерческом помещении. Использует unified эндпоинт GET /commerce/{premiseId}/unified/",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID помещения"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о помещении",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Детальная информация о помещении в формате unified"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plots/{id}": {
+      "post": {
+        "tags": ["Plots"],
+        "summary": "Получение детальной информации о поселке",
+        "description": "Возвращает полную информацию о поселке. Использует unified эндпоинт GET /v1/villages/{villageId}/unified после получения ID по GUID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID или GUID поселка (если передан GUID, сначала получается ID через /v1/villages/id?guid={slug})"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о поселке",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Детальная информация о поселке в формате unified"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/houses/{id}": {
+      "post": {
+        "tags": ["Houses"],
+        "summary": "Получение детальной информации о доме",
+        "description": "Возвращает полную информацию о доме. Использует unified эндпоинт GET /v4_29/apartments/{id}/unified/ (тот же, что для квартир)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID дома"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "password"],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "options": {
+                    "type": "object",
+                    "description": "Опции для получения данных",
+                    "properties": {
+                      "unified": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "apartments": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Для домов apartments возвращает дома с фильтром room=[30,40]"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Детальная информация о доме",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Детальная информация о доме в формате unified"
                     }
                   }
                 }

@@ -1,0 +1,392 @@
+{
+    "blocksCount": 50,
+    "placesCount": 3644,
+    "bookedPlacesCount": 572,
+    "results": [
+        {
+            "_id": "62dac675293ca6ec4dc8a922",
+            "district": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "deadline_over_check": false,
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "name_en": "Apartments in the South"
+            },
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "floor_image": {
+                "_id": "62daa25af6a2d16ad3e654ad",
+                "description": "",
+                "alt": "",
+                "title": "",
+                "path": "2h\/5f\/",
+                "file_name": "a4d95e5ffeb9c06bb2ae17eae1a4dc7c.png"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "subway": [
+                {
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "guid": "zvezdnaya",
+                    "name": "Звездная",
+                    "name_en": "Zvezdnaya",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "color": "#4b74c0",
+                    "priority": 160,
+                    "distance_time": 15
+                }
+            ],
+            "floor": 3,
+            "area": 13.3,
+            "parking_type": "Отдельностоящий",
+            "price": 327325,
+            "status": {
+                "label": "Свободноe",
+                "value": "available"
+            },
+            "type": "Стандартное",
+            "number": "206",
+            "property_type": {
+                "label": "Новостройка",
+                "value": "new"
+            },
+            "reward": {
+                "label": "9 000 ₽"
+            }
+        },
+        {
+            "_id": "62dac675293ca6ec4dc8a923",
+            "district": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "deadline_over_check": false,
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "name_en": "Apartments in the South"
+            },
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "floor_image": {
+                "_id": "62daa25af6a2d16ad3e654ad",
+                "description": "",
+                "alt": "",
+                "title": "",
+                "path": "2h\/5f\/",
+                "file_name": "a4d95e5ffeb9c06bb2ae17eae1a4dc7c.png"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "subway": [
+                {
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "guid": "zvezdnaya",
+                    "name": "Звездная",
+                    "name_en": "Zvezdnaya",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "color": "#4b74c0",
+                    "priority": 160,
+                    "distance_time": 15
+                }
+            ],
+            "floor": 3,
+            "area": 13.3,
+            "parking_type": "Отдельностоящий",
+            "price": 327325,
+            "status": {
+                "label": "Свободноe",
+                "value": "available"
+            },
+            "type": "Стандартное",
+            "number": "212",
+            "property_type": {
+                "label": "Новостройка",
+                "value": "new"
+            },
+            "reward": {
+                "label": "9 000 ₽"
+            }
+        },
+        {
+            "_id": "62dac675293ca6ec4dc8a924",
+            "district": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "deadline_over_check": false,
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "name_en": "Apartments in the South"
+            },
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "floor_image": {
+                "_id": "62daa25af6a2d16ad3e654ad",
+                "description": "",
+                "alt": "",
+                "title": "",
+                "path": "2h\/5f\/",
+                "file_name": "a4d95e5ffeb9c06bb2ae17eae1a4dc7c.png"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "subway": [
+                {
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "guid": "zvezdnaya",
+                    "name": "Звездная",
+                    "name_en": "Zvezdnaya",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "color": "#4b74c0",
+                    "priority": 160,
+                    "distance_time": 15
+                }
+            ],
+            "floor": 3,
+            "area": 13.3,
+            "parking_type": "Отдельностоящий",
+            "price": 327325,
+            "status": {
+                "label": "Свободноe",
+                "value": "available"
+            },
+            "type": "Стандартное",
+            "number": "215",
+            "property_type": {
+                "label": "Новостройка",
+                "value": "new"
+            },
+            "reward": {
+                "label": "9 000 ₽"
+            }
+        },
+        {
+            "_id": "62dac675293ca6ec4dc8a926",
+            "district": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "deadline_over_check": false,
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "name_en": "Apartments in the South"
+            },
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "floor_image": {
+                "_id": "62daa25af6a2d16ad3e654ad",
+                "description": "",
+                "alt": "",
+                "title": "",
+                "path": "2h\/5f\/",
+                "file_name": "a4d95e5ffeb9c06bb2ae17eae1a4dc7c.png"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "subway": [
+                {
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "guid": "zvezdnaya",
+                    "name": "Звездная",
+                    "name_en": "Zvezdnaya",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "color": "#4b74c0",
+                    "priority": 160,
+                    "distance_time": 15
+                }
+            ],
+            "floor": 3,
+            "area": 13.3,
+            "parking_type": "Отдельностоящий",
+            "price": 327325,
+            "status": {
+                "label": "Свободноe",
+                "value": "available"
+            },
+            "type": "Стандартное",
+            "number": "231",
+            "property_type": {
+                "label": "Новостройка",
+                "value": "new"
+            },
+            "reward": {
+                "label": "9 000 ₽"
+            }
+        },
+        {
+            "_id": "62dac675293ca6ec4dc8a928",
+            "district": {
+                "_id": "5983801cd07ed144bb7cca1e",
+                "guid": "moskovskiy",
+                "name": "Московский р-н",
+                "name_en": "Moskovsky district"
+            },
+            "builder": {
+                "_id": "58c665588b6aa52311afa079",
+                "guid": "cds",
+                "name": "ГК ЦДС",
+                "name_en": "GK CDS"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург",
+                "name_en": "Saint Petersburg"
+            },
+            "deadline": "Сдан",
+            "deadline_over_check": false,
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "name_en": "Apartments in the South"
+            },
+            "block_id": "5a3a763301715604ca0a46c4",
+            "block_guid": "cds_moskovskiy",
+            "block_name": "ЦДС Московский",
+            "floor_image": {
+                "_id": "62daa25af6a2d16ad3e654ad",
+                "description": "",
+                "alt": "",
+                "title": "",
+                "path": "2h\/5f\/",
+                "file_name": "a4d95e5ffeb9c06bb2ae17eae1a4dc7c.png"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.34430265426636,
+                    59.814148495882506
+                ]
+            },
+            "subway": [
+                {
+                    "_id": "58c665598b6aa52311afa1f7",
+                    "guid": "zvezdnaya",
+                    "name": "Звездная",
+                    "name_en": "Zvezdnaya",
+                    "line_id": "5a61a4a76770e84a4536380e",
+                    "distance_type": 2,
+                    "color": "#4b74c0",
+                    "priority": 160,
+                    "distance_time": 15
+                }
+            ],
+            "floor": 3,
+            "area": 13.3,
+            "parking_type": "Отдельностоящий",
+            "price": 327325,
+            "status": {
+                "label": "Свободноe",
+                "value": "available"
+            },
+            "type": "Стандартное",
+            "number": "237",
+            "property_type": {
+                "label": "Новостройка",
+                "value": "new"
+            },
+            "reward": {
+                "label": "9 000 ₽"
+            }
+        }
+    ]
+}

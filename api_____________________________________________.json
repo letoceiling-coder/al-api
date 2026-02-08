@@ -1,0 +1,418 @@
+{
+    "total_count": 68,
+    "result_count": 5,
+    "plots_count": 2370,
+    "list": [
+        {
+            "_id": "691f1e08a5e15b2a6c6218b2",
+            "name": "Лебяжье",
+            "address": "",
+            "guid": "lebyazhe",
+            "images": [
+                {
+                    "_id": "691f1cf326679b2a8871f4af",
+                    "path": "0y\/08\/",
+                    "file_name": "f55cd5c7e934aac4356f6abf905c3586.jpg"
+                },
+                {
+                    "_id": "691f1cf326679b2fc971f4ac",
+                    "path": "3b\/m4\/",
+                    "file_name": "febdba42639c7c5393d97700956ed9bb.jpg"
+                },
+                {
+                    "_id": "691f1cf326679b414c71f4ab",
+                    "path": "h0\/rl\/",
+                    "file_name": "ae2b10ed544906f4751474ca49026e86.jpg"
+                },
+                {
+                    "_id": "691f1cf326679b466171f4b0",
+                    "path": "wk\/1i\/",
+                    "file_name": "b57a6b7e1c4bbb4ff696555129470dfc.jpg"
+                },
+                {
+                    "_id": "691f1cf326679b486671f4ae",
+                    "path": "f3\/3r\/",
+                    "file_name": "20b40e98e7957b451aade8f733795e23.jpg"
+                },
+                {
+                    "_id": "691f1cf326679b4b1d71f4ad",
+                    "path": "ot\/1k\/",
+                    "file_name": "de807d4385822cf5fbe75ed9adc85484.jpg"
+                }
+            ],
+            "builder": {
+                "_id": "689a3d13614008e0510ebd83",
+                "name": "Застройщик: Петербургские просторы",
+                "unformatted_name": "Петербургские просторы"
+            },
+            "distance": {
+                "center": {
+                    "label": "До центра, ",
+                    "value": "90 км"
+                },
+                "railway": {
+                    "label": "Ж\/д станция ",
+                    "value": "Горьковское, 10 минут транспортом"
+                },
+                "highway": {
+                    "label": "А-181 «Скандинавия» ,",
+                    "value": "55 км до КАД"
+                }
+            },
+            "deadline": {
+                "value": ""
+            },
+            "reward": {
+                "label": "2.4%"
+            },
+            "sales_start": {
+                "label": "Старт продаж",
+                "value": ""
+            },
+            "min_prices": [
+                {
+                    "label": "Участки 5-10 сот.",
+                    "value": "от 177 000",
+                    "unformatted_value": 177000,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 10-15 сот.",
+                    "value": "от 1 055 000",
+                    "unformatted_value": 1055000,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 15-20 сот.",
+                    "value": "от 3 112 000",
+                    "unformatted_value": 3112000,
+                    "unit": "₽"
+                }
+            ],
+            "is_new_village": false,
+            "property_types": [
+                {
+                    "_id": "68231c16d091ac841a005163",
+                    "value": "Новостройки"
+                }
+            ],
+            "plots_count": 41,
+            "view_plots_count": 0
+        },
+        {
+            "_id": "694a9d815c890bf9fabd5005",
+            "name": "Крона-Парк",
+            "address": "",
+            "guid": "kronapark",
+            "images": [
+                {
+                    "_id": "694a95a068d2bdd266d1762c",
+                    "path": "1i\/uc\/",
+                    "file_name": "93d708effdab4010367165165fe457a5.jpg"
+                },
+                {
+                    "_id": "694a95a068d2bd3e50d1762a",
+                    "path": "8d\/9r\/",
+                    "file_name": "5a55c6b2cca83455b566ad4113e0eaed.jpg"
+                },
+                {
+                    "_id": "694a95a068d2bd670cd17629",
+                    "path": "6l\/86\/",
+                    "file_name": "ebfb7e60b1ee1a7a636bb6b4bca5720d.jpg"
+                },
+                {
+                    "_id": "694a95a068d2bd82c0d1762b",
+                    "path": "y2\/9g\/",
+                    "file_name": "98475b8ada380424f6afb125b09493a0.jpg"
+                }
+            ],
+            "builder": {
+                "_id": "694a93105c890bf9fabd4d25",
+                "name": "Застройщик: Крона Парк",
+                "unformatted_name": "Крона Парк"
+            },
+            "distance": {
+                "center": {
+                    "label": "До центра, ",
+                    "value": "85 км"
+                },
+                "railway": {
+                    "label": "Ж\/д станция ",
+                    "value": "Калище, 30 минут транспортом"
+                },
+                "highway": {
+                    "label": "А-180 «Нарва» ,",
+                    "value": "45 км до КАД"
+                }
+            },
+            "deadline": {
+                "value": ""
+            },
+            "reward": {
+                "label": "4%"
+            },
+            "sales_start": {
+                "label": "Старт продаж",
+                "value": ""
+            },
+            "min_prices": [
+                {
+                    "label": "Участки 5-10 сот.",
+                    "value": "от 588 000",
+                    "unformatted_value": 588000,
+                    "unit": "₽"
+                }
+            ],
+            "is_new_village": true,
+            "property_types": [
+                {
+                    "_id": "68231c16d091ac841a005163",
+                    "value": "Новостройки"
+                }
+            ],
+            "plots_count": 55,
+            "view_plots_count": 0
+        },
+        {
+            "_id": "69368a3d89720b34ddc11ab6",
+            "name": "Копорский Посад",
+            "address": "",
+            "guid": "koporskiy-posad",
+            "images": [
+                {
+                    "_id": "693688a5706089cdd7706e7f",
+                    "path": "fx\/79\/",
+                    "file_name": "946fd6c6971d47b495854912828e8262.jpg"
+                },
+                {
+                    "_id": "693688a57060890979706e7c",
+                    "path": "3y\/rn\/",
+                    "file_name": "c01f27e1e92db895a173b7d8172caf42.jpg"
+                },
+                {
+                    "_id": "693688a5706089274d706e7d",
+                    "path": "g2\/4g\/",
+                    "file_name": "803683a3121f84ed206a35933b57dc6d.jpg"
+                },
+                {
+                    "_id": "693688a57060893a8d706e7e",
+                    "path": "ip\/kp\/",
+                    "file_name": "3be20e76df825a826b4228393edeb7bb.jpg"
+                },
+                {
+                    "_id": "693688a57060894e30706e7b",
+                    "path": "on\/q9\/",
+                    "file_name": "a1f5a6efc6bd15dbc6c74a4c27681c15.jpg"
+                }
+            ],
+            "builder": {
+                "_id": "6936826189720b34ddc11a88",
+                "name": "Застройщик: Загородное поместье",
+                "unformatted_name": "Загородное поместье"
+            },
+            "distance": {
+                "center": {
+                    "label": "До центра, ",
+                    "value": "100 км"
+                },
+                "railway": {
+                    "label": "Ж\/д станция ",
+                    "value": "Копорье, 15 минут транспортом"
+                },
+                "highway": {
+                    "label": "А-180 «Нарва» ,",
+                    "value": "54 км до КАД"
+                }
+            },
+            "deadline": {
+                "value": ""
+            },
+            "reward": {
+                "label": "4%"
+            },
+            "sales_start": {
+                "label": "Старт продаж",
+                "value": ""
+            },
+            "min_prices": [
+                {
+                    "label": "Участки 5-10 сот.",
+                    "value": "от 630 000",
+                    "unformatted_value": 630000,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 10-15 сот.",
+                    "value": "от 1 050 000",
+                    "unformatted_value": 1050000,
+                    "unit": "₽"
+                }
+            ],
+            "is_new_village": false,
+            "property_types": [
+                {
+                    "_id": "68231c16d091ac841a005163",
+                    "value": "Новостройки"
+                }
+            ],
+            "plots_count": 113,
+            "view_plots_count": 0
+        },
+        {
+            "_id": "68e3ef7316cc0b93592b97d6",
+            "name": "Нурмала",
+            "address": "",
+            "guid": "nurmala",
+            "images": [
+                {
+                    "_id": "68e3eb1df9c85115c474e940",
+                    "path": "q5\/oq\/",
+                    "file_name": "44efbd4292f0ec63b60ae72a469b31b6.jpg"
+                },
+                {
+                    "_id": "68e3eb1df9c851624974e941",
+                    "path": "h7\/cl\/",
+                    "file_name": "6dec45f03bcec0e85013fcaa02235194.jpg"
+                }
+            ],
+            "builder": {
+                "_id": "68e3aac916cc0b93592b8461",
+                "name": "Застройщик: Максимум Life Development",
+                "unformatted_name": "Максимум Life Development"
+            },
+            "distance": {
+                "center": {
+                    "label": "До центра, ",
+                    "value": "70 минут транспортом"
+                },
+                "railway": {
+                    "label": "Ж\/д станция ",
+                    "value": "Нурма, 15 минут пешком"
+                },
+                "highway": {
+                    "label": "М-10 «Россия» ,",
+                    "value": "60 минут транспортом до КАД"
+                }
+            },
+            "deadline": {
+                "value": ""
+            },
+            "reward": {
+                "label": "3.2%"
+            },
+            "sales_start": {
+                "label": "Старт продаж",
+                "value": ""
+            },
+            "min_prices": [
+                {
+                    "label": "Участки 5-10 сот.",
+                    "value": "от 672 980",
+                    "unformatted_value": 672980,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 10-15 сот.",
+                    "value": "от 948 690",
+                    "unformatted_value": 948690,
+                    "unit": "₽"
+                }
+            ],
+            "is_new_village": false,
+            "property_types": [
+                {
+                    "_id": "68231c16d091ac841a005163",
+                    "value": "Новостройки"
+                }
+            ],
+            "plots_count": 8,
+            "view_plots_count": 0
+        },
+        {
+            "_id": "69440cc45c890bf9fabb7b8b",
+            "name": "Новосельцево 2",
+            "address": "",
+            "guid": "novoselcevo-2",
+            "images": [
+                {
+                    "_id": "6944027d1645ef2078bc2bd4",
+                    "path": "r9\/r4\/",
+                    "file_name": "4cabffc401f0a5b3109343ce8ec62208.jpg"
+                },
+                {
+                    "_id": "6944027d1645ef3b38bc2bd5",
+                    "path": "pm\/0p\/",
+                    "file_name": "6c169cd33602be2c3f311fe65b7bc746.jpg"
+                },
+                {
+                    "_id": "6944027d1645ef6721bc2bd6",
+                    "path": "v3\/as\/",
+                    "file_name": "07cfcd479d29c419961658674d49be4c.jpg"
+                },
+                {
+                    "_id": "6944027d1645efd907bc2bd7",
+                    "path": "7a\/nc\/",
+                    "file_name": "3ed8ce304f198324709eb0cb0ac782e4.jpg"
+                }
+            ],
+            "builder": {
+                "_id": "6943ec742e96aa26db5fdf86",
+                "name": "Застройщик: Землебург",
+                "unformatted_name": "Землебург"
+            },
+            "distance": {
+                "center": {
+                    "label": "До центра, ",
+                    "value": "60 км"
+                },
+                "railway": {
+                    "label": "Ж\/д станция ",
+                    "value": "Войсковицы, 30 минут транспортом"
+                },
+                "highway": {
+                    "label": "М-11 «Нева» ,",
+                    "value": "10 минут транспортом до КАД"
+                }
+            },
+            "deadline": {
+                "value": ""
+            },
+            "reward": {
+                "label": "2.4%"
+            },
+            "sales_start": {
+                "label": "Старт продаж",
+                "value": ""
+            },
+            "min_prices": [
+                {
+                    "label": "Участки 5-10 сот.",
+                    "value": "от 819 000",
+                    "unformatted_value": 819000,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 10-15 сот.",
+                    "value": "от 1 400 000",
+                    "unformatted_value": 1400000,
+                    "unit": "₽"
+                },
+                {
+                    "label": "Участки 15-20 сот.",
+                    "value": "от 3 744 000",
+                    "unformatted_value": 3744000,
+                    "unit": "₽"
+                }
+            ],
+            "is_new_village": true,
+            "property_types": [
+                {
+                    "_id": "68231c16d091ac841a005163",
+                    "value": "Новостройки"
+                }
+            ],
+            "plots_count": 55,
+            "view_plots_count": 0
+        }
+    ]
+}
