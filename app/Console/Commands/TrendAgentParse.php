@@ -20,6 +20,7 @@ use App\Models\TrendAgent\Plot;
 use App\Models\TrendAgent\Commercial;
 use App\Models\TrendAgent\Contractor;
 use App\Models\TrendAgent\ContractorProject;
+use App\Services\TrendAgent\CityService;
 
 class TrendAgentParse extends Command
 {
@@ -1398,9 +1399,24 @@ class TrendAgentParse extends Command
      */
     protected function getRegionName(string $code): string
     {
+        // Используем CityService для получения названия города
+        $cityName = CityService::getCityName($code);
+        if ($cityName) {
+            return $cityName;
+        }
+        
+        // Fallback на старый метод для обратной совместимости
         return match($code) {
             'spb' => 'Санкт-Петербург',
             'msk' => 'Москва',
+            'ekb' => 'Екатеринбург',
+            'nsk' => 'Новосибирск',
+            'krd' => 'Краснодарский край',
+            'rnd' => 'Ростов-на-Дону',
+            'crimea' => 'Крым',
+            'kzn' => 'Казань',
+            'ufa' => 'Уфа',
+            'dubai' => 'ОАЭ',
             default => ucfirst($code),
         };
     }

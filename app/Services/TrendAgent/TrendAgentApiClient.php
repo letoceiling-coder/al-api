@@ -737,11 +737,18 @@ class TrendAgentApiClient
      */
     protected function getCityId(string $cityCode): string
     {
+        // Используем CityService для получения ID города
+        $cityId = \App\Services\TrendAgent\CityService::getCityId($cityCode);
+        if ($cityId) {
+            return $cityId;
+        }
+        
+        // Fallback на старый метод для обратной совместимости
         $cityMap = [
             'spb' => '58c665588b6aa52311afa01b', // Санкт-Петербург
-            'msk' => '58c665598b6aa55612afa068', // Москва
-            'ekb' => '58c665598b6aa52e0fafa05e', // Екатеринбург
-            'nsk' => '58c665598b6aa53611afa072', // Новосибирск
+            'msk' => '5a5cb42159042faa9a218d04', // Москва (исправлен ID)
+            'ekb' => '650974f78d34c0f790a012a9', // Екатеринбург
+            'nsk' => '618120c1a56997000866c4d8', // Новосибирск
         ];
         
         return $cityMap[$cityCode] ?? $cityMap['spb'];
