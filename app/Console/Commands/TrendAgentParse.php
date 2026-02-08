@@ -173,12 +173,15 @@ class TrendAgentParse extends Command
         $this->newLine();
         
         // Выводим сводную статистику по всем регионам
+        // (внутри displayAllRegionsStatistics уже выводится "Точные данные из API")
         $this->displayAllRegionsStatistics();
         
-        // Выводим точные данные из API
-        $this->newLine();
-        $this->info("📊 Точные данные из API:");
-        $this->displayExactData();
+        // Если парсился только один регион, выводим точные данные отдельно
+        if (empty($this->allRegionsStatistics)) {
+            $this->newLine();
+            $this->info("📊 Точные данные из API:");
+            $this->displayExactData();
+        }
         
         // Выводим отчет по парсингу и БД
         $this->displayParsingAndDbReport();
