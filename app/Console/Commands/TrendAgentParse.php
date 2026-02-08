@@ -198,22 +198,23 @@ class TrendAgentParse extends Command
             
             // Проверяем, нужно ли продолжать пагинацию
             $totalFromApi = $this->statistics['by_type_total']['complexes'] ?? null;
-            $offset += $count;
             
             // Продолжаем, если:
             // 1. Получили полную страницу (count($items) === $count)
-            // 2. ИЛИ если есть total из API и offset < total
+            // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
             // 3. И limit не достигнут
             $shouldContinue = false;
             if (count($items) === $count) {
                 $shouldContinue = true;
-            } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+            } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                 $shouldContinue = true;
             }
             
             if ($limit > 0 && $parsed >= $limit) {
                 $shouldContinue = false;
             }
+            
+            $offset += $count;
         } while ($shouldContinue);
     }
     
@@ -307,22 +308,23 @@ class TrendAgentParse extends Command
             
             // Проверяем, нужно ли продолжать пагинацию
             $totalFromApi = $this->statistics['by_type_total']['apartments'] ?? null;
-            $offset += $count;
             
             // Продолжаем, если:
             // 1. Получили полную страницу (count($items) === $count)
-            // 2. ИЛИ если есть total из API и offset < total
+            // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
             // 3. И limit не достигнут
             $shouldContinue = false;
             if (count($items) === $count) {
                 $shouldContinue = true;
-            } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+            } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                 $shouldContinue = true;
             }
             
             if ($limit > 0 && $parsed >= $limit) {
                 $shouldContinue = false;
             }
+            
+            $offset += $count;
         } while ($shouldContinue);
     }
     
@@ -440,22 +442,23 @@ class TrendAgentParse extends Command
                 
                 // Проверяем, нужно ли продолжать пагинацию
                 $totalFromApi = $this->statistics['by_type_total']['parkings'] ?? null;
-                $offset += $count;
                 
                 // Продолжаем, если:
                 // 1. Получили полную страницу (count($items) === $count)
-                // 2. ИЛИ если есть total из API и offset < total
+                // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
                 // 3. И limit не достигнут
                 $shouldContinue = false;
                 if (count($items) === $count) {
                     $shouldContinue = true;
-                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                     $shouldContinue = true;
                 }
                 
                 if ($limit > 0 && $parsed >= $limit) {
                     $shouldContinue = false;
                 }
+                
+                $offset += $count;
             } while ($shouldContinue);
             
         } catch (\Exception $e) {
@@ -533,22 +536,23 @@ class TrendAgentParse extends Command
                 
                 // Проверяем, нужно ли продолжать пагинацию
                 $totalFromApi = $this->statistics['by_type_total']['houses'] ?? null;
-                $offset += $count;
                 
                 // Продолжаем, если:
                 // 1. Получили полную страницу (count($items) === $count)
-                // 2. ИЛИ если есть total из API и offset < total
+                // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
                 // 3. И limit не достигнут
                 $shouldContinue = false;
                 if (count($items) === $count) {
                     $shouldContinue = true;
-                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                     $shouldContinue = true;
                 }
                 
                 if ($limit > 0 && $parsed >= $limit) {
                     $shouldContinue = false;
                 }
+                
+                $offset += $count;
             } while ($shouldContinue);
             
         } catch (\Exception $e) {
@@ -631,22 +635,23 @@ class TrendAgentParse extends Command
                 
                 // Проверяем, нужно ли продолжать пагинацию
                 $totalFromApi = $this->statistics['by_type_total']['plots'] ?? null;
-                $offset += $count;
                 
                 // Продолжаем, если:
                 // 1. Получили полную страницу (count($items) === $count)
-                // 2. ИЛИ если есть total из API и offset < total
+                // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
                 // 3. И limit не достигнут
                 $shouldContinue = false;
                 if (count($items) === $count) {
                     $shouldContinue = true;
-                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                     $shouldContinue = true;
                 }
                 
                 if ($limit > 0 && $parsed >= $limit) {
                     $shouldContinue = false;
                 }
+                
+                $offset += $count;
             } while ($shouldContinue);
             
         } catch (\Exception $e) {
@@ -729,22 +734,23 @@ class TrendAgentParse extends Command
                 
                 // Проверяем, нужно ли продолжать пагинацию
                 $totalFromApi = $this->statistics['by_type_total']['commercial'] ?? null;
-                $offset += $count;
                 
                 // Продолжаем, если:
                 // 1. Получили полную страницу (count($items) === $count)
-                // 2. ИЛИ если есть total из API и offset < total
+                // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
                 // 3. И limit не достигнут
                 $shouldContinue = false;
                 if (count($items) === $count) {
                     $shouldContinue = true;
-                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                     $shouldContinue = true;
                 }
                 
                 if ($limit > 0 && $parsed >= $limit) {
                     $shouldContinue = false;
                 }
+                
+                $offset += $count;
             } while ($shouldContinue);
             
         } catch (\Exception $e) {
@@ -822,22 +828,23 @@ class TrendAgentParse extends Command
                 
                 // Проверяем, нужно ли продолжать пагинацию
                 $totalFromApi = $this->statistics['by_type_total']['contractors'] ?? null;
-                $offset += $count;
                 
                 // Продолжаем, если:
                 // 1. Получили полную страницу (count($items) === $count)
-                // 2. ИЛИ если есть total из API и offset < total
+                // 2. ИЛИ если есть total из API и offset + count < total (есть еще данные)
                 // 3. И limit не достигнут
                 $shouldContinue = false;
                 if (count($items) === $count) {
                     $shouldContinue = true;
-                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                } elseif ($totalFromApi !== null && ($offset + $count) < $totalFromApi) {
                     $shouldContinue = true;
                 }
                 
                 if ($limit > 0 && $parsed >= $limit) {
                     $shouldContinue = false;
                 }
+                
+                $offset += $count;
             } while ($shouldContinue);
             
         } catch (\Exception $e) {
