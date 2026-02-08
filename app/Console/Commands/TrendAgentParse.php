@@ -1542,7 +1542,22 @@ class TrendAgentParse extends Command
 
             $complex =             // Используем модель для правильной обработки casts
             $complex = Complex::firstOrNew(['external_id' => $externalId]);
-            $complex->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if (!in_array($key, ['images', 'advantages', 'nearby_places', 'videos', 'files', 'raw_data'])) {
+                    $complex->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $complex->setAttribute('images', $images);
+            $complex->setAttribute('advantages', $advantages);
+            $complex->setAttribute('nearby_places', $nearbyPlaces);
+            $complex->setAttribute('videos', $videos);
+            $complex->setAttribute('files', $files);
+            $complex->setAttribute('raw_data', $complexData);
+            
             $complex->save();
             
             if ($this->option('verbose')) {
