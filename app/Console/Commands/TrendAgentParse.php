@@ -30,7 +30,7 @@ class TrendAgentParse extends Command
      * @var string
      */
     protected $signature = 'trendagent:parse 
-                            {--region=spb : Region code (spb, msk, etc.)}
+                            {--region=spb : Region code (spb, msk, ekb, nsk, krd, rnd, crimea, kzn, ufa, dubai)}
                             {--type=all : Type of objects (all, apartments, parkings, houses, plots, commercial, complexes)}
                             {--limit=0 : Limit number of objects (0 = no limit)}
                             {--offset=0 : Offset for pagination}
