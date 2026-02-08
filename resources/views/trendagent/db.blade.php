@@ -289,7 +289,7 @@
         <div class="header-content">
             <div class="logo">🏠 TrendAgent DB</div>
             <nav class="nav-tabs">
-                <a href="{{ route('trendagent.db', ['type' => 'apartments', 'region' => $region]) }}" 
+                <a href="{{ route('trendagent.db.alt', ['type' => 'apartments', 'region' => $region]) }}" 
                    class="nav-tab {{ $type === 'apartments' ? 'active' : '' }}">
                     Квартиры ({{ number_format($statistics['apartments'], 0, ',', ' ') }})
                 </a>
@@ -335,7 +335,7 @@
         </div>
         
         <div class="filters">
-            <form method="GET" action="{{ route('trendagent.db') }}" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <form method="GET" action="{{ route('trendagent.db.alt') }}" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                 <input type="hidden" name="type" value="{{ $type }}">
                 
                 <label class="filter-label">Регион:</label>
@@ -568,7 +568,7 @@
                 @if($totalPages > 1)
                     <div class="pagination">
                         @if($page > 1)
-                            <a href="{{ route('trendagent.db', ['type' => $type, 'region' => $region, 'page' => $page - 1]) }}">← Назад</a>
+                            <a href="{{ route('trendagent.db.alt', ['type' => $type, 'region' => $region, 'page' => $page - 1]) }}">← Назад</a>
                         @else
                             <span class="disabled">← Назад</span>
                         @endif
@@ -577,12 +577,12 @@
                             @if($i === $page)
                                 <span class="active">{{ $i }}</span>
                             @else
-                                <a href="{{ route('trendagent.db', ['type' => $type, 'region' => $region, 'page' => $i]) }}">{{ $i }}</a>
+                                <a href="{{ route('trendagent.db.alt', ['type' => $type, 'region' => $region, 'page' => $i]) }}">{{ $i }}</a>
                             @endif
                         @endfor
                         
                         @if($page < $totalPages)
-                            <a href="{{ route('trendagent.db', ['type' => $type, 'region' => $region, 'page' => $page + 1]) }}">Вперед →</a>
+                            <a href="{{ route('trendagent.db.alt', ['type' => $type, 'region' => $region, 'page' => $page + 1]) }}">Вперед →</a>
                         @else
                             <span class="disabled">Вперед →</span>
                         @endif
