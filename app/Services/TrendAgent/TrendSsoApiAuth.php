@@ -1104,7 +1104,129 @@ class TrendSsoApiAuth
                 ]);
                 throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
             }
-        });
+            });
+        } catch (\Exception $cacheException) {
+            // Если кеш недоступен (например, БД не запущена), просто выполняем запрос без кеша
+            Log::warning('Кеш недоступен, выполняем запрос без кеша', [
+                'error' => $cacheException->getMessage(),
+            ]);
+            
+            // Выполняем запрос напрямую без кеша (повторяем логику из замыкания)
+            try {
+                $authToken = $this->getAuthToken();
+                if (empty($authToken)) {
+                    throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+                }
+                
+                $apiUrl = 'https://api.trendagent.ru/v4_29/blocks/search/';
+                $defaultParams = [
+                    'show_type' => 'list',
+                    'sort' => 'price',
+                    'sort_order' => 'asc',
+                    'count' => 20,
+                    'offset' => 0,
+                    'city' => '58c665588b6aa52311afa01b',
+                    'lang' => 'ru',
+                ];
+                $queryParams = array_merge($defaultParams, $params);
+                $queryParams['auth_token'] = $authToken;
+                
+                $roomParams = [];
+                if (isset($queryParams['room']) && is_array($queryParams['room'])) {
+                    $roomParams = $queryParams['room'];
+                    unset($queryParams['room']);
+                } elseif (isset($queryParams['room'])) {
+                    $roomParams = [$queryParams['room']];
+                    unset($queryParams['room']);
+                }
+                
+                $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+                if (!empty($roomParams)) {
+                    $roomQuery = [];
+                    foreach ($roomParams as $room) {
+                        $roomQuery[] = 'room=' . urlencode($room);
+                    }
+                    if (!empty($queryString)) {
+                        $queryString .= '&' . implode('&', $roomQuery);
+                    } else {
+                        $queryString = implode('&', $roomQuery);
+                    }
+                }
+                
+                $fullUrl = $apiUrl . '?' . $queryString;
+                $response = $this->client->get($fullUrl, [
+                    'headers' => [
+                        'Accept' => 'application/json, text/plain, */*',
+                        'Accept-Language' => 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                        'Origin' => 'https://spb.trendagent.ru',
+                        'Referer' => 'https://spb.trendagent.ru/',
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                    ],
+                    'timeout' => 30,
+                    'verify' => false,
+                    'allow_redirects' => true,
+                ]);
+                
+                $statusCode = $response->getStatusCode();
+                if ($statusCode === 304) {
+                    return [
+                        'success' => true,
+                        'data' => [],
+                        'total' => 0,
+                        'source' => 'api',
+                        'cached' => true,
+                    ];
+                }
+                
+                $body = $response->getBody()->getContents();
+                if ($statusCode !== 200) {
+                    throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+                }
+                
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Ошибка парсинга JSON ответа: ' . json_last_error_msg());
+                }
+                
+                if (isset($data['errors']) && !empty($data['errors'])) {
+                    throw new \Exception('API вернул ошибки: ' . json_encode($data['errors']));
+                }
+                
+                $results = $data['data']['results'] ?? [];
+                $processedResults = array_map(function($item) {
+                    if (isset($item['image']) && is_array($item['image'])) {
+                        $image = $item['image'];
+                        if (isset($image['path']) && isset($image['file_name'])) {
+                            $path = rtrim($image['path'], '/');
+                            $fileName = $image['file_name'];
+                            $path = ltrim($path, '/');
+                            $item['image']['url'] = "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}";
+                            $item['image']['url_full'] = "https://selcdn.trendagent.ru/images/{$path}/{$fileName}";
+                        }
+                    }
+                    return $item;
+                }, $results);
+                
+                $data['data']['results'] = $processedResults;
+                return [
+                    'success' => true,
+                    'data' => $processedResults,
+                    'total' => count($processedResults),
+                    'blocks_count' => $data['data']['blocksCount'] ?? 0,
+                    'prelaunches_count' => $data['data']['prelaunchesCount'] ?? 0,
+                    'apartments_count' => $data['data']['apartmentsCount'] ?? 0,
+                    'booked_apartments_count' => $data['data']['bookedApartmentsCount'] ?? 0,
+                    'view_apartments_count' => $data['data']['viewApartmentsCount'] ?? 0,
+                    'source' => 'api',
+                    'raw_response' => $data,
+                ];
+            } catch (\Exception $e) {
+                Log::error('Ошибка при выполнении запроса blocks/search без кеша', [
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+        }
     }
 
     /**
