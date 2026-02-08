@@ -170,9 +170,19 @@ class ImportDataCommand extends Command
 
         foreach ($files as $file) {
             try {
-                $data = json_decode(File::get($file), true);
+                $fileData = json_decode(File::get($file), true);
                 
-                if (!$data) {
+                if (!$fileData) {
+                    $this->statistics['errors']++;
+                    $bar->advance();
+                    continue;
+                }
+
+                // Извлекаем данные из структуры файла
+                // Структура может быть: {data: {data: {...}}} или просто {...}
+                $data = $fileData['data']['data'] ?? $fileData['data'] ?? $fileData;
+
+                if (empty($data)) {
                     $this->statistics['errors']++;
                     $bar->advance();
                     continue;
@@ -206,9 +216,17 @@ class ImportDataCommand extends Command
      */
     private function importComplex(array $data, Region $region): void
     {
-        $externalId = $data['id'] ?? $data['_id'] ?? null;
+        $externalId = $data['_id'] ?? $data['id'] ?? null;
         if (!$externalId) {
             return;
+        }
+
+        // Извлекаем координаты из geometry
+        $latitude = null;
+        $longitude = null;
+        if (isset($data['geometry']['coordinates']) && is_array($data['geometry']['coordinates'])) {
+            $longitude = $data['geometry']['coordinates'][0] ?? null;
+            $latitude = $data['geometry']['coordinates'][1] ?? null;
         }
 
         $complexData = [
@@ -218,15 +236,15 @@ class ImportDataCommand extends Command
             'name' => $data['name'] ?? '',
             'address' => $data['address'] ?? null,
             'description' => $data['description'] ?? null,
-            'latitude' => $data['latitude'] ?? $data['location']['latitude'] ?? null,
-            'longitude' => $data['longitude'] ?? $data['location']['longitude'] ?? null,
+            'latitude' => $latitude ?? $data['latitude'] ?? $data['location']['latitude'] ?? null,
+            'longitude' => $longitude ?? $data['longitude'] ?? $data['location']['longitude'] ?? null,
             'developer_name' => $data['developer']['name'] ?? null,
             'class_type' => $data['class_type'] ?? null,
             'deadline' => $data['deadline'] ?? null,
-            'status' => $data['status'] ?? null,
+            'status' => $data['status'] ?? (is_numeric($data['status'] ?? null) ? (string)$data['status'] : null),
             'min_price' => $data['min_price'] ?? null,
-            'images' => $data['images'] ?? [],
-            'advantages' => $data['advantages'] ?? [],
+            'images' => $data['plan'] ?? $data['images'] ?? [],
+            'advantages' => $data['advantage'] ?? $data['advantages'] ?? [],
             'nearby_places' => $data['nearby_places'] ?? [],
             'videos' => $data['videos'] ?? [],
             'files' => $data['files'] ?? [],
