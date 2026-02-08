@@ -77,11 +77,17 @@ class TrendAgentParse extends Command
         $this->imageDownloader = new ImageDownloader();
         
         // Проверяем флаг сохранения в БД
-        $saveDbOption = $this->shouldSaveToDb;
-        $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        if ($this->shouldSaveToDb === null) {
-            // Если не удалось распарсить, проверяем как строку
-            $this->shouldSaveToDb = in_array(strtolower($saveDbOption), ['true', '1', 'yes', 'on'], true);
+        $saveDbOption = $this->option('save-db');
+        if ($saveDbOption === null) {
+            // По умолчанию сохраняем в БД
+            $this->shouldSaveToDb = true;
+        } else {
+            // Парсим опцию
+            $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($this->shouldSaveToDb === null) {
+                // Если не удалось распарсить, проверяем как строку
+                $this->shouldSaveToDb = in_array(strtolower($saveDbOption), ['true', '1', 'yes', 'on'], true);
+            }
         }
         
         if ($this->shouldSaveToDb) {
