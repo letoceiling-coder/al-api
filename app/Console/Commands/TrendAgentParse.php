@@ -1630,8 +1630,20 @@ class TrendAgentParse extends Command
             ];
 
             // Используем модель для правильной обработки casts
+            // Явно устанавливаем JSON поля через setAttribute для правильной конвертации
             $apartment = Apartment::firstOrNew(['external_id' => $externalId]);
-            $apartment->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if ($key !== 'images' && $key !== 'raw_data') {
+                    $apartment->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $apartment->setAttribute('images', $images);
+            $apartment->setAttribute('raw_data', $apartmentData);
+            
             $apartment->save();
             
             // Логируем только каждую 1000-ю квартиру, чтобы не засорять вывод
