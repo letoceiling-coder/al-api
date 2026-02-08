@@ -670,11 +670,20 @@ class TrendAgentParse extends Command
     {
         $this->info("\n=== Statistics ===");
         foreach ($this->statistics as $type => $stats) {
-            if (is_array($stats) && isset($stats['total'])) {
+            // Пропускаем тип 'images', так как у него другая структура
+            if ($type === 'images') {
+                continue;
+            }
+            
+            if (is_array($stats)) {
                 $parsed = $stats['parsed'] ?? 0;
                 $total = $stats['total'] ?? 0;
                 $errors = $stats['errors'] ?? 0;
-                $this->line("{$type}: {$parsed}/{$total} (errors: {$errors})");
+                
+                // Выводим только если есть данные или ошибки
+                if ($total > 0 || $parsed > 0 || $errors > 0) {
+                    $this->line("{$type}: {$parsed}/{$total} (errors: {$errors})");
+                }
             }
         }
     }
