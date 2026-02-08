@@ -264,14 +264,23 @@ class ImportDataCommand extends Command
                 $complexData
             );
 
-            if (!$exists) {
-                $this->statistics['imported']++;
+            // Проверяем, что запись действительно создана/обновлена
+            if ($complex && $complex->id) {
+                if (!$exists) {
+                    $this->statistics['imported']++;
+                } else {
+                    $this->statistics['updated']++;
+                }
             } else {
-                $this->statistics['updated']++;
+                $this->statistics['errors']++;
+                $this->warn("   ⚠️  Комплекс {$externalId} не был сохранен");
             }
         } catch (\Exception $e) {
             $this->statistics['errors']++;
             $this->error("   ❌ Ошибка импорта комплекса {$externalId}: {$e->getMessage()}");
+            if ($this->option('verbose')) {
+                $this->error("   Stack: " . $e->getTraceAsString());
+            }
         }
     }
 
