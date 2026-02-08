@@ -1685,10 +1685,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $parkingData,
             ];
 
-            Parking::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $parking = Parking::firstOrNew(['external_id' => $externalId]);
+            $parking->fill($dbData);
+            $parking->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения паркинга {$externalId} в БД: {$e->getMessage()}");
         }
@@ -1808,10 +1808,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $commercialData,
             ];
 
-            Commercial::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $commercial = Commercial::firstOrNew(['external_id' => $externalId]);
+            $commercial->fill($dbData);
+            $commercial->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения коммерции {$externalId} в БД: {$e->getMessage()}");
         }
