@@ -83,6 +83,9 @@ class TrendAgentParse extends Command
         $this->info('Parsing completed!');
         $this->displayStatistics();
         
+        // Очищаем PID файл после завершения (если запущен через веб-интерфейс)
+        $this->clearParserPid();
+        
         return 0;
     }
     
