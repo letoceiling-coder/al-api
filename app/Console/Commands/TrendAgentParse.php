@@ -52,6 +52,7 @@ class TrendAgentParse extends Command
     protected $basePath;
     protected $regionModel;
     protected $allRegionsStatistics = []; // Статистика по всем регионам
+    protected $shouldSaveToDb = true; // Флаг сохранения в БД
     protected $statistics = [
         'complexes' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'apartments' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
@@ -72,6 +73,21 @@ class TrendAgentParse extends Command
         // Инициализация
         $this->apiAuth = new TrendSsoApiAuth();
         $this->imageDownloader = new ImageDownloader();
+        
+        // Проверяем флаг сохранения в БД
+        $saveDbOption = $this->option('save-db');
+        $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($this->shouldSaveToDb === null) {
+            // Если не удалось распарсить, проверяем как строку
+            $this->shouldSaveToDb = in_array(strtolower($saveDbOption), ['true', '1', 'yes', 'on'], true);
+        }
+        
+        if ($this->shouldSaveToDb) {
+            $this->info("💾 Сохранение в БД: ВКЛЮЧЕНО");
+        } else {
+            $this->warn("💾 Сохранение в БД: ОТКЛЮЧЕНО");
+        }
+        $this->newLine();
         
         // Авторизация
         if (!$this->authenticate()) {
@@ -434,7 +450,7 @@ class TrendAgentParse extends Command
                 // Логируем, но не останавливаем парсинг
                 $this->warn("  ⚠️  Не удалось получить детали квартиры {$apartmentId}" . ($blockId ? " (block_id: {$blockId})" : " (без block_id)"));
                 // Пытаемся сохранить в БД из данных списка
-                if ($this->option('save-db')) {
+                if ($this->shouldSaveToDb) {
                     $this->saveApartmentToDb([], $apartmentId, $listItem);
                 }
                 return;
