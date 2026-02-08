@@ -992,6 +992,12 @@ class TrendAgentParse extends Command
      */
     protected function downloadObjectImages(string $type, string $objectId, array $data): void
     {
+        // Проверяем, существует ли метод
+        if (!method_exists($this->imageDownloader, 'extractImageUrls')) {
+            $this->warn("ImageDownloader::extractImageUrls() method not found. Skipping image download.");
+            return;
+        }
+        
         $imageUrls = $this->imageDownloader->extractImageUrls($data);
         
         foreach ($imageUrls as $category => $urls) {
