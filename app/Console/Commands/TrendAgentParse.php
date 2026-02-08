@@ -232,7 +232,7 @@ class TrendAgentParse extends Command
             }
             
             // Сохраняем детальные данные
-            if ($this->option('save-raw')) {
+            if ($this->option('details')) {
                 $this->saveDetailsData('complexes', "{$complexId}.json", $details);
             }
             
@@ -348,7 +348,7 @@ class TrendAgentParse extends Command
             }
             
             // Сохраняем детальные данные
-            if ($this->option('save-raw')) {
+            if ($this->option('details')) {
                 $this->saveDetailsData('apartments', "{$apartmentId}.json", $details);
             }
             
