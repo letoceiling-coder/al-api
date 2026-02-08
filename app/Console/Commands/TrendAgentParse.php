@@ -1624,24 +1624,86 @@ class TrendAgentParse extends Command
                 $images = [];
             }
             
+            // Извлекаем rooms - может быть объектом {crm_id: 0, name: "Студии"} или числом
+            $rooms = null;
+            if (isset($apartmentData['rooms']) && is_numeric($apartmentData['rooms'])) {
+                $rooms = (int)$apartmentData['rooms'];
+            } elseif (isset($apartmentData['room'])) {
+                if (is_array($apartmentData['room']) && isset($apartmentData['room']['crm_id'])) {
+                    $rooms = (int)$apartmentData['room']['crm_id'];
+                } elseif (is_numeric($apartmentData['room'])) {
+                    $rooms = (int)$apartmentData['room'];
+                }
+            }
+            
+            // Извлекаем площади - должны быть числами
+            $areaTotal = $apartmentData['area_total'] ?? $apartmentData['area_given'] ?? $apartmentData['area'] ?? $apartmentData['square'] ?? null;
+            if ($areaTotal !== null && !is_numeric($areaTotal)) {
+                $areaTotal = null;
+            } elseif ($areaTotal !== null) {
+                $areaTotal = (float)$areaTotal;
+            }
+            
+            $areaLiving = $apartmentData['area_living'] ?? $apartmentData['living_area'] ?? null;
+            if ($areaLiving !== null && !is_numeric($areaLiving)) {
+                $areaLiving = null;
+            } elseif ($areaLiving !== null) {
+                $areaLiving = (float)$areaLiving;
+            }
+            
+            $areaKitchen = $apartmentData['area_kitchen'] ?? $apartmentData['kitchen_area'] ?? null;
+            if ($areaKitchen !== null && !is_numeric($areaKitchen)) {
+                $areaKitchen = null;
+            } elseif ($areaKitchen !== null) {
+                $areaKitchen = (float)$areaKitchen;
+            }
+            
+            // Извлекаем floor - должен быть числом
+            $floor = $apartmentData['floor'] ?? null;
+            if ($floor !== null && !is_numeric($floor)) {
+                $floor = null;
+            } elseif ($floor !== null) {
+                $floor = (int)$floor;
+            }
+            
+            // Извлекаем цены - должны быть числами
+            $priceBase = $apartmentData['price_base'] ?? $apartmentData['price'] ?? null;
+            if ($priceBase !== null && !is_numeric($priceBase)) {
+                $priceBase = null;
+            } elseif ($priceBase !== null) {
+                $priceBase = (int)$priceBase;
+            }
+            
+            $priceFull = $apartmentData['price_full'] ?? null;
+            if ($priceFull !== null && !is_numeric($priceFull)) {
+                $priceFull = null;
+            } elseif ($priceFull !== null) {
+                $priceFull = (int)$priceFull;
+            }
+            
+            $pricePerSqm = $apartmentData['price_per_sqm'] ?? null;
+            if ($pricePerSqm !== null && !is_numeric($pricePerSqm)) {
+                $pricePerSqm = null;
+            } elseif ($pricePerSqm !== null) {
+                $pricePerSqm = (int)$pricePerSqm;
+            }
+            
             $dbData = [
                 'complex_id' => $complexId,
                 'external_id' => $externalId,
                 'number' => $apartmentData['number'] ?? null,
-                'rooms' => $apartmentData['rooms'] ?? $apartmentData['room'] ?? null,
-                'area_total' => $apartmentData['area_total'] ?? $apartmentData['area'] ?? $apartmentData['square'] ?? null,
-                'area_living' => $apartmentData['area_living'] ?? $apartmentData['living_area'] ?? null,
-                'area_kitchen' => $apartmentData['area_kitchen'] ?? $apartmentData['kitchen_area'] ?? null,
-                'floor' => $apartmentData['floor'] ?? null,
-                'price_base' => $apartmentData['price_base'] ?? $apartmentData['price'] ?? null,
-                'price_full' => $apartmentData['price_full'] ?? null,
-                'price_per_sqm' => $apartmentData['price_per_sqm'] ?? null,
+                'rooms' => $rooms,
+                'area_total' => $areaTotal,
+                'area_living' => $areaLiving,
+                'area_kitchen' => $areaKitchen,
+                'floor' => $floor,
+                'price_base' => $priceBase,
+                'price_full' => $priceFull,
+                'price_per_sqm' => $pricePerSqm,
                 'is_exclusive' => (bool)($apartmentData['is_exclusive'] ?? false),
                 'is_booked' => (bool)($apartmentData['is_booked'] ?? false),
                 'is_on_request' => (bool)($apartmentData['is_on_request'] ?? false),
                 'plan_image_url' => $apartmentData['plan_image']['url'] ?? $apartmentData['plan_image_url'] ?? null,
-                'images' => $images,
-                'raw_data' => $apartmentData,
             ];
 
             // Используем модель для правильной обработки casts
