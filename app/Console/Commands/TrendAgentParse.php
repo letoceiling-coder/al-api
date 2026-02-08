@@ -578,6 +578,9 @@ class TrendAgentParse extends Command
                                 $this->saveParkingToDb(['data' => $item], $placeId);
                             }
                         }
+                    } elseif ($this->shouldSaveToDb) {
+                        // Если детали не парсим, все равно сохраняем в БД из данных списка
+                        $this->saveParkingToDb(['data' => $item], $placeId);
                     }
                     
                     $parsed++;
@@ -680,7 +683,9 @@ class TrendAgentParse extends Command
                                 // Сохраняем хотя бы данные из списка, если детали не получены
                                 $this->saveDetailsData('houses', "{$houseId}.json", ['data' => $item, 'source' => 'list']);
                                 // Пытаемся сохранить в БД из данных списка
-                                $this->saveHouseToDb(['data' => $item], $houseId);
+                                if ($this->shouldSaveToDb) {
+                                    $this->saveHouseToDb(['data' => $item], $houseId);
+                                }
                             }
                         } catch (\Exception $e) {
                             // Сохраняем данные из списка при ошибке
@@ -690,6 +695,9 @@ class TrendAgentParse extends Command
                                 $this->saveHouseToDb(['data' => $item], $houseId);
                             }
                         }
+                    } elseif ($this->shouldSaveToDb) {
+                        // Если детали не парсим, все равно сохраняем в БД из данных списка
+                        $this->saveHouseToDb(['data' => $item], $houseId);
                     }
                     
                     $parsed++;
@@ -809,6 +817,9 @@ class TrendAgentParse extends Command
                                 $this->savePlotToDb(['data' => $item], $plotId);
                             }
                         }
+                    } elseif ($this->shouldSaveToDb) {
+                        // Если детали не парсим, все равно сохраняем в БД из данных списка
+                        $this->savePlotToDb(['data' => $item], $plotId);
                     }
                     
                     $parsed++;
@@ -928,6 +939,9 @@ class TrendAgentParse extends Command
                                 $this->saveCommercialToDb(['data' => $item], $commercialId);
                             }
                         }
+                    } elseif ($this->shouldSaveToDb) {
+                        // Если детали не парсим, все равно сохраняем в БД из данных списка
+                        $this->saveCommercialToDb(['data' => $item], $commercialId);
                     }
                     
                     $parsed++;
@@ -1042,6 +1056,9 @@ class TrendAgentParse extends Command
                                 $this->saveContractorToDb(['data' => $item], $contractorId);
                             }
                         }
+                    } elseif ($this->shouldSaveToDb) {
+                        // Если детали не парсим, все равно сохраняем в БД из данных списка
+                        $this->saveContractorToDb(['data' => $item], $contractorId);
                     }
                     
                     $parsed++;
@@ -1788,7 +1805,18 @@ class TrendAgentParse extends Command
 
             // Используем модель для правильной обработки casts
             $parking = Parking::firstOrNew(['external_id' => $externalId]);
-            $parking->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if (!in_array($key, ['images', 'raw_data'])) {
+                    $parking->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $parking->setAttribute('images', $images);
+            $parking->setAttribute('raw_data', $parkingData);
+            
             $parking->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения паркинга {$externalId} в БД: {$e->getMessage()}");
@@ -1824,7 +1852,18 @@ class TrendAgentParse extends Command
 
             // Используем модель для правильной обработки casts
             $house = House::firstOrNew(['external_id' => $externalId]);
-            $house->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if (!in_array($key, ['images', 'raw_data'])) {
+                    $house->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $house->setAttribute('images', $images);
+            $house->setAttribute('raw_data', $houseData);
+            
             $house->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения дома {$externalId} в БД: {$e->getMessage()}");
@@ -1871,7 +1910,18 @@ class TrendAgentParse extends Command
 
             // Используем модель для правильной обработки casts
             $plot = Plot::firstOrNew(['external_id' => $externalId]);
-            $plot->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if (!in_array($key, ['utilities', 'raw_data'])) {
+                    $plot->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $plot->setAttribute('utilities', $utilities);
+            $plot->setAttribute('raw_data', $plotData);
+            
             $plot->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения участка {$externalId} в БД: {$e->getMessage()}");
@@ -1911,7 +1961,18 @@ class TrendAgentParse extends Command
 
             // Используем модель для правильной обработки casts
             $commercial = Commercial::firstOrNew(['external_id' => $externalId]);
-            $commercial->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if (!in_array($key, ['images', 'raw_data'])) {
+                    $commercial->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $commercial->setAttribute('images', $images);
+            $commercial->setAttribute('raw_data', $commercialData);
+            
             $commercial->save();
         } catch (\Exception $e) {
             $this->warn("  ⚠️  Ошибка сохранения коммерции {$externalId} в БД: {$e->getMessage()}");
@@ -1939,7 +2000,17 @@ class TrendAgentParse extends Command
 
             // Используем модель для правильной обработки casts
             $contractor = Contractor::firstOrNew(['external_id' => $externalId]);
-            $contractor->fill($dbData);
+            
+            // Устанавливаем обычные поля
+            foreach ($dbData as $key => $value) {
+                if ($key !== 'raw_data') {
+                    $contractor->setAttribute($key, $value);
+                }
+            }
+            
+            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
+            $contractor->setAttribute('raw_data', $contractorData);
+            
             $contractor->save();
 
             // Импортируем проекты подрядчика
