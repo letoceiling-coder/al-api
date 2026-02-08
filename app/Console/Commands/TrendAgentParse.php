@@ -334,7 +334,7 @@ class TrendAgentParse extends Command
                 // Парсим детали
                 if ($this->option('details')) {
                     $this->parseApartmentDetails($apartmentId, $item);
-                } else {
+                } elseif ($this->option('save-db')) {
                     // Если детали не парсим, все равно сохраняем в БД из данных списка
                     $this->saveApartmentToDb([], $apartmentId, $item);
                 }
