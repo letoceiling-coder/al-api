@@ -38,7 +38,7 @@ class ImportDataCommand extends Command
     protected $description = 'Импорт данных из парсинга в базу данных';
 
     private string $region;
-    private string $basePath;
+    private array $basePaths;
     private bool $dryRun;
     private array $statistics = [
         'imported' => 0,
@@ -52,7 +52,11 @@ class ImportDataCommand extends Command
     public function handle(): int
     {
         $this->region = $this->option('region');
-        $this->basePath = storage_path("trendagent/parsing/{$this->region}");
+        // Проверяем оба возможных пути
+        $this->basePaths = [
+            storage_path("trendagent/parsing/{$this->region}"),
+            storage_path("app/private/trendagent/parsing/{$this->region}"),
+        ];
         $this->dryRun = $this->option('dry-run');
 
         $this->info("📥 Начинаю импорт данных TrendAgent");
@@ -62,8 +66,20 @@ class ImportDataCommand extends Command
         }
         $this->newLine();
 
-        if (!File::exists($this->basePath)) {
-            $this->error("❌ Директория с данными не найдена: {$this->basePath}");
+        // Проверяем наличие хотя бы одного пути
+        $foundPath = null;
+        foreach ($this->basePaths as $path) {
+            if (File::exists($path)) {
+                $foundPath = $path;
+                break;
+            }
+        }
+
+        if (!$foundPath) {
+            $this->error("❌ Директория с данными не найдена. Проверены пути:");
+            foreach ($this->basePaths as $path) {
+                $this->line("   - {$path}");
+            }
             $this->warn("💡 Сначала запустите парсинг: php artisan trendagent:parse --region={$this->region} --type=all --details --save-raw");
             return 1;
         }
@@ -127,18 +143,23 @@ class ImportDataCommand extends Command
      */
     private function importType(string $type, Region $region): void
     {
-        $detailsPath = "{$this->basePath}/details/{$type}";
-        
-        if (!File::exists($detailsPath)) {
-            $this->warn("   ⚠️  Директория не найдена: {$detailsPath}");
-            return;
+        // Ищем файлы во всех возможных путях
+        $files = [];
+        foreach ($this->basePaths as $basePath) {
+            $detailsPath = "{$basePath}/details/{$type}";
+            if (File::exists($detailsPath)) {
+                $foundFiles = File::glob("{$detailsPath}/*.json");
+                $files = array_merge($files, $foundFiles);
+            }
         }
-
-        $files = File::glob("{$detailsPath}/*.json");
+        
         $total = count($files);
         
         if ($total === 0) {
-            $this->warn("   ⚠️  Файлы не найдены в: {$detailsPath}");
+            $this->warn("   ⚠️  Файлы не найдены. Проверены пути:");
+            foreach ($this->basePaths as $basePath) {
+                $this->line("      - {$basePath}/details/{$type}");
+            }
             return;
         }
 
