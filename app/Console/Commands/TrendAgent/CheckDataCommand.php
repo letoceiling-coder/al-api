@@ -41,19 +41,47 @@ class CheckDataCommand extends Command
         $this->info('📊 Квартиры по регионам:');
         $this->newLine();
 
-        // Квартиры связаны с регионами через комплексы
+        // Квартиры могут быть связаны с регионами через комплексы или через raw_data
         $regions = Region::all();
         $tableData = [];
+        
         foreach ($regions as $region) {
-            // Считаем квартиры через комплексы региона
-            $apartmentsCount = Apartment::whereHas('complex', function($query) use ($region) {
+            $apartmentsCount = 0;
+            
+            // Способ 1: Через комплексы (если комплексы есть)
+            $apartmentsViaComplexes = Apartment::whereHas('complex', function($query) use ($region) {
                 $query->where('region_id', $region->id);
             })->count();
+            
+            // Способ 2: Через raw_data (если комплексов нет)
+            if ($apartmentsViaComplexes == 0) {
+                // Ищем в raw_data поле city.guid
+                $apartmentsViaRawData = Apartment::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) = ?", [$region->code])
+                    ->count();
+                $apartmentsCount = $apartmentsViaRawData;
+            } else {
+                $apartmentsCount = $apartmentsViaComplexes;
+            }
             
             $tableData[] = [
                 $region->code,
                 $region->name,
                 number_format($apartmentsCount, 0, ',', ' '),
+            ];
+        }
+        
+        // Также показываем квартиры без региона (NULL или неизвестный регион)
+        $apartmentsWithoutRegion = Apartment::whereDoesntHave('complex', function($query) {
+            $query->whereNotNull('region_id');
+        })
+        ->whereRaw("(JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.guid')) NOT IN (SELECT code FROM trendagent_regions))")
+        ->count();
+        
+        if ($apartmentsWithoutRegion > 0) {
+            $tableData[] = [
+                '?',
+                'Неизвестный регион',
+                number_format($apartmentsWithoutRegion, 0, ',', ' '),
             ];
         }
 
