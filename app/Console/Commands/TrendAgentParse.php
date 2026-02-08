@@ -51,6 +51,7 @@ class TrendAgentParse extends Command
     protected $region;
     protected $basePath;
     protected $regionModel;
+    protected $allRegionsStatistics = []; // Статистика по всем регионам
     protected $statistics = [
         'complexes' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'apartments' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
@@ -125,16 +126,33 @@ class TrendAgentParse extends Command
             
             // Сохраняем статистику для региона
             $this->saveStatistics();
+            
+            // Сохраняем статистику региона в общую статистику
+            $this->allRegionsStatistics[$regionCode] = $this->statistics;
+            
+            // Сбрасываем статистику для следующего региона
+            $this->statistics = [
+                'complexes' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'apartments' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'parkings' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'houses' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'plots' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'commercial' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'contractors' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'images' => ['total' => 0, 'downloaded' => 0, 'errors' => 0],
+                'by_type_total' => [],
+            ];
         }
         
-        // Выводим общую статистику
+        // Выводим общую статистику по всем регионам
         $this->newLine();
         $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         $this->info("✅ Парсинг завершен для всех регионов!");
         $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         $this->newLine();
         
-        $this->displayStatistics();
+        // Выводим сводную статистику по всем регионам
+        $this->displayAllRegionsStatistics();
         
         // Выводим точные данные из API
         $this->newLine();
