@@ -196,9 +196,25 @@ class TrendAgentParse extends Command
                 $this->line("  Parsed complex: {$complexId} ({$parsed})");
             }
             
+            // Проверяем, нужно ли продолжать пагинацию
+            $totalFromApi = $this->statistics['by_type_total']['complexes'] ?? null;
             $offset += $count;
             
-        } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            // Продолжаем, если:
+            // 1. Получили полную страницу (count($items) === $count)
+            // 2. ИЛИ если есть total из API и offset < total
+            // 3. И limit не достигнут
+            $shouldContinue = false;
+            if (count($items) === $count) {
+                $shouldContinue = true;
+            } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                $shouldContinue = true;
+            }
+            
+            if ($limit > 0 && $parsed >= $limit) {
+                $shouldContinue = false;
+            }
+        } while ($shouldContinue);
     }
     
     /**
@@ -289,9 +305,25 @@ class TrendAgentParse extends Command
                 $this->line("  Parsed apartment: {$apartmentId} ({$parsed})");
             }
             
+            // Проверяем, нужно ли продолжать пагинацию
+            $totalFromApi = $this->statistics['by_type_total']['apartments'] ?? null;
             $offset += $count;
             
-        } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            // Продолжаем, если:
+            // 1. Получили полную страницу (count($items) === $count)
+            // 2. ИЛИ если есть total из API и offset < total
+            // 3. И limit не достигнут
+            $shouldContinue = false;
+            if (count($items) === $count) {
+                $shouldContinue = true;
+            } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                $shouldContinue = true;
+            }
+            
+            if ($limit > 0 && $parsed >= $limit) {
+                $shouldContinue = false;
+            }
+        } while ($shouldContinue);
     }
     
     /**
@@ -406,8 +438,25 @@ class TrendAgentParse extends Command
                     $this->line("  Parsed parking place: {$placeId} ({$parsed})");
                 }
                 
+                // Проверяем, нужно ли продолжать пагинацию
+                $totalFromApi = $this->statistics['by_type_total']['parkings'] ?? null;
                 $offset += $count;
-            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+                
+                // Продолжаем, если:
+                // 1. Получили полную страницу (count($items) === $count)
+                // 2. ИЛИ если есть total из API и offset < total
+                // 3. И limit не достигнут
+                $shouldContinue = false;
+                if (count($items) === $count) {
+                    $shouldContinue = true;
+                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                    $shouldContinue = true;
+                }
+                
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+            } while ($shouldContinue);
             
         } catch (\Exception $e) {
             $this->error("Error parsing parkings: {$e->getMessage()}");
@@ -482,8 +531,25 @@ class TrendAgentParse extends Command
                     $this->line("  Parsed house: {$houseId} ({$parsed})");
                 }
                 
+                // Проверяем, нужно ли продолжать пагинацию
+                $totalFromApi = $this->statistics['by_type_total']['houses'] ?? null;
                 $offset += $count;
-            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+                
+                // Продолжаем, если:
+                // 1. Получили полную страницу (count($items) === $count)
+                // 2. ИЛИ если есть total из API и offset < total
+                // 3. И limit не достигнут
+                $shouldContinue = false;
+                if (count($items) === $count) {
+                    $shouldContinue = true;
+                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                    $shouldContinue = true;
+                }
+                
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+            } while ($shouldContinue);
             
         } catch (\Exception $e) {
             $this->error("Error parsing houses: {$e->getMessage()}");
@@ -563,8 +629,25 @@ class TrendAgentParse extends Command
                     $this->line("  Parsed plot: {$plotId} ({$parsed})");
                 }
                 
+                // Проверяем, нужно ли продолжать пагинацию
+                $totalFromApi = $this->statistics['by_type_total']['plots'] ?? null;
                 $offset += $count;
-            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+                
+                // Продолжаем, если:
+                // 1. Получили полную страницу (count($items) === $count)
+                // 2. ИЛИ если есть total из API и offset < total
+                // 3. И limit не достигнут
+                $shouldContinue = false;
+                if (count($items) === $count) {
+                    $shouldContinue = true;
+                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                    $shouldContinue = true;
+                }
+                
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+            } while ($shouldContinue);
             
         } catch (\Exception $e) {
             $this->error("Error parsing plots: {$e->getMessage()}");
@@ -644,8 +727,25 @@ class TrendAgentParse extends Command
                     $this->line("  Parsed commercial: {$commercialId} ({$parsed})");
                 }
                 
+                // Проверяем, нужно ли продолжать пагинацию
+                $totalFromApi = $this->statistics['by_type_total']['commercial'] ?? null;
                 $offset += $count;
-            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+                
+                // Продолжаем, если:
+                // 1. Получили полную страницу (count($items) === $count)
+                // 2. ИЛИ если есть total из API и offset < total
+                // 3. И limit не достигнут
+                $shouldContinue = false;
+                if (count($items) === $count) {
+                    $shouldContinue = true;
+                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                    $shouldContinue = true;
+                }
+                
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+            } while ($shouldContinue);
             
         } catch (\Exception $e) {
             $this->error("Error parsing commercial: {$e->getMessage()}");
@@ -720,8 +820,25 @@ class TrendAgentParse extends Command
                     $this->line("  Parsed contractor: {$contractorId} ({$parsed})");
                 }
                 
+                // Проверяем, нужно ли продолжать пагинацию
+                $totalFromApi = $this->statistics['by_type_total']['contractors'] ?? null;
                 $offset += $count;
-            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+                
+                // Продолжаем, если:
+                // 1. Получили полную страницу (count($items) === $count)
+                // 2. ИЛИ если есть total из API и offset < total
+                // 3. И limit не достигнут
+                $shouldContinue = false;
+                if (count($items) === $count) {
+                    $shouldContinue = true;
+                } elseif ($totalFromApi !== null && $offset < $totalFromApi) {
+                    $shouldContinue = true;
+                }
+                
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+            } while ($shouldContinue);
             
         } catch (\Exception $e) {
             $this->error("Error parsing contractors: {$e->getMessage()}");
