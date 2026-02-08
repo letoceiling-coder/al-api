@@ -2089,14 +2089,6 @@ class TrendAgentParse extends Command
         $this->line("Проекты домов: " . number_format($allTotals['contractors'], 0, ',', ' '));
         
         $this->newLine();
-        
-        // Удаляем дублирующий вывод "Точные данные из API"
-        // (он уже был выведен выше) 
-                          ($stats['plots']['parsed'] ?? 0) + 
-                          ($stats['commercial']['parsed'] ?? 0) + 
-                          ($stats['contractors']['parsed'] ?? 0);
-            $this->line("  {$regionCode} ({$regionName}): {$totalParsed} объектов");
-        }
     }
 
     /**
