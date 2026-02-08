@@ -909,7 +909,9 @@ class TrendSsoApiAuth
         $cacheKey = $this->getCacheKey('blocks_search', $params);
         
         // Пытаемся получить данные из кэша (60 минут)
-        return Cache::remember($cacheKey, 60 * 60, function () use ($params) {
+        // Используем try-catch для обработки ошибок кеша (если БД недоступна)
+        try {
+            return Cache::remember($cacheKey, 60 * 60, function () use ($params) {
             try {
                 // Получаем токен авторизации
                 $authToken = $this->getAuthToken();
