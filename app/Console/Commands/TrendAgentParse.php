@@ -1540,10 +1540,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $complexData,
             ];
 
-            $complex = Complex::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            $complex =             // Используем модель для правильной обработки casts
+            $complex = Complex::firstOrNew(['external_id' => $externalId]);
+            $complex->fill($dbData);
+            $complex->save();
             
             if ($this->option('verbose')) {
                 if ($complex->wasRecentlyCreated) {
@@ -1629,10 +1629,10 @@ class TrendAgentParse extends Command
                 'raw_data' => $apartmentData,
             ];
 
-            $apartment = Apartment::updateOrCreate(
-                ['external_id' => $externalId],
-                $dbData
-            );
+            // Используем модель для правильной обработки casts
+            $apartment = Apartment::firstOrNew(['external_id' => $externalId]);
+            $apartment->fill($dbData);
+            $apartment->save();
             
             // Логируем только каждую 1000-ю квартиру, чтобы не засорять вывод
             if (($this->statistics['apartments']['parsed'] ?? 0) % 1000 == 0 && $this->option('verbose')) {
