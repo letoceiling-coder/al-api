@@ -36,6 +36,36 @@ class CheckDataCommand extends Command
             ]
         );
 
+        // Показываем распределение квартир по регионам
+        $this->newLine();
+        $this->info('📊 Квартиры по регионам:');
+        $this->newLine();
+
+        // Квартиры связаны с регионами через комплексы
+        $regions = Region::all();
+        $tableData = [];
+        foreach ($regions as $region) {
+            // Считаем квартиры через комплексы региона
+            $apartmentsCount = Apartment::whereHas('complex', function($query) use ($region) {
+                $query->where('region_id', $region->id);
+            })->count();
+            
+            $tableData[] = [
+                $region->code,
+                $region->name,
+                number_format($apartmentsCount, 0, ',', ' '),
+            ];
+        }
+
+        if (empty($tableData)) {
+            $this->warn('  Нет данных по регионам');
+        } else {
+            $this->table(
+                ['Код', 'Название', 'Квартир'],
+                $tableData
+            );
+        }
+
         return 0;
     }
 }
