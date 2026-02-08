@@ -256,15 +256,20 @@ class ImportDataCommand extends Command
             return;
         }
 
-        $complex = Complex::updateOrCreate(
-            ['external_id' => $externalId],
-            $complexData
-        );
+        try {
+            $complex = Complex::updateOrCreate(
+                ['external_id' => $externalId],
+                $complexData
+            );
 
-        if ($complex->wasRecentlyCreated) {
-            $this->statistics['imported']++;
-        } else {
-            $this->statistics['updated']++;
+            if ($complex->wasRecentlyCreated) {
+                $this->statistics['imported']++;
+            } else {
+                $this->statistics['updated']++;
+            }
+        } catch (\Exception $e) {
+            $this->statistics['errors']++;
+            \Log::error("Ошибка импорта комплекса {$externalId}: {$e->getMessage()}");
         }
     }
 
