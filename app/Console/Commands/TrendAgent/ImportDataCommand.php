@@ -257,19 +257,21 @@ class ImportDataCommand extends Command
         }
 
         try {
+            $exists = Complex::where('external_id', $externalId)->exists();
+            
             $complex = Complex::updateOrCreate(
                 ['external_id' => $externalId],
                 $complexData
             );
 
-            if ($complex->wasRecentlyCreated) {
+            if (!$exists) {
                 $this->statistics['imported']++;
             } else {
                 $this->statistics['updated']++;
             }
         } catch (\Exception $e) {
             $this->statistics['errors']++;
-            \Log::error("Ошибка импорта комплекса {$externalId}: {$e->getMessage()}");
+            $this->error("   ❌ Ошибка импорта комплекса {$externalId}: {$e->getMessage()}");
         }
     }
 
