@@ -75,7 +75,7 @@ class TrendAgentParse extends Command
         $this->imageDownloader = new ImageDownloader();
         
         // Проверяем флаг сохранения в БД
-        $saveDbOption = $this->option('save-db');
+        $saveDbOption = $this->shouldSaveToDb;
         $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
         if ($this->shouldSaveToDb === null) {
             // Если не удалось распарсить, проверяем как строку
@@ -319,19 +319,19 @@ class TrendAgentParse extends Command
                 if ($details && isset($details['success']) && $details['success']) {
                     $this->saveDetailsData('complexes', "{$complexId}.json", $details);
                     // Сохраняем в БД
-                    if ($this->option('save-db')) {
+                    if ($this->shouldSaveToDb) {
                         $this->saveComplexToDb($details, $complexId);
                     }
                 } else {
                     // Сохраняем хотя бы данные из списка, если детали не получены
                     $this->saveDetailsData('complexes', "{$complexId}.json", ['data' => $listItem, 'source' => 'list']);
                     // Пытаемся сохранить в БД из данных списка
-                    if ($this->option('save-db')) {
+                    if ($this->shouldSaveToDb) {
                         $this->saveComplexToDb(['data' => $listItem], $complexId);
                     }
                     $this->statistics['complexes']['errors']++;
                 }
-            } elseif ($this->option('save-db')) {
+            } elseif ($this->shouldSaveToDb) {
                 // Если детали не парсим, все равно сохраняем в БД из данных списка
                 $this->saveComplexToDb(['data' => $listItem], $complexId);
             }
@@ -400,7 +400,7 @@ class TrendAgentParse extends Command
                 // Парсим детали
                 if ($this->option('details')) {
                     $this->parseApartmentDetails($apartmentId, $item);
-                } elseif ($this->option('save-db')) {
+                } elseif ($this->shouldSaveToDb) {
                     // Если детали не парсим, все равно сохраняем в БД из данных списка
                     $this->saveApartmentToDb([], $apartmentId, $item);
                 }
@@ -460,10 +460,10 @@ class TrendAgentParse extends Command
             if ($this->option('details')) {
                 $this->saveDetailsData('apartments', "{$apartmentId}.json", $details);
                 // Сохраняем в БД
-                if ($this->option('save-db')) {
+                if ($this->shouldSaveToDb) {
                     $this->saveApartmentToDb($details, $apartmentId, $listItem);
                 }
-            } elseif ($this->option('save-db')) {
+            } elseif ($this->shouldSaveToDb) {
                 // Если детали не парсим, все равно сохраняем в БД из данных списка
                 $this->saveApartmentToDb([], $apartmentId, $listItem);
             }
@@ -553,14 +553,14 @@ class TrendAgentParse extends Command
                             // Сохраняем данные из списка (они уже содержат основную информацию)
                             $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list']);
                             // Сохраняем в БД
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->saveParkingToDb(['data' => $item], $placeId);
                             }
                         } catch (\Exception $e) {
                             // В случае ошибки все равно сохраняем базовые данные
                             $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                             // Пытаемся сохранить в БД
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->saveParkingToDb(['data' => $item], $placeId);
                             }
                         }
@@ -659,7 +659,7 @@ class TrendAgentParse extends Command
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('houses', "{$houseId}.json", $details);
                                 // Сохраняем в БД
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->saveHouseToDb($details, $houseId);
                                 }
                             } else {
@@ -672,7 +672,7 @@ class TrendAgentParse extends Command
                             // Сохраняем данные из списка при ошибке
                             $this->saveDetailsData('houses', "{$houseId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                             // Пытаемся сохранить в БД из данных списка
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->saveHouseToDb(['data' => $item], $houseId);
                             }
                         }
@@ -776,14 +776,14 @@ class TrendAgentParse extends Command
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('plots', "{$plotId}.json", $details);
                                 // Сохраняем в БД
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->savePlotToDb($details, $plotId);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
                                 $this->saveDetailsData('plots', "{$plotId}.json", ['data' => $item, 'source' => 'list']);
                                 // Пытаемся сохранить в БД из данных списка
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->savePlotToDb(['data' => $item], $plotId);
                                 }
                             }
@@ -791,7 +791,7 @@ class TrendAgentParse extends Command
                             // Сохраняем данные из списка при ошибке
                             $this->saveDetailsData('plots', "{$plotId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                             // Пытаемся сохранить в БД из данных списка
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->savePlotToDb(['data' => $item], $plotId);
                             }
                         }
@@ -895,14 +895,14 @@ class TrendAgentParse extends Command
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('commercial', "{$commercialId}.json", $details);
                                 // Сохраняем в БД
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->saveCommercialToDb($details, $commercialId);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
                                 $this->saveDetailsData('commercial', "{$commercialId}.json", ['data' => $item, 'source' => 'list']);
                                 // Пытаемся сохранить в БД из данных списка
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->saveCommercialToDb(['data' => $item], $commercialId);
                                 }
                             }
@@ -910,7 +910,7 @@ class TrendAgentParse extends Command
                             // Сохраняем данные из списка при ошибке
                             $this->saveDetailsData('commercial', "{$commercialId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                             // Пытаемся сохранить в БД из данных списка
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->saveCommercialToDb(['data' => $item], $commercialId);
                             }
                         }
@@ -1009,14 +1009,14 @@ class TrendAgentParse extends Command
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('contractors', "{$contractorId}.json", $details);
                                 // Сохраняем в БД
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->saveContractorToDb($details, $contractorId);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
                                 $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list']);
                                 // Пытаемся сохранить в БД из данных списка
-                                if ($this->option('save-db')) {
+                                if ($this->shouldSaveToDb) {
                                     $this->saveContractorToDb(['data' => $item], $contractorId);
                                 }
                             }
@@ -1024,7 +1024,7 @@ class TrendAgentParse extends Command
                             // Сохраняем данные из списка при ошибке
                             $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
                             // Пытаемся сохранить в БД из данных списка
-                            if ($this->option('save-db')) {
+                            if ($this->shouldSaveToDb) {
                                 $this->saveContractorToDb(['data' => $item], $contractorId);
                             }
                         }
