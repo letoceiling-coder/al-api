@@ -30,7 +30,7 @@ class TrendAgentParse extends Command
      * @var string
      */
     protected $signature = 'trendagent:parse 
-                            {--region=spb : Region code (spb, msk, ekb, nsk, krd, rnd, crimea, kzn, ufa, dubai)}
+                            {--region= : Region code (spb, msk, ekb, nsk, krd, rnd, crimea, kzn, ufa, dubai). Если не указан, парсятся все регионы}
                             {--type=all : Type of objects (all, apartments, parkings, houses, plots, commercial, complexes)}
                             {--limit=0 : Limit number of objects (0 = no limit)}
                             {--offset=0 : Offset for pagination}
@@ -68,11 +68,6 @@ class TrendAgentParse extends Command
      */
     public function handle()
     {
-        $this->region = $this->option('region');
-        $this->basePath = storage_path("trendagent/parsing/{$this->region}");
-        
-        $this->info("Starting TrendAgent parsing for region: {$this->region}");
-        
         // Инициализация
         $this->apiAuth = new TrendSsoApiAuth();
         $this->imageDownloader = new ImageDownloader();
@@ -83,26 +78,62 @@ class TrendAgentParse extends Command
             return 1;
         }
         
-        // Получаем или создаем регион в БД
-        $this->regionModel = Region::firstOrCreate(
-            ['code' => $this->region],
-            ['name' => $this->getRegionName($this->region)]
-        );
+        // Определяем регионы для парсинга
+        $regionOption = $this->option('region');
+        $regions = [];
         
-        $type = $this->option('type');
-        $types = $type === 'all' 
-            ? ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors']
-            : [$type];
-        
-        foreach ($types as $objectType) {
-            $this->info("Parsing {$objectType}...");
-            $this->parseType($objectType);
+        if (empty($regionOption)) {
+            // Если регион не указан, парсим все регионы
+            $regions = CityService::getAllCityKeys();
+            $this->info("🌍 Регион не указан. Будет выполнен парсинг всех регионов: " . implode(', ', $regions));
+        } else {
+            // Парсим только указанный регион
+            $regions = [$regionOption];
+            $this->info("📍 Парсинг региона: {$regionOption}");
         }
         
-        // Сохраняем статистику
-        $this->saveStatistics();
+        $this->newLine();
         
-        $this->info('Parsing completed!');
+        // Парсим каждый регион
+        foreach ($regions as $regionCode) {
+            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->info("🌍 Парсинг региона: {$regionCode} ({$this->getRegionName($regionCode)})");
+            $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->newLine();
+            
+            $this->region = $regionCode;
+            $this->basePath = storage_path("trendagent/parsing/{$this->region}");
+            
+            // Получаем или создаем регион в БД
+            $this->regionModel = Region::firstOrCreate(
+                ['code' => $this->region],
+                ['name' => $this->getRegionName($this->region)]
+            );
+            
+            // Определяем типы объектов для парсинга
+            $type = $this->option('type');
+            $types = $type === 'all' 
+                ? ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors']
+                : [$type];
+            
+            // Парсим каждый тип объекта
+            foreach ($types as $objectType) {
+                $this->info("📦 Парсинг типа: {$objectType} для региона {$regionCode}");
+                $this->parseType($objectType);
+                $this->newLine();
+            }
+            
+            // Сохраняем статистику для региона
+            $this->saveStatistics();
+        }
+        
+        // Выводим общую статистику
+        $this->newLine();
+        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->info("✅ Парсинг завершен для всех регионов!");
+        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->newLine();
+        
         $this->displayStatistics();
         
         // Выводим точные данные из API
