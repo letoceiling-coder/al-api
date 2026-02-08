@@ -16,6 +16,7 @@ class DeployTrendagentCommand extends Command
      */
     protected $signature = 'deploy:trendagent
                             {--skip-git : Пропустить отправку в git (только для локального запуска)}
+                            {--skip-remote : Не запускать деплой на сервере по SSH (только git push)}
                             {--skip-build : Пропустить сборку проекта (npm run build)}
                             {--skip-migrations : Пропустить выполнение миграций}
                             {--skip-cache : Пропустить очистку кеша}';
@@ -70,20 +71,73 @@ class DeployTrendagentCommand extends Command
     }
 
     /**
-     * Развертывание на локальной машине
+     * Развертывание на локальной машине: git push + деплой на сервере по SSH
      */
     private function deployLocal(): void
     {
         if (!$this->option('skip-git')) {
-            $this->step('📤 Отправка в Git', function() {
+            $this->step('📤 Отправка в Git', function () {
                 return $this->gitPush();
             });
         } else {
             $this->report[] = ['step' => '📤 Отправка в Git', 'status' => 'skipped', 'message' => 'Пропущено (--skip-git)'];
         }
 
-        $this->info('');
-        $this->warn('💡 Теперь выполните на сервере: php artisan deploy:trendagent');
+        if (!$this->option('skip-remote')) {
+            $this->step('🌐 Деплой на сервере (SSH)', function () {
+                return $this->deployViaSsh();
+            });
+        } else {
+            $this->report[] = ['step' => '🌐 Деплой на сервере', 'status' => 'skipped', 'message' => 'Пропущено (--skip-remote). Выполните на сервере: php artisan deploy:trendagent'];
+        }
+    }
+
+    /**
+     * Запуск деплоя на сервере по SSH
+     */
+    private function deployViaSsh(): array
+    {
+        $ssh = config('deploy.trendagent.ssh');
+        $path = config('deploy.trendagent.path');
+
+        if (empty($ssh) || empty($path)) {
+            return [
+                'success' => false,
+                'message' => 'Не заданы DEPLOY_SSH или DEPLOY_PATH в .env / config/deploy.php',
+                'output'  => null,
+            ];
+        }
+
+        $command = sprintf(
+            'ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 %s "cd %s && php artisan deploy:trendagent"',
+            escapeshellarg($ssh),
+            escapeshellarg($path)
+        );
+
+        try {
+            $result = Process::path(base_path())->run($command);
+            $output = trim($result->output() . "\n" . $result->errorOutput());
+
+            if ($result->successful()) {
+                return [
+                    'success' => true,
+                    'message' => 'Проект на сервере обновлён и собран',
+                    'output'  => $output,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Ошибка при выполнении деплоя на сервере',
+                'output'  => $output,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'output'  => null,
+            ];
+        }
     }
 
     /**
