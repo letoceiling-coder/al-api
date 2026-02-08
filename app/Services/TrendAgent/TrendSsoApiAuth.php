@@ -5873,15 +5873,22 @@ class TrendSsoApiAuth
                 throw new \Exception('API вернул ошибки: ' . json_encode($data['errors']));
             }
 
+            // Для apartments/search структура ответа:
+            // { "data": { "apartmentsCount": 55551, "blocksCount": 344, "list": [...] }, "errors": [] }
+            $apartmentsList = $data['data']['list'] ?? [];
+            $apartmentsCount = $data['data']['apartmentsCount'] ?? 0;
+            
             Log::info('Данные получены через API apartments/search', [
-                'results_count' => count($data['data'] ?? []),
-                'total' => $data['total'] ?? 0,
+                'results_count' => count($apartmentsList),
+                'apartmentsCount' => $apartmentsCount,
+                'blocksCount' => $data['data']['blocksCount'] ?? 0,
             ]);
 
             return [
                 'success' => true,
-                'data' => $data['data'] ?? [],
-                'total' => $data['total'] ?? 0,
+                'data' => $apartmentsList,
+                'total' => $apartmentsCount,
+                'blocks_count' => $data['data']['blocksCount'] ?? 0,
                 'source' => 'api',
             ];
         } catch (GuzzleException $e) {
@@ -5969,10 +5976,16 @@ class TrendSsoApiAuth
                 throw new \Exception('Ошибка декодирования JSON ответа: ' . json_last_error_msg());
             }
 
+            // Структура ответа parkings-api: { "placesCount": 3635, "blocksCount": 50, "results": [...] }
+            $placesList = $data['results'] ?? $data['data'] ?? [];
+            $placesCount = $data['placesCount'] ?? $data['total'] ?? 0;
+            $blocksCount = $data['blocksCount'] ?? 0;
+
             return [
                 'success' => true,
-                'data' => $data['data'] ?? $data['results'] ?? [],
-                'total' => $data['total'] ?? $data['placesCount'] ?? 0,
+                'data' => $placesList,
+                'total' => $placesCount,
+                'blocks_count' => $blocksCount,
                 'source' => 'parkings_api',
             ];
         } catch (GuzzleException $e) {
@@ -6060,11 +6073,16 @@ class TrendSsoApiAuth
                 throw new \Exception('Ошибка декодирования JSON ответа: ' . json_last_error_msg());
             }
 
+            // Структура ответа commerce-api: { "premises_count": 1775, "blocks_count": 168, "result": [...] }
+            $premisesList = $data['result'] ?? $data['data'] ?? $data['results'] ?? [];
+            $premisesCount = $data['premises_count'] ?? $data['total'] ?? $data['premisesCount'] ?? 0;
+            $blocksCount = $data['blocks_count'] ?? $data['blocksCount'] ?? 0;
+
             return [
                 'success' => true,
-                'data' => $data['data'] ?? $data['results'] ?? [],
-                'total' => $data['total'] ?? $data['premisesCount'] ?? 0,
-                'blocks_count' => $data['blocksCount'] ?? 0, // Количество ЖК с коммерцией
+                'data' => $premisesList,
+                'total' => $premisesCount,
+                'blocks_count' => $blocksCount, // Количество ЖК с коммерцией
                 'source' => 'commerce_api',
             ];
         } catch (GuzzleException $e) {
