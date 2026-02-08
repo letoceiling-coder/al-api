@@ -125,7 +125,7 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить список квартир
+     * Получить список квартир через правильный эндпоинт /v4_29/apartments/search/
      */
     public function getApartments(array $params = []): array
     {
@@ -138,18 +138,19 @@ class TrendAgentApiClient
             
             $defaultParams = [
                 'city' => $this->getCityId($cityCode),
-                'count' => $params['count'] ?? 100,
+                'count' => $params['count'] ?? 50,
                 'offset' => $params['offset'] ?? 0,
-                'show_type' => 'list',
+                'sort' => 'price',
+                'sort_order' => 'asc',
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            $result = $this->auth->getBlocksSearch($apiParams);
+            $result = $this->auth->getApartmentsSearch($apiParams);
             
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
-                'total' => $result['apartments_count'] ?? $result['blocks_count'] ?? 0,
+                'total' => $result['total'] ?? 0,
             ];
             
         } catch (Exception $e) {
@@ -330,7 +331,8 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить список паркингов
+     * Получить список паркингов (ЖК с паркингами)
+     * Для получения машиномест используйте getParkingPlaces()
      */
     public function getParkings(array $params = []): array
     {
@@ -342,22 +344,62 @@ class TrendAgentApiClient
             
             $defaultParams = [
                 'city' => $this->getCityId($cityCode),
-                'count' => $params['count'] ?? 100,
+                'count' => $params['count'] ?? 20,
                 'offset' => $params['offset'] ?? 0,
-                'object_type' => 'parking',
+                'sort' => 'price',
+                'sort_order' => 'asc',
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            $result = $this->auth->getBlocksSearch($apiParams);
+            $result = $this->auth->getParkingsSearch($apiParams);
             
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
-                'total' => $result['parkings_count'] ?? $result['blocks_count'] ?? 0,
+                'total' => $result['blocksCount'] ?? $result['total'] ?? 0,
+                'places_count' => $result['placesCount'] ?? 0, // Общее количество машиномест
             ];
             
         } catch (Exception $e) {
             Log::error('TrendAgentApiClient: Ошибка получения паркингов', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Получить список всех машиномест (places) через parkings-api
+     */
+    public function getParkingPlacesList(array $params = []): array
+    {
+        $this->ensureAuthenticated();
+        
+        try {
+            $cityCode = $params['city'] ?? 'spb';
+            unset($params['city']);
+            
+            $defaultParams = [
+                'city' => $this->getCityId($cityCode),
+                'count' => $params['count'] ?? 50,
+                'offset' => $params['offset'] ?? 0,
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'number' => '',
+            ];
+            
+            $apiParams = array_merge($defaultParams, $params);
+            $result = $this->auth->getParkingPlacesSearch($apiParams);
+            
+            return [
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'total' => $result['total'] ?? 0,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('TrendAgentApiClient: Ошибка получения списка машиномест', [
                 'error' => $e->getMessage(),
             ]);
             
@@ -415,7 +457,7 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить список домов
+     * Получить список домов через /v4_29/apartments/search/ с фильтром room=30&room=40
      */
     public function getHouses(array $params = []): array
     {
@@ -427,18 +469,26 @@ class TrendAgentApiClient
             
             $defaultParams = [
                 'city' => $this->getCityId($cityCode),
-                'count' => $params['count'] ?? 100,
+                'count' => $params['count'] ?? 50,
                 'offset' => $params['offset'] ?? 0,
-                'object_type' => 'house',
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'room' => [30, 40], // 30=Коттеджи, 40=Таунхаусы
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            $result = $this->auth->getBlocksSearch($apiParams);
+            
+            // Если room не передан, используем фильтр по умолчанию
+            if (!isset($apiParams['room'])) {
+                $apiParams['room'] = [30, 40];
+            }
+            
+            $result = $this->auth->getApartmentsSearch($apiParams);
             
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
-                'total' => $result['houses_count'] ?? $result['blocks_count'] ?? 0,
+                'total' => $result['total'] ?? 0,
             ];
             
         } catch (Exception $e) {
@@ -475,7 +525,8 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить список участков
+     * Получить список поселков (villages) через house-api.trendagent.ru/v1/search/villages
+     * Возвращает поселки, в которых есть участки
      */
     public function getPlots(array $params = []): array
     {
@@ -487,22 +538,24 @@ class TrendAgentApiClient
             
             $defaultParams = [
                 'city' => $this->getCityId($cityCode),
-                'count' => $params['count'] ?? 100,
+                'count' => $params['count'] ?? 20,
                 'offset' => $params['offset'] ?? 0,
-                'object_type' => 'land_plot',
+                'sort_type' => 'price',
+                'sort_order' => 'asc',
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            $result = $this->auth->getBlocksSearch($apiParams);
+            $result = $this->auth->getVillagesSearch($apiParams);
             
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
-                'total' => $result['plots_count'] ?? $result['blocks_count'] ?? 0,
+                'total' => $result['total'] ?? 0, // Количество поселков
+                'plots_count' => $result['plots_count'] ?? 0, // Общее количество участков
             ];
             
         } catch (Exception $e) {
-            Log::error('TrendAgentApiClient: Ошибка получения участков', [
+            Log::error('TrendAgentApiClient: Ошибка получения поселков', [
                 'error' => $e->getMessage(),
             ]);
             
@@ -547,7 +600,7 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить список коммерческой недвижимости
+     * Получить список коммерческих помещений через commerce-api.trendagent.ru/search/premises
      */
     public function getCommercial(array $params = []): array
     {
@@ -559,22 +612,21 @@ class TrendAgentApiClient
             
             $defaultParams = [
                 'city' => $this->getCityId($cityCode),
-                'count' => $params['count'] ?? 100,
+                'count' => $params['count'] ?? 50,
                 'offset' => $params['offset'] ?? 0,
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'number' => '',
             ];
             
             $apiParams = array_merge($defaultParams, $params);
-            
-            // ✅ ИСПРАВЛЕНО: Используем правильный метод getCommercialSearch()
-            // вместо getBlocksSearch() который возвращал квартиры
-            $result = $this->executeWithRetry(function() use ($apiParams) {
-                return $this->auth->getCommercialSearch($apiParams);
-            });
+            $result = $this->auth->getCommercePremisesSearch($apiParams);
             
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
-                'total' => $result['commercial_count'] ?? $result['blocks_count'] ?? 0,
+                'total' => $result['total'] ?? 0, // Количество помещений
+                'blocks_count' => $result['blocks_count'] ?? 0, // Количество ЖК с коммерцией
             ];
             
         } catch (Exception $e) {

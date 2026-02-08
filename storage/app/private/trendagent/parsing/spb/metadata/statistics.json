@@ -1,6 +1,6 @@
 {
     "region": "spb",
-    "parsed_at": "2026-02-08T13:17:31+00:00",
+    "parsed_at": "2026-02-08T13:25:40+00:00",
     "statistics": {
         "complexes": {
             "total": 0,
@@ -15,21 +15,21 @@
         "parkings": {
             "total": 0,
             "parsed": 0,
-            "errors": 0
+            "errors": 1
         },
         "houses": {
             "total": 0,
             "parsed": 0,
-            "errors": 0
+            "errors": 1
         },
         "plots": {
             "total": 0,
             "parsed": 0,
-            "errors": 0
+            "errors": 1
         },
         "commercial": {
-            "total": 0,
-            "parsed": 0,
+            "total": 168,
+            "parsed": 168,
             "errors": 0
         },
         "images": {

@@ -137,6 +137,9 @@ class TrendAgentParse extends Command
             case 'commercial':
                 $this->parseCommercial();
                 break;
+            case 'contractors':
+                $this->parseContractors();
+                break;
         }
     }
     
@@ -334,10 +337,10 @@ class TrendAgentParse extends Command
     {
         $offset = (int) $this->option('offset');
         $limit = (int) $this->option('limit');
-        $count = 100;
+        $count = 50; // Для машиномест используем count=50
         $parsed = 0;
         
-        $this->info("Fetching parkings list...");
+        $this->info("Fetching parking places list...");
         
         try {
             $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
@@ -347,6 +350,17 @@ class TrendAgentParse extends Command
                 return;
             }
             
+            // Получаем total из первого запроса (машиноместа)
+            $firstParams = [
+                'city' => $this->region,
+                'count' => 1,
+                'offset' => 0,
+            ];
+            $firstData = $apiClient->getParkingPlacesList($firstParams);
+            if (isset($firstData['total'])) {
+                $this->statistics['by_type_total']['parkings'] = $firstData['total'];
+            }
+            
             do {
                 $params = [
                     'city' => $this->region,
@@ -354,7 +368,7 @@ class TrendAgentParse extends Command
                     'offset' => $offset,
                 ];
                 
-                $data = $apiClient->getParkings($params);
+                $data = $apiClient->getParkingPlacesList($params);
                 
                 if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
                     break;
@@ -362,31 +376,34 @@ class TrendAgentParse extends Command
                 
                 $items = $data['data'];
                 $this->statistics['parkings']['total'] += count($items);
+                // Обновляем total из API, если он есть
+                if (isset($data['total'])) {
+                    $this->statistics['by_type_total']['parkings'] = $data['total'];
+                }
                 
                 foreach ($items as $item) {
                     if ($limit > 0 && $parsed >= $limit) {
                         break 2;
                     }
                     
-                    $blockId = $item['_id'] ?? $item['id'] ?? null;
-                    if (!$blockId) {
+                    $placeId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$placeId) {
                         continue;
                     }
                     
-                    if ($this->option('save-raw')) {
+                    if ($this->option('save-raw') && $parsed === 0) {
+                        // Сохраняем сырые данные только для первой страницы
                         $this->saveRawData('parkings', "list_offset_{$offset}.json", $data);
                     }
                     
                     if ($this->option('details')) {
-                        $details = $apiClient->getParkingDetails($blockId);
-                        if ($details && isset($details['success']) && $details['success']) {
-                            $this->saveDetailsData('parkings', "{$blockId}.json", $details);
-                        }
+                        // Для машиномест детали могут быть в самом объекте
+                        $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item]);
                     }
                     
                     $parsed++;
                     $this->statistics['parkings']['parsed']++;
-                    $this->line("  Parsed parking: {$blockId} ({$parsed})");
+                    $this->line("  Parsed parking place: {$placeId} ({$parsed})");
                 }
                 
                 $offset += $count;
@@ -508,8 +525,13 @@ class TrendAgentParse extends Command
                 }
                 
                 // Сохраняем total из API (если еще не сохранен)
-                if (!isset($this->statistics['by_type_total']['plots']) && isset($data['total'])) {
-                    $this->statistics['by_type_total']['plots'] = $data['total'];
+                // Для участков сохраняем количество поселков и участков
+                if (!isset($this->statistics['by_type_total']['plots']) && isset($data['plots_count'])) {
+                    $this->statistics['by_type_total']['plots'] = $data['plots_count']; // Количество участков
+                }
+                // Также сохраняем количество поселков, если нужно
+                if (isset($data['total'])) {
+                    $this->statistics['by_type_total']['villages'] = $data['total']; // Количество поселков
                 }
                 
                 $items = $data['data'];
@@ -584,8 +606,13 @@ class TrendAgentParse extends Command
                 }
                 
                 // Сохраняем total из API (если еще не сохранен)
+                // Для коммерции сохраняем количество помещений
                 if (!isset($this->statistics['by_type_total']['commercial']) && isset($data['total'])) {
-                    $this->statistics['by_type_total']['commercial'] = $data['total'];
+                    $this->statistics['by_type_total']['commercial'] = $data['total']; // Количество помещений
+                }
+                // Также сохраняем количество ЖК с коммерцией, если нужно
+                if (isset($data['blocks_count'])) {
+                    $this->statistics['by_type_total']['commercial_blocks'] = $data['blocks_count'];
                 }
                 
                 $items = $data['data'];
@@ -623,6 +650,82 @@ class TrendAgentParse extends Command
         } catch (\Exception $e) {
             $this->error("Error parsing commercial: {$e->getMessage()}");
             $this->statistics['commercial']['errors']++;
+        }
+    }
+
+    /**
+     * Парсинг подрядчиков (проектов домов)
+     */
+    protected function parseContractors(): void
+    {
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 20;
+        $parsed = 0;
+        
+        $this->info("Fetching contractors list...");
+        
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $authResult = $apiClient->authenticate();
+            if (!$authResult['success']) {
+                $this->error("Authentication failed");
+                return;
+            }
+            
+            do {
+                $params = [
+                    'city' => $this->region,
+                    'count' => $count,
+                    'offset' => $offset,
+                ];
+                
+                $data = $apiClient->getContractors($params);
+                
+                if (!$data || !isset($data['success']) || !$data['success'] || empty($data['data'] ?? [])) {
+                    break;
+                }
+                
+                // Сохраняем total из API
+                if (!isset($this->statistics['by_type_total']['contractors']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['contractors'] = $data['total'];
+                }
+                
+                $items = $data['data'];
+                $this->statistics['contractors']['total'] += count($items);
+                
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+                    
+                    $contractorId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$contractorId) {
+                        continue;
+                    }
+                    
+                    if ($this->option('save-raw')) {
+                        $this->saveRawData('contractors', "list_offset_{$offset}.json", $data);
+                    }
+                    
+                    if ($this->option('details')) {
+                        $details = $apiClient->getContractorProjectDetails($contractorId);
+                        if ($details && isset($details['success']) && $details['success']) {
+                            $this->saveDetailsData('contractors', "{$contractorId}.json", $details);
+                        }
+                    }
+                    
+                    $parsed++;
+                    $this->statistics['contractors']['parsed']++;
+                    $this->line("  Parsed contractor: {$contractorId} ({$parsed})");
+                }
+                
+                $offset += $count;
+            } while (count($items) === $count && ($limit === 0 || $parsed < $limit));
+            
+        } catch (\Exception $e) {
+            $this->error("Error parsing contractors: {$e->getMessage()}");
+            $this->statistics['contractors']['errors']++;
         }
     }
     

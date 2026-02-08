@@ -1251,7 +1251,7 @@ class TrendSsoApiAuth
             }
 
             // Формируем URL API для паркинга
-            $apiUrl = 'https://parkings.trendagent.ru/search/blocks';
+            $apiUrl = 'https://parkings-api.trendagent.ru/search/blocks';
             
             // Параметры по умолчанию
             $defaultParams = [
@@ -5726,6 +5726,320 @@ class TrendSsoApiAuth
             ];
         } catch (GuzzleException $e) {
             throw new \Exception('Ошибка при получении 3D тура: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение списка квартир через API /v4_29/apartments/search/
+     * 
+     * @param array $params Параметры запроса (count, offset, sort, sort_order, city, lang и т.д.)
+     * @return array Массив с данными квартир
+     * @throws \Exception
+     */
+    public function getApartmentsSearch(array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        // Генерируем ключ кэша
+        $cacheKey = $this->getCacheKey('apartments_search', $params);
+        
+        // Пытаемся получить данные из кэша (60 минут)
+        try {
+            return Cache::remember($cacheKey, 60 * 60, function () use ($params) {
+                return $this->executeApartmentsSearchRequest($params);
+            });
+        } catch (\Exception $cacheException) {
+            // Если кеш недоступен, выполняем запрос без кеша
+            Log::warning('Кеш недоступен, выполняем запрос без кеша', [
+                'error' => $cacheException->getMessage(),
+            ]);
+            return $this->executeApartmentsSearchRequest($params);
+        }
+    }
+    
+    /**
+     * Выполнить запрос apartments/search без кеша
+     */
+    private function executeApartmentsSearchRequest(array $params): array
+    {
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+            }
+
+            // Формируем URL API
+            $apiUrl = 'https://api.trendagent.ru/v4_29/apartments/search/';
+            
+            // Параметры по умолчанию
+            $defaultParams = [
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'count' => 50,
+                'offset' => 0,
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+
+            // Объединяем параметры
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+            
+            // Формируем полный URL
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+
+            Log::info('Запрос к API apartments/search', [
+                'url' => $apiUrl,
+                'has_token' => !empty($authToken),
+            ]);
+
+            // Выполняем запрос к API
+            $response = $this->client->get($fullUrl, [
+                'headers' => [
+                    'Accept' => 'application/json, text/plain, */*',
+                    'Accept-Language' => 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Origin' => 'https://spb.trendagent.ru',
+                    'Referer' => 'https://spb.trendagent.ru/',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                ],
+                'timeout' => 30,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            
+            if ($statusCode === 304) {
+                return [
+                    'success' => true,
+                    'data' => [],
+                    'total' => 0,
+                    'source' => 'api',
+                    'cached' => true,
+                ];
+            }
+            
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                Log::error('API вернул ошибку', [
+                    'status_code' => $statusCode,
+                    'body_preview' => substr($body, 0, 500),
+                ]);
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON ответа: ' . json_last_error_msg());
+            }
+
+            if (isset($data['errors']) && !empty($data['errors'])) {
+                throw new \Exception('API вернул ошибки: ' . json_encode($data['errors']));
+            }
+
+            Log::info('Данные получены через API apartments/search', [
+                'results_count' => count($data['data'] ?? []),
+                'total' => $data['total'] ?? 0,
+            ]);
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? [],
+                'total' => $data['total'] ?? 0,
+                'source' => 'api',
+            ];
+        } catch (GuzzleException $e) {
+            Log::error('Ошибка при запросе к API apartments/search', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+            throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение списка машиномест через API parkings-api.trendagent.ru/search/places/
+     * 
+     * @param array $params Параметры запроса (count, offset, sort, sort_order, city, lang и т.д.)
+     * @return array Массив с данными машиномест
+     * @throws \Exception
+     */
+    public function getParkingPlacesSearch(array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+            }
+
+            // Формируем URL API для машиномест
+            $apiUrl = 'https://parkings-api.trendagent.ru/search/places/';
+            
+            // Параметры по умолчанию
+            $defaultParams = [
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'count' => 50,
+                'offset' => 0,
+                'number' => '',
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+
+            // Объединяем параметры
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+            
+            // Формируем полный URL
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+
+            Log::info('Запрос к API parkings/search/places', [
+                'url' => $apiUrl,
+                'has_token' => !empty($authToken),
+            ]);
+
+            // Выполняем запрос к API
+            $response = $this->client->get($fullUrl, [
+                'headers' => [
+                    'Accept' => 'application/json, text/plain, */*',
+                    'Accept-Language' => 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Origin' => 'https://spb.trendagent.ru',
+                    'Referer' => 'https://spb.trendagent.ru/',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                ],
+                'timeout' => 30,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                Log::error('Ошибка при запросе к API паркинга (places)', [
+                    'status_code' => $statusCode,
+                    'response_body' => substr($body, 0, 500),
+                ]);
+                throw new \Exception("Ошибка при запросе к API паркинга: HTTP {$statusCode}");
+            }
+
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка декодирования JSON ответа: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data['results'] ?? [],
+                'total' => $data['total'] ?? $data['placesCount'] ?? 0,
+                'source' => 'parkings_api',
+            ];
+        } catch (GuzzleException $e) {
+            Log::error('Ошибка при запросе к API паркинга (places)', [
+                'message' => $e->getMessage(),
+            ]);
+            throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Получение списка коммерческих помещений через API commerce-api.trendagent.ru/search/premises
+     * 
+     * @param array $params Параметры запроса (count, offset, sort, sort_order, city, lang и т.д.)
+     * @return array Массив с данными помещений
+     * @throws \Exception
+     */
+    public function getCommercePremisesSearch(array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден. Выполните авторизацию сначала.');
+            }
+
+            // Формируем URL API для коммерческих помещений
+            $apiUrl = 'https://commerce-api.trendagent.ru/search/premises';
+            
+            // Параметры по умолчанию
+            $defaultParams = [
+                'sort' => 'price',
+                'sort_order' => 'asc',
+                'count' => 50,
+                'offset' => 0,
+                'number' => '',
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+
+            // Объединяем параметры
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+            
+            // Формируем полный URL
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+
+            Log::info('Запрос к API commerce/search/premises', [
+                'url' => $apiUrl,
+                'has_token' => !empty($authToken),
+            ]);
+
+            // Выполняем запрос к API
+            $response = $this->client->get($fullUrl, [
+                'headers' => [
+                    'Accept' => 'application/json, text/plain, */*',
+                    'Accept-Language' => 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Origin' => 'https://spb.trendagent.ru',
+                    'Referer' => 'https://spb.trendagent.ru/',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                ],
+                'timeout' => 30,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                Log::error('Ошибка при запросе к API коммерции (premises)', [
+                    'status_code' => $statusCode,
+                    'response_body' => substr($body, 0, 500),
+                ]);
+                throw new \Exception("Ошибка при запросе к API коммерции: HTTP {$statusCode}");
+            }
+
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка декодирования JSON ответа: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data['results'] ?? [],
+                'total' => $data['total'] ?? $data['premisesCount'] ?? 0,
+                'blocks_count' => $data['blocksCount'] ?? 0, // Количество ЖК с коммерцией
+                'source' => 'commerce_api',
+            ];
+        } catch (GuzzleException $e) {
+            Log::error('Ошибка при запросе к API коммерции (premises)', [
+                'message' => $e->getMessage(),
+            ]);
+            throw new \Exception('Ошибка при запросе к API: ' . $e->getMessage());
         }
     }
 }
