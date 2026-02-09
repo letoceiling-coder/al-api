@@ -550,11 +550,54 @@
                                     <tr>
                                         <td style="width: 80px; padding: 0.5rem;">
                                             @php
-                                                $planImage = $item->plan_image_url ?? 
-                                                    (is_array($item->images) && count($item->images) > 0 ? (is_string($item->images[0]) ? $item->images[0] : ($item->images[0]['url'] ?? null)) : null) ??
-                                                    ($item->raw_data['plan_image']['url'] ?? $item->raw_data['plan'] ?? null);
+                                                $planImage = $item->plan_image_url ?? null;
 
-                                                // Гарантируем, что в шаблон попадет только строка, иначе сбрасываем
+                                                // 1) Пытаемся взять из массива images (DB-колонка)
+                                                if (!$planImage && is_array($item->images) && count($item->images) > 0) {
+                                                    $firstImg = $item->images[0];
+                                                    if (is_string($firstImg)) {
+                                                        $planImage = $firstImg;
+                                                    } elseif (is_array($firstImg)) {
+                                                        $planImage = $firstImg['url'] ?? $firstImg['image'] ?? null;
+                                                    }
+                                                }
+
+                                                // 2) Пытаемся взять из raw_data (ответ API)
+                                                $raw = is_array($item->raw_data ?? null) ? $item->raw_data : [];
+                                                if (!$planImage && isset($raw['plan_image'])) {
+                                                    $pi = $raw['plan_image'];
+                                                    if (is_string($pi)) {
+                                                        $planImage = $pi;
+                                                    } elseif (is_array($pi)) {
+                                                        // может быть ['url' => ...] или массив вариантов
+                                                        if (isset($pi['url'])) {
+                                                            $planImage = $pi['url'];
+                                                        } elseif (isset($pi[0])) {
+                                                            $first = $pi[0];
+                                                            if (is_string($first)) {
+                                                                $planImage = $first;
+                                                            } elseif (is_array($first)) {
+                                                                $planImage = $first['url'] ?? null;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (!$planImage && isset($raw['plan'])) {
+                                                    $pl = $raw['plan'];
+                                                    if (is_string($pl)) {
+                                                        $planImage = $pl;
+                                                    } elseif (is_array($pl)) {
+                                                        // массив планировок
+                                                        $first = $pl[0] ?? null;
+                                                        if (is_string($first)) {
+                                                            $planImage = $first;
+                                                        } elseif (is_array($first)) {
+                                                            $planImage = $first['url'] ?? $first['image'] ?? null;
+                                                        }
+                                                    }
+                                                }
+
+                                                // Гарантируем, что в шаблон попадет только строка
                                                 if (!is_string($planImage)) {
                                                     $planImage = null;
                                                 }
@@ -773,6 +816,21 @@
     </div>
 
     <script>
+        function normalizeImageUrl(value) {
+            if (!value) return null;
+            if (typeof value === 'string') return value;
+            if (Array.isArray(value)) {
+                // берём первый элемент массива и нормализуем его
+                return normalizeImageUrl(value[0]);
+            }
+            if (typeof value === 'object') {
+                if (value.url) return value.url;
+                if (value.image) return normalizeImageUrl(value.image);
+                if (value.src) return value.src;
+            }
+            return null;
+        }
+
         function formatArea(value) {
             if (value === null || value === undefined) {
                 return '-';
@@ -805,16 +863,16 @@
                 .then(data => {
                     if (data.success) {
                         const apt = data.data;
-                        const planImage = apt.plan_image_url || 
-                            (apt.images && apt.images.length > 0 ? 
-                                (typeof apt.images[0] === 'string' ? apt.images[0] : apt.images[0].url) : null) ||
-                            (apt.raw_data?.plan_image?.url || apt.raw_data?.plan);
+                        const planImage =
+                            normalizeImageUrl(apt.plan_image_url) ||
+                            (apt.images && apt.images.length > 0 ? normalizeImageUrl(apt.images[0]) : null) ||
+                            (apt.raw_data ? (normalizeImageUrl(apt.raw_data.plan_image) || normalizeImageUrl(apt.raw_data.plan)) : null);
 
                         let imagesHtml = '';
                         if (apt.images && Array.isArray(apt.images) && apt.images.length > 0) {
                             imagesHtml = '<div class="image-gallery">';
                             apt.images.forEach(img => {
-                                const imgUrl = typeof img === 'string' ? img : (img.url || img);
+                                const imgUrl = normalizeImageUrl(img);
                                 if (imgUrl) {
                                     imagesHtml += `<div class="gallery-item" onclick="showPlanModal('${imgUrl}', '${apt.number || 'Квартира'}')">
                                         <img src="${imgUrl}" alt="Изображение">
