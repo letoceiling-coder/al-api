@@ -115,10 +115,18 @@ class TrendAgentDbController extends Controller
                     'is_exclusive', 'is_booked', 'is_on_request', 'plan_image_url', 
                     'images', 'raw_data', 'complex_id', 'created_at'
                 ]);
+
+                // Проверяем наличие виртуальной колонки для ускоренного фильтра по городу
+                $hasVirtualColumn = !empty(DB::select("SHOW COLUMNS FROM trendagent_apartments LIKE 'city_id_extracted'"));
+
                 if ($region !== 'all') {
                     $cityInfo = CityService::getCityByKey($region);
                     if ($cityInfo && isset($cityInfo['id'])) {
-                        $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) = ?", [$cityInfo['id']]);
+                        if ($hasVirtualColumn) {
+                            $query->where('city_id_extracted', $cityInfo['id']);
+                        } else {
+                            $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_data, '$.city.id')) = ?", [$cityInfo['id']]);
+                        }
                     }
                 }
                 $total = $query->count();

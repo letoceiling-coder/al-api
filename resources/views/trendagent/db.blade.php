@@ -553,6 +553,11 @@
                                                 $planImage = $item->plan_image_url ?? 
                                                     (is_array($item->images) && count($item->images) > 0 ? (is_string($item->images[0]) ? $item->images[0] : ($item->images[0]['url'] ?? null)) : null) ??
                                                     ($item->raw_data['plan_image']['url'] ?? $item->raw_data['plan'] ?? null);
+
+                                                // Гарантируем, что в шаблон попадет только строка, иначе сбрасываем
+                                                if (!is_string($planImage)) {
+                                                    $planImage = null;
+                                                }
                                             @endphp
                                             @if($planImage)
                                                 <img src="{{ $planImage }}" 
