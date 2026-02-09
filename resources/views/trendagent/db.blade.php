@@ -773,6 +773,17 @@
     </div>
 
     <script>
+        function formatArea(value) {
+            if (value === null || value === undefined) {
+                return '-';
+            }
+            const num = typeof value === 'number' ? value : Number(value);
+            if (isNaN(num)) {
+                return '-';
+            }
+            return num.toFixed(2) + ' м²';
+        }
+
         function showPlanModal(imageUrl, title) {
             document.getElementById('planModalTitle').textContent = 'Планировка: ' + title;
             document.getElementById('planModalImage').src = imageUrl;
@@ -828,15 +839,15 @@
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Общая площадь:</span>
-                                    <span class="info-value">${apt.area_total ? apt.area_total.toFixed(2) + ' м²' : '-'}</span>
+                                    <span class="info-value">${formatArea(apt.area_total)}</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Жилая площадь:</span>
-                                    <span class="info-value">${apt.area_living ? apt.area_living.toFixed(2) + ' м²' : '-'}</span>
+                                    <span class="info-value">${formatArea(apt.area_living)}</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Площадь кухни:</span>
-                                    <span class="info-value">${apt.area_kitchen ? apt.area_kitchen.toFixed(2) + ' м²' : '-'}</span>
+                                    <span class="info-value">${formatArea(apt.area_kitchen)}</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Этаж:</span>
