@@ -4,6 +4,7 @@ namespace App\Services\TrendAgent\Catalog;
 
 use App\Services\TrendAgent\Core\ObjectType;
 use App\Services\TrendAgent\Core\Contracts\FilterSet;
+use App\Services\TrendAgent\Core\Contracts\CatalogResult;
 use App\Services\TrendAgent\TrendAgentApiClient;
 use App\Services\TrendAgent\Catalog\PaginationManager;
 use App\Services\TrendAgent\Filters\FilterBuilder;
@@ -44,7 +45,7 @@ class CatalogService
      * @param int|null $pageSize Размер страницы
      * @param string|null $sort Сортировка
      * @param string|null $sortOrder Порядок сортировки (asc/desc)
-     * @return array Массив с items, total, pagination
+     * @return CatalogResult
      */
     public function getCatalog(
         ObjectType $objectType,
@@ -54,7 +55,7 @@ class CatalogService
         ?int $pageSize = null,
         ?string $sort = 'price',
         ?string $sortOrder = 'asc'
-    ): array {
+    ): CatalogResult {
         // Создать FilterSet из массива, если передан массив
         if (is_array($filters)) {
             $filters = $this->filterBuilder->createFromArray($objectType, $filters);
@@ -88,18 +89,18 @@ class CatalogService
                 $paginationParams['count']
             );
 
-            return [
-                'items' => $normalized['items'],
-                'total' => $normalized['total'],
-                'pagination' => $pagination,
-                'appliedFilters' => $filters->all(),
-                'meta' => [
+            return new CatalogResult(
+                items: $normalized['items'],
+                total: $normalized['total'],
+                pagination: $pagination,
+                appliedFilters: $filters->all(),
+                meta: [
                     'objectType' => $objectType->value,
                     'city' => $city,
                     'sort' => $sort,
                     'sortOrder' => $sortOrder,
-                ],
-            ];
+                ]
+            );
 
         } catch (\Exception $e) {
             Log::error('CatalogService: Ошибка получения каталога', [
@@ -108,13 +109,17 @@ class CatalogService
                 'error' => $e->getMessage(),
             ]);
 
-            return [
-                'items' => [],
-                'total' => 0,
-                'pagination' => $this->paginationManager->createMetadata(0, 0, $paginationParams['count']),
-                'appliedFilters' => $filters->all(),
-                'error' => $e->getMessage(),
-            ];
+            return new CatalogResult(
+                items: [],
+                total: 0,
+                pagination: $this->paginationManager->createMetadata(0, 0, $paginationParams['count']),
+                appliedFilters: $filters->all(),
+                meta: [
+                    'error' => $e->getMessage(),
+                    'objectType' => $objectType->value,
+                    'city' => $city,
+                ]
+            );
         }
     }
 
