@@ -284,9 +284,95 @@ $result = $catalogService->getCatalog(
 - Автоматически использует `FilterBuilder` для валидации
 - Нормализует range фильтры в формат API
 
-## 📋 Следующие этапы
+## ✅ Этап 4: Нормализация и агрегация (ЗАВЕРШЕН)
 
-### Этап 4: Нормализация и агрегация
+### Созданные компоненты
+
+#### 1. CatalogResult (`app/Services/TrendAgent/Core/Contracts/CatalogResult.php`)
+
+**Функциональность:**
+- Унифицированный контракт для результатов каталога
+- Типизированные методы для работы с пагинацией
+- Преобразование в массив
+
+**Методы:**
+- `hasMore()` - есть ли следующая страница
+- `getCurrentPage()` - номер текущей страницы
+- `getTotalPages()` - общее количество страниц
+- `getItemsCount()` - количество элементов на странице
+- `isEmpty()` - пустой ли список
+- `toArray()` - преобразовать в массив
+
+#### 2. DetailResult (`app/Services/TrendAgent/Core/Contracts/DetailResult.php`)
+
+**Функциональность:**
+- Унифицированный контракт для детальной информации
+- Агрегация данных из множественных endpoint'ов
+- Медиа и связанные данные
+
+**Методы:**
+- `isComplete()` - все ли данные загружены
+- `getFailedEndpoints()` - список неудачных endpoint'ов
+- `hasMedia()` - есть ли медиа
+- `toArray()` - преобразовать в массив
+
+#### 3. MediaCollection (`app/Services/TrendAgent/Core/Contracts/MediaCollection.php`)
+
+**Функциональность:**
+- Коллекция медиа контента
+- Фото, видео, документы, 3D туры, планировки
+
+**Методы:**
+- `getTotalCount()` - общее количество медиа
+- `isEmpty()` - пустая ли коллекция
+- `getAll()` - получить все медиа в одном массиве
+- `toArray()` - преобразовать в массив
+
+#### 4. DetailService (`app/Services/TrendAgent/Detail/DetailService.php`)
+
+**Функциональность:**
+- Единый сервис для всех типов деталей
+- Использует существующий TrendAgentApiClient
+- Автоматическое извлечение медиа и связанных данных
+
+**Методы:**
+- `getDetail($objectType, $id, $city)` - получить детали объекта
+
+**Использование:**
+```php
+$detailService = app(\App\Services\TrendAgent\Detail\DetailService::class);
+
+$detail = $detailService->getDetail(
+    ObjectType::BLOCKS,
+    'block_id_123',
+    '58c665588b6aa52311afa01b' // СПб
+);
+
+echo "Название: {$detail->entity['name']}\n";
+echo "Фото: {$detail->media->getTotalCount()}\n";
+echo "Преимущества: " . count($detail->related['advantages']) . "\n";
+```
+
+#### 5. Обновлен CatalogService
+
+**Изменения:**
+- Возвращает `CatalogResult` вместо массива
+- Типизированные методы для работы с результатами
+
+## 📋 Итоги реализации
+
+### Реализовано 4 этапа:
+
+✅ **Этап 1:** Базовые компоненты (AuthTokenManager, HttpClient, RetryManager, ParallelExecutor)  
+✅ **Этап 2:** Унифицированные сервисы (CatalogService, PaginationManager, ResponseNormalizer)  
+✅ **Этап 3:** Фильтры и валидация (FilterBuilder, FilterRegistry, FilterDefinition)  
+✅ **Этап 4:** Нормализация и агрегация (DetailService, контракты)
+
+### Следующие шаги (опционально):
+
+- [ ] DetailAggregator - агрегация данных из множественных endpoints (для сложных объектов)
+- [ ] EntityNormalizer - нормализация сущностей в типизированные классы
+- [ ] Entity классы - типизированные сущности вместо массивов
 
 - [ ] `DetailService` - единый сервис деталей
 - [ ] `DetailAggregator` - агрегация данных
