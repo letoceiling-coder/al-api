@@ -107,13 +107,108 @@ if (!$executor->allSuccessful($responses)) {
 
 ---
 
+## ✅ Этап 2: Унифицированные сервисы (ЗАВЕРШЕН)
+
+### Созданные компоненты
+
+#### 1. ObjectType Enum (`app/Services/TrendAgent/Core/ObjectType.php`)
+
+**Функциональность:**
+- Enum для всех типов объектов недвижимости
+- Методы для получения меток и проверки типов
+
+**Типы:**
+- `BLOCKS` - Жилые комплексы (ЖК)
+- `APARTMENTS` - Квартиры
+- `PARKING` - Паркинги
+- `HOUSES` - Дома
+- `PLOTS` - Участки
+- `COMMERCE` - Коммерция
+- `HOUSE_PROJECTS` - Проекты домов
+- `VILLAGES` - Поселки
+
+#### 2. PaginationManager (`app/Services/TrendAgent/Catalog/PaginationManager.php`)
+
+**Функциональность:**
+- Вычисление offset/count из page/pageSize
+- Создание pagination metadata
+- Валидация параметров
+
+**Методы:**
+- `createParams($page, $pageSize)` - создать параметры для API
+- `createMetadata($total, $offset, $count)` - создать metadata
+- `getNextPageParams()` - параметры следующей страницы
+- `getPrevPageParams()` - параметры предыдущей страницы
+
+#### 3. ResponseNormalizer (`app/Services/TrendAgent/Http/ResponseNormalizer.php`)
+
+**Функциональность:**
+- Нормализация разных форматов ответов API
+- Обработка вложенных структур (data.results, data.list)
+- Извлечение total из разных полей
+
+**Методы:**
+- `normalizeCatalogResponse($response)` - нормализовать каталог
+- `normalizeDetailResponse($response)` - нормализовать детали
+
+#### 4. ApiEndpoint (`app/Services/TrendAgent/Core/Contracts/ApiEndpoint.php`)
+
+**Функциональность:**
+- Описание API endpoint'а
+- Хранение домена, версии, пути
+- Подстановка параметров пути
+
+#### 5. EndpointBuilder (`app/Services/TrendAgent/Router/EndpointBuilder.php`)
+
+**Функциональность:**
+- Построение полных URL из ApiEndpoint
+- Автоматическое добавление auth_token
+- Поддержка множественных query параметров
+
+#### 6. CatalogService (`app/Services/TrendAgent/Catalog/CatalogService.php`)
+
+**Функциональность:**
+- Единый сервис для всех типов каталогов
+- Использует существующий TrendAgentApiClient для обратной совместимости
+- Нормализация ответов
+- Унифицированная пагинация
+
+**Методы:**
+- `getCatalog($objectType, $city, $filters, $page, $pageSize, $sort, $sortOrder)` - получить каталог
+- `getCount($objectType, $city, $filters)` - получить количество
+
+**Использование:**
+```php
+$catalogService = app(\App\Services\TrendAgent\Catalog\CatalogService::class);
+
+// Все типы объектов через один метод:
+$result = $catalogService->getCatalog(
+    ObjectType::APARTMENTS,
+    '58c665588b6aa52311afa01b', // СПб
+    ['price_from' => 1000000, 'price_to' => 5000000],
+    page: 1,
+    pageSize: 20
+);
+
+echo "Всего: {$result['total']}\n";
+foreach ($result['items'] as $item) {
+    echo "- {$item['name']}\n";
+}
+```
+
 ## 📋 Следующие этапы
 
-### Этап 2: Унифицированные сервисы (В ПРОЦЕССЕ)
+### Этап 3: Фильтры и валидация
 
-- [ ] `CatalogService` - единый сервис каталогов
+- [ ] `FilterBuilder` - унифицированные фильтры
+- [ ] `FilterRegistry` - реестр фильтров
+
+### Этап 4: Нормализация и агрегация
+
 - [ ] `DetailService` - единый сервис деталей
-- [ ] `PaginationManager` - управление пагинацией
+- [ ] `DetailAggregator` - агрегация данных
+- [ ] `EntityNormalizer` - нормализация сущностей
+- [ ] Entity классы
 
 ### Этап 3: Фильтры и валидация
 
