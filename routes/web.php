@@ -21,6 +21,10 @@ Route::get('/trendagent-db', [\App\Http\Controllers\TrendAgent\TrendAgentDbContr
 Route::get('/trendagent/db', [\App\Http\Controllers\TrendAgent\TrendAgentDbController::class, 'index'])
     ->name('trendagent.db.alt');
 
+// API для получения детальной информации
+Route::get('/api/trendagent/db/apartment/{id}', [\App\Http\Controllers\TrendAgent\TrendAgentDbController::class, 'getApartmentDetails'])
+    ->name('trendagent.db.apartment.details');
+
 // Проекты - без префикса /projects
 // URL: /frontend, /trendagent (включая /trendagent/parser для UI)
 // ВАЖНО: Этот маршрут должен быть ПОСЛЕДНИМ, чтобы не перехватывать специфичные маршруты
