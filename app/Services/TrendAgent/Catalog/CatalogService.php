@@ -3,8 +3,10 @@
 namespace App\Services\TrendAgent\Catalog;
 
 use App\Services\TrendAgent\Core\ObjectType;
+use App\Services\TrendAgent\Core\Contracts\FilterSet;
 use App\Services\TrendAgent\TrendAgentApiClient;
 use App\Services\TrendAgent\Catalog\PaginationManager;
+use App\Services\TrendAgent\Filters\FilterBuilder;
 use App\Services\TrendAgent\Http\ResponseNormalizer;
 use Illuminate\Support\Facades\Log;
 
@@ -28,7 +30,8 @@ class CatalogService
     public function __construct(
         private readonly TrendAgentApiClient $apiClient,
         private readonly PaginationManager $paginationManager,
-        private readonly ResponseNormalizer $normalizer
+        private readonly ResponseNormalizer $normalizer,
+        private readonly FilterBuilder $filterBuilder
     ) {}
 
     /**
@@ -36,7 +39,7 @@ class CatalogService
      * 
      * @param ObjectType $objectType Тип объекта
      * @param string $city ID города
-     * @param array $filters Фильтры (price_from, price_to, room, и т.д.)
+     * @param FilterSet|array|null $filters Фильтры (FilterSet или массив)
      * @param int $page Номер страницы
      * @param int|null $pageSize Размер страницы
      * @param string|null $sort Сортировка
@@ -46,17 +49,27 @@ class CatalogService
     public function getCatalog(
         ObjectType $objectType,
         string $city,
-        array $filters = [],
+        FilterSet|array|null $filters = null,
         int $page = 1,
         ?int $pageSize = null,
         ?string $sort = 'price',
         ?string $sortOrder = 'asc'
     ): array {
+        // Создать FilterSet из массива, если передан массив
+        if (is_array($filters)) {
+            $filters = $this->filterBuilder->createFromArray($objectType, $filters);
+        } elseif ($filters === null) {
+            $filters = $this->filterBuilder->create($objectType);
+        }
+
         // Создать параметры пагинации
         $paginationParams = $this->paginationManager->createParams($page, $pageSize);
 
+        // Преобразовать фильтры в query параметры
+        $filterParams = $this->filterBuilder->toQueryParams($filters);
+
         // Объединить параметры
-        $params = array_merge($paginationParams, $filters);
+        $params = array_merge($paginationParams, $filterParams);
         $params['sort'] = $sort ?? 'price';
         $params['sort_order'] = $sortOrder ?? 'asc';
         $params['city'] = $city;
@@ -79,7 +92,7 @@ class CatalogService
                 'items' => $normalized['items'],
                 'total' => $normalized['total'],
                 'pagination' => $pagination,
-                'appliedFilters' => $filters,
+                'appliedFilters' => $filters->all(),
                 'meta' => [
                     'objectType' => $objectType->value,
                     'city' => $city,
@@ -99,7 +112,7 @@ class CatalogService
                 'items' => [],
                 'total' => 0,
                 'pagination' => $this->paginationManager->createMetadata(0, 0, $paginationParams['count']),
-                'appliedFilters' => $filters,
+                'appliedFilters' => $filters->all(),
                 'error' => $e->getMessage(),
             ];
         }
@@ -218,7 +231,7 @@ class CatalogService
     public function getCount(
         ObjectType $objectType,
         string $city,
-        array $filters = []
+        FilterSet|array|null $filters = null
     ): int {
         // Получаем первую страницу с минимальным count
         $result = $this->getCatalog(
