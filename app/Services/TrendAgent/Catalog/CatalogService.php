@@ -111,15 +111,65 @@ class CatalogService
     private function callApiMethod(ObjectType $objectType, array $params): array
     {
         return match($objectType) {
-            ObjectType::BLOCKS => $this->apiClient->getComplexes($params),
+            ObjectType::BLOCKS => $this->getBlocks($params),
             ObjectType::APARTMENTS => $this->apiClient->getApartments($params),
             ObjectType::PARKING => $this->apiClient->getParkings($params),
             ObjectType::HOUSES => $this->apiClient->getHouses($params),
             ObjectType::PLOTS => $this->apiClient->getPlots($params),
             ObjectType::COMMERCE => $this->apiClient->getCommercial($params),
-            ObjectType::HOUSE_PROJECTS => $this->apiClient->getContractorProjects($params),
-            ObjectType::VILLAGES => $this->apiClient->getVillages($params),
+            ObjectType::HOUSE_PROJECTS => $this->getContractorProjects($params),
+            ObjectType::VILLAGES => $this->getVillages($params),
         };
+    }
+
+    /**
+     * Получить комплексы (ЖК)
+     */
+    private function getBlocks(array $params): array
+    {
+        // Используем getObjectsList для получения комплексов
+        $city = $params['city'] ?? 'spb';
+        $count = $params['count'] ?? 20;
+        $offset = $params['offset'] ?? 0;
+        
+        $result = $this->apiClient->getObjectsList($city, 'block', $count, $offset);
+        
+        return [
+            'success' => true,
+            'data' => $result['data'] ?? [],
+            'total' => $result['total'] ?? 0,
+        ];
+    }
+
+    /**
+     * Получить проекты домов (подрядчики)
+     */
+    private function getContractorProjects(array $params): array
+    {
+        // Используем getContractors для получения проектов
+        $result = $this->apiClient->getContractors($params);
+        
+        return [
+            'success' => true,
+            'data' => $result['data'] ?? [],
+            'total' => $result['total'] ?? count($result['data'] ?? []),
+        ];
+    }
+
+    /**
+     * Получить поселки
+     */
+    private function getVillages(array $params): array
+    {
+        // Используем getPlots для получения поселков (villages)
+        // В API поселки могут быть частью plots или отдельным endpoint
+        $result = $this->apiClient->getPlots($params);
+        
+        return [
+            'success' => true,
+            'data' => $result['data'] ?? [],
+            'total' => $result['total'] ?? 0,
+        ];
     }
 
     /**
