@@ -196,12 +196,95 @@ foreach ($result['items'] as $item) {
 }
 ```
 
+## ✅ Этап 3: Фильтры и валидация (ЗАВЕРШЕН)
+
+### Созданные компоненты
+
+#### 1. FilterSet (`app/Services/TrendAgent/Core/Contracts/FilterSet.php`)
+
+**Функциональность:**
+- Хранение набора активных фильтров
+- Методы для добавления/удаления фильтров
+- Проверка наличия фильтров
+
+**Методы:**
+- `add($key, $value)` - добавить фильтр
+- `remove($key)` - удалить фильтр
+- `has($key)` - проверить наличие
+- `get($key, $default)` - получить значение
+- `all()` - получить все фильтры
+
+#### 2. FilterDefinition (`app/Services/TrendAgent/Filters/FilterDefinition.php`)
+
+**Функциональность:**
+- Описание одного фильтра
+- Типы: range, select, multiselect, boolean
+- Валидация значений
+- Применимость к типам объектов
+
+**Типы фильтров:**
+- `range` - диапазон (price, area, floor)
+- `select` - выбор одного значения
+- `multiselect` - выбор нескольких значений (room)
+- `boolean` - да/нет
+
+#### 3. FilterRegistry (`app/Services/TrendAgent/Filters/FilterRegistry.php`)
+
+**Функциональность:**
+- Централизованная регистрация всех фильтров
+- Получение фильтров по типу объекта
+- Проверка применимости
+
+**Зарегистрированные фильтры:**
+- Универсальные: `price`, `area`
+- Квартиры/Дома: `room`, `floor`, `finishing`, `block_id`
+- Паркинги: `parking_type`
+- Участки: `plot_area`
+- Коммерция: `commerce_type`
+- Проекты домов: `floors_count`
+- Блоки: `deadline`, `district`
+
+#### 4. FilterBuilder (`app/Services/TrendAgent/Filters/FilterBuilder.php`)
+
+**Функциональность:**
+- Создание FilterSet из массива
+- Валидация фильтров
+- Нормализация range фильтров (price_from, price_to)
+- Преобразование в query параметры
+
+**Методы:**
+- `create($objectType)` - создать пустой FilterSet
+- `createFromArray($objectType, $filters)` - создать из массива
+- `addFilter($filterSet, $key, $value)` - добавить фильтр с валидацией
+- `toQueryParams($filterSet)` - преобразовать в query параметры
+
+**Использование:**
+```php
+$filterBuilder = app(\App\Services\TrendAgent\Filters\FilterBuilder::class);
+
+// Создать фильтры из массива
+$filters = $filterBuilder->createFromArray(ObjectType::APARTMENTS, [
+    'price' => ['from' => 1000000, 'to' => 5000000],
+    'room' => [1, 2, 3],
+    'floor' => ['from' => 5, 'to' => 10]
+]);
+
+// Использовать в CatalogService
+$result = $catalogService->getCatalog(
+    ObjectType::APARTMENTS,
+    $city,
+    $filters
+);
+```
+
+#### 5. Обновлен CatalogService
+
+**Изменения:**
+- Принимает `FilterSet` или массив фильтров
+- Автоматически использует `FilterBuilder` для валидации
+- Нормализует range фильтры в формат API
+
 ## 📋 Следующие этапы
-
-### Этап 3: Фильтры и валидация
-
-- [ ] `FilterBuilder` - унифицированные фильтры
-- [ ] `FilterRegistry` - реестр фильтров
 
 ### Этап 4: Нормализация и агрегация
 
