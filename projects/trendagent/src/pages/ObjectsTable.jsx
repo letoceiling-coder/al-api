@@ -371,8 +371,10 @@ const ObjectsTable = () => {
                     : (typeof apt.status === 'object' && apt.status !== null
                       ? (apt.status.name || apt.status.title || String(apt.status))
                       : (apt.booking_status || 'Свободна'))
+                  // ID блока и квартиры
                   const blockId = apt.block_id || apt._id || apt.id
                   const blockGuid = apt.guid || apt.block_guid
+                  const apartmentId = apt._id || apt.id
                   
                   return (
                     <tr key={apt.id || apt._id || idx}>
@@ -419,7 +421,7 @@ const ObjectsTable = () => {
                       </td>
                       <td className="col-actions">
                         <a
-                          href={`/trendagent/apartments/${blockId}/flat/${apt.id || apt._id}${blockGuid ? `?block=${blockId}&guid=${blockGuid}` : `?block=${blockId}`}`}
+                          href={`/trendagent/apartments/${blockId}/flat/${apt._id || apt.id}${blockGuid ? `?guid=${blockGuid}` : ''}`}
                           className="flat-link"
                           title="Детальная информация"
                         >

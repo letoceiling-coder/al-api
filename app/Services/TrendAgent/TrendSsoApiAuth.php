@@ -4925,10 +4925,11 @@ class TrendSsoApiAuth
 
                     // Если запрос с blockId не сработал (404 или 400 или 500), пробуем fallback
                     if ($blockId && ($statusCode === 404 || $statusCode === 400 || $statusCode === 500)) {
-                        Log::info('Запрос с blockId не сработал, включаем fallback', [
+                        Log::warning('Запрос с blockId не сработал, включаем fallback', [
                             'apartment_id' => $apartmentId,
                             'block_id' => $blockId,
                             'original_status' => $statusCode,
+                            'body_preview' => substr($body, 0, 200),
                         ]);
                         $useFallback = true;
                     } elseif ($statusCode === 200) {
@@ -4951,13 +4952,28 @@ class TrendSsoApiAuth
                     
                     // Если запрос с blockId не сработал, пробуем fallback
                     if ($blockId && ($statusCode === 404 || $statusCode === 400 || $statusCode === 500)) {
-                        Log::info('Запрос с blockId не сработал, включаем fallback (из catch)', [
+                        Log::warning('Запрос с blockId не сработал, включаем fallback (из catch)', [
                             'apartment_id' => $apartmentId,
                             'original_status' => $statusCode,
+                            'body_preview' => substr($body, 0, 200),
                         ]);
                         $useFallback = true;
                     } else {
                         // Если это не 404/400/500 или нет blockId, пробрасываем исключение дальше
+                        throw $e;
+                    }
+                } catch (\Exception $e) {
+                    // Обработка других исключений
+                    Log::error('Ошибка при запросе apartment detail', [
+                        'apartment_id' => $apartmentId,
+                        'block_id' => $blockId,
+                        'error' => $e->getMessage(),
+                    ]);
+                    
+                    // Если есть blockId, пробуем fallback
+                    if ($blockId) {
+                        $useFallback = true;
+                    } else {
                         throw $e;
                     }
                 }
@@ -5048,7 +5064,21 @@ class TrendSsoApiAuth
                         Log::info('Fallback запрос завершен', [
                             'apartment_id' => $apartmentId,
                             'status_code' => $statusCode,
+                            'body_preview' => substr($body, 0, 200),
                         ]);
+                        
+                        // Если Fallback 2 вернул успешный ответ
+                        if ($statusCode === 200) {
+                            $data = json_decode($body, true);
+                            if (json_last_error() === JSON_ERROR_NONE && isset($data['data'])) {
+                                return [
+                                    'success' => true,
+                                    'data' => $data['data'],
+                                    'raw_response' => $data,
+                                    'source' => 'fallback_direct_apartment',
+                                ];
+                            }
+                        }
                         
                         // Если Fallback 2 вернул 500, пробуем получить из списка блока
                         if ($statusCode === 500 && $blockId) {
@@ -5110,9 +5140,10 @@ class TrendSsoApiAuth
                     }
                 }
                 
-                if ($statusCode !== 200) {
+                // Если fallback не выполнен и статус не 200, выбрасываем исключение
+                if (!$useFallback && $statusCode !== 200) {
                     // Если fallback 2 вернул 500 и у нас есть blockId, пробуем получить из списка блока
-                    if ($statusCode === 500 && $blockId && !$useFallback) {
+                    if ($statusCode === 500 && $blockId) {
                         Log::info('Fallback 2 вернул 500, пробуем получить из списка блока', [
                             'apartment_id' => $apartmentId,
                             'block_id' => $blockId,
