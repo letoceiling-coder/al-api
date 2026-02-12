@@ -136,15 +136,16 @@ class ApartmentsController
                 $apiParams['district'] = $request->input('district');
             }
 
-            // Получаем данные через API
-            $apiData = $apiAuth->getBlocksSearch($apiParams);
+            // Получаем данные через API (используем getApartmentsSearch для получения списка квартир)
+            $apiData = $apiAuth->getApartmentsSearch($apiParams);
 
             if (!($apiData['success'] ?? false)) {
                 throw new \Exception('Ошибка при получении данных из API');
             }
 
             // Формируем ответ
-            $totalCount = $apiData['apartments_count'] ?? $apiData['blocks_count'] ?? $apiData['total'] ?? 0;
+            // getApartmentsSearch возвращает: { success: true, data: [...], total: ..., blocks_count: ... }
+            $totalCount = $apiData['total'] ?? 0;
             $returnedCount = count($apiData['data'] ?? []);
             
             $result = [
@@ -152,7 +153,7 @@ class ApartmentsController
                 'total_count' => $totalCount,
                 'data' => [
                     'blocks_count' => $apiData['blocks_count'] ?? 0,
-                    'apartments_count' => $apiData['apartments_count'] ?? 0,
+                    'apartments_count' => $totalCount,
                     'objects_count' => $returnedCount,
                     'objects' => $apiData['data'] ?? [],
                 ],
