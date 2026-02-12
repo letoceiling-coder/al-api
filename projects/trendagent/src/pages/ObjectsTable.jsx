@@ -181,8 +181,14 @@ const ObjectsTable = () => {
                   <th className="col-rooms">Комнат</th>
                   <th className="col-area">Площадь</th>
                   <th className="col-kitchen">Кухня</th>
+                  <th className="col-district">Район</th>
+                  <th className="col-subway">Метро</th>
+                  <th className="col-builder">Застройщик</th>
+                  <th className="col-deadline">Сдача</th>
+                  <th className="col-type">Тип</th>
                   <th className="col-finishing">Отделка</th>
                   <th className="col-price">Цена</th>
+                  <th className="col-reward">Вознаграждение</th>
                   <th className="col-status">Статус</th>
                   <th className="col-actions">Действия</th>
                 </tr>
@@ -208,18 +214,91 @@ const ObjectsTable = () => {
                   const section = getStringValue(apt.section_name || apt.section)
                   const building = getStringValue(apt.building_name || apt.building || apt.corpus)
                   const blockName = getStringValue(apt.block_name || apt.name || apt.title)
-                  const area = typeof apt.privArea === 'number' ? apt.privArea : (typeof apt.area === 'number' ? apt.area : (typeof apt.area_total === 'number' ? apt.area_total : null))
-                  const kitchenArea = typeof apt.kitchenArea === 'number' ? apt.kitchenArea : (typeof apt.kitchen_area === 'number' ? apt.kitchen_area : null)
-                  const finishing = getStringValue(apt.finishing_name || apt.finishing)
+                  
+                  // Площадь: area_given, privArea, area, area_total
+                  const area = typeof apt.area_given === 'number' ? apt.area_given 
+                    : (typeof apt.privArea === 'number' ? apt.privArea 
+                    : (typeof apt.area === 'number' ? apt.area 
+                    : (typeof apt.area_total === 'number' ? apt.area_total : null)))
+                  
+                  // Кухня: area_kitchen, kitchenArea, kitchen_area
+                  const kitchenArea = typeof apt.area_kitchen === 'number' ? apt.area_kitchen 
+                    : (typeof apt.kitchenArea === 'number' ? apt.kitchenArea 
+                    : (typeof apt.kitchen_area === 'number' ? apt.kitchen_area : null))
+                  
+                  const finishing = getStringValue(apt.finishing_name || apt.finishing?.name || apt.finishing)
                   const price = typeof apt.base_price === 'number' ? apt.base_price : (typeof apt.price === 'number' ? apt.price : null)
-                  const rooms = typeof apt.rooms === 'number' ? apt.rooms : (typeof apt.room === 'number' ? apt.room : null)
+                  
+                  // Комнаты: room может быть объектом с name/name_short или числом
+                  let rooms = null
+                  if (typeof apt.rooms === 'number') {
+                    rooms = apt.rooms
+                  } else if (typeof apt.room === 'number') {
+                    rooms = apt.room
+                  } else if (apt.room && typeof apt.room === 'object') {
+                    // Если это объект, пытаемся извлечь число из name_short (например, "4Е" -> 4)
+                    const roomName = apt.room.name_short || apt.room.name || ''
+                    const roomMatch = roomName.match(/^(\d+)/)
+                    if (roomMatch) {
+                      rooms = parseInt(roomMatch[1])
+                    } else {
+                      // Если не удалось извлечь число, показываем название
+                      rooms = roomName || null
+                    }
+                  }
+                  
+                  // Район
+                  const district = getStringValue(apt.district?.name || apt.district)
+                  
+                  // Метро
+                  const subway = getStringValue(apt.subway?.name || apt.subway)
+                  
+                  // Застройщик
+                  const builder = getStringValue(apt.builder?.name || apt.builder)
+                  
+                  // Срок сдачи
+                  let deadline = '—'
+                  if (apt.deadline) {
+                    if (typeof apt.deadline === 'string') {
+                      // Если это ISO строка, форматируем дату
+                      try {
+                        const date = new Date(apt.deadline)
+                        if (!isNaN(date.getTime())) {
+                          deadline = date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'short', day: 'numeric' })
+                        } else {
+                          deadline = apt.deadline
+                        }
+                      } catch {
+                        deadline = apt.deadline
+                      }
+                    } else if (Array.isArray(apt.deadline) && apt.deadline.length > 0) {
+                      const deadlineItem = apt.deadline[0]
+                      deadline = deadlineItem.deadline || deadlineItem.value || '—'
+                    } else if (typeof apt.deadline === 'object' && apt.deadline !== null) {
+                      deadline = apt.deadline.deadline || apt.deadline.value || '—'
+                    }
+                  }
+                  
+                  // Тип (is_suite, exclusive и т.д.)
+                  let type = '—'
+                  if (apt.is_suite) {
+                    type = 'Апартаменты'
+                  } else if (apt.exclusive) {
+                    type = 'Эксклюзив'
+                  } else if (rooms && typeof rooms === 'number') {
+                    type = rooms === 1 ? 'Студия' : `${rooms}-комн.`
+                  }
+                  
+                  // Вознаграждение
+                  const reward = getStringValue(apt.reward?.label || apt.reward)
+                  
                   const status = typeof apt.status === 'string' 
                     ? apt.status 
                     : (typeof apt.status === 'object' && apt.status !== null
                       ? (apt.status.name || apt.status.title || String(apt.status))
                       : (apt.booking_status || 'Свободна'))
                   const blockId = apt.block_id || apt._id || apt.id
-                  const blockGuid = apt.guid
+                  const blockGuid = apt.guid || apt.block_guid
                   
                   return (
                     <tr key={apt.id || apt._id || idx}>
@@ -242,11 +321,23 @@ const ObjectsTable = () => {
                       <td className="col-section">{section}</td>
                       <td className="col-floor">{floor}</td>
                       <td className="col-number">{number}</td>
-                      <td className="col-rooms">{rooms ? (rooms === 1 ? 'Студия' : `${rooms}-комн.`) : '—'}</td>
-                      <td className="col-area">{area ? `${area} м²` : '—'}</td>
-                      <td className="col-kitchen">{kitchenArea ? `${kitchenArea} м²` : '—'}</td>
+                      <td className="col-rooms">
+                        {rooms !== null 
+                          ? (typeof rooms === 'number' 
+                            ? (rooms === 1 ? 'Студия' : `${rooms}-комн.`) 
+                            : rooms)
+                          : '—'}
+                      </td>
+                      <td className="col-area">{area ? `${area.toFixed(2)} м²` : '—'}</td>
+                      <td className="col-kitchen">{kitchenArea ? `${kitchenArea.toFixed(2)} м²` : '—'}</td>
+                      <td className="col-district">{district}</td>
+                      <td className="col-subway">{subway}</td>
+                      <td className="col-builder">{builder}</td>
+                      <td className="col-deadline">{deadline}</td>
+                      <td className="col-type">{type}</td>
                       <td className="col-finishing">{finishing}</td>
                       <td className="col-price">{price ? formatPrice(price) : 'По запросу'}</td>
+                      <td className="col-reward">{reward}</td>
                       <td className="col-status">
                         <span className={`status-badge status-${typeof status === 'string' ? status.toLowerCase().replace(/\s+/g, '-') : 'default'}`}>
                           {status}
