@@ -5484,9 +5484,11 @@ class TrendSsoApiAuth
                                 // Специальная обработка для Location17124 - это ошибка MongoDB геолокации
                                 // Для таких квартир нужно попробовать получить из списка блока
                                 if ($errorCodeName === 'Location17124' && $blockId) {
-                                    Log::info('Обнаружена ошибка Location17124, пробуем получить из списка блока', [
+                                    Log::warning('Обнаружена ошибка Location17124 в обработке ошибок, пробуем получить из списка блока', [
                                         'apartment_id' => $apartmentId,
                                         'block_id' => $blockId,
+                                        'status_code' => $statusCode,
+                                        'context' => 'error_handling_block',
                                     ]);
                                     
                                     try {
