@@ -21,7 +21,7 @@ class ApartmentsController
             'phone' => 'required|string',
             'password' => 'required|string',
             'city' => 'nullable|string',
-            'count' => 'nullable|integer|min:1|max:100',
+            'count' => 'nullable|integer|min:1|max:1000',
             'offset' => 'nullable|integer|min:0',
             'page' => 'nullable|integer|min:1',
             'sort' => 'nullable|string|in:price,deadline,name',
