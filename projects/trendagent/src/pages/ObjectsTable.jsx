@@ -93,7 +93,8 @@ const ObjectsTable = () => {
   }
 
   const formatPrice = (price) => {
-    if (!price || price === 0) return 'По запросу'
+    // Если цена отсутствует, равна 0 или равна 1 (дефолтное значение для "По запросу"), показываем "По запросу"
+    if (!price || price === 0 || price === 1) return 'По запросу'
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
       currency: 'RUB',
