@@ -3615,15 +3615,34 @@ class TrendSsoApiAuth
                 
                 // Если передан onrequest, добавляем его в параметры
                 // Также добавляем параметры, которые использует сайт донора для получения всех квартир
-                if (isset($params['onrequest']) && $params['onrequest']) {
-                    $defaultParams['onrequest'] = 'true';
+                if (isset($params['onrequest'])) {
+                    // Преобразуем boolean в строку для API
+                    if ($params['onrequest'] === true || $params['onrequest'] === 'true' || $params['onrequest'] === '1') {
+                        $defaultParams['onrequest'] = 'true';
+                    } elseif ($params['onrequest'] === false || $params['onrequest'] === 'false' || $params['onrequest'] === '0') {
+                        $defaultParams['onrequest'] = 'false';
+                    } else {
+                        $defaultParams['onrequest'] = (string)$params['onrequest'];
+                    }
                 }
                 
                 $queryParams = array_merge($defaultParams, $params);
+                // Убираем onrequest из queryParams, если он уже добавлен в defaultParams
+                if (isset($defaultParams['onrequest'])) {
+                    $queryParams['onrequest'] = $defaultParams['onrequest'];
+                }
                 $queryParams['auth_token'] = $authToken;
 
                 $apiUrl = "https://api.trendagent.ru/v4_29/apartments/block/{$blockId}/search/";
                 $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+                
+                Log::info('getBlockApartments - URL запроса', [
+                    'block_id' => $blockId,
+                    'onrequest_param' => $params['onrequest'] ?? 'not_set',
+                    'onrequest_in_query' => $queryParams['onrequest'] ?? 'not_set',
+                    'url' => $apiUrl,
+                    'full_url_preview' => substr($fullUrl, 0, 200) . '...',
+                ]);
 
             $response = $this->client->get($fullUrl, [
                 'headers' => $this->getAuthHeaders(),
