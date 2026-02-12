@@ -3612,6 +3612,13 @@ class TrendSsoApiAuth
                     'city' => '58c665588b6aa52311afa01b',
                     'lang' => 'ru',
                 ];
+                
+                // Если передан onrequest, добавляем его в параметры
+                // Также добавляем параметры, которые использует сайт донора для получения всех квартир
+                if (isset($params['onrequest']) && $params['onrequest']) {
+                    $defaultParams['onrequest'] = 'true';
+                }
+                
                 $queryParams = array_merge($defaultParams, $params);
                 $queryParams['auth_token'] = $authToken;
 
