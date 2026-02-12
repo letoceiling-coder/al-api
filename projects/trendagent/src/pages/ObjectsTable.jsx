@@ -190,19 +190,34 @@ const ObjectsTable = () => {
               <tbody>
                 {apartments.map((apt, idx) => {
                   const imageUrl = getImageUrlForApartment(apt)
-                  const number = apt.number || apt.apartment_number || '—'
-                  const floor = apt.floor || '—'
-                  const section = apt.section_name || apt.section || '—'
-                  const building = apt.building_name || apt.building || apt.corpus || '—'
-                  const blockName = apt.block_name || apt.name || apt.title || '—'
-                  const area = apt.privArea || apt.area || apt.area_total || null
-                  const kitchenArea = apt.kitchenArea || apt.kitchen_area || null
-                  const finishing = apt.finishing_name || apt.finishing || '—'
-                  const price = apt.base_price || apt.price || null
-                  const rooms = apt.rooms || apt.room || null
+                  
+                  // Безопасное извлечение примитивных значений (защита от объектов)
+                  const getStringValue = (value, fallback = '—') => {
+                    if (value === null || value === undefined) return fallback
+                    if (typeof value === 'string') return value
+                    if (typeof value === 'number') return String(value)
+                    if (typeof value === 'object') {
+                      // Если это объект, пытаемся извлечь строковое значение
+                      return value.name || value.title || value.value || String(value) || fallback
+                    }
+                    return String(value) || fallback
+                  }
+                  
+                  const number = getStringValue(apt.number || apt.apartment_number)
+                  const floor = getStringValue(apt.floor)
+                  const section = getStringValue(apt.section_name || apt.section)
+                  const building = getStringValue(apt.building_name || apt.building || apt.corpus)
+                  const blockName = getStringValue(apt.block_name || apt.name || apt.title)
+                  const area = typeof apt.privArea === 'number' ? apt.privArea : (typeof apt.area === 'number' ? apt.area : (typeof apt.area_total === 'number' ? apt.area_total : null))
+                  const kitchenArea = typeof apt.kitchenArea === 'number' ? apt.kitchenArea : (typeof apt.kitchen_area === 'number' ? apt.kitchen_area : null)
+                  const finishing = getStringValue(apt.finishing_name || apt.finishing)
+                  const price = typeof apt.base_price === 'number' ? apt.base_price : (typeof apt.price === 'number' ? apt.price : null)
+                  const rooms = typeof apt.rooms === 'number' ? apt.rooms : (typeof apt.room === 'number' ? apt.room : null)
                   const status = typeof apt.status === 'string' 
                     ? apt.status 
-                    : (apt.status?.name || apt.booking_status || 'Свободна')
+                    : (typeof apt.status === 'object' && apt.status !== null
+                      ? (apt.status.name || apt.status.title || String(apt.status))
+                      : (apt.booking_status || 'Свободна'))
                   const blockId = apt.block_id || apt._id || apt.id
                   const blockGuid = apt.guid
                   
@@ -233,7 +248,7 @@ const ObjectsTable = () => {
                       <td className="col-finishing">{finishing}</td>
                       <td className="col-price">{price ? formatPrice(price) : 'По запросу'}</td>
                       <td className="col-status">
-                        <span className={`status-badge status-${status.toLowerCase().replace(/\s+/g, '-')}`}>
+                        <span className={`status-badge status-${typeof status === 'string' ? status.toLowerCase().replace(/\s+/g, '-') : 'default'}`}>
                           {status}
                         </span>
                       </td>
