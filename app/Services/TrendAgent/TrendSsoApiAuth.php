@@ -4994,8 +4994,15 @@ class TrendSsoApiAuth
                                 'block_id' => $blockId,
                             ]);
                             
-                            // Получаем список квартир блока
-                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000]);
+                            // Получаем список квартир блока с большим лимитом
+                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0]);
+                            
+                            Log::info('Fallback 1 - получены данные списка квартир', [
+                                'apartment_id' => $apartmentId,
+                                'has_data' => isset($apartmentsData['data']),
+                                'data_type' => isset($apartmentsData['data']) ? gettype($apartmentsData['data']) : 'null',
+                                'data_count' => isset($apartmentsData['data']) && is_array($apartmentsData['data']) ? count($apartmentsData['data']) : 0,
+                            ]);
                             
                             // Ищем нужную квартиру в списке
                             if (isset($apartmentsData['data'])) {
@@ -5003,22 +5010,41 @@ class TrendSsoApiAuth
                                 if (is_array($apartments)) {
                                     // Проверяем разные структуры данных
                                     $flatList = [];
-                                    if (isset($apartments['grouped_data'])) {
-                                        foreach ($apartments['grouped_data'] as $group) {
-                                            if (isset($group['apartments']) && is_array($group['apartments'])) {
-                                                $flatList = array_merge($flatList, $group['apartments']);
+                                    
+                                    // Если есть grouped_data, извлекаем квартиры из групп
+                                    if (isset($apartmentsData['grouped_data']) && is_array($apartmentsData['grouped_data'])) {
+                                        foreach ($apartmentsData['grouped_data'] as $key => $groups) {
+                                            if (is_array($groups)) {
+                                                foreach ($groups as $group) {
+                                                    if (isset($group['apartments']) && is_array($group['apartments'])) {
+                                                        $flatList = array_merge($flatList, $group['apartments']);
+                                                    } elseif (isset($group['_id']) || isset($group['id'])) {
+                                                        // Если элемент сам является квартирой
+                                                        $flatList[] = $group;
+                                                    }
+                                                }
                                             }
                                         }
-                                    } else {
+                                    }
+                                    
+                                    // Если grouped_data пуст, используем прямой массив
+                                    if (empty($flatList)) {
                                         $flatList = is_array($apartments) ? $apartments : [];
                                     }
                                     
-                                    // Ищем квартиру по ID
+                                    Log::info('Fallback 1 - извлечен список квартир', [
+                                        'apartment_id' => $apartmentId,
+                                        'flat_list_count' => count($flatList),
+                                        'first_apt_id' => !empty($flatList) ? ($flatList[0]['_id'] ?? $flatList[0]['id'] ?? 'unknown') : 'empty',
+                                    ]);
+                                    
+                                    // Ищем квартиру по ID (проверяем и _id и id)
                                     foreach ($flatList as $apt) {
                                         $aptId = $apt['_id'] ?? $apt['id'] ?? null;
-                                        if ($aptId === $apartmentId) {
-                                            Log::info('Квартира найдена в списке блока', [
+                                        if ($aptId === $apartmentId || (string)$aptId === (string)$apartmentId) {
+                                            Log::info('Квартира найдена в списке блока (Fallback 1)', [
                                                 'apartment_id' => $apartmentId,
+                                                'found_id' => $aptId,
                                             ]);
                                             return [
                                                 'success' => true,
@@ -5028,12 +5054,22 @@ class TrendSsoApiAuth
                                             ];
                                         }
                                     }
+                                    
+                                    Log::warning('Квартира не найдена в списке блока (Fallback 1)', [
+                                        'apartment_id' => $apartmentId,
+                                        'searched_in_count' => count($flatList),
+                                        'sample_ids' => array_slice(array_map(function($a) {
+                                            return $a['_id'] ?? $a['id'] ?? 'no_id';
+                                        }, $flatList), 0, 5),
+                                    ]);
                                 }
                             }
                         } catch (\Exception $e) {
-                            Log::warning('Не удалось получить квартиру из списка блока', [
+                            Log::error('Не удалось получить квартиру из списка блока (Fallback 1)', [
                                 'apartment_id' => $apartmentId,
+                                'block_id' => $blockId,
                                 'error' => $e->getMessage(),
+                                'trace' => $e->getTraceAsString(),
                             ]);
                         }
                     }
@@ -5088,8 +5124,8 @@ class TrendSsoApiAuth
                             ]);
                             
                             try {
-                                // Получаем список квартир блока
-                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000]);
+                                // Получаем список квартир блока с большим лимитом
+                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0]);
                                 
                                 // Ищем нужную квартиру в списке
                                 if (isset($apartmentsData['data'])) {
@@ -5097,22 +5133,35 @@ class TrendSsoApiAuth
                                     if (is_array($apartments)) {
                                         // Проверяем разные структуры данных
                                         $flatList = [];
-                                        if (isset($apartments['grouped_data'])) {
-                                            foreach ($apartments['grouped_data'] as $group) {
-                                                if (isset($group['apartments']) && is_array($group['apartments'])) {
-                                                    $flatList = array_merge($flatList, $group['apartments']);
+                                        
+                                        // Если есть grouped_data, извлекаем квартиры из групп
+                                        if (isset($apartmentsData['grouped_data']) && is_array($apartmentsData['grouped_data'])) {
+                                            foreach ($apartmentsData['grouped_data'] as $key => $groups) {
+                                                if (is_array($groups)) {
+                                                    foreach ($groups as $group) {
+                                                        if (isset($group['apartments']) && is_array($group['apartments'])) {
+                                                            $flatList = array_merge($flatList, $group['apartments']);
+                                                        } elseif (isset($group['_id']) || isset($group['id'])) {
+                                                            // Если элемент сам является квартирой
+                                                            $flatList[] = $group;
+                                                        }
+                                                    }
                                                 }
                                             }
-                                        } else {
+                                        }
+                                        
+                                        // Если grouped_data пуст, используем прямой массив
+                                        if (empty($flatList)) {
                                             $flatList = is_array($apartments) ? $apartments : [];
                                         }
                                         
-                                        // Ищем квартиру по ID
+                                        // Ищем квартиру по ID (проверяем и _id и id)
                                         foreach ($flatList as $apt) {
                                             $aptId = $apt['_id'] ?? $apt['id'] ?? null;
-                                            if ($aptId === $apartmentId) {
+                                            if ($aptId === $apartmentId || (string)$aptId === (string)$apartmentId) {
                                                 Log::info('Квартира найдена в списке блока (после Fallback 2 500)', [
                                                     'apartment_id' => $apartmentId,
+                                                    'found_id' => $aptId,
                                                 ]);
                                                 return [
                                                     'success' => true,
@@ -5122,18 +5171,112 @@ class TrendSsoApiAuth
                                                 ];
                                             }
                                         }
+                                        
+                                        Log::warning('Квартира не найдена в списке блока после Fallback 2 500', [
+                                            'apartment_id' => $apartmentId,
+                                            'searched_in_count' => count($flatList),
+                                        ]);
                                     }
                                 }
                             } catch (\Exception $e) {
-                                Log::warning('Не удалось получить квартиру из списка блока после Fallback 2 500', [
+                                Log::error('Не удалось получить квартиру из списка блока после Fallback 2 500', [
+                                    'apartment_id' => $apartmentId,
+                                    'block_id' => $blockId,
+                                    'error' => $e->getMessage(),
+                                    'trace' => substr($e->getTraceAsString(), 0, 500),
+                                ]);
+                            }
+                        }
+                        
+                        // Если Fallback 2 вернул ошибку и у нас есть blockId, пробуем еще раз получить из списка
+                        if ($statusCode !== 200 && $blockId) {
+                            // Если квартира не найдена в Fallback 1, пробуем еще раз с пагинацией
+                            Log::info('Fallback 2 не удался, пробуем получить из списка блока с пагинацией', [
+                                'apartment_id' => $apartmentId,
+                                'block_id' => $blockId,
+                                'status_code' => $statusCode,
+                            ]);
+                            
+                            try {
+                                // Пробуем получить с разными offset
+                                for ($offset = 0; $offset < 10000; $offset += 1000) {
+                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset]);
+                                    
+                                    if (isset($apartmentsData['data']) && is_array($apartmentsData['data'])) {
+                                        $flatList = $apartmentsData['data'];
+                                        
+                                        // Если есть grouped_data, извлекаем квартиры
+                                        if (isset($apartmentsData['grouped_data']) && is_array($apartmentsData['grouped_data'])) {
+                                            $flatList = [];
+                                            foreach ($apartmentsData['grouped_data'] as $key => $groups) {
+                                                if (is_array($groups)) {
+                                                    foreach ($groups as $group) {
+                                                        if (isset($group['apartments']) && is_array($group['apartments'])) {
+                                                            $flatList = array_merge($flatList, $group['apartments']);
+                                                        } elseif (isset($group['_id']) || isset($group['id'])) {
+                                                            $flatList[] = $group;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        foreach ($flatList as $apt) {
+                                            $aptId = $apt['_id'] ?? $apt['id'] ?? null;
+                                            if ($aptId === $apartmentId || (string)$aptId === (string)$apartmentId) {
+                                                Log::info('Квартира найдена в списке блока с пагинацией', [
+                                                    'apartment_id' => $apartmentId,
+                                                    'offset' => $offset,
+                                                ]);
+                                                return [
+                                                    'success' => true,
+                                                    'data' => $apt,
+                                                    'raw_response' => $apt,
+                                                    'source' => 'block_apartments_list_paginated',
+                                                ];
+                                            }
+                                        }
+                                        
+                                        // Если получили меньше запрошенного, значит это последняя страница
+                                        if (count($flatList) < 1000) {
+                                            break;
+                                        }
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                Log::warning('Ошибка при поиске квартиры с пагинацией', [
                                     'apartment_id' => $apartmentId,
                                     'error' => $e->getMessage(),
                                 ]);
                             }
                         }
+                        
+                        // Если все fallback не сработали, выбрасываем исключение
+                        if ($statusCode !== 200) {
+                            $errorMessage = "API вернул статус {$statusCode}";
+                            if (isset($body) && strlen($body) > 0) {
+                                // Пытаемся извлечь информацию об ошибке из JSON
+                                $errorData = json_decode($body, true);
+                                if (isset($errorData['errors']['codeName'])) {
+                                    $errorMessage .= ': ' . $errorData['errors']['codeName'];
+                                } else {
+                                    $errorMessage .= ': ' . substr($body, 0, 200);
+                                }
+                            }
+                            Log::error('Все fallback не сработали для apartment detail', [
+                                'apartment_id' => $apartmentId,
+                                'block_id' => $blockId,
+                                'status_code' => $statusCode,
+                                'error_message' => $errorMessage,
+                            ]);
+                            throw new \Exception($errorMessage);
+                        }
                     } catch (\Exception $e) {
                         Log::error('Ошибка при fallback запросе', [
                             'apartment_id' => $apartmentId,
+                            'block_id' => $blockId,
                             'error' => $e->getMessage(),
                         ]);
                         throw $e;
@@ -5141,7 +5284,7 @@ class TrendSsoApiAuth
                 }
                 
                 // Если fallback не выполнен и статус не 200, выбрасываем исключение
-                if (!$useFallback && $statusCode !== 200) {
+                if (!$useFallback && isset($statusCode) && $statusCode !== 200) {
                     // Если fallback 2 вернул 500 и у нас есть blockId, пробуем получить из списка блока
                     if ($statusCode === 500 && $blockId) {
                         Log::info('Fallback 2 вернул 500, пробуем получить из списка блока', [
