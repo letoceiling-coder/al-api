@@ -4994,8 +4994,8 @@ class TrendSsoApiAuth
                                 'block_id' => $blockId,
                             ]);
                             
-                            // Получаем список квартир блока с большим лимитом
-                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0]);
+                            // Получаем список квартир блока с большим лимитом, включая квартиры "по запросу"
+                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0, 'onrequest' => true]);
                             
                             Log::info('Fallback 1 - получены данные списка квартир', [
                                 'apartment_id' => $apartmentId,
@@ -5137,8 +5137,8 @@ class TrendSsoApiAuth
                             ]);
                             
                             try {
-                                // Получаем список квартир блока с большим лимитом
-                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0]);
+                                // Получаем список квартир блока с большим лимитом, включая квартиры "по запросу"
+                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0, 'onrequest' => true]);
                                 
                                 // Ищем нужную квартиру в списке
                                 if (isset($apartmentsData['data'])) {
@@ -5213,7 +5213,7 @@ class TrendSsoApiAuth
                             try {
                                 // Пробуем получить с разными offset
                                 for ($offset = 0; $offset < 10000; $offset += 1000) {
-                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset]);
+                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset, 'onrequest' => true]);
                                     
                                     if (isset($apartmentsData['data']) && is_array($apartmentsData['data'])) {
                                         $flatList = $apartmentsData['data'];
@@ -5337,7 +5337,7 @@ class TrendSsoApiAuth
                                             
                                             // Если не найдено, пробуем с пагинацией
                                             for ($offset = 1000; $offset < 10000; $offset += 1000) {
-                                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset]);
+                                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset, 'onrequest' => true]);
                                                 
                                                 if (isset($apartmentsData['data']) && is_array($apartmentsData['data'])) {
                                                     $flatList = $apartmentsData['data'];
@@ -5419,8 +5419,8 @@ class TrendSsoApiAuth
                         ]);
                         
                         try {
-                            // Получаем список квартир блока
-                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000]);
+                            // Получаем список квартир блока, включая квартиры "по запросу"
+                            $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'onrequest' => true]);
                             
                             // Ищем нужную квартиру в списке
                             if (isset($apartmentsData['data'])) {
@@ -5541,7 +5541,7 @@ class TrendSsoApiAuth
                                                 for ($offset = 0; $offset < 10000; $offset += 1000) {
                                                     if ($offset === 0) continue; // Уже проверили
                                                     
-                                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset]);
+                                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset, 'onrequest' => true]);
                                                     
                                                     if (isset($apartmentsData['data']) && is_array($apartmentsData['data'])) {
                                                         $flatList = $apartmentsData['data'];
