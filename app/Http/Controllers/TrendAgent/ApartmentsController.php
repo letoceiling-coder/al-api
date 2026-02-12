@@ -505,7 +505,17 @@ class ApartmentsController
             ]);
             
             // Получаем детальную информацию о квартире с параметрами
-            $apartmentData = $apiAuth->getApartmentDetail($apartmentId, $id, $params);
+            try {
+                $apartmentData = $apiAuth->getApartmentDetail($apartmentId, $id, $params);
+            } catch (\Exception $e) {
+                Log::error('ApartmentsController::flatDetail - ошибка getApartmentDetail', [
+                    'apartment_id' => $apartmentId,
+                    'block_id' => $id,
+                    'error' => $e->getMessage(),
+                    'trace' => substr($e->getTraceAsString(), 0, 1000),
+                ]);
+                throw $e;
+            }
 
             // Также получаем данные блока для контекста
             $blockData = null;
@@ -591,10 +601,13 @@ class ApartmentsController
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Ошибка получения детальной информации о квартире', [
+            Log::error('ApartmentsController::flatDetail - общая ошибка', [
                 'block_id' => $id,
                 'apartment_id' => $apartmentId,
                 'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => substr($e->getTraceAsString(), 0, 2000),
             ]);
 
             return response()->json([
