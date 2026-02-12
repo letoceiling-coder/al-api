@@ -54,10 +54,45 @@ const ObjectsMap = () => {
         room: filters.room,
       }
 
+      // Для карты используем блоки (комплексы) с координатами через objects/list
+      try {
+        const blocksResponse = await trendAgentAPI.getObjectsList('blocks', {
+          show_type: 'map',
+          phone: filters.phone,
+          password: filters.password,
+          city: filters.city,
+        })
+        
+        if (blocksResponse.success) {
+          const blocksList = blocksResponse.data?.objects || blocksResponse.data?.data || []
+          console.log('Загружено блоков для карты:', blocksList.length)
+          
+          // Логируем структуру первого блока для отладки
+          if (blocksList.length > 0) {
+            console.log('Пример блока:', blocksList[0])
+            const firstCoord = getCoordinates(blocksList[0])
+            console.log('Координаты первого блока:', firstCoord)
+          }
+          
+          setObjects(blocksList)
+          return
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки блоков для карты:', error)
+      }
+      
+      // Fallback: используем квартиры (но координат может не быть)
       const response = await trendAgentAPI.getApartments(params)
-
       if (response.success) {
         const objectsList = response.data?.objects || response.data?.data || []
+        console.log('Загружено объектов (fallback):', objectsList.length)
+        
+        if (objectsList.length > 0) {
+          console.log('Пример объекта:', objectsList[0])
+          const firstCoord = getCoordinates(objectsList[0])
+          console.log('Координаты первого объекта:', firstCoord)
+        }
+        
         setObjects(objectsList)
       }
     } catch (error) {
@@ -155,7 +190,15 @@ const ObjectsMap = () => {
   }, [objects])
 
   const initMap = () => {
-    if (!mapContainerRef.current || !window.ymaps) return
+    if (!mapContainerRef.current || !window.ymaps) {
+      console.log('initMap: mapContainerRef или ymaps отсутствует', {
+        hasContainer: !!mapContainerRef.current,
+        hasYmaps: !!window.ymaps
+      })
+      return
+    }
+
+    console.log('Инициализация карты, объектов:', objects.length)
 
     // Уничтожаем предыдущую карту, если есть
     if (mapInstanceRef.current) {
@@ -163,16 +206,84 @@ const ObjectsMap = () => {
       markersRef.current = []
     }
 
-    // Получаем координаты всех объектов
-    const coords = objects
-      .map(obj => {
+    // Если объекты - это уже блоки (комплексы), используем их напрямую
+    // Если объекты - это квартиры, группируем по блокам
+    let blocksWithCoords = []
+    
+    if (objects.length > 0 && (objects[0]._id || objects[0].id) && !objects[0].block_id) {
+      // Это блоки (комплексы), используем их напрямую
+      blocksWithCoords = objects
+        .map(obj => {
+          const coord = getCoordinates(obj)
+          if (!coord) return null
+          
+          return {
+            blockId: obj._id || obj.id,
+            blockGuid: obj.guid,
+            blockName: obj.name || obj.title || 'Без названия',
+            coord,
+            apartmentsCount: obj.places_count || obj.apartments_count || 0
+          }
+        })
+        .filter(Boolean)
+    } else {
+      // Это квартиры, группируем по блокам
+      const blocksMap = new Map()
+      
+      objects.forEach(obj => {
+        const blockId = obj.block_id || obj._id || obj.id
+        if (!blockId) return
+        
+        if (!blocksMap.has(blockId)) {
+          blocksMap.set(blockId, {
+            blockId,
+            blockGuid: obj.guid || obj.block_guid,
+            blockName: obj.block_name || obj.name || obj.title || 'Без названия',
+            apartments: [],
+            coord: null
+          })
+        }
+        
+        blocksMap.get(blockId).apartments.push(obj)
+        
+        // Если координаты есть в объекте, сохраняем их
         const coord = getCoordinates(obj)
-        return coord ? { ...coord, obj } : null
+        if (coord && !blocksMap.get(blockId).coord) {
+          blocksMap.get(blockId).coord = coord
+        }
       })
-      .filter(Boolean)
 
-    if (coords.length === 0) {
+      // Получаем координаты для каждого блока
+      blocksWithCoords = Array.from(blocksMap.values())
+        .map(block => {
+          // Если координаты не найдены в квартирах, проверяем другие поля блока
+          if (!block.coord) {
+            // Проверяем geometry (может быть в блоке)
+            const firstApt = block.apartments[0]
+            if (firstApt?.geometry) {
+              if (Array.isArray(firstApt.geometry) && firstApt.geometry.length >= 2) {
+                block.coord = { lat: firstApt.geometry[0], lon: firstApt.geometry[1] }
+              } else if (firstApt.geometry.lat && firstApt.geometry.lon) {
+                block.coord = { lat: firstApt.geometry.lat, lon: firstApt.geometry.lon }
+              }
+            }
+          }
+          return {
+            ...block,
+            apartmentsCount: block.apartments.length
+          }
+        })
+        .filter(block => block.coord !== null)
+    }
+
+    console.log('Блоков с координатами:', blocksWithCoords.length)
+    if (blocksWithCoords.length === 0) {
+      console.log('Нет координат. Пример объекта:', objects[0])
+    }
+
+    if (blocksWithCoords.length === 0) {
       // Если нет координат, показываем карту по умолчанию
+      console.log('Показываем карту по умолчанию (нет координат)')
       mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
         center: [59.939095, 30.315868], // Санкт-Петербург
         zoom: 10,
@@ -181,8 +292,10 @@ const ObjectsMap = () => {
     }
 
     // Вычисляем центр карты (среднее арифметическое всех координат)
-    const avgLat = coords.reduce((sum, c) => sum + c.lat, 0) / coords.length
-    const avgLon = coords.reduce((sum, c) => sum + c.lon, 0) / coords.length
+    const avgLat = blocksWithCoords.reduce((sum, b) => sum + b.coord.lat, 0) / blocksWithCoords.length
+    const avgLon = blocksWithCoords.reduce((sum, b) => sum + b.coord.lon, 0) / blocksWithCoords.length
+
+    console.log('Центр карты:', avgLat, avgLon)
 
     // Создаем карту
     mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
@@ -190,17 +303,16 @@ const ObjectsMap = () => {
       zoom: 11,
     })
 
-    // Добавляем метки для всех объектов
-    coords.forEach(({ lat, lon, obj }) => {
-      const blockId = obj.block_id || obj._id || obj.id
-      const blockGuid = obj.guid
-      const name = obj.block_name || obj.name || obj.title || 'Без названия'
+    // Добавляем метки для всех блоков
+    blocksWithCoords.forEach((block) => {
+      const { coord, blockId, blockGuid, blockName } = block
+      const apartmentsCount = block.apartmentsCount || block.apartments?.length || 0
 
       const marker = new window.ymaps.Placemark(
-        [lat, lon],
+        [coord.lat, coord.lon],
         {
-          balloonContent: `<div><strong>${name}</strong><br/><a href="/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}">Перейти к объекту</a></div>`,
-          hintContent: name,
+          balloonContent: `<div><strong>${blockName}</strong>${apartmentsCount > 0 ? `<br/>Квартир: ${apartmentsCount}` : ''}<br/><a href="/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}">Перейти к объекту</a></div>`,
+          hintContent: blockName,
         },
         {
           preset: 'islands#blueCircleDotIcon',
@@ -210,6 +322,8 @@ const ObjectsMap = () => {
       mapInstanceRef.current.geoObjects.add(marker)
       markersRef.current.push(marker)
     })
+
+    console.log('Добавлено меток:', markersRef.current.length)
 
     // Автоматически подгоняем границы карты под все метки
     if (coords.length > 1) {
