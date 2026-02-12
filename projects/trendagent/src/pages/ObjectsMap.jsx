@@ -89,27 +89,24 @@ const ObjectsMap = () => {
     return null
   }
 
-  // Формируем URL для Яндекс.Карт
-  const getMapUrl = () => {
-    const coords = objects
-      .map(obj => {
-        const coord = getCoordinates(obj)
-        return coord ? `${coord.lat},${coord.lon}` : null
-      })
-      .filter(Boolean)
-      .slice(0, 100) // Ограничиваем количество меток
+  // API ключ Яндекс.Карт
+  const YANDEX_MAPS_API_KEY = 'a79c56f4-efea-471e-bee5-fe9226cd53fd'
 
-    if (coords.length === 0) {
-      return 'https://yandex.ru/maps/?pt=30.315868,59.939095&z=10'
+  // Формируем URL для виджета Яндекс.Карт с API ключом
+  const getMapUrl = () => {
+    if (objects.length === 0) {
+      // Центр по умолчанию - Санкт-Петербург
+      return `https://yandex.ru/map-widget/v1/?pt=30.315868,59.939095&z=10&l=map&apikey=${YANDEX_MAPS_API_KEY}`
     }
 
     // Используем первый объект как центр карты
     const firstCoord = getCoordinates(objects[0])
     if (firstCoord) {
-      return `https://yandex.ru/maps/?pt=${firstCoord.lon},${firstCoord.lat}&z=11`
+      return `https://yandex.ru/map-widget/v1/?pt=${firstCoord.lon},${firstCoord.lat}&z=11&l=map&apikey=${YANDEX_MAPS_API_KEY}`
     }
 
-    return 'https://yandex.ru/maps/?pt=30.315868,59.939095&z=10'
+    // Центр по умолчанию - Санкт-Петербург
+    return `https://yandex.ru/map-widget/v1/?pt=30.315868,59.939095&z=10&l=map&apikey=${YANDEX_MAPS_API_KEY}`
   }
 
   if (!authData || !authData.authenticated) {
@@ -154,6 +151,8 @@ const ObjectsMap = () => {
               frameBorder="0"
               allowFullScreen
               className="map-iframe"
+              title="Карта объектов"
+              loading="lazy"
             />
           </div>
 
