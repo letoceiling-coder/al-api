@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
 import { getImageUrl } from '../utils/imageUtils'
@@ -25,6 +25,12 @@ const ObjectsTable = () => {
   })
   const [sortBy, setSortBy] = useState('price')
   const [sortOrder, setSortOrder] = useState('asc')
+  
+  // Состояние для drag scroll
+  const tableWrapperRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   useEffect(() => {
     authenticate()
@@ -113,6 +119,31 @@ const ObjectsTable = () => {
     setPagination(prev => ({ ...prev, page: newPage, offset: newOffset }))
   }
 
+  // Обработчики для drag scroll
+  const handleMouseDown = (e) => {
+    if (!tableWrapperRef.current) return
+    setIsDragging(true)
+    setStartX(e.pageX - tableWrapperRef.current.offsetLeft)
+    setScrollLeft(tableWrapperRef.current.scrollLeft)
+    e.preventDefault()
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !tableWrapperRef.current) return
+    e.preventDefault()
+    const x = e.pageX - tableWrapperRef.current.offsetLeft
+    const walk = (x - startX) * 2 // Скорость прокрутки
+    tableWrapperRef.current.scrollLeft = scrollLeft - walk
+  }
+
   if (!authData || !authData.authenticated) {
     return (
       <div className="objects-table-container">
@@ -168,7 +199,15 @@ const ObjectsTable = () => {
             Найдено квартир: {totalCount}
           </div>
 
-          <div className="apartments-table-wrapper">
+          <div 
+            className="apartments-table-wrapper"
+            ref={tableWrapperRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
             <table className="apartments-table">
               <thead>
                 <tr>
@@ -259,23 +298,58 @@ const ObjectsTable = () => {
                   // Срок сдачи
                   let deadline = '—'
                   if (apt.deadline) {
+                    let deadlineDate = null
+                    
                     if (typeof apt.deadline === 'string') {
-                      // Если это ISO строка, форматируем дату
+                      // Если это ISO строка, парсим дату
                       try {
-                        const date = new Date(apt.deadline)
-                        if (!isNaN(date.getTime())) {
-                          deadline = date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'short', day: 'numeric' })
-                        } else {
-                          deadline = apt.deadline
+                        deadlineDate = new Date(apt.deadline)
+                        if (isNaN(deadlineDate.getTime())) {
+                          deadlineDate = null
                         }
                       } catch {
-                        deadline = apt.deadline
+                        deadlineDate = null
                       }
                     } else if (Array.isArray(apt.deadline) && apt.deadline.length > 0) {
                       const deadlineItem = apt.deadline[0]
-                      deadline = deadlineItem.deadline || deadlineItem.value || '—'
+                      const deadlineStr = deadlineItem.deadline || deadlineItem.value
+                      if (deadlineStr) {
+                        try {
+                          deadlineDate = new Date(deadlineStr)
+                          if (isNaN(deadlineDate.getTime())) {
+                            deadlineDate = null
+                          }
+                        } catch {
+                          deadlineDate = null
+                        }
+                      }
                     } else if (typeof apt.deadline === 'object' && apt.deadline !== null) {
-                      deadline = apt.deadline.deadline || apt.deadline.value || '—'
+                      const deadlineStr = apt.deadline.deadline || apt.deadline.value
+                      if (deadlineStr) {
+                        try {
+                          deadlineDate = new Date(deadlineStr)
+                          if (isNaN(deadlineDate.getTime())) {
+                            deadlineDate = null
+                          }
+                        } catch {
+                          deadlineDate = null
+                        }
+                      }
+                    }
+                    
+                    // Проверяем, прошла ли дата
+                    if (deadlineDate) {
+                      const now = new Date()
+                      now.setHours(0, 0, 0, 0)
+                      deadlineDate.setHours(0, 0, 0, 0)
+                      
+                      if (deadlineDate < now) {
+                        deadline = 'Сдан'
+                      } else {
+                        deadline = deadlineDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'short', day: 'numeric' })
+                      }
+                    } else if (typeof apt.deadline === 'string') {
+                      deadline = apt.deadline
                     }
                   }
                   

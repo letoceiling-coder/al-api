@@ -89,14 +89,40 @@
   background: #fff;
   border-radius: 8px;
   overflow-x: auto;
+  overflow-y: visible;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.apartments-table-wrapper:active {
+  cursor: grabbing;
+}
+
+.apartments-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.apartments-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.apartments-table-wrapper::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.apartments-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .apartments-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
-  min-width: 1200px;
+  min-width: max-content;
 }
 
 .apartments-table thead {
@@ -113,12 +139,14 @@
   color: #1a1a1a;
   border-bottom: 2px solid #e5e5e5;
   white-space: nowrap;
+  min-width: 150px;
 }
 
 .apartments-table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #f3f4f6;
   color: #374151;
+  min-width: 150px;
 }
 
 .apartments-table tbody tr:hover {
@@ -127,6 +155,7 @@
 
 .col-image {
   width: 80px;
+  min-width: 80px;
 }
 
 .plan-thumbnail {
@@ -151,6 +180,7 @@
 
 .col-object {
   width: 200px;
+  min-width: 150px;
 }
 
 .object-link {
@@ -167,28 +197,28 @@
 .col-section,
 .col-floor,
 .col-number,
-.col-rooms {
-  width: 100px;
+.col-rooms,
+.col-area,
+.col-kitchen,
+.col-district,
+.col-subway,
+.col-builder,
+.col-deadline,
+.col-type,
+.col-finishing,
+.col-reward {
+  min-width: 150px;
   white-space: nowrap;
 }
 
-.col-area,
-.col-kitchen {
-  width: 90px;
-}
-
-.col-finishing {
-  width: 120px;
-}
-
 .col-price {
-  width: 150px;
+  min-width: 150px;
   font-weight: 500;
   color: #059669;
 }
 
 .col-status {
-  width: 120px;
+  min-width: 150px;
 }
 
 .status-badge {
@@ -223,6 +253,7 @@
 
 .col-actions {
   width: 80px;
+  min-width: 80px;
   text-align: center;
 }
 
