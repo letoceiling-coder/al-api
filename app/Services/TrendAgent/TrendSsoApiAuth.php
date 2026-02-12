@@ -5116,8 +5116,21 @@ class TrendSsoApiAuth
                             }
                         }
                         
-                        // Если Fallback 2 вернул 500, пробуем получить из списка блока
-                        if ($statusCode === 500 && $blockId) {
+                        // Проверяем, является ли ошибка Location17124
+                        $isLocation17124 = false;
+                        if ($statusCode === 500 && strlen($body) > 0) {
+                            $errorData = json_decode($body, true);
+                            if (isset($errorData['errors']['codeName']) && $errorData['errors']['codeName'] === 'Location17124') {
+                                $isLocation17124 = true;
+                                Log::info('Fallback 2 вернул Location17124', [
+                                    'apartment_id' => $apartmentId,
+                                    'block_id' => $blockId,
+                                ]);
+                            }
+                        }
+                        
+                        // Если Fallback 2 вернул 500 (особенно Location17124), пробуем получить из списка блока
+                        if (($statusCode === 500 || $isLocation17124) && $blockId) {
                             Log::info('Fallback 2 вернул 500, пробуем получить из списка блока', [
                                 'apartment_id' => $apartmentId,
                                 'block_id' => $blockId,
@@ -5256,20 +5269,133 @@ class TrendSsoApiAuth
                         // Если все fallback не сработали, выбрасываем исключение
                         if ($statusCode !== 200) {
                             $errorMessage = "API вернул статус {$statusCode}";
+                            $errorCodeName = null;
+                            
                             if (isset($body) && strlen($body) > 0) {
                                 // Пытаемся извлечь информацию об ошибке из JSON
                                 $errorData = json_decode($body, true);
                                 if (isset($errorData['errors']['codeName'])) {
-                                    $errorMessage .= ': ' . $errorData['errors']['codeName'];
+                                    $errorCodeName = $errorData['errors']['codeName'];
+                                    $errorMessage .= ': ' . $errorCodeName;
                                 } else {
                                     $errorMessage .= ': ' . substr($body, 0, 200);
                                 }
                             }
+                            
+                            // Если это Location17124 и есть blockId, пробуем еще раз получить из списка
+                            if ($errorCodeName === 'Location17124' && $blockId) {
+                                Log::info('Обнаружена Location17124 в финальной обработке, пробуем получить из списка блока', [
+                                    'apartment_id' => $apartmentId,
+                                    'block_id' => $blockId,
+                                ]);
+                                
+                                try {
+                                    // Получаем список квартир блока с большим лимитом
+                                    $apartmentsData = $this->getBlockApartments($blockId, ['count' => 5000, 'offset' => 0]);
+                                    
+                                    if (isset($apartmentsData['data'])) {
+                                        $apartments = $apartmentsData['data'];
+                                        if (is_array($apartments)) {
+                                            $flatList = [];
+                                            
+                                            // Если есть grouped_data, извлекаем квартиры
+                                            if (isset($apartmentsData['grouped_data']) && is_array($apartmentsData['grouped_data'])) {
+                                                foreach ($apartmentsData['grouped_data'] as $key => $groups) {
+                                                    if (is_array($groups)) {
+                                                        foreach ($groups as $group) {
+                                                            if (isset($group['apartments']) && is_array($group['apartments'])) {
+                                                                $flatList = array_merge($flatList, $group['apartments']);
+                                                            } elseif (isset($group['_id']) || isset($group['id'])) {
+                                                                $flatList[] = $group;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Если grouped_data пуст, используем прямой массив
+                                            if (empty($flatList)) {
+                                                $flatList = is_array($apartments) ? $apartments : [];
+                                            }
+                                            
+                                            // Ищем квартиру по ID
+                                            foreach ($flatList as $apt) {
+                                                $aptId = $apt['_id'] ?? $apt['id'] ?? null;
+                                                if ($aptId === $apartmentId || (string)$aptId === (string)$apartmentId) {
+                                                    Log::info('Квартира найдена в списке блока после Location17124 (финальная обработка)', [
+                                                        'apartment_id' => $apartmentId,
+                                                        'found_id' => $aptId,
+                                                    ]);
+                                                    return [
+                                                        'success' => true,
+                                                        'data' => $apt,
+                                                        'raw_response' => $apt,
+                                                        'source' => 'block_apartments_list_location17124_final',
+                                                    ];
+                                                }
+                                            }
+                                            
+                                            // Если не найдено, пробуем с пагинацией
+                                            for ($offset = 1000; $offset < 10000; $offset += 1000) {
+                                                $apartmentsData = $this->getBlockApartments($blockId, ['count' => 1000, 'offset' => $offset]);
+                                                
+                                                if (isset($apartmentsData['data']) && is_array($apartmentsData['data'])) {
+                                                    $flatList = $apartmentsData['data'];
+                                                    
+                                                    if (isset($apartmentsData['grouped_data']) && is_array($apartmentsData['grouped_data'])) {
+                                                        $flatList = [];
+                                                        foreach ($apartmentsData['grouped_data'] as $key => $groups) {
+                                                            if (is_array($groups)) {
+                                                                foreach ($groups as $group) {
+                                                                    if (isset($group['apartments']) && is_array($group['apartments'])) {
+                                                                        $flatList = array_merge($flatList, $group['apartments']);
+                                                                    } elseif (isset($group['_id']) || isset($group['id'])) {
+                                                                        $flatList[] = $group;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    
+                                                    foreach ($flatList as $apt) {
+                                                        $aptId = $apt['_id'] ?? $apt['id'] ?? null;
+                                                        if ($aptId === $apartmentId || (string)$aptId === (string)$apartmentId) {
+                                                            Log::info('Квартира найдена в списке блока с пагинацией после Location17124 (финальная обработка)', [
+                                                                'apartment_id' => $apartmentId,
+                                                                'offset' => $offset,
+                                                            ]);
+                                                            return [
+                                                                'success' => true,
+                                                                'data' => $apt,
+                                                                'raw_response' => $apt,
+                                                                'source' => 'block_apartments_list_paginated_location17124_final',
+                                                            ];
+                                                        }
+                                                    }
+                                                    
+                                                    if (count($flatList) < 1000) {
+                                                        break;
+                                                    }
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    Log::warning('Не удалось получить квартиру из списка блока после Location17124 (финальная обработка)', [
+                                        'apartment_id' => $apartmentId,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
+                            }
+                            
                             Log::error('Все fallback не сработали для apartment detail', [
                                 'apartment_id' => $apartmentId,
                                 'block_id' => $blockId,
                                 'status_code' => $statusCode,
                                 'error_message' => $errorMessage,
+                                'error_code_name' => $errorCodeName,
                             ]);
                             throw new \Exception($errorMessage);
                         }
