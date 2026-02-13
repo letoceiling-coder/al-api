@@ -1,5 +1,4 @@
 import './HousesPlans.css'
-import { Link } from 'react-router-dom'
 import { getImageUrl } from '../../utils/imageUtils'
 
 const normRooms = (r) => {
@@ -160,12 +159,12 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
                   ) : null}
                   {blockId && (
                     <div className="plan-card-actions">
-                      <Link
-                        to={`/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
+                      <a
+                        href={`/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
                         className="plan-link"
                       >
                         Перейти к объекту
-                      </Link>
+                      </a>
                     </div>
                   )}
                 </div>
