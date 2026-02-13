@@ -10,6 +10,25 @@ const normRooms = (r) => {
   return Number.isNaN(n) ? null : n
 }
 
+const getStatusText = (apt) => {
+  if (typeof apt.status === 'string') return apt.status
+  if (apt.status?.name) return apt.status.name
+  if (apt.status_name) return apt.status_name
+  if (apt.booking_status) return apt.booking_status
+  const code = apt.status
+  const codeMap = { 4: 'Продано', 23: 'Под запрос', 22: 'Забронировано', 1: 'Свободная', 2: 'Свободная' }
+  return codeMap[code] || 'Свободная'
+}
+
+const getFinishingText = (apt) => {
+  return apt.finishing_name || (typeof apt.finishing === 'string' ? apt.finishing : apt.finishing?.name) || null
+}
+
+const formatPrice = (price) => {
+  if (!price || price === 0) return 'По запросу'
+  return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0 }).format(price)
+}
+
 const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, blockGuid }) => {
   let plans = []
 
@@ -17,6 +36,8 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
   if (apartments.length > 0) {
     plans = apartments.map(apt => {
       const roomsNum = normRooms(apt.rooms || apt.room)
+      const section = apt.section_name || apt.section || (typeof apt.section === 'object' ? apt.section?.name : null)
+      const floor = apt.floor ?? apt.floor_number ?? (typeof apt.floor === 'object' ? apt.floor?.value : null)
       const imageSrc = apt.plan || apt.plan_image || apt.image?.url || (apt.images && apt.images[0]) || apt.image
       return {
         id: apt.id || apt._id,
@@ -27,6 +48,11 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
         area_to: apt.privArea ?? apt.area ?? apt.area_total,
         rooms: roomsNum,
         room_count: roomsNum,
+        price: apt.base_price ?? apt.price ?? null,
+        section,
+        floor,
+        finishing: getFinishingText(apt),
+        status: getStatusText(apt),
         image: imageSrc,
         plan: apt.plan || apt.plan_image,
         plan_image: apt.plan_image || apt.plan,
@@ -82,7 +108,11 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
             const planName = plan.plan_name || plan.name || 'План'
             const area = plan.area ?? plan.area_from ?? plan.area_to ?? null
             const roomsNum = plan.rooms != null && plan.rooms !== '' ? normRooms(plan.rooms) : (plan.room_count != null ? normRooms(plan.room_count) : null)
-            const roomsLabel = roomsNum != null ? (Number(roomsNum) === 1 ? 'Студия' : `${roomsNum}-комн.`) : null
+            const roomTypeStr = roomsNum != null ? (Number(roomsNum) === 1 ? 'Студия' : `${roomsNum}-к.кв`) : null
+            const sizeStr = [roomTypeStr, area != null && area !== '' ? (typeof area === 'object' && area.from != null && area.to != null ? `${area.from} - ${area.to} м²` : `${area} м²`) : null].filter(Boolean).join(', ')
+            const floorSectionStr = [plan.section ? `Секция ${plan.section}` : null, plan.floor != null ? `этаж ${plan.floor}` : null].filter(Boolean).join(', ')
+            const statusLower = plan.status ? String(plan.status).toLowerCase() : ''
+            const statusClass = statusLower.includes('продан') ? 'plan-card-status_sold' : statusLower.includes('под запрос') ? 'plan-card-status_on-request' : 'plan-card-status_available'
 
             return (
               <div key={plan.id ?? plan.apartment_id ?? index} className="plan-card">
@@ -97,28 +127,41 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
                 )}
                 <div className="plan-card-content">
                   {planName && <h3 className="plan-card-title">{planName}</h3>}
-                  <div className="plan-card-info">
-                    {area != null && area !== '' && (
-                      <div className="plan-info-item">
-                        <span className="plan-info-label">Площадь:</span>
-                        <span className="plan-info-value">
-                          {typeof area === 'object' && area.from != null && area.to != null
-                            ? `${area.from} - ${area.to} м²`
-                            : `${area} м²`}
-                        </span>
-                      </div>
-                    )}
-                    {roomsLabel && (
-                      <div className="plan-info-item">
-                        <span className="plan-info-label">Комнат:</span>
-                        <span className="plan-info-value">{roomsLabel}</span>
-                      </div>
-                    )}
-                  </div>
+                  {sizeStr && <div className="plan-card-size">{sizeStr}</div>}
+                  {plan.price != null && (
+                    <div className="plan-card-price">{formatPrice(plan.price)}</div>
+                  )}
+                  {floorSectionStr && <div className="plan-card-floor">{floorSectionStr}</div>}
+                  {plan.finishing && <div className="plan-card-finishing">{plan.finishing}</div>}
+                  {plan.status && (
+                    <div className="plan-card-status-holder">
+                      <span className={`plan-card-status ${statusClass}`}>{plan.status}</span>
+                    </div>
+                  )}
+                  {(area != null && area !== '' && !sizeStr) || (roomsNum != null && !sizeStr) ? (
+                    <div className="plan-card-info">
+                      {area != null && area !== '' && (
+                        <div className="plan-info-item">
+                          <span className="plan-info-label">Площадь:</span>
+                          <span className="plan-info-value">
+                            {typeof area === 'object' && area.from != null && area.to != null
+                              ? `${area.from} - ${area.to} м²`
+                              : `${area} м²`}
+                          </span>
+                        </div>
+                      )}
+                      {roomsNum != null && (
+                        <div className="plan-info-item">
+                          <span className="plan-info-label">Комнат:</span>
+                          <span className="plan-info-value">{Number(roomsNum) === 1 ? 'Студия' : `${roomsNum}-комн.`}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
                   {blockId && (
                     <div className="plan-card-actions">
                       <Link
-                        to={`/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
+                        to={`/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
                         className="plan-link"
                       >
                         Перейти к объекту
