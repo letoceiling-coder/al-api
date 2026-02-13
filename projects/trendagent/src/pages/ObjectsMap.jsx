@@ -638,23 +638,45 @@ const ObjectsMap = () => {
       markersRef.current.push(marker)
     })
 
-    // Добавляем все маркеры в кластеризатор
-    clusterer.add(markersCollection)
-    
-    // Добавляем кластеризатор на карту
-    mapInstanceRef.current.geoObjects.add(clusterer)
-
-    // Обработчик клика на кластер
-    clusterer.events.add('click', (e) => {
-      const target = e.get('target')
-      if (target instanceof window.ymaps.ClusterPlacemark) {
-        // При клике на кластер увеличиваем зум
-        const clusterCenter = target.geometry.getCoordinates()
-        mapInstanceRef.current.setCenter(clusterCenter, mapInstanceRef.current.getZoom() + 2, {
-          duration: 300
+    // Добавляем маркеры на карту
+    console.log('Шаг 12: Добавление маркеров на карту')
+    try {
+      if (clusterer) {
+        // Используем кластеризатор
+        clusterer.add(markersCollection)
+        mapInstanceRef.current.geoObjects.add(clusterer)
+        
+        // Обработчик клика на кластер
+        clusterer.events.add('click', (e) => {
+          const target = e.get('target')
+          if (target instanceof window.ymaps.ClusterPlacemark) {
+            // При клике на кластер увеличиваем зум
+            const clusterCenter = target.geometry.getCoordinates()
+            mapInstanceRef.current.setCenter(clusterCenter, mapInstanceRef.current.getZoom() + 2, {
+              duration: 300
+            })
+          }
         })
+        console.log('Шаг 13: Маркеры добавлены через кластеризатор')
+      } else {
+        // Добавляем маркеры напрямую на карту без кластеризации
+        markersCollection.forEach(marker => {
+          mapInstanceRef.current.geoObjects.add(marker)
+        })
+        console.log('Шаг 13: Маркеры добавлены напрямую на карту (без кластеризации)')
       }
-    })
+    } catch (error) {
+      console.error('Ошибка при добавлении маркеров:', error, error.stack)
+      // Пытаемся добавить маркеры напрямую
+      try {
+        markersCollection.forEach(marker => {
+          mapInstanceRef.current.geoObjects.add(marker)
+        })
+        console.log('Маркеры добавлены напрямую после ошибки кластеризации')
+      } catch (e2) {
+        console.error('Критическая ошибка при добавлении маркеров:', e2)
+      }
+    }
 
     console.log('Добавлено меток:', markersRef.current.length)
 
