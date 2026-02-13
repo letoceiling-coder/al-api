@@ -20,6 +20,12 @@ const ObjectsMap = () => {
     room: searchParams.getAll('room').map(r => parseInt(r)).filter(Boolean),
   })
 
+  const YANDEX_MAPS_API_KEY = 'a79c56f4-efea-471e-bee5-fe9226cd53fd'
+  const mapContainerRef = useRef(null)
+  const mapInstanceRef = useRef(null)
+  const markersRef = useRef([])
+  const clustererRef = useRef(null)
+
   useEffect(() => {
     authenticate()
   }, [])
@@ -53,33 +59,19 @@ const ObjectsMap = () => {
         phone: filters.phone,
         password: filters.password,
         city: filters.city,
-        count: 1000, // Загружаем больше для карты
+        count: 1000,
         offset: 0,
         room: filters.room,
       }
 
-      // Для карты используем блоки (комплексы) с координатами
-      // Используем getApartments с параметром show_type=map для получения блоков
       try {
         const blocksResponse = await trendAgentAPI.getApartments({
           ...params,
-          show_type: 'map', // Специальный параметр для карты - возвращает блоки с координатами
+          show_type: 'map',
         })
         
         if (blocksResponse.success) {
-          // Для карты API возвращает блоки с координатами
           const blocksList = blocksResponse.data?.objects || blocksResponse.data?.data || []
-          console.log('Загружено блоков для карты:', blocksList.length)
-          
-          // Логируем структуру первого блока для отладки
-          if (blocksList.length > 0) {
-            console.log('Пример блока:', blocksList[0])
-            const firstCoord = getCoordinates(blocksList[0])
-            console.log('Координаты первого блока:', firstCoord)
-            // Логируем все ключи объекта для отладки
-            console.log('Ключи блока:', Object.keys(blocksList[0]))
-          }
-          
           setObjects(blocksList)
           return
         }
@@ -87,18 +79,9 @@ const ObjectsMap = () => {
         console.error('Ошибка загрузки блоков для карты:', error)
       }
       
-      // Fallback: используем квартиры (но координат может не быть)
       const response = await trendAgentAPI.getApartments(params)
       if (response.success) {
         const objectsList = response.data?.objects || response.data?.data || []
-        console.log('Загружено объектов (fallback):', objectsList.length)
-        
-        if (objectsList.length > 0) {
-          console.log('Пример объекта:', objectsList[0])
-          const firstCoord = getCoordinates(objectsList[0])
-          console.log('Координаты первого объекта:', firstCoord)
-        }
-        
         setObjects(objectsList)
       }
     } catch (error) {
@@ -109,14 +92,11 @@ const ObjectsMap = () => {
     }
   }
 
-  // Получаем минимальную цену из блока
   const getMinPrice = (block) => {
-    // Проверяем apartmentsMinPrices (массив объектов с room и price)
     if (block.apartmentsMinPrices && Array.isArray(block.apartmentsMinPrices) && block.apartmentsMinPrices.length > 0) {
       const prices = block.apartmentsMinPrices
         .map(p => {
           const priceStr = p.price || p.price_value || ''
-          // Убираем пробелы и извлекаем число
           const priceNum = parseFloat(priceStr.replace(/\s/g, ''))
           return isNaN(priceNum) ? null : priceNum
         })
@@ -127,7 +107,6 @@ const ObjectsMap = () => {
       }
     }
     
-    // Проверяем min_price
     if (block.min_price) {
       const priceNum = typeof block.min_price === 'number' ? block.min_price : parseFloat(block.min_price)
       if (!isNaN(priceNum)) {
@@ -135,7 +114,6 @@ const ObjectsMap = () => {
       }
     }
     
-    // Проверяем min_prices (массив)
     if (block.min_prices && Array.isArray(block.min_prices) && block.min_prices.length > 0) {
       const prices = block.min_prices
         .map(p => {
@@ -153,7 +131,6 @@ const ObjectsMap = () => {
     return null
   }
 
-  // Форматируем цену для отображения
   const formatPriceForMarker = (price) => {
     if (!price) return null
     const priceInMillions = price / 1000000
@@ -163,7 +140,6 @@ const ObjectsMap = () => {
     return `${Math.round(price / 1000)} тыс`
   }
 
-  // Загрузка данных блока при клике на маркер
   const loadBlockData = async (blockId) => {
     if (!authData || !authData.authenticated) return
 
@@ -194,13 +170,9 @@ const ObjectsMap = () => {
     }
   }
 
-  // Получаем координаты из объекта
   const getCoordinates = (obj) => {
-    // Проверяем разные возможные структуры координат
-    // Формат [lat, lon] или [lon, lat]
     if (obj.coordinates) {
       if (Array.isArray(obj.coordinates) && obj.coordinates.length >= 2) {
-        // Предполагаем формат [lat, lon] для массива
         return { lat: obj.coordinates[0], lon: obj.coordinates[1] }
       }
       if (obj.coordinates.lat && obj.coordinates.lon) {
@@ -211,10 +183,8 @@ const ObjectsMap = () => {
       }
     }
     
-    // Проверяем geo.coordinates
     if (obj.geo && obj.geo.coordinates) {
       if (Array.isArray(obj.geo.coordinates) && obj.geo.coordinates.length >= 2) {
-        // Формат GeoJSON: [lon, lat]
         return { lat: obj.geo.coordinates[1], lon: obj.geo.coordinates[0] }
       }
       if (obj.geo.coordinates.lat && obj.geo.coordinates.lon) {
@@ -222,10 +192,8 @@ const ObjectsMap = () => {
       }
     }
     
-    // Проверяем location
     if (obj.location) {
       if (obj.location.coordinates && Array.isArray(obj.location.coordinates) && obj.location.coordinates.length >= 2) {
-        // Формат GeoJSON: [lon, lat]
         return { lat: obj.location.coordinates[1], lon: obj.location.coordinates[0] }
       }
       if (obj.location.lat && obj.location.lon) {
@@ -236,7 +204,6 @@ const ObjectsMap = () => {
       }
     }
     
-    // Прямые поля (приоритет для latitude/longitude, так как они есть в блоках)
     if (obj.latitude && obj.longitude) {
       return { lat: parseFloat(obj.latitude), lon: parseFloat(obj.longitude) }
     }
@@ -247,96 +214,35 @@ const ObjectsMap = () => {
     return null
   }
 
-  // API ключ Яндекс.Карт
-  const YANDEX_MAPS_API_KEY = 'a79c56f4-efea-471e-bee5-fe9226cd53fd'
-  const mapContainerRef = useRef(null)
-  const mapInstanceRef = useRef(null)
-  const markersRef = useRef([])
-  const clustererRef = useRef(null)
-
   // Инициализация Яндекс.Карт
   useEffect(() => {
-    // Ждем, пока загрузка завершится и контейнер будет готов
     if (loading || !mapContainerRef.current || objects.length === 0) {
-      console.log('Инициализация карты: ожидание готовности', {
-        loading,
-        hasContainer: !!mapContainerRef.current,
-        objectsCount: objects.length
-      })
       return
     }
 
-    console.log('Начало инициализации карты, объектов:', objects.length, 'контейнер:', mapContainerRef.current)
-
-    // Загружаем скрипт Яндекс.Карт, если еще не загружен
     if (!window.ymaps) {
-      console.log('Загрузка скрипта Яндекс.Карт...')
       const script = document.createElement('script')
       script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_MAPS_API_KEY}&lang=ru_RU`
       script.async = true
       script.onload = () => {
-        console.log('Скрипт Яндекс.Карт загружен')
         if (window.ymaps) {
           window.ymaps.ready(() => {
-            console.log('ymaps.ready вызван')
-            console.log('Проверка перед initMap:', {
-              hasContainer: !!mapContainerRef.current,
-              objectsCount: objects.length,
-              hasInitMap: typeof initMap === 'function'
-            })
-            // Проверяем контейнер еще раз перед инициализацией
             if (mapContainerRef.current && objects.length > 0) {
-              console.log('Вызываем initMap()...')
-              try {
-                initMap()
-                console.log('initMap() вызван успешно')
-              } catch (error) {
-                console.error('Ошибка при вызове initMap():', error, error.stack)
-              }
-            } else {
-              console.error('Контейнер или объекты недоступны после загрузки ymaps', {
-                hasContainer: !!mapContainerRef.current,
-                objectsCount: objects.length
-              })
+              initMap()
             }
           })
-        } else {
-          console.error('window.ymaps не доступен после загрузки скрипта')
         }
-      }
-      script.onerror = () => {
-        console.error('Ошибка загрузки скрипта Яндекс.Карт')
       }
       document.head.appendChild(script)
     } else {
-      console.log('ymaps уже загружен, вызываем initMap')
       window.ymaps.ready(() => {
-        console.log('ymaps.ready вызван (уже загружен)')
-        console.log('Проверка перед initMap:', {
-          hasContainer: !!mapContainerRef.current,
-          objectsCount: objects.length,
-          hasInitMap: typeof initMap === 'function'
-        })
-        // Проверяем контейнер еще раз перед инициализацией
         if (mapContainerRef.current && objects.length > 0) {
-          console.log('Вызываем initMap()...')
-          try {
-            initMap()
-            console.log('initMap() вызван успешно')
-          } catch (error) {
-            console.error('Ошибка при вызове initMap():', error, error.stack)
-          }
-        } else {
-          console.error('Контейнер или объекты недоступны после ymaps.ready', {
-            hasContainer: !!mapContainerRef.current,
-            objectsCount: objects.length
-          })
+          initMap()
         }
       })
     }
 
     return () => {
-      // Очищаем карту при размонтировании
       if (clustererRef.current) {
         clustererRef.current.removeAll()
         clustererRef.current = null
@@ -350,26 +256,11 @@ const ObjectsMap = () => {
   }, [objects, loading])
 
   const initMap = () => {
-    console.log('=== initMap вызван ===')
-    console.log('initMap: проверка условий', {
-      hasContainer: !!mapContainerRef.current,
-      hasYmaps: !!window.ymaps,
-      objectsCount: objects.length
-    })
-    
-    if (!mapContainerRef.current) {
-      console.error('initMap: mapContainerRef отсутствует')
-      return
-    }
-    
-    if (!window.ymaps) {
-      console.error('initMap: window.ymaps отсутствует')
+    if (!mapContainerRef.current || !window.ymaps) {
       return
     }
 
-    console.log('Инициализация карты, объектов:', objects.length, 'контейнер готов:', !!mapContainerRef.current)
-
-    // Уничтожаем предыдущую карту, если есть
+    // Очистка предыдущей карты
     if (clustererRef.current) {
       try {
         if (mapInstanceRef.current && mapInstanceRef.current.geoObjects) {
@@ -390,79 +281,68 @@ const ObjectsMap = () => {
       mapInstanceRef.current = null
       markersRef.current = []
     }
-    
-    console.log('Предыдущая карта очищена, начинаем обработку блоков')
 
-    // Если объекты - это уже блоки (комплексы), используем их напрямую
-    // Если объекты - это квартиры, группируем по блокам
+    // Обработка блоков
     let blocksWithCoords = []
     
     if (objects.length > 0 && (objects[0]._id || objects[0].id) && !objects[0].block_id) {
-        // Это блоки (комплексы), используем их напрямую
-        blocksWithCoords = objects
-      .map(obj => {
-            try {
-              const coord = getCoordinates(obj)
-              if (!coord) return null
-              
-              const minPrice = getMinPrice(obj)
-              const priceText = formatPriceForMarker(minPrice)
-              
-              return {
-                blockId: obj._id || obj.id,
-                blockGuid: obj.guid,
-                blockName: obj.name || obj.title || 'Без названия',
-                coord,
-                apartmentsCount: obj.places_count || obj.apartments_count || obj.apart_count || 0,
-                minPrice,
-                priceText,
-                blockData: obj // Сохраняем исходные данные блока
-              }
-            } catch (e) {
-              console.warn('Ошибка при обработке блока:', e, obj)
-              return null
-            }
-          })
-          .filter(Boolean)
-        console.log('Шаг 4: Обработано блоков:', blocksWithCoords.length)
-      } else {
-        console.log('Шаг 3: Обработка квартир (группировка по блокам)')
-        // Это квартиры, группируем по блокам
-        const blocksMap = new Map()
-        
-        objects.forEach(obj => {
+      blocksWithCoords = objects
+        .map(obj => {
           try {
-            const blockId = obj.block_id || obj._id || obj.id
-            if (!blockId) return
+            const coord = getCoordinates(obj)
+            if (!coord) return null
             
-            if (!blocksMap.has(blockId)) {
-              blocksMap.set(blockId, {
-                blockId,
-                blockGuid: obj.guid || obj.block_guid,
-                blockName: obj.block_name || obj.name || obj.title || 'Без названия',
-                apartments: [],
-                coord: null
-              })
-            }
+            const minPrice = getMinPrice(obj)
+            const priceText = formatPriceForMarker(minPrice)
             
-            blocksMap.get(blockId).apartments.push(obj)
-            
-            // Если координаты есть в объекте, сохраняем их
-        const coord = getCoordinates(obj)
-            if (coord && !blocksMap.get(blockId).coord) {
-              blocksMap.get(blockId).coord = coord
+            return {
+              blockId: obj._id || obj.id,
+              blockGuid: obj.guid,
+              blockName: obj.name || obj.title || 'Без названия',
+              coord,
+              apartmentsCount: obj.places_count || obj.apartments_count || obj.apart_count || 0,
+              minPrice,
+              priceText,
+              blockData: obj
             }
           } catch (e) {
-            console.warn('Ошибка при обработке квартиры:', e, obj)
+            console.warn('Ошибка при обработке блока:', e, obj)
+            return null
           }
         })
+        .filter(Boolean)
+    } else {
+      const blocksMap = new Map()
+      
+      objects.forEach(obj => {
+        try {
+          const blockId = obj.block_id || obj._id || obj.id
+          if (!blockId) return
+          
+          if (!blocksMap.has(blockId)) {
+            blocksMap.set(blockId, {
+              blockId,
+              blockGuid: obj.guid || obj.block_guid,
+              blockName: obj.block_name || obj.name || obj.title || 'Без названия',
+              apartments: [],
+              coord: null
+            })
+          }
+          
+          blocksMap.get(blockId).apartments.push(obj)
+          
+          const coord = getCoordinates(obj)
+          if (coord && !blocksMap.get(blockId).coord) {
+            blocksMap.get(blockId).coord = coord
+          }
+        } catch (e) {
+          console.warn('Ошибка при обработке квартиры:', e, obj)
+        }
+      })
 
-        // Получаем координаты для каждого блока
-        blocksWithCoords = Array.from(blocksMap.values())
+      blocksWithCoords = Array.from(blocksMap.values())
         .map(block => {
-          // Если координаты не найдены в квартирах, проверяем другие поля блока
           if (!block.coord) {
-            // Проверяем geometry (может быть в блоке)
             const firstApt = block.apartments[0]
             if (firstApt?.geometry) {
               if (Array.isArray(firstApt.geometry) && firstApt.geometry.length >= 2) {
@@ -480,81 +360,69 @@ const ObjectsMap = () => {
         .filter(block => block.coord !== null)
     }
 
-    console.log('Блоков с координатами:', blocksWithCoords.length)
     if (blocksWithCoords.length === 0) {
-      console.log('Нет координат. Пример объекта:', objects[0])
-    }
-
-    if (blocksWithCoords.length === 0) {
-      // Если нет координат, показываем карту по умолчанию
-      console.log('Показываем карту по умолчанию (нет координат)')
       mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
-        center: [59.939095, 30.315868], // Санкт-Петербург
+        center: [59.939095, 30.315868],
         zoom: 10,
       })
       return
     }
 
-    // Вычисляем центр карты (среднее арифметическое всех координат)
+    // Вычисляем центр карты
     const avgLat = blocksWithCoords.reduce((sum, b) => sum + b.coord.lat, 0) / blocksWithCoords.length
     const avgLon = blocksWithCoords.reduce((sum, b) => sum + b.coord.lon, 0) / blocksWithCoords.length
 
-    console.log('Центр карты:', avgLat, avgLon)
-
     // Создаем карту
     try {
-      console.log('Создание карты с центром:', avgLat, avgLon)
       mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
         center: [avgLat, avgLon],
         zoom: 11,
       })
-      console.log('Карта создана успешно')
     } catch (error) {
       console.error('Ошибка при создании карты:', error)
       return
     }
 
-    // Создаем кластеризатор для группировки маркеров
-    console.log('Шаг 9: Создание кластеризатора')
+    // Создаем кластеризатор
     let clusterer
     try {
       clusterer = new window.ymaps.Clusterer({
         clusterDisableClickZoom: true,
-        clusterOpenBalloonOnClick: false, // Отключаем автоматическое открытие балуна
-        zoomOnClick: true, // Разрешаем зум при клике на кластер
-        // Настройки кластеризации
-        gridSize: 64, // Размер сетки для кластеризации
-        groupByCoordinates: false, // Не группировать по координатам
+        clusterOpenBalloonOnClick: false,
+        zoomOnClick: true,
+        gridSize: 64,
+        groupByCoordinates: false,
       })
       clustererRef.current = clusterer
-      console.log('Шаг 10: Кластеризатор создан успешно')
     } catch (error) {
-      console.error('Ошибка при создании кластеризатора:', error, error.stack)
-      // Продолжаем без кластеризатора
+      console.error('Ошибка при создании кластеризатора:', error)
       clusterer = null
       clustererRef.current = null
     }
 
-    // Создаем коллекцию маркеров
+    // Создаем маркеры
     const markersCollection = []
 
-    // Добавляем метки для всех блоков с кастомным HTML
     blocksWithCoords.forEach((block) => {
       const { coord, blockId, blockGuid, blockName, priceText, apartmentsCount } = block
       
-      // Создаем кастомный HTML для маркера с ценой
+      // HTML для маркера
       const markerHtml = `
-        <div class="marker-with-text marker-with-text_building" style="
+        <div class="marker-with-text" style="
+          width: 90px;
+          height: 36px;
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: flex-start;
           cursor: pointer;
           pointer-events: auto;
-          width: 90px;
-          height: 36px;
           position: relative;
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
         ">
-          <div class="marker-with-text__content-wrapper" style="
+          <div style="
             background: white;
             border-radius: 20px;
             padding: 4px 8px;
@@ -573,49 +441,19 @@ const ObjectsMap = () => {
             </svg>
             ${priceText || '—'}
           </div>
-          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px; pointer-events: none; display: block; flex-shrink: 0;">
+          <svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px; pointer-events: none; display: block; flex-shrink: 0;">
             <path d="M0 0h16a8.073 8.073 0 0 0-7.884 6.945l-.038.267c-.018.128-.203.128-.221 0l-.046-.324A7.998 7.998 0 0 0 0 0Z" fill="#FAFAFA"/>
           </svg>
         </div>
       `
 
-      // Создаем кастомную иконку через templateLayoutFactory с правильной обработкой событий
-      const customIconLayout = window.ymaps.templateLayoutFactory.createClass(markerHtml, {
-        build: function() {
-          customIconLayout.superclass.build.call(this)
-          // Убеждаемся, что маркер кликабелен
-          const element = this.getParentElement()
-          if (element) {
-            // Делаем весь элемент кликабельным и перехватывающим события
-            element.style.pointerEvents = 'auto'
-            element.style.cursor = 'pointer'
-            element.style.zIndex = '1000'
-            
-            // Устанавливаем точные размеры элемента маркера
-            // Эти размеры должны точно соответствовать iconImageSize [90, 36]
-            element.style.width = '90px'
-            element.style.height = '36px'
-            element.style.margin = '0'
-            element.style.padding = '0'
-            element.style.boxSizing = 'border-box'
-            element.style.position = 'relative'
-            
-            // Убеждаемся, что основной контейнер маркера кликабелен
-            const htmlElement = element.querySelector && element.querySelector('.marker-with-text')
-            if (htmlElement) {
-              htmlElement.style.pointerEvents = 'auto'
-              htmlElement.style.cursor = 'pointer'
-              htmlElement.style.position = 'relative'
-              htmlElement.style.width = '90px'
-              htmlElement.style.height = '36px'
-              htmlElement.style.margin = '0'
-              htmlElement.style.padding = '0'
-              htmlElement.style.boxSizing = 'border-box'
-            }
-          }
-        }
-      })
+      // Создаем layout через templateLayoutFactory
+      const customIconLayout = window.ymaps.templateLayoutFactory.createClass(markerHtml)
 
+      // Создаем маркер по документации Яндекс.Карт
+      // iconImageOffset: смещение точки привязки от ЦЕНТРА иконки
+      // Маркер 90x36px, точка привязки внизу по центру (где стрелка)
+      // От центра [0,0] до точки привязки: [0, 18] (вниз на половину высоты)
       const marker = new window.ymaps.Placemark(
         [coord.lat, coord.lon],
         {
@@ -624,78 +462,25 @@ const ObjectsMap = () => {
         },
         {
           iconLayout: customIconLayout,
-          // Размеры маркера: ширина 90px, высота 36px
           iconImageSize: [90, 36],
-          // iconImageOffset: смещение точки привязки от ЛЕВОГО ВЕРХНЕГО УГЛА иконки
-          // По документации Яндекс.Карт для iconLayout (templateLayoutFactory):
-          // offset считается от левого верхнего угла HTML-элемента
-          // Маркер: 90px ширина, 36px высота
-          // Точка привязки должна быть внизу по центру (где стрелка указывает на координаты)
-          // От левого верхнего угла [0, 0] до точки привязки: центр по X (45px), внизу по Y (36px)
-          iconImageOffset: [45, 36],
-          // iconShape: область клика относительно точки привязки [0, 0]
-          // Точка привязки находится внизу маркера по центру
-          // Чтобы область клика покрывала весь маркер (90x36px):
-          // От точки привязки: влево на 45px, вправо на 45px, вверх на 36px
-          // Координаты: от [-45, -36] (левый верхний угол маркера) до [45, 0] (правый нижний угол маркера)
+          // По документации: iconImageOffset - смещение от ЦЕНТРА иконки
+          // Точка привязки внизу по центру: смещение [0, 18] от центра
+          iconImageOffset: [0, 18],
+          // iconShape: область клика относительно точки привязки
+          // Точка привязки [0,0] внизу маркера, область клика: от [-45, -36] до [45, 0]
           iconShape: {
             type: 'Rectangle',
             coordinates: [[-45, -36], [45, 0]]
           },
-          // Отключаем перетаскивание карты
           draggable: false,
-          cursor: 'pointer',
         }
       )
 
-      // Обработчик клика на маркер - используем stopPropagation для предотвращения перетаскивания карты
+      // Обработчики событий
       marker.events.add('click', (e) => {
         e.stopPropagation()
-        e.preventDefault()
-        console.log('Клик по маркеру:', blockName)
         setSelectedBlock(block)
         loadBlockData(blockId)
-        return false
-      })
-      
-      // Обработчик для предотвращения перетаскивания карты при клике на маркер
-      marker.events.add('mousedown', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        console.log('mousedown на маркере:', blockName)
-        return false
-      })
-      
-      // Обработчик для предотвращения перетаскивания при движении мыши над маркером
-      marker.events.add('mousemove', (e) => {
-        e.stopPropagation()
-        return false
-      })
-      
-      // Обработчик для предотвращения начала перетаскивания
-      marker.events.add('dragstart', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        return false
-      })
-
-      // Обработчик наведения для изменения курсора
-      marker.events.add('mouseenter', () => {
-        if (mapInstanceRef.current) {
-          const mapElement = mapInstanceRef.current.container.getElement()
-          if (mapElement) {
-            mapElement.style.cursor = 'pointer'
-          }
-        }
-      })
-
-      marker.events.add('mouseleave', () => {
-        if (mapInstanceRef.current) {
-          const mapElement = mapInstanceRef.current.container.getElement()
-          if (mapElement) {
-            mapElement.style.cursor = ''
-          }
-        }
       })
 
       markersCollection.push(marker)
@@ -703,56 +488,36 @@ const ObjectsMap = () => {
     })
 
     // Добавляем маркеры на карту
-    console.log('Шаг 12: Добавление маркеров на карту')
     try {
       if (clusterer) {
-        // Используем кластеризатор
         clusterer.add(markersCollection)
         mapInstanceRef.current.geoObjects.add(clusterer)
         
-        // Обработчик клика на кластер
         clusterer.events.add('click', (e) => {
           const target = e.get('target')
           if (target instanceof window.ymaps.ClusterPlacemark) {
-            // При клике на кластер увеличиваем зум
             const clusterCenter = target.geometry.getCoordinates()
             mapInstanceRef.current.setCenter(clusterCenter, mapInstanceRef.current.getZoom() + 2, {
               duration: 300
             })
           }
         })
-        console.log('Шаг 13: Маркеры добавлены через кластеризатор')
       } else {
-        // Добавляем маркеры напрямую на карту без кластеризации
         markersCollection.forEach(marker => {
           mapInstanceRef.current.geoObjects.add(marker)
         })
-        console.log('Шаг 13: Маркеры добавлены напрямую на карту (без кластеризации)')
       }
     } catch (error) {
-      console.error('Ошибка при добавлении маркеров:', error, error.stack)
-      // Пытаемся добавить маркеры напрямую
-      try {
-        markersCollection.forEach(marker => {
-          mapInstanceRef.current.geoObjects.add(marker)
-        })
-        console.log('Маркеры добавлены напрямую после ошибки кластеризации')
-      } catch (e2) {
-        console.error('Критическая ошибка при добавлении маркеров:', e2)
-      }
+      console.error('Ошибка при добавлении маркеров:', error)
     }
 
-    console.log('Добавлено меток:', markersRef.current.length)
-
-    // Автоматически подгоняем границы карты под все метки
-    console.log('Шаг 14: Установка границ карты')
+    // Устанавливаем границы карты
     if (blocksWithCoords.length > 1) {
       try {
         let bounds
         if (clusterer) {
           bounds = clusterer.getBounds()
         } else {
-          // Получаем границы из коллекции маркеров
           bounds = mapInstanceRef.current.geoObjects.getBounds()
         }
         
@@ -761,16 +526,11 @@ const ObjectsMap = () => {
             checkZoomRange: true,
             duration: 300,
           })
-          console.log('Границы карты установлены')
-        } else {
-          console.warn('Не удалось получить границы для карты')
         }
       } catch (error) {
         console.warn('Ошибка при установке границ карты:', error)
       }
     }
-    
-    console.log('Шаг 15: Инициализация карты завершена успешно')
   }
 
   if (!authData || !authData.authenticated) {
@@ -815,7 +575,6 @@ const ObjectsMap = () => {
             />
           </div>
 
-          {/* Карточка блока при клике на маркер */}
           {selectedBlock && (
             <div className="block-card-overlay" onClick={() => setSelectedBlock(null)}>
               <div className="block-card" onClick={(e) => e.stopPropagation()}>
@@ -848,7 +607,6 @@ const ObjectsMap = () => {
                               alt={selectedBlock.blockName}
                               className="block-card__image"
                               onError={(e) => {
-                                // Если первое изображение не загрузилось, пробуем следующее
                                 const nextImage = blockGallery.find((img, idx) => idx > 0 && (img.url || img.path || img.image?.url || img.image?.path || img.src))
                                 if (nextImage) {
                                   e.target.src = nextImage.url || nextImage.path || nextImage.image?.url || nextImage.image?.path || nextImage.src
@@ -914,35 +672,6 @@ const ObjectsMap = () => {
               </div>
             </div>
           )}
-
-          <div className="objects-list">
-            <h2>Список объектов</h2>
-            <div className="objects-grid">
-              {objects.slice(0, 20).map((obj, idx) => {
-                const coord = getCoordinates(obj)
-                const blockId = obj.block_id || obj._id || obj.id
-                const blockGuid = obj.guid
-                const name = obj.block_name || obj.name || obj.title || 'Без названия'
-                
-                return (
-                  <div key={obj.id || obj._id || idx} className="object-map-card">
-                    <h3 className="object-map-name">{name}</h3>
-                    {coord && (
-                      <div className="object-map-coords">
-                        Координаты: {coord.lat.toFixed(6)}, {coord.lon.toFixed(6)}
-                      </div>
-                    )}
-                    <a
-                      href={`/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
-                      className="object-map-link"
-                    >
-                      Перейти к объекту
-                    </a>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </>
       )}
     </div>
