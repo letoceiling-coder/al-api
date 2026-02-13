@@ -6587,7 +6587,8 @@ class TrendSsoApiAuth
                 }
                 
                 // Для квартир: если нет image, получаем изображение из данных блока
-                if (empty($item['image']) && empty($item['images'])) {
+                $hasImage = !empty($item['image']) || !empty($item['images']);
+                if (!$hasImage) {
                     $blockId = $item['block_id'] ?? $item['block']['_id'] ?? $item['block'] ?? null;
                     
                     // Сначала проверяем block в самом item
@@ -6641,6 +6642,11 @@ class TrendSsoApiAuth
                             // Если уже есть готовые URL поля
                             if (isset($blockImage['url']) || isset($blockImage['thumbnail'])) {
                                 $item['image'] = $blockImage;
+                                Log::debug('Добавлено изображение блока к квартире (image с URL)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $blockImage['url'] ?? $blockImage['thumbnail'] ?? null,
+                                ]);
                             } elseif (isset($blockImage['path']) && isset($blockImage['file_name'])) {
                                 $path = rtrim($blockImage['path'], '/');
                                 $path = ltrim($path, '/');
@@ -6653,6 +6659,11 @@ class TrendSsoApiAuth
                                     'path' => $blockImage['path'],
                                     'file_name' => $blockImage['file_name'],
                                 ];
+                                Log::debug('Добавлено изображение блока к квартире (image с path/file_name)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $item['image']['url'],
+                                ]);
                             }
                         }
                         // Проверяем images (массив изображений блока)
@@ -6661,6 +6672,11 @@ class TrendSsoApiAuth
                             // Если уже есть готовые URL поля
                             if (isset($firstBlockImage['url']) || isset($firstBlockImage['thumbnail'])) {
                                 $item['image'] = $firstBlockImage;
+                                Log::debug('Добавлено изображение блока к квартире (images[0] с URL)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $firstBlockImage['url'] ?? $firstBlockImage['thumbnail'] ?? null,
+                                ]);
                             } elseif (isset($firstBlockImage['path']) && isset($firstBlockImage['file_name'])) {
                                 $path = rtrim($firstBlockImage['path'], '/');
                                 $path = ltrim($path, '/');
@@ -6673,6 +6689,11 @@ class TrendSsoApiAuth
                                     'path' => $firstBlockImage['path'],
                                     'file_name' => $firstBlockImage['file_name'],
                                 ];
+                                Log::debug('Добавлено изображение блока к квартире (images[0] с path/file_name)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $item['image']['url'],
+                                ]);
                             }
                         }
                         // Проверяем renderer (для блоков изображения могут быть в renderer)
@@ -6690,9 +6711,38 @@ class TrendSsoApiAuth
                                     'path' => $firstRenderer['path'],
                                     'file_name' => $firstRenderer['file_name'],
                                 ];
+                                Log::debug('Добавлено изображение блока к квартире (renderer[0] с path/file_name)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $item['image']['url'],
+                                ]);
                             } elseif (isset($firstRenderer['url']) || isset($firstRenderer['thumbnail'])) {
                                 $item['image'] = $firstRenderer;
+                                Log::debug('Добавлено изображение блока к квартире (renderer[0] с URL)', [
+                                    'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                    'block_id' => $blockId,
+                                    'image_url' => $firstRenderer['url'] ?? $firstRenderer['thumbnail'] ?? null,
+                                ]);
                             }
+                        } else {
+                            // Логируем, если блок найден, но изображений нет
+                            Log::debug('Блок найден для квартиры, но изображений нет', [
+                                'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                'block_id' => $blockId,
+                                'block_has_image' => isset($blockData['image']),
+                                'block_has_images' => isset($blockData['images']) && is_array($blockData['images']),
+                                'block_has_renderer' => isset($blockData['renderer']) && is_array($blockData['renderer']),
+                                'block_keys' => array_keys($blockData),
+                            ]);
+                        }
+                    } else {
+                        // Логируем, если block_id есть, но блок не найден в blocksData
+                        if ($blockId) {
+                            Log::debug('block_id есть у квартиры, но блок не найден в blocksData', [
+                                'apartment_id' => $item['_id'] ?? $item['id'] ?? null,
+                                'block_id' => $blockId,
+                                'blocks_data_keys' => array_keys($blocksData),
+                            ]);
                         }
                     }
                 }
