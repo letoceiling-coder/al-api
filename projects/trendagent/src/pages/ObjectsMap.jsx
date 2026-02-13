@@ -55,43 +55,29 @@ const ObjectsMap = () => {
       }
 
       // Для карты используем блоки (комплексы) с координатами
-      // Используем прямой вызов API для получения блоков с show_type=map
+      // Используем getApartments с параметром show_type=map для получения блоков
       try {
-        const blocksResponse = await fetch('/api/trendagent/v1/apartments', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer 8P3zhp#BA5y@o!iVs&oG44DzI2uWY4GF',
-          },
-          body: JSON.stringify({
-            phone: filters.phone,
-            password: filters.password,
-            city: filters.city,
-            show_type: 'map', // Специальный параметр для карты
-            count: 1000,
-            offset: 0,
-          }),
+        const blocksResponse = await trendAgentAPI.getApartments({
+          ...params,
+          show_type: 'map', // Специальный параметр для карты - возвращает блоки с координатами
         })
         
-        if (blocksResponse.ok) {
-          const blocksData = await blocksResponse.json()
-          if (blocksData.success) {
-            // Для карты API возвращает блоки с координатами
-            const blocksList = blocksData.data?.objects || blocksData.data?.data || []
-            console.log('Загружено блоков для карты:', blocksList.length)
-            
-            // Логируем структуру первого блока для отладки
-            if (blocksList.length > 0) {
-              console.log('Пример блока:', blocksList[0])
-              const firstCoord = getCoordinates(blocksList[0])
-              console.log('Координаты первого блока:', firstCoord)
-              // Логируем все ключи объекта для отладки
-              console.log('Ключи блока:', Object.keys(blocksList[0]))
-            }
-            
-            setObjects(blocksList)
-            return
+        if (blocksResponse.success) {
+          // Для карты API возвращает блоки с координатами
+          const blocksList = blocksResponse.data?.objects || blocksResponse.data?.data || []
+          console.log('Загружено блоков для карты:', blocksList.length)
+          
+          // Логируем структуру первого блока для отладки
+          if (blocksList.length > 0) {
+            console.log('Пример блока:', blocksList[0])
+            const firstCoord = getCoordinates(blocksList[0])
+            console.log('Координаты первого блока:', firstCoord)
+            // Логируем все ключи объекта для отладки
+            console.log('Ключи блока:', Object.keys(blocksList[0]))
           }
+          
+          setObjects(blocksList)
+          return
         }
       } catch (error) {
         console.error('Ошибка загрузки блоков для карты:', error)
