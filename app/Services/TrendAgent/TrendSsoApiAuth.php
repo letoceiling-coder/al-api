@@ -1225,6 +1225,32 @@ class TrendSsoApiAuth
                 
                 $results = $data['data']['results'] ?? [];
                 $processedResults = array_map(function($item) {
+                    // Обрабатываем массив images (приоритет)
+                    if (isset($item['images']) && is_array($item['images']) && count($item['images']) > 0) {
+                        $processedImages = [];
+                        foreach ($item['images'] as $img) {
+                            if (isset($img['path']) && isset($img['file_name'])) {
+                                $path = rtrim($img['path'], '/');
+                                $path = ltrim($path, '/');
+                                $fileName = $img['file_name'];
+                                $processedImages[] = [
+                                    'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                    'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                    'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                    'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                    'path' => $img['path'],
+                                    'file_name' => $img['file_name'],
+                                ];
+                            } elseif (isset($img['url']) || isset($img['thumbnail']) || isset($img['full'])) {
+                                $processedImages[] = $img;
+                            }
+                        }
+                        if (!empty($processedImages)) {
+                            $item['images'] = $processedImages;
+                        }
+                    }
+                    
+                    // Обрабатываем одиночное поле image
                     if (isset($item['image']) && is_array($item['image'])) {
                         $image = $item['image'];
                         if (isset($image['path']) && isset($image['file_name'])) {
@@ -1233,6 +1259,8 @@ class TrendSsoApiAuth
                             $path = ltrim($path, '/');
                             $item['image']['url'] = "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}";
                             $item['image']['url_full'] = "https://selcdn.trendagent.ru/images/{$path}/{$fileName}";
+                            $item['image']['thumbnail'] = $item['image']['url'];
+                            $item['image']['full'] = $item['image']['url_full'];
                         }
                     }
                     return $item;
