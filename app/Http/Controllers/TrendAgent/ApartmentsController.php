@@ -41,6 +41,7 @@ class ApartmentsController
             'subway' => 'nullable|string',
             'region' => 'nullable|string',
             'district' => 'nullable|string',
+            'show_type' => 'nullable|string|in:list,map', // Для карты используем show_type=map
         ]);
 
         if ($validator->fails()) {
@@ -136,8 +137,15 @@ class ApartmentsController
                 $apiParams['district'] = $request->input('district');
             }
 
-            // Получаем данные через API (используем getApartmentsSearch для получения списка квартир)
-            $apiData = $apiAuth->getApartmentsSearch($apiParams);
+            // Если show_type=map, используем getBlocksSearch для получения блоков с координатами
+            $showType = $request->input('show_type', 'list');
+            if ($showType === 'map') {
+                $apiParams['show_type'] = 'map';
+                $apiData = $apiAuth->getBlocksSearch($apiParams);
+            } else {
+                // Получаем данные через API (используем getApartmentsSearch для получения списка квартир)
+                $apiData = $apiAuth->getApartmentsSearch($apiParams);
+            }
 
             if (!($apiData['success'] ?? false)) {
                 throw new \Exception('Ошибка при получении данных из API');
