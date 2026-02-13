@@ -349,7 +349,7 @@ const ObjectsMap = () => {
     }
   }, [objects, loading])
 
-  // initMap теперь определена выше через useCallback
+  const initMap = () => {
     console.log('=== initMap вызван ===')
     console.log('initMap: проверка условий', {
       hasContainer: !!mapContainerRef.current,
