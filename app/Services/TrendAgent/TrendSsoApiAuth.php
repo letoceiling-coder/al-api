@@ -6507,24 +6507,41 @@ class TrendSsoApiAuth
                 }
             }
             
-            // Получаем данные блоков для добавления изображений к квартирам
+            // Получаем данные блоков через getBlocksSearch для получения изображений
+            // Это быстрее, чем делать отдельные запросы для каждого блока
             $blocksData = [];
             if (!empty($blockIds)) {
-                // Ограничиваем количество блоков для запроса (чтобы не перегружать API)
-                $blockIdsToFetch = array_slice($blockIds, 0, 50);
-                foreach ($blockIdsToFetch as $blockId) {
-                    try {
-                        $blockUnified = $this->getBlockUnified($blockId, ['city' => $params['city'] ?? '58c665588b6aa52311afa01b']);
-                        if (isset($blockUnified['data']) && is_array($blockUnified['data'])) {
-                            $blocksData[$blockId] = $blockUnified['data'];
+                try {
+                    // Используем getBlocksSearch для получения всех блоков сразу
+                    $blocksSearchParams = [
+                        'city' => $params['city'] ?? '58c665588b6aa52311afa01b',
+                        'lang' => $params['lang'] ?? 'ru',
+                        'show_type' => 'list',
+                        'count' => 1000, // Получаем много блоков, чтобы найти нужные
+                    ];
+                    $blocksResult = $this->getBlocksSearch($blocksSearchParams);
+                    
+                    if (isset($blocksResult['data']) && is_array($blocksResult['data'])) {
+                        // Создаем мапу block_id => block_data для быстрого доступа
+                        foreach ($blocksResult['data'] as $block) {
+                            $blockId = $block['_id'] ?? $block['id'] ?? null;
+                            if ($blockId && in_array($blockId, $blockIds)) {
+                                $blocksData[$blockId] = $block;
+                            }
                         }
-                    } catch (\Exception $e) {
-                        // Игнорируем ошибки получения блока
-                        Log::debug('Не удалось получить данные блока для квартиры', [
-                            'block_id' => $blockId,
-                            'error' => $e->getMessage(),
-                        ]);
                     }
+                    
+                    Log::info('Получены данные блоков для квартир', [
+                        'unique_block_ids_count' => count($blockIds),
+                        'blocks_found_count' => count($blocksData),
+                        'block_ids' => array_slice($blockIds, 0, 10), // Первые 10 для логирования
+                    ]);
+                } catch (\Exception $e) {
+                    // Игнорируем ошибки получения блоков, но логируем
+                    Log::warning('Не удалось получить данные блоков для квартир', [
+                        'error' => $e->getMessage(),
+                        'block_ids_count' => count($blockIds),
+                    ]);
                 }
             }
             
@@ -6617,10 +6634,14 @@ class TrendSsoApiAuth
                     // Если block_id есть, но block нет в item, используем данные из blocksData
                     elseif ($blockId && isset($blocksData[$blockId])) {
                         $blockData = $blocksData[$blockId];
-                        // Проверяем image в unified данных блока
+                        
+                        // Проверяем image в данных блока (из getBlocksSearch)
                         if (isset($blockData['image']) && is_array($blockData['image'])) {
                             $blockImage = $blockData['image'];
-                            if (isset($blockImage['path']) && isset($blockImage['file_name'])) {
+                            // Если уже есть готовые URL поля
+                            if (isset($blockImage['url']) || isset($blockImage['thumbnail'])) {
+                                $item['image'] = $blockImage;
+                            } elseif (isset($blockImage['path']) && isset($blockImage['file_name'])) {
                                 $path = rtrim($blockImage['path'], '/');
                                 $path = ltrim($path, '/');
                                 $fileName = $blockImage['file_name'];
@@ -6632,14 +6653,15 @@ class TrendSsoApiAuth
                                     'path' => $blockImage['path'],
                                     'file_name' => $blockImage['file_name'],
                                 ];
-                            } elseif (isset($blockImage['url']) || isset($blockImage['thumbnail'])) {
-                                $item['image'] = $blockImage;
                             }
                         }
-                        // Проверяем images в unified данных блока
+                        // Проверяем images (массив изображений блока)
                         elseif (isset($blockData['images']) && is_array($blockData['images']) && count($blockData['images']) > 0) {
                             $firstBlockImage = $blockData['images'][0];
-                            if (isset($firstBlockImage['path']) && isset($firstBlockImage['file_name'])) {
+                            // Если уже есть готовые URL поля
+                            if (isset($firstBlockImage['url']) || isset($firstBlockImage['thumbnail'])) {
+                                $item['image'] = $firstBlockImage;
+                            } elseif (isset($firstBlockImage['path']) && isset($firstBlockImage['file_name'])) {
                                 $path = rtrim($firstBlockImage['path'], '/');
                                 $path = ltrim($path, '/');
                                 $fileName = $firstBlockImage['file_name'];
@@ -6651,8 +6673,25 @@ class TrendSsoApiAuth
                                     'path' => $firstBlockImage['path'],
                                     'file_name' => $firstBlockImage['file_name'],
                                 ];
-                            } elseif (isset($firstBlockImage['url']) || isset($firstBlockImage['thumbnail'])) {
-                                $item['image'] = $firstBlockImage;
+                            }
+                        }
+                        // Проверяем renderer (для блоков изображения могут быть в renderer)
+                        elseif (isset($blockData['renderer']) && is_array($blockData['renderer']) && count($blockData['renderer']) > 0) {
+                            $firstRenderer = $blockData['renderer'][0];
+                            if (isset($firstRenderer['path']) && isset($firstRenderer['file_name'])) {
+                                $path = rtrim($firstRenderer['path'], '/');
+                                $path = ltrim($path, '/');
+                                $fileName = $firstRenderer['file_name'];
+                                $item['image'] = [
+                                    'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                    'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                    'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                    'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                    'path' => $firstRenderer['path'],
+                                    'file_name' => $firstRenderer['file_name'],
+                                ];
+                            } elseif (isset($firstRenderer['url']) || isset($firstRenderer['thumbnail'])) {
+                                $item['image'] = $firstRenderer;
                             }
                         }
                     }
