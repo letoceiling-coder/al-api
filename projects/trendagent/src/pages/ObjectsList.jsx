@@ -77,7 +77,20 @@ const ObjectsList = () => {
       // Если выбран тип "apartments" и viewType "list" (Комплексы), загружаем блоки
       if (selectedObjectType === 'apartments' && viewType === 'list') {
         // Загружаем комплексы (блоки) вместо квартир
-        response = await trendAgentAPI.getObjectsList('blocks', params)
+        // Для блоков используем пустую строку или не передаем object_type
+        // чтобы использовался getBlocksSearch по умолчанию
+        const blocksParams = { ...params }
+        // Убираем object_type из params, если он там есть
+        delete blocksParams.object_type
+        response = await trendAgentAPI.getObjectsList('', blocksParams)
+        console.log('DEBUG: Загружены блоки (комплексы):', {
+          success: response.success,
+          dataKeys: response.data ? Object.keys(response.data) : [],
+          objectsLength: response.data?.objects?.length || 0,
+          dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 0,
+          blocksCount: response.data?.blocks_count || response.blocks_count,
+          firstObject: response.data?.objects?.[0] || (Array.isArray(response.data?.data) ? response.data.data[0] : null)
+        })
       } else if (selectedObjectType === 'apartments') {
         response = await trendAgentAPI.getApartments(params)
       } else if (selectedObjectType === 'parkings') {
@@ -93,11 +106,20 @@ const ObjectsList = () => {
       }
 
       if (response.success) {
-        // Для блоков (комплексов) данные могут быть в response.data.data или response.data
+        // Для блоков (комплексов) данные могут быть в response.data.objects или response.data.data
         let objectsList = []
         if (selectedObjectType === 'apartments' && viewType === 'list') {
-          // Для блоков структура: response.data.data или response.data
-          objectsList = response.data?.data || response.data?.objects || response.data || []
+          // Для блоков структура из getObjectsList: response.data.objects
+          // Или из getBlocksSearch: response.data (массив)
+          objectsList = response.data?.objects || response.data?.data || (Array.isArray(response.data) ? response.data : [])
+          console.log('DEBUG: Извлеченные блоки:', {
+            count: objectsList.length,
+            firstBlock: objectsList[0] ? {
+              id: objectsList[0]._id || objectsList[0].id,
+              name: objectsList[0].name,
+              hasImage: !!(objectsList[0].image || objectsList[0].images)
+            } : null
+          })
         } else {
           objectsList = response.data?.objects || response.data?.data || response.data || []
         }
@@ -107,7 +129,7 @@ const ObjectsList = () => {
         // Для блоков total_count может быть в blocks_count или total
         let total = response.total_count || response.total
         if (selectedObjectType === 'apartments' && viewType === 'list') {
-          total = response.blocks_count || response.total_count || response.total || objectsList.length
+          total = response.blocks_count || response.data?.blocks_count || response.total_count || response.total || objectsList.length
         }
         setTotalCount(total || objectsList.length)
         
