@@ -122,7 +122,23 @@ const ObjectCard = ({ object, objectType, onClick }) => {
         id: object._id || object.id,
         name: object.name || object.title,
         keys: Object.keys(object),
-        objectType
+        objectType,
+        // Выводим все поля, которые могут содержать изображения
+        has_images: !!object.images,
+        has_image: !!object.image,
+        has_renderer: !!object.renderer,
+        has_photo: !!object.photo,
+        has_photo_url: !!object.photo_url,
+        has_image_url: !!object.image_url,
+        has_gallery: !!object.gallery,
+        has_media: !!object.media,
+        has_preview_image: !!object.preview_image,
+        has_cover_image: !!object.cover_image,
+        has_main_image: !!object.main_image,
+        // Выводим структуру image, если есть
+        image_structure: object.image || null,
+        // Выводим первый элемент images, если есть
+        first_image_structure: (object.images && Array.isArray(object.images) && object.images.length > 0) ? object.images[0] : null,
       })
     }
     

@@ -1107,10 +1107,15 @@ class TrendSsoApiAuth
             // Логируем структуру первого объекта для отладки
             if (!empty($processedResults)) {
                 $firstObject = $processedResults[0];
-                Log::info('Структура первого объекта из API', [
+                Log::info('Структура первого объекта из API blocks/search', [
                     'has_image' => isset($firstObject['image']),
+                    'has_images' => isset($firstObject['images']) && is_array($firstObject['images']),
+                    'images_count' => isset($firstObject['images']) && is_array($firstObject['images']) ? count($firstObject['images']) : 0,
                     'image_structure' => $firstObject['image'] ?? null,
+                    'images_structure' => isset($firstObject['images']) && is_array($firstObject['images']) ? $firstObject['images'][0] ?? null : null,
                     'object_keys' => array_keys($firstObject),
+                    'object_id' => $firstObject['_id'] ?? $firstObject['id'] ?? null,
+                    'object_name' => $firstObject['name'] ?? null,
                 ]);
             }
 
