@@ -78,8 +78,22 @@ const ObjectsPlans = () => {
           return Number.isNaN(n) ? null : n
         }
         // Преобразуем квартиры в планировки
+        const getStatusText = (a) => {
+          if (typeof a.status === 'string') return a.status
+          if (a.status?.name) return a.status.name
+          if (a.status_name) return a.status_name
+          if (a.booking_status) return a.booking_status
+          const code = a.status
+          const codeMap = { 4: 'Продано', 23: 'Под запрос', 22: 'Забронировано', 1: 'Свободная', 2: 'Свободная' }
+          return codeMap[code] || 'Свободная'
+        }
+        const getFinishingText = (a) => {
+          return a.finishing_name || (typeof a.finishing === 'string' ? a.finishing : a.finishing?.name) || null
+        }
         const plansList = apartmentsList.map(apt => {
           const rooms = normRooms(apt.rooms || apt.room)
+          const section = apt.section_name || apt.section || (typeof apt.section === 'object' ? apt.section?.name : null)
+          const floor = apt.floor ?? apt.floor_number ?? (typeof apt.floor === 'object' ? apt.floor?.value : null)
           return {
           id: apt.id || apt._id,
           apartment_id: apt.id || apt._id,
@@ -90,6 +104,11 @@ const ObjectsPlans = () => {
           area_to: apt.privArea || apt.area || apt.area_total,
           rooms,
           room_count: rooms,
+          price: apt.base_price ?? apt.price ?? null,
+          section,
+          floor,
+          finishing: getFinishingText(apt),
+          status: getStatusText(apt),
           // ВАЖНО: Для планировок приоритет - сначала планировка (plan, plan_image), потом фото комплекса
           image: apt.plan || apt.plan_image || apt.image?.url || (apt.images && apt.images.length > 0 ? apt.images[0] : null) || apt.image,
           images: apt.images || [],
@@ -194,6 +213,12 @@ const ObjectsPlans = () => {
                                (plan.image ? getImageUrl(plan.image) : null) ||
                                (plan.images && plan.images.length > 0 ? getImageUrl(plan.images[0]) : null)
               
+              const roomTypeStr = (plan.rooms != null && plan.rooms !== '') ? (Number(plan.rooms) === 1 ? 'Студия' : `${plan.rooms}-к.кв`) : null
+              const sizeStr = [roomTypeStr, plan.area != null ? `${plan.area} м²` : null].filter(Boolean).join(', ')
+              const floorSectionStr = [plan.section ? `Секция ${plan.section}` : null, plan.floor != null ? `этаж ${plan.floor}` : null].filter(Boolean).join(', ')
+              const statusLower = plan.status ? String(plan.status).toLowerCase() : ''
+              const statusClass = statusLower.includes('продан') ? 'plan-card-status_sold' : statusLower.includes('под запрос') ? 'plan-card-status_on-request' : 'plan-card-status_available'
+
               return (
                 <div key={plan.id || idx} className="plan-card">
                   {imageUrl && (
@@ -203,21 +228,18 @@ const ObjectsPlans = () => {
                   )}
                   <div className="plan-card-content">
                     <h3 className="plan-card-name">{plan.plan_name || plan.name}</h3>
+                    {sizeStr && <div className="plan-card-size">{sizeStr}</div>}
+                    {plan.price != null && (
+                      <div className="plan-card-price">{formatPrice(plan.price)}</div>
+                    )}
+                    {floorSectionStr && <div className="plan-card-floor">{floorSectionStr}</div>}
+                    {plan.finishing && <div className="plan-card-finishing">{plan.finishing}</div>}
+                    {plan.status && (
+                      <div className="plan-card-status-holder">
+                        <span className={`plan-card-status ${statusClass}`}>{plan.status}</span>
+                      </div>
+                    )}
                     <div className="plan-card-info">
-                      {(plan.rooms != null && plan.rooms !== '') && (
-                        <div className="plan-info-item">
-                          <span className="plan-info-label">Комнат:</span>
-                          <span className="plan-info-value">
-                            {Number(plan.rooms) === 1 ? 'Студия' : `${plan.rooms}-комн.`}
-                          </span>
-                        </div>
-                      )}
-                      {plan.area && (
-                        <div className="plan-info-item">
-                          <span className="plan-info-label">Площадь:</span>
-                          <span className="plan-info-value">{plan.area} м²</span>
-                        </div>
-                      )}
                       {plan.block_name && (
                         <div className="plan-info-item">
                           <span className="plan-info-label">Объект:</span>

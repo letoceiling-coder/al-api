@@ -156,11 +156,70 @@
 }
 
 .plan-card-name {
-  margin: 0;
+  margin: 0 0 var(--spacing-sm) 0;
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.4;
+}
+
+.plan-card-size {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.plan-card-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.plan-card-floor {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.plan-card-finishing {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.plan-card-status-holder {
+  margin-bottom: var(--spacing-sm);
+}
+
+.plan-card-status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.plan-card-status_available {
+  background: rgb(255, 255, 255);
+  border-color: rgb(242, 242, 242);
+  color: rgb(51, 51, 51);
+}
+
+.plan-card-status_sold {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.plan-card-status_on-request {
+  background: rgb(255, 249, 224);
+  border-color: rgb(255, 249, 224);
+  color: rgb(51, 51, 51);
 }
 
 .plan-card-info {
