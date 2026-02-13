@@ -100,7 +100,7 @@ class TrendSsoController extends Controller
             'sort_order' => 'nullable|string|in:asc,desc',
             'room' => 'nullable|array',
             'room.*' => 'nullable|integer|min:1',
-            'object_type' => 'nullable|string|in:apartments,parking,houses,plots,commercial,contractors',
+            'object_type' => 'nullable|string|in:apartments,parking,houses,plots,commercial,contractors,blocks',
             'city' => 'nullable|string',
             // Расширенные фильтры
             'price_from' => 'nullable|integer|min:0',
@@ -438,7 +438,7 @@ class TrendSsoController extends Controller
             'block_id' => 'nullable|string', // ID блока (24 символа hex)
             'block_guid' => 'nullable|string', // GUID блока (например, 'villa-marina')
             'options' => 'nullable|array', // Опции загрузки данных
-            'object_type' => 'nullable|string|in:apartments,parking,houses,plots,commercial,contractors', // Тип объекта
+            'object_type' => 'nullable|string|in:apartments,parking,houses,plots,commercial,contractors,blocks', // Тип объекта
         ]);
 
         try {
