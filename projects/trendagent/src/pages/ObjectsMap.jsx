@@ -9,6 +9,10 @@ const ObjectsMap = () => {
   const [authData, setAuthData] = useState(null)
   const [objects, setObjects] = useState([])
   const [loading, setLoading] = useState(false)
+  const [selectedBlock, setSelectedBlock] = useState(null)
+  const [blockData, setBlockData] = useState(null)
+  const [blockGallery, setBlockGallery] = useState(null)
+  const [loadingBlock, setLoadingBlock] = useState(false)
   const [filters, setFilters] = useState({
     city: '58c665588b6aa52311afa01b',
     phone: '+79045393434',
@@ -102,6 +106,91 @@ const ObjectsMap = () => {
       setObjects([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Получаем минимальную цену из блока
+  const getMinPrice = (block) => {
+    // Проверяем apartmentsMinPrices (массив объектов с room и price)
+    if (block.apartmentsMinPrices && Array.isArray(block.apartmentsMinPrices) && block.apartmentsMinPrices.length > 0) {
+      const prices = block.apartmentsMinPrices
+        .map(p => {
+          const priceStr = p.price || p.price_value || ''
+          // Убираем пробелы и извлекаем число
+          const priceNum = parseFloat(priceStr.replace(/\s/g, ''))
+          return isNaN(priceNum) ? null : priceNum
+        })
+        .filter(p => p !== null)
+      
+      if (prices.length > 0) {
+        return Math.min(...prices)
+      }
+    }
+    
+    // Проверяем min_price
+    if (block.min_price) {
+      const priceNum = typeof block.min_price === 'number' ? block.min_price : parseFloat(block.min_price)
+      if (!isNaN(priceNum)) {
+        return priceNum
+      }
+    }
+    
+    // Проверяем min_prices (массив)
+    if (block.min_prices && Array.isArray(block.min_prices) && block.min_prices.length > 0) {
+      const prices = block.min_prices
+        .map(p => {
+          const price = p.price || p.price_value || p.value || ''
+          const priceNum = parseFloat(price.toString().replace(/\s/g, ''))
+          return isNaN(priceNum) ? null : priceNum
+        })
+        .filter(p => p !== null)
+      
+      if (prices.length > 0) {
+        return Math.min(...prices)
+      }
+    }
+    
+    return null
+  }
+
+  // Форматируем цену для отображения
+  const formatPriceForMarker = (price) => {
+    if (!price) return null
+    const priceInMillions = price / 1000000
+    if (priceInMillions >= 1) {
+      return `${priceInMillions.toFixed(1)} млн`
+    }
+    return `${Math.round(price / 1000)} тыс`
+  }
+
+  // Загрузка данных блока при клике на маркер
+  const loadBlockData = async (blockId) => {
+    if (!authData || !authData.authenticated) return
+
+    setLoadingBlock(true)
+    try {
+      const params = {
+        phone: filters.phone,
+        password: filters.password,
+        formating: 'true',
+        reservation: 'true',
+      }
+
+      const [mapResponse, galleryResponse] = await Promise.all([
+        trendAgentAPI.getBlockMap(blockId, params),
+        trendAgentAPI.getBlockGallery(blockId, params).catch(() => ({ success: false, data: null }))
+      ])
+
+      if (mapResponse.success) {
+        setBlockData(mapResponse.data)
+      }
+      if (galleryResponse.success && galleryResponse.data) {
+        setBlockGallery(galleryResponse.data)
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки данных блока:', error)
+    } finally {
+      setLoadingBlock(false)
     }
   }
 
@@ -219,12 +308,18 @@ const ObjectsMap = () => {
           const coord = getCoordinates(obj)
           if (!coord) return null
           
+          const minPrice = getMinPrice(obj)
+          const priceText = formatPriceForMarker(minPrice)
+          
           return {
             blockId: obj._id || obj.id,
             blockGuid: obj.guid,
             blockName: obj.name || obj.title || 'Без названия',
             coord,
-            apartmentsCount: obj.places_count || obj.apartments_count || 0
+            apartmentsCount: obj.places_count || obj.apartments_count || 0,
+            minPrice,
+            priceText,
+            blockData: obj // Сохраняем исходные данные блока
           }
         })
         .filter(Boolean)
@@ -305,21 +400,63 @@ const ObjectsMap = () => {
       zoom: 11,
     })
 
-    // Добавляем метки для всех блоков
+    // Добавляем метки для всех блоков с кастомным HTML
     blocksWithCoords.forEach((block) => {
-      const { coord, blockId, blockGuid, blockName } = block
-      const apartmentsCount = block.apartmentsCount || block.apartments?.length || 0
+      const { coord, blockId, blockGuid, blockName, priceText, apartmentsCount } = block
+      
+      // Создаем кастомный HTML для маркера с ценой
+      const markerHtml = `
+        <div class="marker-with-text marker-with-text_building" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+        ">
+          <div class="marker-with-text__content-wrapper" style="
+            background: white;
+            border-radius: 20px;
+            padding: 4px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1a1a;
+            white-space: nowrap;
+          ">
+            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M1.079 4.109c0-.569.347-1.08.876-1.288L7.463.79c.909-.36 1.716.413 1.716 1.39V12.4h.9V5.402c0-.54.66-.873 1.122-.59l1.815.982c.412.251.663.699.663 1.181V12.4h.431c.259 0 .469.173.469.431 0 .26-.21.47-.469.47H.647a.469.469 0 0 1-.468-.47c0-.258.21-.43.468-.43h.432V4.108Z" fill="red"/>
+            </svg>
+            ${priceText || '—'}
+          </div>
+          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px;">
+            <path d="M0 0h16a8.073 8.073 0 0 0-7.884 6.945l-.038.267c-.018.128-.203.128-.221 0l-.046-.324A7.998 7.998 0 0 0 0 0Z" fill="#FAFAFA"/>
+          </svg>
+        </div>
+      `
+
+      // Создаем кастомную иконку через templateLayoutFactory
+      const customIconLayout = window.ymaps.templateLayoutFactory.createClass(markerHtml)
 
       const marker = new window.ymaps.Placemark(
         [coord.lat, coord.lon],
         {
-          balloonContent: `<div><strong>${blockName}</strong>${apartmentsCount > 0 ? `<br/>Квартир: ${apartmentsCount}` : ''}<br/><a href="/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}">Перейти к объекту</a></div>`,
-          hintContent: blockName,
+          balloonContent: `<div><strong>${blockName}</strong>${apartmentsCount > 0 ? `<br/>Квартир: ${apartmentsCount}` : ''}${priceText ? `<br/>Цена: ${priceText}` : ''}<br/><a href="/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}">Перейти к объекту</a></div>`,
+          hintContent: `${blockName}${priceText ? ` - ${priceText}` : ''}`,
         },
         {
-          preset: 'islands#blueCircleDotIcon',
+          iconLayout: customIconLayout,
+          iconImageSize: [90, 36],
+          iconImageOffset: [-45, -36],
         }
       )
+
+      // Обработчик клика на маркер
+      marker.events.add('click', () => {
+        setSelectedBlock(block)
+        loadBlockData(blockId)
+      })
 
       mapInstanceRef.current.geoObjects.add(marker)
       markersRef.current.push(marker)
@@ -380,6 +517,97 @@ const ObjectsMap = () => {
               style={{ width: '100%', height: '600px' }}
             />
           </div>
+
+          {/* Карточка блока при клике на маркер */}
+          {selectedBlock && (
+            <div className="block-card-overlay" onClick={() => setSelectedBlock(null)}>
+              <div className="block-card" onClick={(e) => e.stopPropagation()}>
+                {loadingBlock ? (
+                  <div className="loading">
+                    <div className="spinner"></div>
+                    <p>Загрузка данных...</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="block-card__header">
+                      <h2>{selectedBlock.blockName}</h2>
+                      <button 
+                        className="block-card__close"
+                        onClick={() => setSelectedBlock(null)}
+                        aria-label="Закрыть"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M13.8536 6.14645C14.0488 6.34171 14.0488 6.65829 13.8536 6.85355L10.707 10.0001L13.8536 13.1467C14.0488 13.342 14.0488 13.6585 13.8536 13.8538C13.6583 14.0491 13.3417 14.0491 13.1464 13.8538L9.99988 10.7072L6.85355 13.8536C6.65829 14.0488 6.34171 14.0488 6.14645 13.8536C5.95118 13.6583 5.95118 13.3417 6.14645 13.1464L9.29277 10.0001L6.14645 6.8538C5.95118 6.65854 5.95118 6.34195 6.14645 6.14669C6.34171 5.95143 6.65829 5.95143 6.85355 6.14669L9.99988 9.29302L13.1465 6.14645C13.3417 5.95118 13.6583 5.95118 13.8536 6.14645Z" fill="#4C4C4C"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {blockData && (
+                      <div className="block-card__content">
+                        {blockGallery && blockGallery.length > 0 && (
+                          <div className="block-card__images">
+                            <img 
+                              src={blockGallery[0]?.url || blockGallery[0]?.path || ''} 
+                              alt={selectedBlock.blockName}
+                              className="block-card__image"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="block-card__info">
+                          {blockData.address && (
+                            <div className="block-card__address">
+                              <strong>Адрес:</strong> {Array.isArray(blockData.address) ? blockData.address.join(', ') : blockData.address}
+                            </div>
+                          )}
+                          
+                          {blockData.builder && (
+                            <div className="block-card__builder">
+                              <strong>Застройщик:</strong> {blockData.builder.name || blockData.builder}
+                            </div>
+                          )}
+                          
+                          {blockData.deadline && (
+                            <div className="block-card__deadline">
+                              <strong>Срок сдачи:</strong> {blockData.deadline}
+                            </div>
+                          )}
+                          
+                          {blockData.apartmentsMinPrices && blockData.apartmentsMinPrices.length > 0 && (
+                            <div className="block-card__prices">
+                              <strong>Цены:</strong>
+                              <ul>
+                                {blockData.apartmentsMinPrices.map((price, idx) => (
+                                  <li key={idx}>
+                                    {price.rooms || price.room || '—'}: от {price.price || price.price_value || '—'} ₽
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {blockData.apart_count && (
+                            <div className="block-card__count">
+                              <strong>Квартир:</strong> {blockData.apart_count}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="block-card__footer">
+                          <a 
+                            href={`/trendagent/apartments/${selectedBlock.blockId}${selectedBlock.blockGuid ? `?guid=${selectedBlock.blockGuid}` : ''}`}
+                            className="block-card__link"
+                          >
+                            Перейти к объекту
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="objects-list">
             <h2>Список объектов</h2>

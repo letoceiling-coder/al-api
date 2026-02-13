@@ -1,0 +1,145 @@
+{
+    "data": {
+        "id": "683d8d4fe92855d2ef1566da",
+        "guid": "dk184-kopiya",
+        "name": "ДК-177",
+        "specialization": null,
+        "rating": null,
+        "experience": null,
+        "description": null,
+        "images": [
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/m1\/n6\/m_75f3fa859f659dca6c58d5fe7a525036.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/m1\/n6\/75f3fa859f659dca6c58d5fe7a525036.jpg",
+                "path": "m1\/n6\/",
+                "file_name": "75f3fa859f659dca6c58d5fe7a525036.jpg"
+            },
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/i5\/nl\/m_28e02f416d84bed1c655b0abea8ae042.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/i5\/nl\/28e02f416d84bed1c655b0abea8ae042.jpg",
+                "path": "i5\/nl\/",
+                "file_name": "28e02f416d84bed1c655b0abea8ae042.jpg"
+            },
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ov\/ci\/m_a3976815e50e0a91360af2f59e8093c5.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/ov\/ci\/a3976815e50e0a91360af2f59e8093c5.jpg",
+                "path": "ov\/ci\/",
+                "file_name": "a3976815e50e0a91360af2f59e8093c5.jpg"
+            },
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/14\/94\/m_212105a620196994ee26b4e457c6f9cb.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/14\/94\/212105a620196994ee26b4e457c6f9cb.jpg",
+                "path": "14\/94\/",
+                "file_name": "212105a620196994ee26b4e457c6f9cb.jpg"
+            }
+        ],
+        "contact": null,
+        "contractor": null,
+        "construction_time": null,
+        "technology": null,
+        "floors": null,
+        "bedrooms": null,
+        "bathrooms": null,
+        "finishing": null,
+        "min_price": null,
+        "max_price": null,
+        "min_prices": [],
+        "area_total": null,
+        "area_living": null,
+        "area_kitchen": null,
+        "area_terrace": null,
+        "_raw": {
+            "_id": "683d8d4fe92855d2ef1566da",
+            "guid": "dk184-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-177"
+            },
+            "images": [
+                {
+                    "path": "m1\/n6\/",
+                    "file_name": "75f3fa859f659dca6c58d5fe7a525036.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "i5\/nl\/",
+                    "file_name": "28e02f416d84bed1c655b0abea8ae042.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "ov\/ci\/",
+                    "file_name": "a3976815e50e0a91360af2f59e8093c5.jpg",
+                    "is_need_no_crop": true
+                },
+                {
+                    "path": "14\/94\/",
+                    "file_name": "212105a620196994ee26b4e457c6f9cb.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "2",
+                "unit": "санузла"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "4 054 170 – 5 910 680"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Чистовая"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "84",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "22.11",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "18.48",
+                "unit": "м²"
+            }
+        }
+    },
+    "source": "list",
+    "error": "Ошибка при запросе к API проекта подрядчика: Client error: `GET https:\/\/house-api.trendagent.ru\/v1\/projects\/683d8d4fe92855d2ef1566da?auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OThhMmM0YzA1MWZhYTUyZmFjMTMwYWMiLCJ0b2tlbl9pZCI6IjY5OGEyYzRjMDUxZmFhNTJmYWMxMzBhYyIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNjYyOTg4LCJleHAiOjE3NzA2NjMyODh9.GoRemkw3m6lfTC1oNtIyWN7zm2CrnzeVO0YRyHRn2DHuBUDb0R6T2fQx3mz9bY1vAoprd7j8ze0TZ45Ih6tDpcMl9aFSc9OQL10AZpzcfJyv4LQ-G04BmoGXn6UxY1R6cERAWU7KvYDs8P3q4raTkQCO9wUUecxh0Gf2ICl5Mwo&lang=ru` resulted in a `404 Not Found` response:\n{\"statusCode\":404,\"message\":{\"message\":\"Cannot GET \/v1\/projects\/683d8d4fe92855d2ef1566da?auth_token=eyJhbGciOiJSUzI1NiIs (truncated...)\n"
+}

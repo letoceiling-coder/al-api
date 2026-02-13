@@ -1,0 +1,1274 @@
+{
+    "success": true,
+    "data": {
+        "success": true,
+        "data": {
+            "_id": "654b4f099032d681c85a09bd",
+            "guid": "annino-siti",
+            "status": 1,
+            "geometry": {
+                "coordinates": [
+                    30.04767095239612,
+                    59.76912606634882
+                ],
+                "type": "Point"
+            },
+            "pano_url": "https:\/\/pano2.trendagent.ru\/annino-siti",
+            "type": 1,
+            "crm_id": 5976912930047883,
+            "is_with_prayer_room": null,
+            "is_with_gym": null,
+            "plan": [
+                {
+                    "file_name": "6b03c7128de0dbdee1433d1a9ed7b151.jpg",
+                    "path": "v5\/yi\/",
+                    "title": "",
+                    "alt": [
+                        ""
+                    ],
+                    "description": [
+                        ""
+                    ],
+                    "priority": [
+                        500
+                    ]
+                }
+            ],
+            "name": "Аннино Сити",
+            "description": "<p>Жилой комплекс представляет собой 8 монолитных корпусов высотой в четыре этажа. Фасады облицованы штукатуркой.<\/p>\n<p>В жилом комплексе предложено множество планировочных решений: в наличии квартиры, как классического типа, так и европланировки. Сдаются они без отделки, со стандартными окнами и высотой потолков на первом этаже &mdash; 3,37 метра, на типовых этажах &mdash; &nbsp;2,78 метра.<\/p>\n<p>На территории комплекса расположены детский сад и школа. По соседству расположен бассейн. Для владельцев автомобилей предусмотрен паркинг.<\/p>\n<p>Жилой комплекс расположен в Ломоносовском районе. Метро &laquo;Проспект Ветеранов&raquo; находится в 25 минутах транспортом.<\/p>",
+            "advantage": "",
+            "infrastructure": "",
+            "edit_mode": 1,
+            "is_with_garden": false,
+            "renderer": [
+                {
+                    "path": "sg\/9g\/",
+                    "file_name": "981e20f57547fdf9d4435cfdd99c9b5e.jpg",
+                    "priority": 1,
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "path": "l8\/34\/",
+                    "file_name": "ea46cf0b480a56730f77bdcaaa559a70.jpg",
+                    "priority": 2,
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "path": "72\/ew\/",
+                    "file_name": "3c27a25e36efd0d4f5425b139b0cc271.jpg",
+                    "priority": 4,
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                }
+            ],
+            "trakheesi_permit": [],
+            "builder": {
+                "_id": "58c665588b6aa52311afa0d6",
+                "guid": "gk-nsk",
+                "crm_id": 116,
+                "name": "ГК НСК"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург"
+            },
+            "district": {
+                "_id": "5983801cd07ed144bb7cca0b",
+                "guid": "lomonosovskiy",
+                "crm_id": 8,
+                "name": "Ломоносовский р-н, ЛО"
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "crm_id": 31
+            },
+            "address": "Поселок Аннино, ул Якова Золина",
+            "level_type": {
+                "_id": "65b8bfec34b5a527f81042ac",
+                "crm_id": 1,
+                "name": "Стандарт"
+            },
+            "exclusive": false,
+            "interactive_plan": [],
+            "subways": [
+                {
+                    "id": "58c665598b6aa52311afa1e7",
+                    "crm_id": 19,
+                    "name": "Проспект Ветеранов",
+                    "guid": "pr_veteranov",
+                    "line_number": 1,
+                    "distance_timing": 25,
+                    "distance_type": 2,
+                    "color": "#bb2f30"
+                }
+            ],
+            "point_distance": [],
+            "buildings": [
+                {
+                    "_id": "654b52aa9032d6cc565a0aca",
+                    "name": "4",
+                    "queue": 1,
+                    "deadline": "2025-12-31T12:00:00.000Z",
+                    "deadline_over_check": true,
+                    "escrow": false,
+                    "escrow_banks": [],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2026-03-31T12:00:00.000Z",
+                    "deadline_key_type": 1,
+                    "sales_start_at": "2023-11-30T12:00:00.000Z",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.045020929889375,
+                                    59.76955353596922
+                                ],
+                                [
+                                    30.04530524404498,
+                                    59.76954541951686
+                                ],
+                                [
+                                    30.045342794971187,
+                                    59.76993771288238
+                                ],
+                                [
+                                    30.04584168584797,
+                                    59.769921480145186
+                                ],
+                                [
+                                    30.04582022817584,
+                                    59.76953189207694
+                                ],
+                                [
+                                    30.04612600000355,
+                                    59.76952377561034
+                                ],
+                                [
+                                    30.046158186511732,
+                                    59.77007298538432
+                                ],
+                                [
+                                    30.045063845233635,
+                                    59.77009192349068
+                                ],
+                                [
+                                    30.045020929889375,
+                                    59.76955353596922
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "ул Якова Золина",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "ul Yakova Zolina"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Стоянка"
+                    ],
+                    "level_type": [],
+                    "finishing": [
+                        "Без отделки",
+                        "Чистовая дозаказ"
+                    ],
+                    "contract": [
+                        "КП"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 23,
+                    "subsidy": false,
+                    "installment": false,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                },
+                {
+                    "_id": "658152fa301b526becd02275",
+                    "name": "8",
+                    "queue": 1,
+                    "deadline": "2025-12-31T12:00:00.000Z",
+                    "deadline_over_check": true,
+                    "escrow": true,
+                    "escrow_banks": [
+                        "58c665588b6aa52311afa03b"
+                    ],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2026-03-31T12:00:00.000Z",
+                    "deadline_key_type": 1,
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.044999472217295,
+                                    59.76940473387283
+                                ],
+                                [
+                                    30.045321337299082,
+                                    59.76939391187559
+                                ],
+                                [
+                                    30.045289150790897,
+                                    59.76901513975423
+                                ],
+                                [
+                                    30.04569148214313,
+                                    59.76900431763027
+                                ],
+                                [
+                                    30.04569148214313,
+                                    59.768850101981336
+                                ],
+                                [
+                                    30.044978014545162,
+                                    59.768850101981336
+                                ],
+                                [
+                                    30.044999472217295,
+                                    59.76940473387283
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "ул Якова Золина",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "ul Yakova Zolina"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Стоянка"
+                    ],
+                    "level_type": [],
+                    "finishing": [
+                        "Без отделки",
+                        "Чистовая дозаказ"
+                    ],
+                    "contract": [
+                        "КП"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 15,
+                    "subsidy": false,
+                    "installment": false,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                },
+                {
+                    "_id": "6581557e301b5243c1d02344",
+                    "name": "8",
+                    "queue": 1,
+                    "deadline": "2025-12-31T12:00:00.000Z",
+                    "deadline_over_check": true,
+                    "escrow": true,
+                    "escrow_banks": [
+                        "58c665588b6aa52311afa03b"
+                    ],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2026-03-31T12:00:00.000Z",
+                    "deadline_key_type": 1,
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.045830957011894,
+                                    59.769082777949265
+                                ],
+                                [
+                                    30.04614209325763,
+                                    59.76908007242412
+                                ],
+                                [
+                                    30.046158186511732,
+                                    59.76938308987479
+                                ],
+                                [
+                                    30.04586314352008,
+                                    59.76938850087563
+                                ],
+                                [
+                                    30.045830957011894,
+                                    59.769082777949265
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "ул Якова Золина",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "ul Yakova Zolina"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Стоянка"
+                    ],
+                    "level_type": [],
+                    "finishing": [
+                        "Без отделки",
+                        "Чистовая дозаказ"
+                    ],
+                    "contract": [
+                        "КП"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 5,
+                    "subsidy": false,
+                    "installment": false,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                },
+                {
+                    "_id": "6653c7b7e43c640992cacab0",
+                    "name": "5",
+                    "queue": 1,
+                    "deadline": "2025-12-31T12:00:00.000Z",
+                    "deadline_over_check": true,
+                    "escrow": false,
+                    "escrow_banks": [],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2026-03-31T12:00:00.000Z",
+                    "deadline_key_type": 1,
+                    "sales_start_at": "2024-05-27T12:00:00.000Z",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.046919740461977,
+                                    59.769236423479434
+                                ],
+                                [
+                                    30.046613968634293,
+                                    59.769244540025106
+                                ],
+                                [
+                                    30.046721256994875,
+                                    59.770061594587084
+                                ],
+                                [
+                                    30.047820962691,
+                                    59.770023718329
+                                ],
+                                [
+                                    30.047783411764787,
+                                    59.76930947224732
+                                ],
+                                [
+                                    30.04748300435508,
+                                    59.76931758875723
+                                ],
+                                [
+                                    30.047525919699318,
+                                    59.769880329229224
+                                ],
+                                [
+                                    30.04701629998653,
+                                    59.76989656199546
+                                ],
+                                [
+                                    30.046919740461977,
+                                    59.769236423479434
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "поселок Аннино, ул Якова Золина",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "poselok Annino, ul Yakova Zolina"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Стоянка"
+                    ],
+                    "level_type": [],
+                    "finishing": [
+                        "Без отделки",
+                        "Чистовая дозаказ"
+                    ],
+                    "contract": [
+                        "КП"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 81,
+                    "subsidy": false,
+                    "installment": false,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                }
+            ],
+            "passport": {
+                "builder": {
+                    "label": "Застройщик",
+                    "value": "ГК НСК"
+                },
+                "level_type": {
+                    "label": "Класс недвижимости",
+                    "value": "Стандарт"
+                },
+                "sales_start_at": {
+                    "label": "Старт продаж",
+                    "value": "Май 2024 - корпус 5"
+                },
+                "deadline_key": {
+                    "label": "Срок передачи ключей",
+                    "value": "Идет передача"
+                },
+                "building_type": {
+                    "label": "Тип дома",
+                    "value": "Монолитный"
+                },
+                "facade_type": {
+                    "label": "Фасад",
+                    "value": "Штукатурка"
+                },
+                "finishing": {
+                    "label": "Отделка",
+                    "value": "Без отделки, Чистовая дозаказ"
+                },
+                "parking": {
+                    "label": "Паркинг",
+                    "value": "Стоянка"
+                },
+                "elevator": {
+                    "label": "Лифт",
+                    "value": "Нет лифта"
+                },
+                "payment": {
+                    "label": "Оплата",
+                    "value": "100% оплата, Ипотека, Военная ипотека"
+                },
+                "contract": {
+                    "label": "Договор",
+                    "value": "КП",
+                    "description": ""
+                },
+                "escrow": {
+                    "label": "Эскроу",
+                    "value": "Сбербанк (ПАО)"
+                }
+            },
+            "parking_count": 0,
+            "commerce_count": 1
+        },
+        "raw_response": {
+            "error": null,
+            "data": {
+                "_id": "654b4f099032d681c85a09bd",
+                "guid": "annino-siti",
+                "status": 1,
+                "geometry": {
+                    "coordinates": [
+                        30.04767095239612,
+                        59.76912606634882
+                    ],
+                    "type": "Point"
+                },
+                "pano_url": "https:\/\/pano2.trendagent.ru\/annino-siti",
+                "type": 1,
+                "crm_id": 5976912930047883,
+                "is_with_prayer_room": null,
+                "is_with_gym": null,
+                "plan": [
+                    {
+                        "file_name": "6b03c7128de0dbdee1433d1a9ed7b151.jpg",
+                        "path": "v5\/yi\/",
+                        "title": "",
+                        "alt": [
+                            ""
+                        ],
+                        "description": [
+                            ""
+                        ],
+                        "priority": [
+                            500
+                        ]
+                    }
+                ],
+                "name": "Аннино Сити",
+                "description": "<p>Жилой комплекс представляет собой 8 монолитных корпусов высотой в четыре этажа. Фасады облицованы штукатуркой.<\/p>\n<p>В жилом комплексе предложено множество планировочных решений: в наличии квартиры, как классического типа, так и европланировки. Сдаются они без отделки, со стандартными окнами и высотой потолков на первом этаже &mdash; 3,37 метра, на типовых этажах &mdash; &nbsp;2,78 метра.<\/p>\n<p>На территории комплекса расположены детский сад и школа. По соседству расположен бассейн. Для владельцев автомобилей предусмотрен паркинг.<\/p>\n<p>Жилой комплекс расположен в Ломоносовском районе. Метро &laquo;Проспект Ветеранов&raquo; находится в 25 минутах транспортом.<\/p>",
+                "advantage": "",
+                "infrastructure": "",
+                "edit_mode": 1,
+                "is_with_garden": false,
+                "renderer": [
+                    {
+                        "path": "sg\/9g\/",
+                        "file_name": "981e20f57547fdf9d4435cfdd99c9b5e.jpg",
+                        "priority": 1,
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    },
+                    {
+                        "path": "l8\/34\/",
+                        "file_name": "ea46cf0b480a56730f77bdcaaa559a70.jpg",
+                        "priority": 2,
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    },
+                    {
+                        "path": "72\/ew\/",
+                        "file_name": "3c27a25e36efd0d4f5425b139b0cc271.jpg",
+                        "priority": 4,
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    }
+                ],
+                "trakheesi_permit": [],
+                "builder": {
+                    "_id": "58c665588b6aa52311afa0d6",
+                    "guid": "gk-nsk",
+                    "crm_id": 116,
+                    "name": "ГК НСК"
+                },
+                "city": {
+                    "_id": "58c665588b6aa52311afa01b",
+                    "guid": "spb",
+                    "name": "Санкт-Петербург"
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca0b",
+                    "guid": "lomonosovskiy",
+                    "crm_id": 8,
+                    "name": "Ломоносовский р-н, ЛО"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "crm_id": 31
+                },
+                "address": "Поселок Аннино, ул Якова Золина",
+                "level_type": {
+                    "_id": "65b8bfec34b5a527f81042ac",
+                    "crm_id": 1,
+                    "name": "Стандарт"
+                },
+                "exclusive": false,
+                "interactive_plan": [],
+                "subways": [
+                    {
+                        "id": "58c665598b6aa52311afa1e7",
+                        "crm_id": 19,
+                        "name": "Проспект Ветеранов",
+                        "guid": "pr_veteranov",
+                        "line_number": 1,
+                        "distance_timing": 25,
+                        "distance_type": 2,
+                        "color": "#bb2f30"
+                    }
+                ],
+                "point_distance": [],
+                "buildings": [
+                    {
+                        "_id": "654b52aa9032d6cc565a0aca",
+                        "name": "4",
+                        "queue": 1,
+                        "deadline": "2025-12-31T12:00:00.000Z",
+                        "deadline_over_check": true,
+                        "escrow": false,
+                        "escrow_banks": [],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2026-03-31T12:00:00.000Z",
+                        "deadline_key_type": 1,
+                        "sales_start_at": "2023-11-30T12:00:00.000Z",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.045020929889375,
+                                        59.76955353596922
+                                    ],
+                                    [
+                                        30.04530524404498,
+                                        59.76954541951686
+                                    ],
+                                    [
+                                        30.045342794971187,
+                                        59.76993771288238
+                                    ],
+                                    [
+                                        30.04584168584797,
+                                        59.769921480145186
+                                    ],
+                                    [
+                                        30.04582022817584,
+                                        59.76953189207694
+                                    ],
+                                    [
+                                        30.04612600000355,
+                                        59.76952377561034
+                                    ],
+                                    [
+                                        30.046158186511732,
+                                        59.77007298538432
+                                    ],
+                                    [
+                                        30.045063845233635,
+                                        59.77009192349068
+                                    ],
+                                    [
+                                        30.045020929889375,
+                                        59.76955353596922
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "ул Якова Золина",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "ul Yakova Zolina"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Стоянка"
+                        ],
+                        "level_type": [],
+                        "finishing": [
+                            "Без отделки",
+                            "Чистовая дозаказ"
+                        ],
+                        "contract": [
+                            "КП"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 23,
+                        "subsidy": false,
+                        "installment": false,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    },
+                    {
+                        "_id": "658152fa301b526becd02275",
+                        "name": "8",
+                        "queue": 1,
+                        "deadline": "2025-12-31T12:00:00.000Z",
+                        "deadline_over_check": true,
+                        "escrow": true,
+                        "escrow_banks": [
+                            "58c665588b6aa52311afa03b"
+                        ],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2026-03-31T12:00:00.000Z",
+                        "deadline_key_type": 1,
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.044999472217295,
+                                        59.76940473387283
+                                    ],
+                                    [
+                                        30.045321337299082,
+                                        59.76939391187559
+                                    ],
+                                    [
+                                        30.045289150790897,
+                                        59.76901513975423
+                                    ],
+                                    [
+                                        30.04569148214313,
+                                        59.76900431763027
+                                    ],
+                                    [
+                                        30.04569148214313,
+                                        59.768850101981336
+                                    ],
+                                    [
+                                        30.044978014545162,
+                                        59.768850101981336
+                                    ],
+                                    [
+                                        30.044999472217295,
+                                        59.76940473387283
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "ул Якова Золина",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "ul Yakova Zolina"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Стоянка"
+                        ],
+                        "level_type": [],
+                        "finishing": [
+                            "Без отделки",
+                            "Чистовая дозаказ"
+                        ],
+                        "contract": [
+                            "КП"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 15,
+                        "subsidy": false,
+                        "installment": false,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    },
+                    {
+                        "_id": "6581557e301b5243c1d02344",
+                        "name": "8",
+                        "queue": 1,
+                        "deadline": "2025-12-31T12:00:00.000Z",
+                        "deadline_over_check": true,
+                        "escrow": true,
+                        "escrow_banks": [
+                            "58c665588b6aa52311afa03b"
+                        ],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2026-03-31T12:00:00.000Z",
+                        "deadline_key_type": 1,
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.045830957011894,
+                                        59.769082777949265
+                                    ],
+                                    [
+                                        30.04614209325763,
+                                        59.76908007242412
+                                    ],
+                                    [
+                                        30.046158186511732,
+                                        59.76938308987479
+                                    ],
+                                    [
+                                        30.04586314352008,
+                                        59.76938850087563
+                                    ],
+                                    [
+                                        30.045830957011894,
+                                        59.769082777949265
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "ул Якова Золина",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "ul Yakova Zolina"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Стоянка"
+                        ],
+                        "level_type": [],
+                        "finishing": [
+                            "Без отделки",
+                            "Чистовая дозаказ"
+                        ],
+                        "contract": [
+                            "КП"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 5,
+                        "subsidy": false,
+                        "installment": false,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    },
+                    {
+                        "_id": "6653c7b7e43c640992cacab0",
+                        "name": "5",
+                        "queue": 1,
+                        "deadline": "2025-12-31T12:00:00.000Z",
+                        "deadline_over_check": true,
+                        "escrow": false,
+                        "escrow_banks": [],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2026-03-31T12:00:00.000Z",
+                        "deadline_key_type": 1,
+                        "sales_start_at": "2024-05-27T12:00:00.000Z",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.046919740461977,
+                                        59.769236423479434
+                                    ],
+                                    [
+                                        30.046613968634293,
+                                        59.769244540025106
+                                    ],
+                                    [
+                                        30.046721256994875,
+                                        59.770061594587084
+                                    ],
+                                    [
+                                        30.047820962691,
+                                        59.770023718329
+                                    ],
+                                    [
+                                        30.047783411764787,
+                                        59.76930947224732
+                                    ],
+                                    [
+                                        30.04748300435508,
+                                        59.76931758875723
+                                    ],
+                                    [
+                                        30.047525919699318,
+                                        59.769880329229224
+                                    ],
+                                    [
+                                        30.04701629998653,
+                                        59.76989656199546
+                                    ],
+                                    [
+                                        30.046919740461977,
+                                        59.769236423479434
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "поселок Аннино, ул Якова Золина",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "poselok Annino, ul Yakova Zolina"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Стоянка"
+                        ],
+                        "level_type": [],
+                        "finishing": [
+                            "Без отделки",
+                            "Чистовая дозаказ"
+                        ],
+                        "contract": [
+                            "КП"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 81,
+                        "subsidy": false,
+                        "installment": false,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    }
+                ],
+                "passport": {
+                    "builder": {
+                        "label": "Застройщик",
+                        "value": "ГК НСК"
+                    },
+                    "level_type": {
+                        "label": "Класс недвижимости",
+                        "value": "Стандарт"
+                    },
+                    "sales_start_at": {
+                        "label": "Старт продаж",
+                        "value": "Май 2024 - корпус 5"
+                    },
+                    "deadline_key": {
+                        "label": "Срок передачи ключей",
+                        "value": "Идет передача"
+                    },
+                    "building_type": {
+                        "label": "Тип дома",
+                        "value": "Монолитный"
+                    },
+                    "facade_type": {
+                        "label": "Фасад",
+                        "value": "Штукатурка"
+                    },
+                    "finishing": {
+                        "label": "Отделка",
+                        "value": "Без отделки, Чистовая дозаказ"
+                    },
+                    "parking": {
+                        "label": "Паркинг",
+                        "value": "Стоянка"
+                    },
+                    "elevator": {
+                        "label": "Лифт",
+                        "value": "Нет лифта"
+                    },
+                    "payment": {
+                        "label": "Оплата",
+                        "value": "100% оплата, Ипотека, Военная ипотека"
+                    },
+                    "contract": {
+                        "label": "Договор",
+                        "value": "КП",
+                        "description": ""
+                    },
+                    "escrow": {
+                        "label": "Эскроу",
+                        "value": "Сбербанк (ПАО)"
+                    }
+                },
+                "parking_count": 0,
+                "commerce_count": 1
+            }
+        },
+        "apartments_brief": [],
+        "parkings_brief": [],
+        "commercial_brief": []
+    }
+}

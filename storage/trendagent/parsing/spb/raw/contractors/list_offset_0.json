@@ -1,0 +1,2773 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": "683db476e92855d2ef1568ce",
+            "guid": "dk177-kopiya",
+            "name": "ДК-172",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/w5\/b6\/m_c125b8983a9ebca8203656a7c5e2df67.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/w5\/b6\/c125b8983a9ebca8203656a7c5e2df67.jpg",
+                    "path": "w5\/b6\/",
+                    "file_name": "c125b8983a9ebca8203656a7c5e2df67.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/5m\/q4\/m_a59ca6ca5fe86cf87dfc7f3c0674952f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/5m\/q4\/a59ca6ca5fe86cf87dfc7f3c0674952f.jpg",
+                    "path": "5m\/q4\/",
+                    "file_name": "a59ca6ca5fe86cf87dfc7f3c0674952f.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683db476e92855d2ef1568ce",
+                "guid": "dk177-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-172"
+                },
+                "images": [
+                    {
+                        "path": "w5\/b6\/",
+                        "file_name": "c125b8983a9ebca8203656a7c5e2df67.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "5m\/q4\/",
+                        "file_name": "a59ca6ca5fe86cf87dfc7f3c0674952f.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "2 959 340 – 5 910 860"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "60",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "22.11",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "18.48",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683ef19ce92855d2ef156b81",
+            "guid": "dk171-kopiya",
+            "name": "ДК-204",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/gf\/tn\/m_36c476a99c2c829147ee8395ca6e1e50.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/gf\/tn\/36c476a99c2c829147ee8395ca6e1e50.jpg",
+                    "path": "gf\/tn\/",
+                    "file_name": "36c476a99c2c829147ee8395ca6e1e50.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/mn\/1l\/m_75b7bf78658a61bd1307ba18ace2b4db.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/mn\/1l\/75b7bf78658a61bd1307ba18ace2b4db.jpg",
+                    "path": "mn\/1l\/",
+                    "file_name": "75b7bf78658a61bd1307ba18ace2b4db.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683ef19ce92855d2ef156b81",
+                "guid": "dk171-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-204"
+                },
+                "images": [
+                    {
+                        "path": "gf\/tn\/",
+                        "file_name": "36c476a99c2c829147ee8395ca6e1e50.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "mn\/1l\/",
+                        "file_name": "75b7bf78658a61bd1307ba18ace2b4db.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "3 105 330 – 8 269 400"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "48",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "12.54",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "12.88",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683ef5bee92855d2ef156bd2",
+            "guid": "dk204-kopiya",
+            "name": "ДК-219",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/pi\/7u\/m_0c27f273063f5b40faac99314d846deb.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/pi\/7u\/0c27f273063f5b40faac99314d846deb.jpg",
+                    "path": "pi\/7u\/",
+                    "file_name": "0c27f273063f5b40faac99314d846deb.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/re\/9w\/m_3ca3e636d584ab344e7f777775e91160.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/re\/9w\/3ca3e636d584ab344e7f777775e91160.jpg",
+                    "path": "re\/9w\/",
+                    "file_name": "3ca3e636d584ab344e7f777775e91160.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683ef5bee92855d2ef156bd2",
+                "guid": "dk204-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-219"
+                },
+                "images": [
+                    {
+                        "path": "pi\/7u\/",
+                        "file_name": "0c27f273063f5b40faac99314d846deb.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "re\/9w\/",
+                        "file_name": "3ca3e636d584ab344e7f777775e91160.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "3 402 440 – 8 269 400"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "48",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "11.76",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "18.48",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67c84083cfede6bb20388293",
+            "guid": "kdt18-",
+            "name": "АНОЛА-60",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/91\/me\/m_45aafcfd8bb855f4582fa23cbdc68c0f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/91\/me\/45aafcfd8bb855f4582fa23cbdc68c0f.jpg",
+                    "path": "91\/me\/",
+                    "file_name": "45aafcfd8bb855f4582fa23cbdc68c0f.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/6r\/12\/m_af2bed56708b2d493d24d01564451feb.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/6r\/12\/af2bed56708b2d493d24d01564451feb.jpg",
+                    "path": "6r\/12\/",
+                    "file_name": "af2bed56708b2d493d24d01564451feb.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/7k\/sm\/m_53da2cb8aa1a863dc09a2fc3a5468e0f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/7k\/sm\/53da2cb8aa1a863dc09a2fc3a5468e0f.jpg",
+                    "path": "7k\/sm\/",
+                    "file_name": "53da2cb8aa1a863dc09a2fc3a5468e0f.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/gb\/ci\/m_4ed9377a3c9ee40065a4fb67efdd4b7d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/gb\/ci\/4ed9377a3c9ee40065a4fb67efdd4b7d.jpg",
+                    "path": "gb\/ci\/",
+                    "file_name": "4ed9377a3c9ee40065a4fb67efdd4b7d.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67c84083cfede6bb20388293",
+                "guid": "kdt18-",
+                "name": {
+                    "label": "Проект",
+                    "value": "АНОЛА-60"
+                },
+                "images": [
+                    {
+                        "path": "91\/me\/",
+                        "file_name": "45aafcfd8bb855f4582fa23cbdc68c0f.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "6r\/12\/",
+                        "file_name": "af2bed56708b2d493d24d01564451feb.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "7k\/sm\/",
+                        "file_name": "53da2cb8aa1a863dc09a2fc3a5468e0f.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "gb\/ci\/",
+                        "file_name": "4ed9377a3c9ee40065a4fb67efdd4b7d.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "6"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "unit": "м²",
+                    "value": 14.94
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "67c6a66ecfede6bb20387b44",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Белый остров"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "3 900 000 – 5 900 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "53.4",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "21.24",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "14",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683d8d4fe92855d2ef1566da",
+            "guid": "dk184-kopiya",
+            "name": "ДК-177",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/m1\/n6\/m_75f3fa859f659dca6c58d5fe7a525036.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/m1\/n6\/75f3fa859f659dca6c58d5fe7a525036.jpg",
+                    "path": "m1\/n6\/",
+                    "file_name": "75f3fa859f659dca6c58d5fe7a525036.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/i5\/nl\/m_28e02f416d84bed1c655b0abea8ae042.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/i5\/nl\/28e02f416d84bed1c655b0abea8ae042.jpg",
+                    "path": "i5\/nl\/",
+                    "file_name": "28e02f416d84bed1c655b0abea8ae042.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ov\/ci\/m_a3976815e50e0a91360af2f59e8093c5.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ov\/ci\/a3976815e50e0a91360af2f59e8093c5.jpg",
+                    "path": "ov\/ci\/",
+                    "file_name": "a3976815e50e0a91360af2f59e8093c5.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/14\/94\/m_212105a620196994ee26b4e457c6f9cb.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/14\/94\/212105a620196994ee26b4e457c6f9cb.jpg",
+                    "path": "14\/94\/",
+                    "file_name": "212105a620196994ee26b4e457c6f9cb.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683d8d4fe92855d2ef1566da",
+                "guid": "dk184-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-177"
+                },
+                "images": [
+                    {
+                        "path": "m1\/n6\/",
+                        "file_name": "75f3fa859f659dca6c58d5fe7a525036.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "i5\/nl\/",
+                        "file_name": "28e02f416d84bed1c655b0abea8ae042.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "ov\/ci\/",
+                        "file_name": "a3976815e50e0a91360af2f59e8093c5.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "14\/94\/",
+                        "file_name": "212105a620196994ee26b4e457c6f9cb.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 054 170 – 5 910 680"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "84",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "22.11",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "18.48",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683a001fe92855d2ef156438",
+            "guid": "dk181-kopiya",
+            "name": "ДК-184",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/2w\/mz\/m_8c2bb172bd6b30072bba9fb0544d6366.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/2w\/mz\/8c2bb172bd6b30072bba9fb0544d6366.jpg",
+                    "path": "2w\/mz\/",
+                    "file_name": "8c2bb172bd6b30072bba9fb0544d6366.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/hl\/ey\/m_ed9a43b4d13b3f627e46213ad752a7ca.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/hl\/ey\/ed9a43b4d13b3f627e46213ad752a7ca.jpg",
+                    "path": "hl\/ey\/",
+                    "file_name": "ed9a43b4d13b3f627e46213ad752a7ca.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/xb\/bd\/m_9fbe88362742dad46d1da34c74a1242e.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/xb\/bd\/9fbe88362742dad46d1da34c74a1242e.jpg",
+                    "path": "xb\/bd\/",
+                    "file_name": "9fbe88362742dad46d1da34c74a1242e.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/r0\/om\/m_d23bd02b5a44e90e990e9d0503ae9b45.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/r0\/om\/d23bd02b5a44e90e990e9d0503ae9b45.jpg",
+                    "path": "r0\/om\/",
+                    "file_name": "d23bd02b5a44e90e990e9d0503ae9b45.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683a001fe92855d2ef156438",
+                "guid": "dk181-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-184"
+                },
+                "images": [
+                    {
+                        "path": "2w\/mz\/",
+                        "file_name": "8c2bb172bd6b30072bba9fb0544d6366.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "hl\/ey\/",
+                        "file_name": "ed9a43b4d13b3f627e46213ad752a7ca.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "xb\/bd\/",
+                        "file_name": "9fbe88362742dad46d1da34c74a1242e.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "r0\/om\/",
+                        "file_name": "d23bd02b5a44e90e990e9d0503ae9b45.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "2",
+                    "unit": "этажа"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 054 170 – 7 271 880"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "112",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "24.17",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "33.88",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683eee7ee92855d2ef156b27",
+            "guid": "dk172-kopiya",
+            "name": "ДК-171",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/9m\/ct\/m_5d4cc1b8a49cda22777e6ad8f9ef486c.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/9m\/ct\/5d4cc1b8a49cda22777e6ad8f9ef486c.jpg",
+                    "path": "9m\/ct\/",
+                    "file_name": "5d4cc1b8a49cda22777e6ad8f9ef486c.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/v1\/ic\/m_6a761e3312482cd1618e13f68f5aa8ce.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/v1\/ic\/6a761e3312482cd1618e13f68f5aa8ce.jpg",
+                    "path": "v1\/ic\/",
+                    "file_name": "6a761e3312482cd1618e13f68f5aa8ce.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/c8\/w6\/m_d9c32131e77b1a9e5be74a46ef696cd8.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/c8\/w6\/d9c32131e77b1a9e5be74a46ef696cd8.jpg",
+                    "path": "c8\/w6\/",
+                    "file_name": "d9c32131e77b1a9e5be74a46ef696cd8.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/06\/zw\/m_63b162d97c551b15dc8f325853daac2e.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/06\/zw\/63b162d97c551b15dc8f325853daac2e.jpg",
+                    "path": "06\/zw\/",
+                    "file_name": "63b162d97c551b15dc8f325853daac2e.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683eee7ee92855d2ef156b27",
+                "guid": "dk172-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-171"
+                },
+                "images": [
+                    {
+                        "path": "9m\/ct\/",
+                        "file_name": "5d4cc1b8a49cda22777e6ad8f9ef486c.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "v1\/ic\/",
+                        "file_name": "6a761e3312482cd1618e13f68f5aa8ce.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "c8\/w6\/",
+                        "file_name": "d9c32131e77b1a9e5be74a46ef696cd8.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "06\/zw\/",
+                        "file_name": "63b162d97c551b15dc8f325853daac2e.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 054 170 – 8 269 400"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "99",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "27.14",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "30.02",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "6839f46ae92855d2ef15630a",
+            "guid": "dk181",
+            "name": "ДК-181",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ky\/72\/m_38b0d860fe98cc6dedfd9d4ecb3e2151.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ky\/72\/38b0d860fe98cc6dedfd9d4ecb3e2151.jpg",
+                    "path": "ky\/72\/",
+                    "file_name": "38b0d860fe98cc6dedfd9d4ecb3e2151.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/o5\/mp\/m_e315758467ecce02eaf6560da74ae4b4.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/o5\/mp\/e315758467ecce02eaf6560da74ae4b4.jpg",
+                    "path": "o5\/mp\/",
+                    "file_name": "e315758467ecce02eaf6560da74ae4b4.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/st\/33\/m_016b0ac1070e754ee6d0371ab2e7419d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/st\/33\/016b0ac1070e754ee6d0371ab2e7419d.jpg",
+                    "path": "st\/33\/",
+                    "file_name": "016b0ac1070e754ee6d0371ab2e7419d.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/9a\/kh\/m_ffd5cbce988542672918ff9633e31dca.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/9a\/kh\/ffd5cbce988542672918ff9633e31dca.jpg",
+                    "path": "9a\/kh\/",
+                    "file_name": "ffd5cbce988542672918ff9633e31dca.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/vr\/ee\/m_3127f51993763d3345ed69d6af34a84d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/vr\/ee\/3127f51993763d3345ed69d6af34a84d.jpg",
+                    "path": "vr\/ee\/",
+                    "file_name": "3127f51993763d3345ed69d6af34a84d.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "6839f46ae92855d2ef15630a",
+                "guid": "dk181",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-181"
+                },
+                "images": [
+                    {
+                        "path": "ky\/72\/",
+                        "file_name": "38b0d860fe98cc6dedfd9d4ecb3e2151.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "o5\/mp\/",
+                        "file_name": "e315758467ecce02eaf6560da74ae4b4.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "st\/33\/",
+                        "file_name": "016b0ac1070e754ee6d0371ab2e7419d.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "9a\/kh\/",
+                        "file_name": "ffd5cbce988542672918ff9633e31dca.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "vr\/ee\/",
+                        "file_name": "3127f51993763d3345ed69d6af34a84d.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "2",
+                    "unit": "этажа"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "4",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 054 170 – 8 815 100"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "140",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "8.12",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "74.76",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67a5e08edf7ccbb89337e3c2",
+            "guid": "era-48-aframe",
+            "name": "ERA 48 A-FRAME",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/si\/yi\/m_1926933267adde8c7e0648adf736e9ba.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/si\/yi\/1926933267adde8c7e0648adf736e9ba.jpg",
+                    "path": "si\/yi\/",
+                    "file_name": "1926933267adde8c7e0648adf736e9ba.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ry\/o6\/m_5519cb5730a08e9a7e35748c28e68991.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ry\/o6\/5519cb5730a08e9a7e35748c28e68991.jpg",
+                    "path": "ry\/o6\/",
+                    "file_name": "5519cb5730a08e9a7e35748c28e68991.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/q2\/di\/m_93ea10d21fd79bad8a59c774f2c51d4b.png",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/q2\/di\/93ea10d21fd79bad8a59c774f2c51d4b.png",
+                    "path": "q2\/di\/",
+                    "file_name": "93ea10d21fd79bad8a59c774f2c51d4b.png"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/cn\/3r\/m_f6648fccad6afe953e80aa8948c0d26f.png",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/cn\/3r\/f6648fccad6afe953e80aa8948c0d26f.png",
+                    "path": "cn\/3r\/",
+                    "file_name": "f6648fccad6afe953e80aa8948c0d26f.png"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67a5e08edf7ccbb89337e3c2",
+                "guid": "era-48-aframe",
+                "name": {
+                    "label": "Проект",
+                    "value": "ERA 48 A-FRAME"
+                },
+                "images": [
+                    {
+                        "path": "si\/yi\/",
+                        "file_name": "1926933267adde8c7e0648adf736e9ba.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "ry\/o6\/",
+                        "file_name": "5519cb5730a08e9a7e35748c28e68991.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "q2\/di\/",
+                        "file_name": "93ea10d21fd79bad8a59c774f2c51d4b.png",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "cn\/3r\/",
+                        "file_name": "f6648fccad6afe953e80aa8948c0d26f.png",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "67a5dd64df7ccbb89337e374",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Era House"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "2",
+                    "unit": "этажа"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "1",
+                    "unit": "спальня"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 123 360"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "48",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "19.3",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "6.5",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67a375b2df7ccbb89337d48e",
+            "guid": "germes",
+            "name": "Гермес",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/4e\/2w\/m_2191524fd6df3a3a7ed95d7b48e1b14c.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/4e\/2w\/2191524fd6df3a3a7ed95d7b48e1b14c.jpg",
+                    "path": "4e\/2w\/",
+                    "file_name": "2191524fd6df3a3a7ed95d7b48e1b14c.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/kp\/2s\/m_215a1137b5816203f91b9205b7c2db38.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/kp\/2s\/215a1137b5816203f91b9205b7c2db38.jpg",
+                    "path": "kp\/2s\/",
+                    "file_name": "215a1137b5816203f91b9205b7c2db38.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ra\/uw\/m_508e8579d9fd63cae86eb18e57c1f070.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ra\/uw\/508e8579d9fd63cae86eb18e57c1f070.jpg",
+                    "path": "ra\/uw\/",
+                    "file_name": "508e8579d9fd63cae86eb18e57c1f070.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/25\/pq\/m_549ca997ce7c6b7305595058e9abc181.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/25\/pq\/549ca997ce7c6b7305595058e9abc181.jpg",
+                    "path": "25\/pq\/",
+                    "file_name": "549ca997ce7c6b7305595058e9abc181.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67a375b2df7ccbb89337d48e",
+                "guid": "germes",
+                "name": {
+                    "label": "Проект",
+                    "value": "Гермес"
+                },
+                "images": [
+                    {
+                        "path": "4e\/2w\/",
+                        "file_name": "2191524fd6df3a3a7ed95d7b48e1b14c.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "kp\/2s\/",
+                        "file_name": "215a1137b5816203f91b9205b7c2db38.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "ra\/uw\/",
+                        "file_name": "508e8579d9fd63cae86eb18e57c1f070.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "25\/pq\/",
+                        "file_name": "549ca997ce7c6b7305595058e9abc181.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4-4.8%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Дозаказ"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Сруб"
+                },
+                "contractor_id": "67a34217df7ccbb89337cfee",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Вологодское зодчество"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "2",
+                    "unit": "этажа"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 190 000 – 10 120 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "119",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "26.55",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "36.99",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683ec435e92855d2ef156a12",
+            "guid": "dk177-kopiya-kopiya",
+            "name": "Б-11",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/cn\/xv\/m_91d488bf149c534b0598cffd3b900338.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/cn\/xv\/91d488bf149c534b0598cffd3b900338.jpg",
+                    "path": "cn\/xv\/",
+                    "file_name": "91d488bf149c534b0598cffd3b900338.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/4w\/8u\/m_1ab6c00b5be036e8b6bc8e8c1829af3d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/4w\/8u\/1ab6c00b5be036e8b6bc8e8c1829af3d.jpg",
+                    "path": "4w\/8u\/",
+                    "file_name": "1ab6c00b5be036e8b6bc8e8c1829af3d.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/f7\/l3\/m_71ec7dcdae0305274c8049d2044bf4dc.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/f7\/l3\/71ec7dcdae0305274c8049d2044bf4dc.jpg",
+                    "path": "f7\/l3\/",
+                    "file_name": "71ec7dcdae0305274c8049d2044bf4dc.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/i1\/7u\/m_67710bdb78da212f85c09f6e200d6649.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/i1\/7u\/67710bdb78da212f85c09f6e200d6649.jpg",
+                    "path": "i1\/7u\/",
+                    "file_name": "67710bdb78da212f85c09f6e200d6649.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683ec435e92855d2ef156a12",
+                "guid": "dk177-kopiya-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "Б-11"
+                },
+                "images": [
+                    {
+                        "path": "cn\/xv\/",
+                        "file_name": "91d488bf149c534b0598cffd3b900338.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "4w\/8u\/",
+                        "file_name": "1ab6c00b5be036e8b6bc8e8c1829af3d.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "f7\/l3\/",
+                        "file_name": "71ec7dcdae0305274c8049d2044bf4dc.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "i1\/7u\/",
+                        "file_name": "67710bdb78da212f85c09f6e200d6649.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "4 918 430 – 9 297 470"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "96",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "26.93",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "28",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "683f1212e92855d2ef156f54",
+            "guid": "dk192-kopiya",
+            "name": "ДК-85",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/6r\/cn\/m_0a8ddd51cf4b620eca969ed27b4b0af1.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/6r\/cn\/0a8ddd51cf4b620eca969ed27b4b0af1.jpg",
+                    "path": "6r\/cn\/",
+                    "file_name": "0a8ddd51cf4b620eca969ed27b4b0af1.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/wn\/g2\/m_1998da43bddb0d9f70b8c9f4c6df1720.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/wn\/g2\/1998da43bddb0d9f70b8c9f4c6df1720.jpg",
+                    "path": "wn\/g2\/",
+                    "file_name": "1998da43bddb0d9f70b8c9f4c6df1720.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ck\/dz\/m_c823d00923c3f31be0440e73a5fadd16.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ck\/dz\/c823d00923c3f31be0440e73a5fadd16.jpg",
+                    "path": "ck\/dz\/",
+                    "file_name": "c823d00923c3f31be0440e73a5fadd16.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "683f1212e92855d2ef156f54",
+                "guid": "dk192-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "ДК-85"
+                },
+                "images": [
+                    {
+                        "path": "6r\/cn\/",
+                        "file_name": "0a8ddd51cf4b620eca969ed27b4b0af1.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "wn\/g2\/",
+                        "file_name": "1998da43bddb0d9f70b8c9f4c6df1720.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "ck\/dz\/",
+                        "file_name": "c823d00923c3f31be0440e73a5fadd16.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 5"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Площадь не указана"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "680dfc126b12fbddb3c31a35",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "СК Дачник"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "2",
+                    "unit": "этажа"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "5",
+                    "unit": "спален"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 367 930 – 11 482 640"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "126",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "24.42",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "47.66",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "68daa96efaae84fb987aab90",
+            "guid": "donat",
+            "name": "Донат",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/cr\/7x\/m_2127694c7280881eb22ab0f08ed7580c.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/cr\/7x\/2127694c7280881eb22ab0f08ed7580c.jpg",
+                    "path": "cr\/7x\/",
+                    "file_name": "2127694c7280881eb22ab0f08ed7580c.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/d8\/3b\/m_30d34f4b26f4606562492800b82f0cea.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/d8\/3b\/30d34f4b26f4606562492800b82f0cea.jpg",
+                    "path": "d8\/3b\/",
+                    "file_name": "30d34f4b26f4606562492800b82f0cea.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "68daa96efaae84fb987aab90",
+                "guid": "donat",
+                "name": {
+                    "label": "Проект",
+                    "value": "Донат"
+                },
+                "images": [
+                    {
+                        "path": "cr\/7x\/",
+                        "file_name": "2127694c7280881eb22ab0f08ed7580c.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "d8\/3b\/",
+                        "file_name": "30d34f4b26f4606562492800b82f0cea.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "unit": "м²",
+                    "value": 17
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "68da9ba1faae84fb987aa975",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Всем Дом"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 463 110 – 8 144 338"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "64.8",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "23",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "20",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67b5cd35df7ccbb89338500f",
+            "guid": "barn1",
+            "name": "Барн",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/k9\/0u\/m_5e9fd04810e5ca693a49b0abf51e528d.jpeg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/k9\/0u\/5e9fd04810e5ca693a49b0abf51e528d.jpeg",
+                    "path": "k9\/0u\/",
+                    "file_name": "5e9fd04810e5ca693a49b0abf51e528d.jpeg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/pn\/q7\/m_9f6de941cd1b2d426595cfefcd90dea6.jpeg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/pn\/q7\/9f6de941cd1b2d426595cfefcd90dea6.jpeg",
+                    "path": "pn\/q7\/",
+                    "file_name": "9f6de941cd1b2d426595cfefcd90dea6.jpeg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/wm\/ky\/m_6de4500cd36b8494d549a75e2e672a32.jpeg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/wm\/ky\/6de4500cd36b8494d549a75e2e672a32.jpeg",
+                    "path": "wm\/ky\/",
+                    "file_name": "6de4500cd36b8494d549a75e2e672a32.jpeg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/13\/iz\/m_d01d53dc2bb17ae0c70bc83d7a0da7df.jpeg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/13\/iz\/d01d53dc2bb17ae0c70bc83d7a0da7df.jpeg",
+                    "path": "13\/iz\/",
+                    "file_name": "d01d53dc2bb17ae0c70bc83d7a0da7df.jpeg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/fn\/pf\/m_7fb53ba621262d7df04eafafd777d9ec.png",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/fn\/pf\/7fb53ba621262d7df04eafafd777d9ec.png",
+                    "path": "fn\/pf\/",
+                    "file_name": "7fb53ba621262d7df04eafafd777d9ec.png"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67b5cd35df7ccbb89338500f",
+                "guid": "barn1",
+                "name": {
+                    "label": "Проект",
+                    "value": "Барн"
+                },
+                "images": [
+                    {
+                        "path": "k9\/0u\/",
+                        "file_name": "5e9fd04810e5ca693a49b0abf51e528d.jpeg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "pn\/q7\/",
+                        "file_name": "9f6de941cd1b2d426595cfefcd90dea6.jpeg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "wm\/ky\/",
+                        "file_name": "6de4500cd36b8494d549a75e2e672a32.jpeg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "13\/iz\/",
+                        "file_name": "d01d53dc2bb17ae0c70bc83d7a0da7df.jpeg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "fn\/pf\/",
+                        "file_name": "7fb53ba621262d7df04eafafd777d9ec.png",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 4 до 8"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Дозаказ"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "67b4d3dbdf7ccbb8933840c4",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "GP Development"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 735 000 – 7 735 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "60.26",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "22.83",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "22.62",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67aa1005df7ccbb89337f1fd",
+            "guid": "era-62",
+            "name": "ERA 62",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/5u\/x3\/m_c7f9bd5362e113cf2983ba2ebfd60457.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/5u\/x3\/c7f9bd5362e113cf2983ba2ebfd60457.jpg",
+                    "path": "5u\/x3\/",
+                    "file_name": "c7f9bd5362e113cf2983ba2ebfd60457.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/fc\/7q\/m_7e2acdb5ccd557d1d9100ab7e9fda79f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/fc\/7q\/7e2acdb5ccd557d1d9100ab7e9fda79f.jpg",
+                    "path": "fc\/7q\/",
+                    "file_name": "7e2acdb5ccd557d1d9100ab7e9fda79f.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ls\/0f\/m_83b76c95e30d19bec92ddcba098de016.png",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ls\/0f\/83b76c95e30d19bec92ddcba098de016.png",
+                    "path": "ls\/0f\/",
+                    "file_name": "83b76c95e30d19bec92ddcba098de016.png"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67aa1005df7ccbb89337f1fd",
+                "guid": "era-62",
+                "name": {
+                    "label": "Проект",
+                    "value": "ERA 62"
+                },
+                "images": [
+                    {
+                        "path": "5u\/x3\/",
+                        "file_name": "c7f9bd5362e113cf2983ba2ebfd60457.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "fc\/7q\/",
+                        "file_name": "7e2acdb5ccd557d1d9100ab7e9fda79f.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "ls\/0f\/",
+                        "file_name": "83b76c95e30d19bec92ddcba098de016.png",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "unit": "м²",
+                    "value": 8.52
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "67a5dd64df7ccbb89337e374",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Era House"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 807 286"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "62",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "19.74",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "18.71",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67a4694fdf7ccbb89337d716",
+            "guid": "eney",
+            "name": "Эней",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/pd\/ic\/m_62bd4f0a128ecbb35fae2e2f254a58aa.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/pd\/ic\/62bd4f0a128ecbb35fae2e2f254a58aa.jpg",
+                    "path": "pd\/ic\/",
+                    "file_name": "62bd4f0a128ecbb35fae2e2f254a58aa.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/zd\/7g\/m_594c69363254c9fd2b6e173fb734d575.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/zd\/7g\/594c69363254c9fd2b6e173fb734d575.jpg",
+                    "path": "zd\/7g\/",
+                    "file_name": "594c69363254c9fd2b6e173fb734d575.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/p5\/hu\/m_aac82d07fcab8c987a049e7b7cb8fa40.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/p5\/hu\/aac82d07fcab8c987a049e7b7cb8fa40.jpg",
+                    "path": "p5\/hu\/",
+                    "file_name": "aac82d07fcab8c987a049e7b7cb8fa40.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/xs\/r3\/m_0305dc44baa33d23a4734f40a910d911.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/xs\/r3\/0305dc44baa33d23a4734f40a910d911.jpg",
+                    "path": "xs\/r3\/",
+                    "file_name": "0305dc44baa33d23a4734f40a910d911.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/0u\/e1\/m_575c48549bc6d006c480ad4259a24bb8.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/0u\/e1\/575c48549bc6d006c480ad4259a24bb8.jpg",
+                    "path": "0u\/e1\/",
+                    "file_name": "575c48549bc6d006c480ad4259a24bb8.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67a4694fdf7ccbb89337d716",
+                "guid": "eney",
+                "name": {
+                    "label": "Проект",
+                    "value": "Эней"
+                },
+                "images": [
+                    {
+                        "path": "pd\/ic\/",
+                        "file_name": "62bd4f0a128ecbb35fae2e2f254a58aa.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "zd\/7g\/",
+                        "file_name": "594c69363254c9fd2b6e173fb734d575.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "p5\/hu\/",
+                        "file_name": "aac82d07fcab8c987a049e7b7cb8fa40.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "xs\/r3\/",
+                        "file_name": "0305dc44baa33d23a4734f40a910d911.jpg",
+                        "is_need_no_crop": true
+                    },
+                    {
+                        "path": "0u\/e1\/",
+                        "file_name": "575c48549bc6d006c480ad4259a24bb8.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4-4.8%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Дозаказ"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Клееный брус"
+                },
+                "contractor_id": "67a34217df7ccbb89337cfee",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Вологодское зодчество"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 900 000 – 9 670 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "85",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "28.23",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "19.73",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "686f6fe278455e3a07f1a967",
+            "guid": "vaskelovo-kopiya",
+            "name": "Акватория",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/us\/hd\/m_dfe72117596b13661f808eb8ba63f6fa.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/us\/hd\/dfe72117596b13661f808eb8ba63f6fa.jpg",
+                    "path": "us\/hd\/",
+                    "file_name": "dfe72117596b13661f808eb8ba63f6fa.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/z4\/3m\/m_41ddf7b0059fbbf2dca4e83d5e036dbb.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/z4\/3m\/41ddf7b0059fbbf2dca4e83d5e036dbb.jpg",
+                    "path": "z4\/3m\/",
+                    "file_name": "41ddf7b0059fbbf2dca4e83d5e036dbb.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/zz\/ql\/m_8b213945959ceff5591bfaf02f090932.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/zz\/ql\/8b213945959ceff5591bfaf02f090932.jpg",
+                    "path": "zz\/ql\/",
+                    "file_name": "8b213945959ceff5591bfaf02f090932.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/8x\/qz\/m_48707d1c1b787d6ac13c53f2a2f2fb0c.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/8x\/qz\/48707d1c1b787d6ac13c53f2a2f2fb0c.jpg",
+                    "path": "8x\/qz\/",
+                    "file_name": "48707d1c1b787d6ac13c53f2a2f2fb0c.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/t1\/95\/m_e2a7bac3d3d04ff861573389d85fdbe1.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/t1\/95\/e2a7bac3d3d04ff861573389d85fdbe1.jpg",
+                    "path": "t1\/95\/",
+                    "file_name": "e2a7bac3d3d04ff861573389d85fdbe1.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "686f6fe278455e3a07f1a967",
+                "guid": "vaskelovo-kopiya",
+                "name": {
+                    "label": "Проект",
+                    "value": "Акватория"
+                },
+                "images": [
+                    {
+                        "path": "us\/hd\/",
+                        "file_name": "dfe72117596b13661f808eb8ba63f6fa.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "z4\/3m\/",
+                        "file_name": "41ddf7b0059fbbf2dca4e83d5e036dbb.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "zz\/ql\/",
+                        "file_name": "8b213945959ceff5591bfaf02f090932.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "8x\/qz\/",
+                        "file_name": "48707d1c1b787d6ac13c53f2a2f2fb0c.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "t1\/95\/",
+                        "file_name": "e2a7bac3d3d04ff861573389d85fdbe1.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "5.6%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяцев",
+                    "value": "от 8 до 10"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "unit": "м²",
+                    "value": 10
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Газобетон"
+                },
+                "contractor_id": "68414af2e92855d2ef157cde",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Петрострой"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "1",
+                    "unit": "спальня"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "5 940 000 – 11 000 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "85.44",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "36.3",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "15.6",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "67a34580df7ccbb89337d012",
+            "guid": "kameli",
+            "name": "Камели",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/iy\/w8\/m_99e671fff0ea6523fc7747cf2908a268.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/iy\/w8\/99e671fff0ea6523fc7747cf2908a268.jpg",
+                    "path": "iy\/w8\/",
+                    "file_name": "99e671fff0ea6523fc7747cf2908a268.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/yg\/ez\/m_4a181ef398c28f1dd751ff717e04f08d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/yg\/ez\/4a181ef398c28f1dd751ff717e04f08d.jpg",
+                    "path": "yg\/ez\/",
+                    "file_name": "4a181ef398c28f1dd751ff717e04f08d.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/zc\/ok\/m_f5e17adc6b618dc413c8a3907ce417e4.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/zc\/ok\/f5e17adc6b618dc413c8a3907ce417e4.jpg",
+                    "path": "zc\/ok\/",
+                    "file_name": "f5e17adc6b618dc413c8a3907ce417e4.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/is\/8b\/m_9e9f2a9866eaa4d22c943d9269f1da7d.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/is\/8b\/9e9f2a9866eaa4d22c943d9269f1da7d.jpg",
+                    "path": "is\/8b\/",
+                    "file_name": "9e9f2a9866eaa4d22c943d9269f1da7d.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/nh\/la\/m_308e9f210eadc6fa7ca9e4383afbf619.png",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/nh\/la\/308e9f210eadc6fa7ca9e4383afbf619.png",
+                    "path": "nh\/la\/",
+                    "file_name": "308e9f210eadc6fa7ca9e4383afbf619.png"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "67a34580df7ccbb89337d012",
+                "guid": "kameli",
+                "name": {
+                    "label": "Проект",
+                    "value": "Камели"
+                },
+                "images": [
+                    {
+                        "path": "iy\/w8\/",
+                        "file_name": "99e671fff0ea6523fc7747cf2908a268.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "yg\/ez\/",
+                        "file_name": "4a181ef398c28f1dd751ff717e04f08d.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "zc\/ok\/",
+                        "file_name": "f5e17adc6b618dc413c8a3907ce417e4.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "is\/8b\/",
+                        "file_name": "9e9f2a9866eaa4d22c943d9269f1da7d.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "nh\/la\/",
+                        "file_name": "308e9f210eadc6fa7ca9e4383afbf619.png",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4-4.8%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "value": "Дозаказ"
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Газобетон"
+                },
+                "contractor_id": "67a34217df7ccbb89337cfee",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Вологодское зодчество"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "2",
+                    "unit": "санузла"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "6 011 000 – 13 000 000"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "98.8",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "35.7",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "36.9",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "68dd0d819c8e290b540d9739",
+            "guid": "older",
+            "name": "Олдер ",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/nt\/hu\/m_2d3a44ea0e26674d585dae8784609de5.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/nt\/hu\/2d3a44ea0e26674d585dae8784609de5.jpg",
+                    "path": "nt\/hu\/",
+                    "file_name": "2d3a44ea0e26674d585dae8784609de5.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/z0\/ih\/m_81d7a93ccfa026d2387eea7da71f7bef.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/z0\/ih\/81d7a93ccfa026d2387eea7da71f7bef.jpg",
+                    "path": "z0\/ih\/",
+                    "file_name": "81d7a93ccfa026d2387eea7da71f7bef.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/4t\/7w\/m_8bdb560ff90fed006f22baa099660f7f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/4t\/7w\/8bdb560ff90fed006f22baa099660f7f.jpg",
+                    "path": "4t\/7w\/",
+                    "file_name": "8bdb560ff90fed006f22baa099660f7f.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/ny\/ab\/m_87d8ecc658c871633e82ad48a53d41b6.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/ny\/ab\/87d8ecc658c871633e82ad48a53d41b6.jpg",
+                    "path": "ny\/ab\/",
+                    "file_name": "87d8ecc658c871633e82ad48a53d41b6.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/t9\/ii\/m_36d9d903a11fd1a552bb9e08c3c3552f.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/t9\/ii\/36d9d903a11fd1a552bb9e08c3c3552f.jpg",
+                    "path": "t9\/ii\/",
+                    "file_name": "36d9d903a11fd1a552bb9e08c3c3552f.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "68dd0d819c8e290b540d9739",
+                "guid": "older",
+                "name": {
+                    "label": "Проект",
+                    "value": "Олдер "
+                },
+                "images": [
+                    {
+                        "path": "nt\/hu\/",
+                        "file_name": "2d3a44ea0e26674d585dae8784609de5.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "z0\/ih\/",
+                        "file_name": "81d7a93ccfa026d2387eea7da71f7bef.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "4t\/7w\/",
+                        "file_name": "8bdb560ff90fed006f22baa099660f7f.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "ny\/ab\/",
+                        "file_name": "87d8ecc658c871633e82ad48a53d41b6.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "t9\/ii\/",
+                        "file_name": "36d9d903a11fd1a552bb9e08c3c3552f.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": {
+                    "label": "Терраса",
+                    "unit": "м²",
+                    "value": 20.6
+                },
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "68da9ba1faae84fb987aa975",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Всем Дом"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "2",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "6 011 702 – 9 420 587"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "70",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "23.9",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "21.4",
+                    "unit": "м²"
+                }
+            }
+        },
+        {
+            "id": "68dbad19faae84fb987ac7ff",
+            "guid": "Arina",
+            "name": "Арина",
+            "specialization": null,
+            "rating": null,
+            "experience": null,
+            "description": null,
+            "images": [
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/hb\/qq\/m_aa068eb37b84ef94a6f17a041272f40c.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/hb\/qq\/aa068eb37b84ef94a6f17a041272f40c.jpg",
+                    "path": "hb\/qq\/",
+                    "file_name": "aa068eb37b84ef94a6f17a041272f40c.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/v7\/pb\/m_58818ea31f3bee8c94a770b8b4654acd.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/v7\/pb\/58818ea31f3bee8c94a770b8b4654acd.jpg",
+                    "path": "v7\/pb\/",
+                    "file_name": "58818ea31f3bee8c94a770b8b4654acd.jpg"
+                },
+                {
+                    "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/bi\/5s\/m_14e07fe17ba8a222641a6aacb92558b0.jpg",
+                    "full": "https:\/\/selcdn.trendagent.ru\/images\/bi\/5s\/14e07fe17ba8a222641a6aacb92558b0.jpg",
+                    "path": "bi\/5s\/",
+                    "file_name": "14e07fe17ba8a222641a6aacb92558b0.jpg"
+                }
+            ],
+            "contact": null,
+            "contractor": null,
+            "construction_time": null,
+            "technology": null,
+            "floors": null,
+            "bedrooms": null,
+            "bathrooms": null,
+            "finishing": null,
+            "min_price": null,
+            "max_price": null,
+            "min_prices": [],
+            "area_total": null,
+            "area_living": null,
+            "area_kitchen": null,
+            "area_terrace": null,
+            "_raw": {
+                "_id": "68dbad19faae84fb987ac7ff",
+                "guid": "Arina",
+                "name": {
+                    "label": "Проект",
+                    "value": "Арина"
+                },
+                "images": [
+                    {
+                        "path": "hb\/qq\/",
+                        "file_name": "aa068eb37b84ef94a6f17a041272f40c.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "v7\/pb\/",
+                        "file_name": "58818ea31f3bee8c94a770b8b4654acd.jpg",
+                        "is_need_no_crop": false
+                    },
+                    {
+                        "path": "bi\/5s\/",
+                        "file_name": "14e07fe17ba8a222641a6aacb92558b0.jpg",
+                        "is_need_no_crop": true
+                    }
+                ],
+                "reward": {
+                    "label": "4%"
+                },
+                "construction_period": {
+                    "label": "Срок строительства",
+                    "unit": "месяца",
+                    "value": "3"
+                },
+                "terrace": [],
+                "technology_list": {
+                    "label": "Технология строительства",
+                    "value": "Каркасный"
+                },
+                "contractor_id": "68da9ba1faae84fb987aa975",
+                "contractor_name": {
+                    "label": "Подрядчик",
+                    "value": "Всем Дом"
+                },
+                "floor_number": {
+                    "label": "Кол-во этажей",
+                    "value": "1",
+                    "unit": "этаж"
+                },
+                "bedrooms_number": {
+                    "label": "Кол-во спален",
+                    "value": "3",
+                    "unit": "спальни"
+                },
+                "bathrooms_number": {
+                    "label": "Кол-во санузлов",
+                    "value": "1",
+                    "unit": "санузел"
+                },
+                "price": {
+                    "label": "Цена",
+                    "unit": "₽",
+                    "value": "6 415 325 – 10 109 690"
+                },
+                "is_requested_price": false,
+                "finishing_type": {
+                    "label": "Типы отделки",
+                    "value": "Без отделки, Подчистовая, Чистовая"
+                },
+                "square_total": {
+                    "label": "Общая площадь",
+                    "value": "97.75",
+                    "unit": "м²"
+                },
+                "square_kitchen": {
+                    "label": "Площадь кухни",
+                    "value": "29.1",
+                    "unit": "м²"
+                },
+                "square_living": {
+                    "label": "Жилая площадь",
+                    "value": "30.8",
+                    "unit": "м²"
+                }
+            }
+        }
+    ],
+    "total": 149
+}

@@ -1,0 +1,123 @@
+{
+    "data": {
+        "id": "683ef5bee92855d2ef156bd2",
+        "guid": "dk204-kopiya",
+        "name": "ДК-219",
+        "specialization": null,
+        "rating": null,
+        "experience": null,
+        "description": null,
+        "images": [
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/pi\/7u\/m_0c27f273063f5b40faac99314d846deb.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/pi\/7u\/0c27f273063f5b40faac99314d846deb.jpg",
+                "path": "pi\/7u\/",
+                "file_name": "0c27f273063f5b40faac99314d846deb.jpg"
+            },
+            {
+                "thumbnail": "https:\/\/selcdn.trendagent.ru\/images\/re\/9w\/m_3ca3e636d584ab344e7f777775e91160.jpg",
+                "full": "https:\/\/selcdn.trendagent.ru\/images\/re\/9w\/3ca3e636d584ab344e7f777775e91160.jpg",
+                "path": "re\/9w\/",
+                "file_name": "3ca3e636d584ab344e7f777775e91160.jpg"
+            }
+        ],
+        "contact": null,
+        "contractor": null,
+        "construction_time": null,
+        "technology": null,
+        "floors": null,
+        "bedrooms": null,
+        "bathrooms": null,
+        "finishing": null,
+        "min_price": null,
+        "max_price": null,
+        "min_prices": [],
+        "area_total": null,
+        "area_living": null,
+        "area_kitchen": null,
+        "area_terrace": null,
+        "_raw": {
+            "_id": "683ef5bee92855d2ef156bd2",
+            "guid": "dk204-kopiya",
+            "name": {
+                "label": "Проект",
+                "value": "ДК-219"
+            },
+            "images": [
+                {
+                    "path": "pi\/7u\/",
+                    "file_name": "0c27f273063f5b40faac99314d846deb.jpg",
+                    "is_need_no_crop": false
+                },
+                {
+                    "path": "re\/9w\/",
+                    "file_name": "3ca3e636d584ab344e7f777775e91160.jpg",
+                    "is_need_no_crop": true
+                }
+            ],
+            "reward": {
+                "label": "4%"
+            },
+            "construction_period": {
+                "label": "Срок строительства",
+                "unit": "месяцев",
+                "value": "от 4 до 5"
+            },
+            "terrace": {
+                "label": "Терраса",
+                "value": "Площадь не указана"
+            },
+            "technology_list": {
+                "label": "Технология строительства",
+                "value": "Каркасный"
+            },
+            "contractor_id": "680dfc126b12fbddb3c31a35",
+            "contractor_name": {
+                "label": "Подрядчик",
+                "value": "СК Дачник"
+            },
+            "floor_number": {
+                "label": "Кол-во этажей",
+                "value": "1",
+                "unit": "этаж"
+            },
+            "bedrooms_number": {
+                "label": "Кол-во спален",
+                "value": "2",
+                "unit": "спальни"
+            },
+            "bathrooms_number": {
+                "label": "Кол-во санузлов",
+                "value": "1",
+                "unit": "санузел"
+            },
+            "price": {
+                "label": "Цена",
+                "unit": "₽",
+                "value": "3 402 440 – 8 269 400"
+            },
+            "is_requested_price": false,
+            "finishing_type": {
+                "label": "Типы отделки",
+                "value": "Без отделки"
+            },
+            "square_total": {
+                "label": "Общая площадь",
+                "value": "48",
+                "unit": "м²"
+            },
+            "square_kitchen": {
+                "label": "Площадь кухни",
+                "value": "11.76",
+                "unit": "м²"
+            },
+            "square_living": {
+                "label": "Жилая площадь",
+                "value": "18.48",
+                "unit": "м²"
+            }
+        }
+    },
+    "source": "list",
+    "error": "Ошибка при запросе к API проекта подрядчика: Client error: `GET https:\/\/house-api.trendagent.ru\/v1\/projects\/683ef5bee92855d2ef156bd2?auth_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OThhMmM0YzA1MWZhYTUyZmFjMTMwYWMiLCJ0b2tlbl9pZCI6IjY5OGEyYzRjMDUxZmFhNTJmYWMxMzBhYyIsImNsaWVudCI6IndlYiIsImFwcF9pZCI6IjY2ZDg0ZmZjNGMwMTY4YjhjY2QyODFjNyIsInVzZXIiOnsiX2lkIjoiNjkxOWI2Mzk4NzIwM2I2OTcxNDExOWNkIiwiaWQiOiI2OTE5YjYzOTg3MjAzYjY5NzE0MTE5Y2QiLCJuYW1lIjoi0KLQuNGC0L7QsiDQmNCy0LDQvSDQodC10YDQs9C10LXQstC40YcifSwiaWF0IjoxNzcwNjYyOTg4LCJleHAiOjE3NzA2NjMyODh9.GoRemkw3m6lfTC1oNtIyWN7zm2CrnzeVO0YRyHRn2DHuBUDb0R6T2fQx3mz9bY1vAoprd7j8ze0TZ45Ih6tDpcMl9aFSc9OQL10AZpzcfJyv4LQ-G04BmoGXn6UxY1R6cERAWU7KvYDs8P3q4raTkQCO9wUUecxh0Gf2ICl5Mwo&lang=ru` resulted in a `404 Not Found` response:\n{\"statusCode\":404,\"message\":{\"message\":\"Cannot GET \/v1\/projects\/683ef5bee92855d2ef156bd2?auth_token=eyJhbGciOiJSUzI1NiIs (truncated...)\n"
+}

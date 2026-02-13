@@ -13,6 +13,7 @@ use App\Models\TrendAgent\Commercial;
 use App\Models\TrendAgent\Contractor;
 use App\Models\TrendAgent\Region;
 use App\Services\TrendAgent\CityService;
+use App\Services\TrendAgent\SampleDataService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -241,5 +242,26 @@ class TrendAgentDbController extends Controller
             'regions' => $regions,
             'allCities' => CityService::getAllCities(),
         ]);
+    }
+
+    /**
+     * Тестовый массив данных по всем типам объектов API (каталог + детали).
+     * GET /api/trendagent/sample-data?city=spb&per_type=2&detail=1
+     */
+    public function sampleData(Request $request, SampleDataService $sampleDataService)
+    {
+        $cityKey = $request->get('city', 'spb');
+        $perType = (int) $request->get('per_type', 2);
+        $detail = $request->boolean('detail', true);
+
+        $results = $sampleDataService->fetchAllTypes($cityKey, $perType, $detail);
+
+        return response()->json([
+            'success' => true,
+            'city' => $cityKey,
+            'per_type' => $perType,
+            'detail' => $detail,
+            'data' => $results,
+        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 }

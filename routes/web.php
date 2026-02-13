@@ -25,6 +25,10 @@ Route::get('/trendagent/db', [\App\Http\Controllers\TrendAgent\TrendAgentDbContr
 Route::get('/api/trendagent/db/apartment/{id}', [\App\Http\Controllers\TrendAgent\TrendAgentDbController::class, 'getApartmentDetails'])
     ->name('trendagent.db.apartment.details');
 
+// Тестовые образцы данных по всем типам объектов (каталог + детали по первому элементу)
+Route::get('/api/trendagent/sample-data', [\App\Http\Controllers\TrendAgent\TrendAgentDbController::class, 'sampleData'])
+    ->name('trendagent.sample-data');
+
 // Проекты - без префикса /projects
 // URL: /frontend, /trendagent (включая /trendagent/parser для UI)
 // ВАЖНО: Этот маршрут должен быть ПОСЛЕДНИМ, чтобы не перехватывать специфичные маршруты

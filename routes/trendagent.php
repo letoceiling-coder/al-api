@@ -111,6 +111,10 @@ Route::prefix('trendagent/v1')->middleware(['trendagent.auth'])->group(function 
             ->where(['id' => '[a-f0-9]{24}']); // Корпуса для шахматки
         Route::post('/{id}/checkerboard/apartments', [ApartmentsController::class, 'checkerboardApartments'])
             ->where(['id' => '[a-f0-9]{24}']); // Квартиры для шахматки
+        Route::post('/{id}/map', [ApartmentsController::class, 'blockMap'])
+            ->where(['id' => '[a-f0-9]{24}']); // Данные блока для карты
+        Route::post('/{id}/gallery', [ApartmentsController::class, 'blockGallery'])
+            ->where(['id' => '[a-f0-9]{24}']); // Галерея блока
         Route::post('/{id}', [ApartmentsController::class, 'show'])
             ->where(['id' => '[a-f0-9]{24}|[a-z0-9-]+']); // Детали объекта (должен быть последним)
     });

@@ -1,0 +1,796 @@
+{
+    "success": true,
+    "data": {
+        "success": true,
+        "data": {
+            "_id": "684dc6ea9b433c83aa0cc253",
+            "plan": [],
+            "is_with_gym": null,
+            "is_with_prayer_room": null,
+            "crm_id": 895647,
+            "type": 1,
+            "pano_url": "https:\/\/pano2.trendagent.ru\/liberty-dom",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    30.550896860165913,
+                    59.56854971360776
+                ]
+            },
+            "status": 1,
+            "guid": "liberty-dom",
+            "name": "LIBERTY DOM",
+            "description": "<p>Жилой комплекс представляет собой малоэтажный проект комфорт-класса из двух 4-этажных домов, выполненных по монолитной технологии. Архитектура вдохновлена скандинавским стилем: фасады отделаны декоративной штукатуркой и оформлены в светлых тонах с яркими акцентами. Невысокая застройка создает ощущение приватности, а компактное расположение зданий позволяет организовать удобное внутреннее пространство для отдыха и прогулок.<\/p>\n<p>В проекте предлагаются студии и квартиры с 1 и 2 комнатами. Высота потолков 2,59 м. Помещения идут в формате white box: установлены металлопластиковые окна и металлические входные двери, выполнены монтаж электрики, межкомнатные перегородки, радиаторы отопления, гидроизоляция в санузле, сделана выравнивающая стяжка пола. Также проведены все основные инженерные коммуникации.<\/p>\n<p>На территории комплекса создана комфортная и безопасная среда: безбарьерное пространство, велопарковки, спортивная площадка и многофункциональная игровая зона для детей. Архитектурное решение и благоустройство продуманы с акцентом на комфорт, безопасность и активный семейный досуг.<\/p>\n<p>Проект расположен в южной части Ленинградской области, в Тосненском районе, в 25 минутах транспортом от Павловска и Пушкина. Вся необходимая инфраструктура &mdash; школа, детский сад, амбулатория, супермаркет, аптека, дом культуры и остановка общественного транспорта Форносово-2 &mdash; находится в 5 минутах пешком. До метро Проспект Ветеранов можно добраться за 40 минут транспортом, а до центра Санкт-Петербурга &mdash; за 1 час.<\/p>",
+            "advantage": "<p>1. Двор без машин&nbsp;<br>2. Безбарьерная среда<br>3. Малоэтажный комплекс в 4 этажа<br>4. Близость к дворцово-парковым ансамблям Павловска и Пушкина<br>5. Удобная транспортная развязка<br>6. Велопарковка<\/p>",
+            "infrastructure": "",
+            "edit_mode": 1,
+            "is_with_garden": false,
+            "renderer": [
+                {
+                    "priority": 1,
+                    "file_name": "5f88c0ce490c2a621810d4a2c8e785ab.jpg",
+                    "path": "sb\/r0\/",
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "priority": 2,
+                    "file_name": "c65b554aae841a7921742e667760f480.jpg",
+                    "path": "63\/nu\/",
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "priority": 3,
+                    "file_name": "7882f34bd8aac14e4f701b0604d25193.jpg",
+                    "path": "l0\/x8\/",
+                    "title": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "alt": [
+                        "",
+                        "",
+                        ""
+                    ],
+                    "description": [
+                        "",
+                        "",
+                        ""
+                    ]
+                }
+            ],
+            "trakheesi_permit": [],
+            "builder": {
+                "_id": "684dbc8e1fb09a5570cb61d9",
+                "crm_id": 564,
+                "guid": "nk-razvitie",
+                "name": "НК Развитие"
+            },
+            "city": {
+                "_id": "58c665588b6aa52311afa01b",
+                "guid": "spb",
+                "name": "Санкт-Петербург"
+            },
+            "district": {
+                "_id": "5983801cd07ed144bb7cca0d",
+                "guid": "tosnenskiy",
+                "crm_id": 10,
+                "name": "Тосненский р-н, ЛО"
+            },
+            "location": {
+                "_id": "5983801ed07ed144bb7cccd4",
+                "guid": "south",
+                "name": "Квартиры на Юге",
+                "crm_id": 31
+            },
+            "address": "гп Форносово, ул Круговая",
+            "level_type": {
+                "_id": "65b8bfec34b5a527f81042ad",
+                "crm_id": 2,
+                "name": "Комфорт"
+            },
+            "exclusive": true,
+            "interactive_plan": [],
+            "subways": [
+                {
+                    "id": "58c665598b6aa52311afa1e7",
+                    "crm_id": 19,
+                    "name": "Проспект Ветеранов",
+                    "guid": "pr_veteranov",
+                    "line_number": 1,
+                    "distance_timing": 40,
+                    "distance_type": 2,
+                    "color": "#bb2f30"
+                }
+            ],
+            "point_distance": [],
+            "buildings": [
+                {
+                    "_id": "684dcbce1fb09a2cc3cb6a2d",
+                    "name": "1",
+                    "queue": 1,
+                    "deadline": "2026-09-30T12:00:00.000Z",
+                    "deadline_over_check": false,
+                    "escrow": true,
+                    "escrow_banks": [
+                        "59ca4b3f4e6dd00b58147376"
+                    ],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2027-03-31T00:00:00.000Z",
+                    "sales_start_at": "2025-04-15T12:00:00.000Z",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.550310126943913,
+                                    59.56879594114809
+                                ],
+                                [
+                                    30.55076073805841,
+                                    59.56827335264087
+                                ],
+                                [
+                                    30.55098067919762,
+                                    59.56832506748266
+                                ],
+                                [
+                                    30.55054414048456,
+                                    59.56884159705327
+                                ],
+                                [
+                                    30.550310126943913,
+                                    59.56879594114809
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "гп Форносово, ул Круговая",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "gp Fornosovo, ul Krugovaya"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Нет паркинга"
+                    ],
+                    "level_type": {
+                        "_id": "65b8bfec34b5a527f81042ad",
+                        "crm_id": 2,
+                        "name": "Комфорт",
+                        "name_short": "Комфорт"
+                    },
+                    "finishing": [
+                        "Подчистовая"
+                    ],
+                    "contract": [
+                        "ДДУ"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 36,
+                    "subsidy": false,
+                    "installment": true,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Рассрочка",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                },
+                {
+                    "_id": "684dcc491fb09a8397cb6a62",
+                    "name": "2",
+                    "queue": 1,
+                    "deadline": "2026-09-30T12:00:00.000Z",
+                    "deadline_over_check": false,
+                    "escrow": true,
+                    "escrow_banks": [
+                        "59ca4b3f4e6dd00b58147376"
+                    ],
+                    "trakheesi_permit": [],
+                    "deadline_key": "2027-03-31T12:00:00.000Z",
+                    "sales_start_at": "2025-04-15T12:00:00.000Z",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    30.55088143746408,
+                                    59.568737422527356
+                                ],
+                                [
+                                    30.55112015406641,
+                                    59.56878233217563
+                                ],
+                                [
+                                    30.55142324368508,
+                                    59.56842169239368
+                                ],
+                                [
+                                    30.551197938127842,
+                                    59.56837542133956
+                                ],
+                                [
+                                    30.55088143746408,
+                                    59.568737422527356
+                                ]
+                            ]
+                        ]
+                    },
+                    "interactive_geometry": null,
+                    "interactive_geometry_center": null,
+                    "address": {
+                        "street": "гп Форносово, ул Круговая",
+                        "house": "",
+                        "housing": "",
+                        "house_en": "",
+                        "housing_en": "",
+                        "street_en": "gp Fornosovo, ul Krugovaya"
+                    },
+                    "renderer": [],
+                    "building_type": {
+                        "_id": "58c665588b6aa52311afa017",
+                        "crm_id": 0,
+                        "name": "Монолитный",
+                        "name_short": "м"
+                    },
+                    "building_body_type": [],
+                    "is_with_pool": null,
+                    "pool_types": [],
+                    "safety_types": [],
+                    "facade_type": {
+                        "_id": "58c665588b6aa52311afa026",
+                        "crm_id": 3,
+                        "name": "Штукатурка",
+                        "name_short": "штукатурка"
+                    },
+                    "secondary_type": [],
+                    "elevator": {
+                        "_id": "5b9f7f51d126792a19a57611",
+                        "crm_id": 0,
+                        "name": "Нет лифта",
+                        "name_short": "Нет лифта"
+                    },
+                    "parking": [
+                        "Нет паркинга"
+                    ],
+                    "level_type": {
+                        "_id": "65b8bfec34b5a527f81042ad",
+                        "crm_id": 2,
+                        "name": "Комфорт",
+                        "name_short": "Комфорт"
+                    },
+                    "finishing": [
+                        "Подчистовая"
+                    ],
+                    "contract": [
+                        "ДДУ"
+                    ],
+                    "contract_description": [],
+                    "exclusive": false,
+                    "apartment_count": 26,
+                    "subsidy": false,
+                    "installment": true,
+                    "mortgage": true,
+                    "mortgage_voen": true,
+                    "payment": [
+                        "100% оплата",
+                        "Рассрочка",
+                        "Ипотека",
+                        "Военная ипотека"
+                    ]
+                }
+            ],
+            "passport": {
+                "builder": {
+                    "label": "Застройщик",
+                    "value": "НК Развитие"
+                },
+                "level_type": {
+                    "label": "Класс недвижимости",
+                    "value": "Комфорт"
+                },
+                "sales_start_at": {
+                    "label": "Старт продаж",
+                    "value": "Апрель 2025 - корпуса 1, 2"
+                },
+                "deadline_key": {
+                    "label": "Срок передачи ключей",
+                    "value": "1 кв. 2027"
+                },
+                "building_type": {
+                    "label": "Тип дома",
+                    "value": "Монолитный"
+                },
+                "facade_type": {
+                    "label": "Фасад",
+                    "value": "Штукатурка"
+                },
+                "finishing": {
+                    "label": "Отделка",
+                    "value": "Подчистовая"
+                },
+                "parking": {
+                    "label": "Паркинг",
+                    "value": "Нет паркинга"
+                },
+                "elevator": {
+                    "label": "Лифт",
+                    "value": "Нет лифта"
+                },
+                "payment": {
+                    "label": "Оплата",
+                    "value": "100% оплата, Рассрочка, Ипотека, Военная ипотека"
+                },
+                "contract": {
+                    "label": "Договор",
+                    "value": "ДДУ",
+                    "description": ""
+                },
+                "escrow": {
+                    "label": "Эскроу",
+                    "value": "ДОМ.РФ (АО)"
+                }
+            },
+            "parking_count": 0,
+            "commerce_count": 0
+        },
+        "raw_response": {
+            "error": null,
+            "data": {
+                "_id": "684dc6ea9b433c83aa0cc253",
+                "plan": [],
+                "is_with_gym": null,
+                "is_with_prayer_room": null,
+                "crm_id": 895647,
+                "type": 1,
+                "pano_url": "https:\/\/pano2.trendagent.ru\/liberty-dom",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        30.550896860165913,
+                        59.56854971360776
+                    ]
+                },
+                "status": 1,
+                "guid": "liberty-dom",
+                "name": "LIBERTY DOM",
+                "description": "<p>Жилой комплекс представляет собой малоэтажный проект комфорт-класса из двух 4-этажных домов, выполненных по монолитной технологии. Архитектура вдохновлена скандинавским стилем: фасады отделаны декоративной штукатуркой и оформлены в светлых тонах с яркими акцентами. Невысокая застройка создает ощущение приватности, а компактное расположение зданий позволяет организовать удобное внутреннее пространство для отдыха и прогулок.<\/p>\n<p>В проекте предлагаются студии и квартиры с 1 и 2 комнатами. Высота потолков 2,59 м. Помещения идут в формате white box: установлены металлопластиковые окна и металлические входные двери, выполнены монтаж электрики, межкомнатные перегородки, радиаторы отопления, гидроизоляция в санузле, сделана выравнивающая стяжка пола. Также проведены все основные инженерные коммуникации.<\/p>\n<p>На территории комплекса создана комфортная и безопасная среда: безбарьерное пространство, велопарковки, спортивная площадка и многофункциональная игровая зона для детей. Архитектурное решение и благоустройство продуманы с акцентом на комфорт, безопасность и активный семейный досуг.<\/p>\n<p>Проект расположен в южной части Ленинградской области, в Тосненском районе, в 25 минутах транспортом от Павловска и Пушкина. Вся необходимая инфраструктура &mdash; школа, детский сад, амбулатория, супермаркет, аптека, дом культуры и остановка общественного транспорта Форносово-2 &mdash; находится в 5 минутах пешком. До метро Проспект Ветеранов можно добраться за 40 минут транспортом, а до центра Санкт-Петербурга &mdash; за 1 час.<\/p>",
+                "advantage": "<p>1. Двор без машин&nbsp;<br>2. Безбарьерная среда<br>3. Малоэтажный комплекс в 4 этажа<br>4. Близость к дворцово-парковым ансамблям Павловска и Пушкина<br>5. Удобная транспортная развязка<br>6. Велопарковка<\/p>",
+                "infrastructure": "",
+                "edit_mode": 1,
+                "is_with_garden": false,
+                "renderer": [
+                    {
+                        "priority": 1,
+                        "file_name": "5f88c0ce490c2a621810d4a2c8e785ab.jpg",
+                        "path": "sb\/r0\/",
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    },
+                    {
+                        "priority": 2,
+                        "file_name": "c65b554aae841a7921742e667760f480.jpg",
+                        "path": "63\/nu\/",
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    },
+                    {
+                        "priority": 3,
+                        "file_name": "7882f34bd8aac14e4f701b0604d25193.jpg",
+                        "path": "l0\/x8\/",
+                        "title": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "alt": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "description": [
+                            "",
+                            "",
+                            ""
+                        ]
+                    }
+                ],
+                "trakheesi_permit": [],
+                "builder": {
+                    "_id": "684dbc8e1fb09a5570cb61d9",
+                    "crm_id": 564,
+                    "guid": "nk-razvitie",
+                    "name": "НК Развитие"
+                },
+                "city": {
+                    "_id": "58c665588b6aa52311afa01b",
+                    "guid": "spb",
+                    "name": "Санкт-Петербург"
+                },
+                "district": {
+                    "_id": "5983801cd07ed144bb7cca0d",
+                    "guid": "tosnenskiy",
+                    "crm_id": 10,
+                    "name": "Тосненский р-н, ЛО"
+                },
+                "location": {
+                    "_id": "5983801ed07ed144bb7cccd4",
+                    "guid": "south",
+                    "name": "Квартиры на Юге",
+                    "crm_id": 31
+                },
+                "address": "гп Форносово, ул Круговая",
+                "level_type": {
+                    "_id": "65b8bfec34b5a527f81042ad",
+                    "crm_id": 2,
+                    "name": "Комфорт"
+                },
+                "exclusive": true,
+                "interactive_plan": [],
+                "subways": [
+                    {
+                        "id": "58c665598b6aa52311afa1e7",
+                        "crm_id": 19,
+                        "name": "Проспект Ветеранов",
+                        "guid": "pr_veteranov",
+                        "line_number": 1,
+                        "distance_timing": 40,
+                        "distance_type": 2,
+                        "color": "#bb2f30"
+                    }
+                ],
+                "point_distance": [],
+                "buildings": [
+                    {
+                        "_id": "684dcbce1fb09a2cc3cb6a2d",
+                        "name": "1",
+                        "queue": 1,
+                        "deadline": "2026-09-30T12:00:00.000Z",
+                        "deadline_over_check": false,
+                        "escrow": true,
+                        "escrow_banks": [
+                            "59ca4b3f4e6dd00b58147376"
+                        ],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2027-03-31T00:00:00.000Z",
+                        "sales_start_at": "2025-04-15T12:00:00.000Z",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.550310126943913,
+                                        59.56879594114809
+                                    ],
+                                    [
+                                        30.55076073805841,
+                                        59.56827335264087
+                                    ],
+                                    [
+                                        30.55098067919762,
+                                        59.56832506748266
+                                    ],
+                                    [
+                                        30.55054414048456,
+                                        59.56884159705327
+                                    ],
+                                    [
+                                        30.550310126943913,
+                                        59.56879594114809
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "гп Форносово, ул Круговая",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "gp Fornosovo, ul Krugovaya"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Нет паркинга"
+                        ],
+                        "level_type": {
+                            "_id": "65b8bfec34b5a527f81042ad",
+                            "crm_id": 2,
+                            "name": "Комфорт",
+                            "name_short": "Комфорт"
+                        },
+                        "finishing": [
+                            "Подчистовая"
+                        ],
+                        "contract": [
+                            "ДДУ"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 36,
+                        "subsidy": false,
+                        "installment": true,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Рассрочка",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    },
+                    {
+                        "_id": "684dcc491fb09a8397cb6a62",
+                        "name": "2",
+                        "queue": 1,
+                        "deadline": "2026-09-30T12:00:00.000Z",
+                        "deadline_over_check": false,
+                        "escrow": true,
+                        "escrow_banks": [
+                            "59ca4b3f4e6dd00b58147376"
+                        ],
+                        "trakheesi_permit": [],
+                        "deadline_key": "2027-03-31T12:00:00.000Z",
+                        "sales_start_at": "2025-04-15T12:00:00.000Z",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [
+                                        30.55088143746408,
+                                        59.568737422527356
+                                    ],
+                                    [
+                                        30.55112015406641,
+                                        59.56878233217563
+                                    ],
+                                    [
+                                        30.55142324368508,
+                                        59.56842169239368
+                                    ],
+                                    [
+                                        30.551197938127842,
+                                        59.56837542133956
+                                    ],
+                                    [
+                                        30.55088143746408,
+                                        59.568737422527356
+                                    ]
+                                ]
+                            ]
+                        },
+                        "interactive_geometry": null,
+                        "interactive_geometry_center": null,
+                        "address": {
+                            "street": "гп Форносово, ул Круговая",
+                            "house": "",
+                            "housing": "",
+                            "house_en": "",
+                            "housing_en": "",
+                            "street_en": "gp Fornosovo, ul Krugovaya"
+                        },
+                        "renderer": [],
+                        "building_type": {
+                            "_id": "58c665588b6aa52311afa017",
+                            "crm_id": 0,
+                            "name": "Монолитный",
+                            "name_short": "м"
+                        },
+                        "building_body_type": [],
+                        "is_with_pool": null,
+                        "pool_types": [],
+                        "safety_types": [],
+                        "facade_type": {
+                            "_id": "58c665588b6aa52311afa026",
+                            "crm_id": 3,
+                            "name": "Штукатурка",
+                            "name_short": "штукатурка"
+                        },
+                        "secondary_type": [],
+                        "elevator": {
+                            "_id": "5b9f7f51d126792a19a57611",
+                            "crm_id": 0,
+                            "name": "Нет лифта",
+                            "name_short": "Нет лифта"
+                        },
+                        "parking": [
+                            "Нет паркинга"
+                        ],
+                        "level_type": {
+                            "_id": "65b8bfec34b5a527f81042ad",
+                            "crm_id": 2,
+                            "name": "Комфорт",
+                            "name_short": "Комфорт"
+                        },
+                        "finishing": [
+                            "Подчистовая"
+                        ],
+                        "contract": [
+                            "ДДУ"
+                        ],
+                        "contract_description": [],
+                        "exclusive": false,
+                        "apartment_count": 26,
+                        "subsidy": false,
+                        "installment": true,
+                        "mortgage": true,
+                        "mortgage_voen": true,
+                        "payment": [
+                            "100% оплата",
+                            "Рассрочка",
+                            "Ипотека",
+                            "Военная ипотека"
+                        ]
+                    }
+                ],
+                "passport": {
+                    "builder": {
+                        "label": "Застройщик",
+                        "value": "НК Развитие"
+                    },
+                    "level_type": {
+                        "label": "Класс недвижимости",
+                        "value": "Комфорт"
+                    },
+                    "sales_start_at": {
+                        "label": "Старт продаж",
+                        "value": "Апрель 2025 - корпуса 1, 2"
+                    },
+                    "deadline_key": {
+                        "label": "Срок передачи ключей",
+                        "value": "1 кв. 2027"
+                    },
+                    "building_type": {
+                        "label": "Тип дома",
+                        "value": "Монолитный"
+                    },
+                    "facade_type": {
+                        "label": "Фасад",
+                        "value": "Штукатурка"
+                    },
+                    "finishing": {
+                        "label": "Отделка",
+                        "value": "Подчистовая"
+                    },
+                    "parking": {
+                        "label": "Паркинг",
+                        "value": "Нет паркинга"
+                    },
+                    "elevator": {
+                        "label": "Лифт",
+                        "value": "Нет лифта"
+                    },
+                    "payment": {
+                        "label": "Оплата",
+                        "value": "100% оплата, Рассрочка, Ипотека, Военная ипотека"
+                    },
+                    "contract": {
+                        "label": "Договор",
+                        "value": "ДДУ",
+                        "description": ""
+                    },
+                    "escrow": {
+                        "label": "Эскроу",
+                        "value": "ДОМ.РФ (АО)"
+                    }
+                },
+                "parking_count": 0,
+                "commerce_count": 0
+            }
+        },
+        "apartments_brief": [],
+        "parkings_brief": [],
+        "commercial_brief": []
+    }
+}

@@ -103,6 +103,7 @@ class DetailService
             ObjectType::PLOTS => $this->apiClient->getPlotDetails($id, $params),
             ObjectType::COMMERCE => $this->apiClient->getCommercialDetails($id, $params),
             ObjectType::HOUSE_PROJECTS => $this->apiClient->getContractorProjectDetails($id, $params),
+            ObjectType::VILLAGES => $this->apiClient->getPlotDetails($id, $params),
             default => throw new \InvalidArgumentException("Unsupported object type: {$objectType->value}"),
         };
     }

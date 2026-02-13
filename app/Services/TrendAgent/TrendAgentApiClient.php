@@ -67,21 +67,21 @@ class TrendAgentApiClient
     public function getCities(): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => true, 'data' => []];
+        }
+
         try {
-            // Используем метод TrendSsoApiAuth
             $result = $this->auth->sendRequest('cities/', []);
-            
             return [
                 'success' => true,
                 'data' => $result['data'] ?? [],
             ];
-            
         } catch (Exception $e) {
             Log::error('TrendAgentApiClient: Ошибка получения городов', [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
@@ -283,49 +283,47 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить справочник планировок
+     * Получить справочник планировок.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает пустой результат.
      */
     public function getApartmentFloorPlanDirectory(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => true, 'data' => []];
+        }
+
         try {
             $result = $this->auth->sendRequest("blocks/{$id}/floor-plan/directory/", $params);
-            
-            return [
-                'success' => true,
-                'data' => $result,
-            ];
-            
+            return ['success' => true, 'data' => $result];
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения справочника планировок {$id}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
 
     /**
-     * Получить поэтажный план
+     * Получить поэтажный план.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает пустой результат.
      */
     public function getApartmentFloorPlan(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => true, 'data' => []];
+        }
+
         try {
             $result = $this->auth->sendRequest("blocks/{$id}/floor-plan/", $params);
-            
-            return [
-                'success' => true,
-                'data' => $result,
-            ];
-            
+            return ['success' => true, 'data' => $result];
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения поэтажного плана {$id}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
@@ -408,50 +406,55 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить детали парковки
+     * Получить детали парковки.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает success: false (парсер использует данные из списка).
      */
     public function getParkingDetails(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => false, 'data' => []];
+        }
+
         try {
             $result = $this->auth->sendRequest("parkings/{$id}/", $params);
-            
+
             return [
                 'success' => true,
                 'data' => $result,
             ];
-            
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения деталей парковки {$id}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
 
     /**
-     * Получить места парковки
+     * Получить места парковки.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает пустой результат.
      */
     public function getParkingPlaces(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => true, 'data' => [], 'total' => 0];
+        }
+
         try {
             $result = $this->auth->sendRequest("parkings/{$id}/places/", $params);
-            
             return [
                 'success' => true,
                 'data' => $result['data'] ?? $result,
                 'total' => $result['total'] ?? count($result['data'] ?? []),
             ];
-            
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения мест парковки {$id}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
@@ -502,25 +505,27 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить детали дома
+     * Получить детали дома.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает success: false (парсер использует данные из списка).
      */
     public function getHouseDetails(string $id, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => false, 'data' => []];
+        }
+
         try {
             $result = $this->auth->sendRequest("houses/{$id}/", $params);
-            
             return [
                 'success' => true,
                 'data' => $result,
             ];
-            
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения деталей дома {$id}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }
@@ -577,25 +582,27 @@ class TrendAgentApiClient
     }
 
     /**
-     * Получить детали конкретного участка
+     * Получить детали конкретного участка.
+     * Если TrendSsoApiAuth не поддерживает sendRequest — возвращает success: false.
      */
     public function getPlotSpecificDetails(string $plotId, string $specificPlotId, array $params = []): array
     {
         $this->ensureAuthenticated();
-        
+
+        if (!method_exists($this->auth, 'sendRequest')) {
+            return ['success' => false, 'data' => []];
+        }
+
         try {
             $result = $this->auth->sendRequest("land_plots/{$plotId}/plot/{$specificPlotId}/", $params);
-            
             return [
                 'success' => true,
                 'data' => $result,
             ];
-            
         } catch (Exception $e) {
             Log::error("TrendAgentApiClient: Ошибка получения деталей участка {$specificPlotId} в поселке {$plotId}", [
                 'error' => $e->getMessage(),
             ]);
-            
             throw $e;
         }
     }

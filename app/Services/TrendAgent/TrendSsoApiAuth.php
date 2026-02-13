@@ -3523,6 +3523,124 @@ class TrendSsoApiAuth
     }
 
     /**
+     * Получение данных блока для карты
+     * 
+     * @param string $blockId ID блока
+     * @param array $params Дополнительные параметры (formating, reservation и т.д.)
+     * @return array Данные блока для карты
+     * @throws \Exception
+     */
+    public function getBlockMap(string $blockId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'formating' => 'true',
+                'reservation' => 'true',
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+
+            $apiUrl = "https://api.trendagent.ru/v4_29/blocks/{$blockId}/map/";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+                'raw_response' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении данных блока для карты: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Получение галереи блока
+     * 
+     * @param string $blockId ID блока
+     * @param array $params Дополнительные параметры
+     * @return array Данные галереи
+     * @throws \Exception
+     */
+    public function getBlockGallery(string $blockId, array $params = []): array
+    {
+        if (!$this->isAuthenticated()) {
+            throw new \Exception('Необходимо сначала выполнить авторизацию');
+        }
+
+        try {
+            $authToken = $this->getAuthToken();
+            if (empty($authToken)) {
+                throw new \Exception('Токен авторизации не найден');
+            }
+
+            $defaultParams = [
+                'city' => '58c665588b6aa52311afa01b',
+                'lang' => 'ru',
+            ];
+            $queryParams = array_merge($defaultParams, $params);
+            $queryParams['auth_token'] = $authToken;
+
+            $apiUrl = "https://api.trendagent.ru/v4_29/media/block/{$blockId}/gallery/";
+            $fullUrl = $apiUrl . '?' . http_build_query($queryParams);
+
+            $response = $this->client->get($fullUrl, [
+                'headers' => $this->getAuthHeaders(),
+                'timeout' => 30,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($statusCode !== 200) {
+                throw new \Exception("API вернул статус {$statusCode}: " . substr($body, 0, 200));
+            }
+
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Ошибка парсинга JSON: ' . json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['data'] ?? $data,
+                'raw_response' => $data,
+            ];
+        } catch (GuzzleException $e) {
+            throw new \Exception('Ошибка при получении галереи блока: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Получение зданий блока на карте
      * 
      * @param string $blockId ID блока

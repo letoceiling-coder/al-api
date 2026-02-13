@@ -21,6 +21,7 @@ use App\Models\TrendAgent\Commercial;
 use App\Models\TrendAgent\Contractor;
 use App\Models\TrendAgent\ContractorProject;
 use App\Services\TrendAgent\CityService;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as LogFacade;
 
@@ -33,13 +34,14 @@ class TrendAgentParse extends Command
      */
     protected $signature = 'trendagent:parse 
                             {--region= : Region code (spb, msk, ekb, nsk, krd, rnd, crimea, kzn, ufa, dubai). Если не указан, парсятся все регионы}
-                            {--type=all : Type of objects (all, apartments, parkings, houses, plots, commercial, complexes)}
+                            {--type=all : Type (all, complexes, contractors, villages, apartments, parkings, houses, plots, commercial, house_projects)}
                             {--limit=0 : Limit number of objects (0 = no limit)}
                             {--offset=0 : Offset for pagination}
                             {--details=true : Parse detailed pages}
                             {--images=true : Download images}
                             {--save-raw=true : Save raw data to files}
-                            {--save-db=true : Save data to database}';
+                            {--save-db=true : Save data to database}
+                            {--no-db : Не использовать БД и кэш (кэш в памяти, сохранение в БД отключено)}';
 
     /**
      * The console command description.
@@ -55,6 +57,7 @@ class TrendAgentParse extends Command
     protected $regionModel;
     protected $allRegionsStatistics = []; // Статистика по всем регионам
     protected $shouldSaveToDb = true; // Флаг сохранения в БД
+    protected $noDb = false; // Режим --no-db (без БД и кэша)
     protected $statistics = [
         'complexes' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'apartments' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
@@ -63,6 +66,8 @@ class TrendAgentParse extends Command
         'plots' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'commercial' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'contractors' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+        'villages' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+        'house_projects' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
         'images' => ['total' => 0, 'downloaded' => 0, 'errors' => 0],
         'by_type_total' => [], // Сохраняем total из API для каждого типа
     ];
@@ -72,74 +77,86 @@ class TrendAgentParse extends Command
      */
     public function handle()
     {
+        $this->noDb = $this->option('no-db');
+
+        if ($this->noDb) {
+            Config::set('cache.default', 'array');
+            $this->shouldSaveToDb = false;
+            $this->line('<comment>Режим --no-db: БД и кэш не используются, сохранение в БД отключено.</comment>');
+        } else {
+            // Проверяем флаг сохранения в БД
+            $saveDbOption = $this->option('save-db');
+            if ($saveDbOption === null) {
+                $this->shouldSaveToDb = true;
+            } else {
+                $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($this->shouldSaveToDb === null) {
+                    $this->shouldSaveToDb = in_array(strtolower($saveDbOption), ['true', '1', 'yes', 'on'], true);
+                }
+            }
+        }
+
         // Инициализация
         $this->apiAuth = new TrendSsoApiAuth();
         $this->imageDownloader = new ImageDownloader();
-        
-        // Проверяем флаг сохранения в БД
-        $saveDbOption = $this->option('save-db');
-        if ($saveDbOption === null) {
-            // По умолчанию сохраняем в БД
-            $this->shouldSaveToDb = true;
-        } else {
-            // Парсим опцию
-            $this->shouldSaveToDb = filter_var($saveDbOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if ($this->shouldSaveToDb === null) {
-                // Если не удалось распарсить, проверяем как строку
-                $this->shouldSaveToDb = in_array(strtolower($saveDbOption), ['true', '1', 'yes', 'on'], true);
-            }
-        }
-        
+
         if ($this->shouldSaveToDb) {
             $this->info("💾 Сохранение в БД: ВКЛЮЧЕНО");
         } else {
             $this->warn("💾 Сохранение в БД: ОТКЛЮЧЕНО");
         }
         $this->newLine();
-        
+
         // Авторизация
         if (!$this->authenticate()) {
             $this->error('Authentication failed');
             return 1;
         }
-        
+
         // Определяем регионы для парсинга
         $regionOption = $this->option('region');
         $regions = [];
-        
+
         if (empty($regionOption)) {
-            // Если регион не указан, парсим все регионы
-            $regions = CityService::getAllCityKeys();
-            $this->info("🌍 Регион не указан. Будет выполнен парсинг всех регионов: " . implode(', ', $regions));
+            if ($noDb) {
+                $regions = ['spb', 'msk'];
+                $this->info("🌍 Режим --no-db: парсинг только spb, msk (укажите --region=spb для одного региона)");
+            } else {
+                $regions = CityService::getAllCityKeys();
+                $this->info("🌍 Регион не указан. Будет выполнен парсинг всех регионов: " . implode(', ', $regions));
+            }
         } else {
-            // Парсим только указанный регион
             $regions = [$regionOption];
             $this->info("📍 Парсинг региона: {$regionOption}");
         }
-        
+
         $this->newLine();
-        
+
         // Парсим каждый регион
         foreach ($regions as $regionCode) {
             $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             $this->info("🌍 Парсинг региона: {$regionCode} ({$this->getRegionName($regionCode)})");
             $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             $this->newLine();
-            
+
             $this->region = $regionCode;
             $this->basePath = storage_path("trendagent/parsing/{$this->region}");
-            
-            // Получаем или создаем регион в БД
-            $this->regionModel = Region::firstOrCreate(
-                ['code' => $this->region],
-                ['name' => $this->getRegionName($this->region)]
-            );
+
+            // Получаем или создаем регион в БД (при --no-db не обращаемся к БД)
+            if ($this->noDb) {
+                $this->regionModel = null;
+            } else {
+                $this->regionModel = Region::firstOrCreate(
+                    ['code' => $this->region],
+                    ['name' => $this->getRegionName($this->region)]
+                );
+            }
             
             // Определяем типы объектов для парсинга
             $type = $this->option('type');
             if (empty($type) || $type === 'all') {
-                // По умолчанию парсим все типы
-                $types = ['complexes', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'contractors'];
+                // По умолчанию: комплексы/подрядчики/посёлки — краткие списки; остальное — полные детали
+                $types = ['complexes', 'contractors', 'villages', 'apartments', 'parkings', 'houses', 'plots', 'commercial', 'house_projects'];
             } else {
                 $types = [$type];
             }
@@ -166,6 +183,8 @@ class TrendAgentParse extends Command
                 'plots' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
                 'commercial' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
                 'contractors' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'villages' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
+                'house_projects' => ['total' => 0, 'parsed' => 0, 'errors' => 0],
                 'images' => ['total' => 0, 'downloaded' => 0, 'errors' => 0],
                 'by_type_total' => [],
             ];
@@ -241,6 +260,12 @@ class TrendAgentParse extends Command
                 break;
             case 'contractors':
                 $this->parseContractors();
+                break;
+            case 'villages':
+                $this->parseVillages();
+                break;
+            case 'house_projects':
+                $this->parseHouseProjects();
                 break;
         }
     }
@@ -321,12 +346,61 @@ class TrendAgentParse extends Command
     }
     
     /**
-     * Парсинг деталей комплекса
+     * Парсинг деталей комплекса.
+     * Важно: сохраняем только краткий список квартир, паркингов и коммерции (id + номер/название), не полные данные.
      */
     protected function parseComplexDetails(string $complexId, array $listItem): void
     {
         try {
             $details = $this->fetchComplexDetails($complexId);
+
+            // Краткие списки: какие квартиры, паркинги, коммерция содержатся в ЖК
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            $apiClient->authenticate();
+            $params = ['city' => $this->region];
+            $apartmentsBrief = [];
+            $parkingsBrief = [];
+            $commercialBrief = [];
+            try {
+                $cb = $apiClient->getApartmentCheckerboardApartments($complexId, $params);
+                if (!empty($cb['data'])) {
+                    foreach ($cb['data'] as $a) {
+                        $apartmentsBrief[] = ['id' => $a['_id'] ?? $a['id'] ?? null, 'number' => $a['number'] ?? $a['flat_number'] ?? null];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+            try {
+                $bp = $apiClient->getBlockParkings($complexId, $params);
+                $parkData = $bp['data'] ?? $bp;
+                if (is_array($parkData)) {
+                    foreach ($parkData as $p) {
+                        $parkingsBrief[] = ['id' => $p['_id'] ?? $p['id'] ?? null, 'number' => $p['number'] ?? null];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+            try {
+                $bc = $apiClient->getBlockCommercial($complexId, $params);
+                $comData = $bc['data'] ?? $bc;
+                if (is_array($comData)) {
+                    foreach ($comData as $c) {
+                        $commercialBrief[] = ['id' => $c['_id'] ?? $c['id'] ?? null, 'number' => $c['number'] ?? $c['name'] ?? null];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+
+            $complexData = $details['data'] ?? $details;
+            if (is_array($complexData)) {
+                $complexData['apartments_brief'] = array_slice($apartmentsBrief, 0, 500);
+                $complexData['parkings_brief'] = array_slice($parkingsBrief, 0, 500);
+                $complexData['commercial_brief'] = array_slice($commercialBrief, 0, 500);
+                $details = array_merge($details, ['data' => $complexData]);
+            }
             
             // Сохраняем детальные данные
             if ($this->option('details')) {
@@ -353,9 +427,9 @@ class TrendAgentParse extends Command
             // Скачиваем изображения (только если детали получены)
             if ($this->option('images') && $details && isset($details['success']) && $details['success']) {
                 $this->downloadObjectImages('complex', $complexId, $details);
-                
-                // Обновляем URL изображений в данных
-                $details = $this->updateImageUrlsInData($details, 'complex', $complexId);
+                if (method_exists($this->imageDownloader, 'extractImageUrls')) {
+                    $details = $this->updateImageUrlsInData($details, 'complex', $complexId);
+                }
             }
             
         } catch (\Exception $e) {
@@ -470,20 +544,33 @@ class TrendAgentParse extends Command
                 return;
             }
             
-            // Сохраняем детальные данные
+            // Шахматка: данные по корпусам и квартирам комплекса (если есть block_id)
+            $blockId = $listItem['block_id'] ?? $listItem['block'] ?? null;
+            if ($blockId && $this->option('details')) {
+                try {
+                    $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+                    $apiClient->authenticate();
+                    $cbBuildings = $apiClient->getApartmentCheckerboardBuildings($blockId, ['city' => $this->region]);
+                    $cbApartments = $apiClient->getApartmentCheckerboardApartments($blockId, ['city' => $this->region]);
+                    $details['checkerboard_buildings'] = $cbBuildings['data'] ?? $cbBuildings;
+                    $details['checkerboard_apartments'] = $cbApartments['data'] ?? $cbApartments;
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+            }
+
+            // Сохраняем детальные данные (включая шахматку)
             if ($this->option('details')) {
                 $this->saveDetailsData('apartments', "{$apartmentId}.json", $details);
-                // Сохраняем в БД
                 if ($this->shouldSaveToDb) {
                     $this->saveApartmentToDb($details, $apartmentId, $listItem);
                 }
             } elseif ($this->shouldSaveToDb) {
-                // Если детали не парсим, все равно сохраняем в БД из данных списка
                 $this->saveApartmentToDb([], $apartmentId, $listItem);
             }
-            
-            // Скачиваем изображения
-            if ($this->option('images')) {
+
+            // Скачиваем изображения (фото, планировки)
+            if ($this->option('images') && !empty($details)) {
                 $this->downloadObjectImages('apartment', $apartmentId, $details);
             }
             
@@ -561,25 +648,23 @@ class TrendAgentParse extends Command
                     }
                     
                     if ($this->option('details')) {
-                        // Для машиномест детали могут быть в самом объекте
-                        // Но попробуем получить дополнительные детали, если доступны
                         try {
-                            // Сохраняем данные из списка (они уже содержат основную информацию)
-                            $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list']);
-                            // Сохраняем в БД
+                            $details = $apiClient->getParkingDetails($placeId, ['city' => $this->region]);
+                            $detailData = ($details['success'] ?? false) ? ($details['data'] ?? $details) : $item;
+                            $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $detailData]);
                             if ($this->shouldSaveToDb) {
-                                $this->saveParkingToDb(['data' => $item], $placeId);
+                                $this->saveParkingToDb(['data' => $detailData], $placeId);
                             }
-                        } catch (\Exception $e) {
-                            // В случае ошибки все равно сохраняем базовые данные
+                            if ($this->option('images') && !empty($detailData)) {
+                                $this->downloadObjectImages('parking', $placeId, ['data' => $detailData]);
+                            }
+                        } catch (\Throwable $e) {
                             $this->saveDetailsData('parkings', "{$placeId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
-                            // Пытаемся сохранить в БД
                             if ($this->shouldSaveToDb) {
                                 $this->saveParkingToDb(['data' => $item], $placeId);
                             }
                         }
                     } elseif ($this->shouldSaveToDb) {
-                        // Если детали не парсим, все равно сохраняем в БД из данных списка
                         $this->saveParkingToDb(['data' => $item], $placeId);
                     }
                     
@@ -672,12 +757,14 @@ class TrendAgentParse extends Command
                     
                     if ($this->option('details')) {
                         try {
-                            $details = $apiClient->getHouseDetails($houseId);
+                            $details = $apiClient->getHouseDetails($houseId, ['city' => $this->region]);
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('houses', "{$houseId}.json", $details);
-                                // Сохраняем в БД
                                 if ($this->shouldSaveToDb) {
                                     $this->saveHouseToDb($details, $houseId);
+                                }
+                                if ($this->option('images')) {
+                                    $this->downloadObjectImages('house', $houseId, $details);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
@@ -794,12 +881,14 @@ class TrendAgentParse extends Command
                     
                     if ($this->option('details')) {
                         try {
-                            $details = $apiClient->getPlotDetails($plotId);
+                            $details = $apiClient->getPlotDetails($plotId, ['city' => $this->region]);
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('plots', "{$plotId}.json", $details);
-                                // Сохраняем в БД
                                 if ($this->shouldSaveToDb) {
                                     $this->savePlotToDb($details, $plotId);
+                                }
+                                if ($this->option('images')) {
+                                    $this->downloadObjectImages('plot', $plotId, $details);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
@@ -916,12 +1005,14 @@ class TrendAgentParse extends Command
                     
                     if ($this->option('details')) {
                         try {
-                            $details = $apiClient->getCommercialDetails($commercialId);
+                            $details = $apiClient->getCommercialDetails($commercialId, ['city' => $this->region]);
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('commercial', "{$commercialId}.json", $details);
-                                // Сохраняем в БД
                                 if ($this->shouldSaveToDb) {
                                     $this->saveCommercialToDb($details, $commercialId);
+                                }
+                                if ($this->option('images')) {
+                                    $this->downloadObjectImages('commercial', $commercialId, $details);
                                 }
                             } else {
                                 // Сохраняем хотя бы данные из списка, если детали не получены
@@ -1031,34 +1122,29 @@ class TrendAgentParse extends Command
                         $this->saveRawData('contractors', "list_offset_{$offset}.json", $data);
                     }
                     
+                    // Подрядчики: сохраняем только краткий список проектов домов (не полные детали проектов)
                     if ($this->option('details')) {
                         try {
                             $details = $apiClient->getContractorProjectDetails($contractorId);
                             if ($details && isset($details['success']) && $details['success']) {
                                 $this->saveDetailsData('contractors', "{$contractorId}.json", $details);
-                                // Сохраняем в БД
                                 if ($this->shouldSaveToDb) {
-                                    $this->saveContractorToDb($details, $contractorId);
+                                    $this->saveContractorToDb($details, $contractorId, true); // briefOnly: только подрядчик + краткий список проектов
                                 }
                             } else {
-                                // Сохраняем хотя бы данные из списка, если детали не получены
                                 $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list']);
-                                // Пытаемся сохранить в БД из данных списка
                                 if ($this->shouldSaveToDb) {
-                                    $this->saveContractorToDb(['data' => $item], $contractorId);
+                                    $this->saveContractorToDb(['data' => $item], $contractorId, true);
                                 }
                             }
                         } catch (\Exception $e) {
-                            // Сохраняем данные из списка при ошибке
                             $this->saveDetailsData('contractors', "{$contractorId}.json", ['data' => $item, 'source' => 'list', 'error' => $e->getMessage()]);
-                            // Пытаемся сохранить в БД из данных списка
                             if ($this->shouldSaveToDb) {
-                                $this->saveContractorToDb(['data' => $item], $contractorId);
+                                $this->saveContractorToDb(['data' => $item], $contractorId, true);
                             }
                         }
                     } elseif ($this->shouldSaveToDb) {
-                        // Если детали не парсим, все равно сохраняем в БД из данных списка
-                        $this->saveContractorToDb(['data' => $item], $contractorId);
+                        $this->saveContractorToDb(['data' => $item], $contractorId, true);
                     }
                     
                     $parsed++;
@@ -1090,6 +1176,181 @@ class TrendAgentParse extends Command
         } catch (\Exception $e) {
             $this->error("Error parsing contractors: {$e->getMessage()}");
             $this->statistics['contractors']['errors']++;
+        }
+    }
+
+    /**
+     * Парсинг посёлков: только краткий список участков (какие участки содержатся в посёлке).
+     */
+    protected function parseVillages(): void
+    {
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 50;
+        $parsed = 0;
+
+        $this->info("Fetching villages list (brief + plot ids)...");
+
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            if (!($apiClient->authenticate()['success'] ?? false)) {
+                $this->error("Authentication failed");
+                return;
+            }
+
+            do {
+                $params = ['city' => $this->region, 'count' => $count, 'offset' => $offset];
+                $data = $apiClient->getPlots($params);
+
+                if (!$data || !($data['success'] ?? false) || empty($data['data'] ?? [])) {
+                    break;
+                }
+
+                if (!isset($this->statistics['by_type_total']['villages']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['villages'] = $data['total'];
+                }
+
+                $items = $data['data'];
+                $this->statistics['villages']['total'] += count($items);
+
+                foreach ($items as $item) {
+                    if ($limit > 0 && $parsed >= $limit) {
+                        break 2;
+                    }
+
+                    $villageId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$villageId) {
+                        continue;
+                    }
+
+                    $plotsBrief = [];
+                    try {
+                        $details = $apiClient->getPlotDetails($villageId, ['city' => $this->region]);
+                        $detailData = $details['data'] ?? $details;
+                        if (is_array($detailData)) {
+                            $plots = $detailData['plots'] ?? $detailData['land_plots'] ?? $detailData['plot_list'] ?? [];
+                            if (is_array($plots)) {
+                                foreach ($plots as $p) {
+                                    $plotsBrief[] = ['id' => $p['_id'] ?? $p['id'] ?? null, 'number' => $p['number'] ?? $p['name'] ?? null];
+                                }
+                            }
+                        }
+                        $detailData['plots_brief'] = $plotsBrief;
+                        if ($this->option('save-raw')) {
+                            $this->saveDetailsData('villages', "{$villageId}.json", ['data' => $detailData, 'source' => 'brief']);
+                        }
+                    } catch (\Throwable $e) {
+                        $detailData = $item;
+                        $detailData['plots_brief'] = $detailData['plots_brief'] ?? [];
+                    }
+
+                    if ($this->shouldSaveToDb && !empty($detailData)) {
+                        $this->saveVillageToDb(is_array($detailData) ? $detailData : $item, $villageId);
+                    }
+
+                    $parsed++;
+                    $this->statistics['villages']['parsed']++;
+                    $this->line("  Parsed village: {$villageId} ({$parsed})");
+                }
+
+                $totalFromApi = $this->statistics['by_type_total']['villages'] ?? null;
+                $shouldContinue = (count($items) === $count) || ($totalFromApi !== null && ($offset + $count) < $totalFromApi);
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+                $offset += $count;
+            } while ($shouldContinue);
+        } catch (\Exception $e) {
+            $this->error("Error parsing villages: {$e->getMessage()}");
+            $this->statistics['villages']['errors']++;
+        }
+    }
+
+    /**
+     * Парсинг проектов домов: полные детали, фото, планировки.
+     */
+    protected function parseHouseProjects(): void
+    {
+        $offset = (int) $this->option('offset');
+        $limit = (int) $this->option('limit');
+        $count = 20;
+        $parsed = 0;
+
+        $this->info("Fetching house projects (full details, images)...");
+
+        try {
+            $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
+            if (!($apiClient->authenticate()['success'] ?? false)) {
+                $this->error("Authentication failed");
+                return;
+            }
+
+            do {
+                $params = ['city' => $this->region, 'count' => $count, 'offset' => $offset];
+                $data = $apiClient->getContractors($params);
+
+                if (!$data || !($data['success'] ?? false) || empty($data['data'] ?? [])) {
+                    break;
+                }
+
+                if (!isset($this->statistics['by_type_total']['house_projects']) && isset($data['total'])) {
+                    $this->statistics['by_type_total']['house_projects'] = $data['total'];
+                }
+
+                $contractors = $data['data'];
+                foreach ($contractors as $item) {
+                    $contractorId = $item['_id'] ?? $item['id'] ?? null;
+                    if (!$contractorId) {
+                        continue;
+                    }
+
+                    try {
+                        $details = $apiClient->getContractorProjectDetails($contractorId, ['city' => $this->region]);
+                        $data = $details['data']['data'] ?? $details['data'] ?? $details;
+                        $projects = $data['projects'] ?? [];
+                        if (!is_array($projects)) {
+                            $projects = [];
+                        }
+                        // Если у подрядчика один проект — API может вернуть сам проект как data
+                        if (empty($projects) && !empty($data) && (isset($data['_id']) || isset($data['id']))) {
+                            $projects = [$data];
+                        }
+
+                        foreach ($projects as $projectData) {
+                            if ($limit > 0 && $parsed >= $limit) {
+                                break 2;
+                            }
+                            $projectId = $projectData['_id'] ?? $projectData['id'] ?? null;
+                            if (!$projectId) {
+                                continue;
+                            }
+
+                            $this->saveDetailsData('house_projects', "{$projectId}.json", ['data' => $projectData]);
+                            if ($this->shouldSaveToDb) {
+                                $this->saveHouseProjectToDb($projectData, $projectId, $contractorId);
+                            }
+                            if ($this->option('images') && !empty($projectData['images'])) {
+                                $this->downloadObjectImages('house_project', $projectId, ['data' => $projectData]);
+                            }
+                            $parsed++;
+                            $this->statistics['house_projects']['parsed']++;
+                            $this->line("  Parsed house project: {$projectId} ({$parsed})");
+                        }
+                    } catch (\Throwable $e) {
+                        $this->statistics['house_projects']['errors']++;
+                    }
+                }
+
+                $totalFromApi = $this->statistics['by_type_total']['house_projects'] ?? null;
+                $shouldContinue = (count($contractors) === $count) || ($totalFromApi !== null && ($offset + $count) < $totalFromApi);
+                if ($limit > 0 && $parsed >= $limit) {
+                    $shouldContinue = false;
+                }
+                $offset += $count;
+            } while ($shouldContinue);
+        } catch (\Exception $e) {
+            $this->error("Error parsing house projects: {$e->getMessage()}");
+            $this->statistics['house_projects']['errors']++;
         }
     }
     
@@ -1258,29 +1519,33 @@ class TrendAgentParse extends Command
     }
     
     /**
-     * Обновить URL изображений в данных
+     * Обновить URL изображений в данных.
+     * Если ImageDownloader не поддерживает extractImageUrls/updateImageUrls — возвращает данные без изменений.
      */
     protected function updateImageUrlsInData(array $data, string $type, string $objectId): array
     {
-        // Извлекаем все URL
+        if (!method_exists($this->imageDownloader, 'extractImageUrls')) {
+            return $data;
+        }
         $imageUrls = $this->imageDownloader->extractImageUrls($data);
         $allUrls = array_merge(
             $imageUrls['gallery'] ?? [],
             $imageUrls['plans'] ?? [],
             $imageUrls['views'] ?? []
         );
-        
-        // Скачиваем и получаем маппинг
         $downloadedImages = [];
         foreach ($allUrls as $url) {
-            $result = $this->imageDownloader->download($url, $type, $objectId);
+            $result = method_exists($this->imageDownloader, 'download')
+                ? $this->imageDownloader->download($url, $type, $objectId)
+                : null;
             if ($result) {
                 $downloadedImages[] = $result;
             }
         }
-        
-        // Обновляем URL в данных
-        return $this->imageDownloader->updateImageUrls($data, $downloadedImages);
+        if (method_exists($this->imageDownloader, 'updateImageUrls')) {
+            return $this->imageDownloader->updateImageUrls($data, $downloadedImages);
+        }
+        return $data;
     }
     
     /**
@@ -1871,6 +2136,70 @@ class TrendAgentParse extends Command
     }
 
     /**
+     * Сохранить посёлок в БД (краткий список участков в raw_data.plots_brief)
+     */
+    protected function saveVillageToDb(array $data, string $externalId): void
+    {
+        try {
+            $villageData = $data['data'] ?? $data;
+            $plotsBrief = $villageData['plots_brief'] ?? [];
+
+            $settlement = PlotSettlement::firstOrNew(['external_id' => $externalId]);
+            $settlement->region_id = $this->regionModel->id;
+            $settlement->guid = $villageData['guid'] ?? $villageData['slug'] ?? null;
+            $settlement->name = $villageData['name'] ?? 'Посёлок';
+            $settlement->address = $villageData['address'] ?? null;
+            $settlement->description = $villageData['description'] ?? null;
+            $settlement->latitude = $villageData['latitude'] ?? $villageData['geometry']['coordinates'][1] ?? null;
+            $settlement->longitude = $villageData['longitude'] ?? $villageData['geometry']['coordinates'][0] ?? null;
+            $settlement->images = is_array($villageData['images'] ?? null) ? $villageData['images'] : [];
+            $villageData['plots_brief'] = $plotsBrief;
+            $settlement->raw_data = $villageData;
+            $settlement->save();
+        } catch (\Exception $e) {
+            $this->warn("  ⚠️  Ошибка сохранения посёлка {$externalId} в БД: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Сохранить проект дома в БД (полные детали, фото)
+     */
+    protected function saveHouseProjectToDb(array $projectData, string $projectExternalId, string $contractorExternalId): void
+    {
+        try {
+            $contractor = Contractor::firstOrNew(['external_id' => $contractorExternalId]);
+            if (!$contractor->exists) {
+                $contractor->name = 'Подрядчик ' . $contractorExternalId;
+                $contractor->save();
+            }
+
+            $images = $projectData['images'] ?? [];
+            if (!is_array($images)) {
+                $images = [];
+            }
+
+            ContractorProject::updateOrCreate(
+                ['external_id' => $projectExternalId],
+                [
+                    'contractor_id' => $contractor->id,
+                    'guid' => $projectData['guid'] ?? $projectData['slug'] ?? null,
+                    'name' => $projectData['name'] ?? '',
+                    'description' => $projectData['description'] ?? null,
+                    'min_price' => $projectData['min_price'] ?? null,
+                    'area_total' => $projectData['area_total'] ?? null,
+                    'area_living' => $projectData['area_living'] ?? null,
+                    'construction_time' => $projectData['construction_time'] ?? null,
+                    'technology' => $projectData['technology'] ?? null,
+                    'images' => $images,
+                    'raw_data' => $projectData,
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->warn("  ⚠️  Ошибка сохранения проекта дома {$projectExternalId} в БД: {$e->getMessage()}");
+        }
+    }
+
+    /**
      * Сохранить участок в БД
      */
     protected function savePlotToDb(array $data, string $externalId): void
@@ -1980,12 +2309,25 @@ class TrendAgentParse extends Command
     }
 
     /**
-     * Сохранить подрядчика в БД
+     * Сохранить подрядчика в БД.
+     * @param bool $briefOnly при true сохраняем только подрядчика и краткий список проектов (projects_brief в raw_data), без создания записей ContractorProject
      */
-    protected function saveContractorToDb(array $data, string $externalId): void
+    protected function saveContractorToDb(array $data, string $externalId, bool $briefOnly = false): void
     {
         try {
             $contractorData = $data['data']['data'] ?? $data['data'] ?? $data;
+
+            // Краткий список проектов домов: только id и name
+            $projectsBrief = [];
+            if (isset($contractorData['projects']) && is_array($contractorData['projects'])) {
+                foreach ($contractorData['projects'] as $projectData) {
+                    $projectId = $projectData['_id'] ?? $projectData['id'] ?? null;
+                    if ($projectId) {
+                        $projectsBrief[] = ['id' => $projectId, 'name' => $projectData['name'] ?? ''];
+                    }
+                }
+            }
+            $contractorData['projects_brief'] = $projectsBrief;
 
             $dbData = [
                 'external_id' => $externalId,
@@ -1998,23 +2340,17 @@ class TrendAgentParse extends Command
                 'raw_data' => $contractorData,
             ];
 
-            // Используем модель для правильной обработки casts
             $contractor = Contractor::firstOrNew(['external_id' => $externalId]);
-            
-            // Устанавливаем обычные поля
             foreach ($dbData as $key => $value) {
                 if ($key !== 'raw_data') {
                     $contractor->setAttribute($key, $value);
                 }
             }
-            
-            // Явно устанавливаем JSON поля (Laravel автоматически конвертирует через casts)
             $contractor->setAttribute('raw_data', $contractorData);
-            
             $contractor->save();
 
-            // Импортируем проекты подрядчика
-            if (isset($contractorData['projects']) && is_array($contractorData['projects'])) {
+            // Полная выгрузка проектов — только если не briefOnly (полные детали проектов парсятся типом house_projects)
+            if (!$briefOnly && isset($contractorData['projects']) && is_array($contractorData['projects'])) {
                 foreach ($contractorData['projects'] as $projectData) {
                     $projectId = $projectData['_id'] ?? $projectData['id'] ?? null;
                     if ($projectId) {
@@ -2032,7 +2368,6 @@ class TrendAgentParse extends Command
                             'images' => $projectData['images'] ?? [],
                             'raw_data' => $projectData,
                         ];
-
                         ContractorProject::updateOrCreate(
                             ['external_id' => $projectId],
                             $projectDbData
@@ -2068,15 +2403,17 @@ class TrendAgentParse extends Command
             'plots' => ['parsed' => 0, 'errors' => 0],
             'commercial' => ['parsed' => 0, 'errors' => 0],
             'contractors' => ['parsed' => 0, 'errors' => 0],
+            'villages' => ['parsed' => 0, 'errors' => 0],
+            'house_projects' => ['parsed' => 0, 'errors' => 0],
         ];
-        
+
         foreach ($this->allRegionsStatistics as $regionCode => $stats) {
             foreach ($totalStats as $type => &$totals) {
                 $totals['parsed'] += $stats[$type]['parsed'] ?? 0;
                 $totals['errors'] += $stats[$type]['errors'] ?? 0;
             }
         }
-        
+
         $this->table(
             ['Тип', 'Обработано', 'Ошибок'],
             [
@@ -2087,9 +2424,11 @@ class TrendAgentParse extends Command
                 ['Участки', $totalStats['plots']['parsed'], $totalStats['plots']['errors']],
                 ['Коммерция', $totalStats['commercial']['parsed'], $totalStats['commercial']['errors']],
                 ['Подрядчики', $totalStats['contractors']['parsed'], $totalStats['contractors']['errors']],
+                ['Посёлки', $totalStats['villages']['parsed'], $totalStats['villages']['errors']],
+                ['Проекты домов', $totalStats['house_projects']['parsed'], $totalStats['house_projects']['errors']],
             ]
         );
-        
+
         $this->newLine();
         $this->info("📋 Статистика по регионам:");
         foreach ($this->allRegionsStatistics as $regionCode => $stats) {
@@ -2100,7 +2439,9 @@ class TrendAgentParse extends Command
                           ($stats['houses']['parsed'] ?? 0) + 
                           ($stats['plots']['parsed'] ?? 0) + 
                           ($stats['commercial']['parsed'] ?? 0) + 
-                          ($stats['contractors']['parsed'] ?? 0);
+                          ($stats['contractors']['parsed'] ?? 0) +
+                          ($stats['villages']['parsed'] ?? 0) +
+                          ($stats['house_projects']['parsed'] ?? 0);
             $this->line("  {$regionCode} ({$regionName}): {$totalParsed} объектов");
         }
         
@@ -2181,15 +2522,17 @@ class TrendAgentParse extends Command
                 'plots' => ['parsed' => 0, 'errors' => 0],
                 'commercial' => ['parsed' => 0, 'errors' => 0],
                 'contractors' => ['parsed' => 0, 'errors' => 0],
+                'villages' => ['parsed' => 0, 'errors' => 0],
+                'house_projects' => ['parsed' => 0, 'errors' => 0],
             ];
-            
+
             foreach ($this->allRegionsStatistics as $stats) {
                 foreach ($totalStats as $type => &$totals) {
                     $totals['parsed'] += $stats[$type]['parsed'] ?? 0;
                     $totals['errors'] += $stats[$type]['errors'] ?? 0;
                 }
             }
-            
+
             $this->info("📥 Данные из парсинга (все регионы):");
             $this->table(
                 ['Тип', 'Обработано', 'Ошибок'],
@@ -2201,6 +2544,8 @@ class TrendAgentParse extends Command
                     ['Участки', $totalStats['plots']['parsed'], $totalStats['plots']['errors']],
                     ['Коммерция', $totalStats['commercial']['parsed'], $totalStats['commercial']['errors']],
                     ['Подрядчики', $totalStats['contractors']['parsed'], $totalStats['contractors']['errors']],
+                    ['Посёлки', $totalStats['villages']['parsed'], $totalStats['villages']['errors']],
+                    ['Проекты домов', $totalStats['house_projects']['parsed'], $totalStats['house_projects']['errors']],
                 ]
             );
         } else {
@@ -2215,25 +2560,33 @@ class TrendAgentParse extends Command
                     ['Участки', $this->statistics['plots']['parsed'] ?? 0, $this->statistics['plots']['errors'] ?? 0],
                     ['Коммерция', $this->statistics['commercial']['parsed'] ?? 0, $this->statistics['commercial']['errors'] ?? 0],
                     ['Подрядчики', $this->statistics['contractors']['parsed'] ?? 0, $this->statistics['contractors']['errors'] ?? 0],
+                    ['Посёлки', $this->statistics['villages']['parsed'] ?? 0, $this->statistics['villages']['errors'] ?? 0],
+                    ['Проекты домов', $this->statistics['house_projects']['parsed'] ?? 0, $this->statistics['house_projects']['errors'] ?? 0],
                 ]
             );
         }
-        
+
         $this->newLine();
-        $this->info("💾 Данные в БД:");
-        $this->table(
-            ['Тип', 'Записей в БД'],
-            [
-                ['Регионы', Region::count()],
-                ['Комплексы', Complex::count()],
-                ['Квартиры', Apartment::count()],
-                ['Паркинги', Parking::count()],
-                ['Дома', House::count()],
-                ['Участки', Plot::count()],
-                ['Коммерция', Commercial::count()],
-                ['Подрядчики', Contractor::count()],
-            ]
-        );
+        if (!$this->noDb) {
+            $this->info("💾 Данные в БД:");
+            $this->table(
+                ['Тип', 'Записей в БД'],
+                [
+                    ['Регионы', Region::count()],
+                    ['Комплексы', Complex::count()],
+                    ['Квартиры', Apartment::count()],
+                    ['Паркинги', Parking::count()],
+                    ['Дома', House::count()],
+                    ['Участки', Plot::count()],
+                    ['Коммерция', Commercial::count()],
+                    ['Подрядчики', Contractor::count()],
+                    ['Посёлки', PlotSettlement::count()],
+                    ['Проекты домов', ContractorProject::count()],
+                ]
+            );
+        } else {
+            $this->line('<comment>💾 Данные в БД: не запрашивались (режим --no-db)</comment>');
+        }
     }
 
     /**

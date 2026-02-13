@@ -1,0 +1,103 @@
+{
+    "success": true,
+    "data": {
+        "success": true,
+        "data": {
+            "_id": "63c56a6a9a85d537f5f66a28",
+            "plan": {
+                "_id": "69663e5ac502ab2a046d7172",
+                "file_name": "57ad44abb4a1a0da6b3e79266e4e56a9.png",
+                "path": "rs\/bt\/"
+            },
+            "section": "63c5135f9a85d538b9f6409a",
+            "sub_section": "63c5135f28d3bc1215083bd5",
+            "type": "63c64d5728d3bc43d9088238",
+            "finishing": [
+                2
+            ],
+            "status": {
+                "_id": "58c665588b6aa52311afa007",
+                "crm_id": 0,
+                "bkgrd_color": "#ffffff",
+                "border_color": "#f2f2f2",
+                "text_color": "#333333",
+                "name": "Свободная",
+                "name_short": "Свободная"
+            },
+            "floor": 6,
+            "view": 1,
+            "north": 270,
+            "number": "116",
+            "price": 2201500,
+            "price_m2": 85000,
+            "view_places": [],
+            "announcement_mortgage": false,
+            "finishing_main": [
+                2
+            ],
+            "finishing_additional": [],
+            "rooms": 1,
+            "section_name": "3",
+            "privArea": 25.9,
+            "roomsArea": "9.2",
+            "kitchenArea": 9.5,
+            "base_price": 2201500,
+            "line": 1,
+            "deadline": "2 кв. 2023",
+            "building_name": "1",
+            "building_mortgages": 33,
+            "exclusive": false,
+            "hasMortgage": true,
+            "finishing_id": 2
+        },
+        "raw_response": {
+            "_id": "63c56a6a9a85d537f5f66a28",
+            "plan": {
+                "_id": "69663e5ac502ab2a046d7172",
+                "file_name": "57ad44abb4a1a0da6b3e79266e4e56a9.png",
+                "path": "rs\/bt\/"
+            },
+            "section": "63c5135f9a85d538b9f6409a",
+            "sub_section": "63c5135f28d3bc1215083bd5",
+            "type": "63c64d5728d3bc43d9088238",
+            "finishing": [
+                2
+            ],
+            "status": {
+                "_id": "58c665588b6aa52311afa007",
+                "crm_id": 0,
+                "bkgrd_color": "#ffffff",
+                "border_color": "#f2f2f2",
+                "text_color": "#333333",
+                "name": "Свободная",
+                "name_short": "Свободная"
+            },
+            "floor": 6,
+            "view": 1,
+            "north": 270,
+            "number": "116",
+            "price": 2201500,
+            "price_m2": 85000,
+            "view_places": [],
+            "announcement_mortgage": false,
+            "finishing_main": [
+                2
+            ],
+            "finishing_additional": [],
+            "rooms": 1,
+            "section_name": "3",
+            "privArea": 25.9,
+            "roomsArea": "9.2",
+            "kitchenArea": 9.5,
+            "base_price": 2201500,
+            "line": 1,
+            "deadline": "2 кв. 2023",
+            "building_name": "1",
+            "building_mortgages": 33,
+            "exclusive": false,
+            "hasMortgage": true,
+            "finishing_id": 2
+        },
+        "source": "block_apartments_list"
+    }
+}
