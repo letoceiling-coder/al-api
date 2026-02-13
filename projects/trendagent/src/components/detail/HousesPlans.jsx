@@ -157,13 +157,13 @@ const HousesPlans = ({ plansData, apartmentsData, apartments = [], blockId, bloc
                       )}
                     </div>
                   ) : null}
-                  {blockId && (
+                  {blockId && (plan.id || plan.apartment_id) && (
                     <div className="plan-card-actions">
                       <a
-                        href={`/trendagent/apartments/${blockId}${blockGuid ? `?guid=${blockGuid}` : ''}`}
+                        href={`/trendagent/apartments/${blockId}/flat/${plan.apartment_id || plan.id}${blockGuid ? `?block=${blockId}&guid=${blockGuid}` : `?block=${blockId}`}`}
                         className="plan-link"
                       >
-                        Перейти к объекту
+                        Подробнее о квартире
                       </a>
                     </div>
                   )}
