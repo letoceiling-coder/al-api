@@ -36,10 +36,13 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getImage = () => {
-    // Для квартир сначала проверяем plan (планировка квартиры)
-    if (objectType === 'apartments' && object.plan) {
-      const planUrl = getImageUrl(object.plan)
-      if (planUrl) return planUrl
+    // Для квартир НЕ используем plan (планировка) - это только для детальной страницы
+    // В списке должны показываться фотографии комплекса/блока
+    
+    // Для квартир сначала проверяем block_image (изображение комплекса)
+    if (objectType === 'apartments' && object.block_image) {
+      const blockImageUrl = getImageUrl(object.block_image)
+      if (blockImageUrl) return blockImageUrl
     }
     
     // Сначала проверяем массив images (для паркингов, домов, участков, коммерции)
