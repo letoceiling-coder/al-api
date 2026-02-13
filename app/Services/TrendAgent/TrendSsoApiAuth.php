@@ -6539,6 +6539,49 @@ class TrendSsoApiAuth
                     }
                 }
                 
+                // Для квартир: если нет image, но есть block с изображением, используем изображение блока
+                if (empty($item['image']) && empty($item['images']) && isset($item['block']) && is_array($item['block'])) {
+                    // Проверяем block.image
+                    if (isset($item['block']['image']) && is_array($item['block']['image'])) {
+                        $blockImage = $item['block']['image'];
+                        if (isset($blockImage['path']) && isset($blockImage['file_name'])) {
+                            $path = rtrim($blockImage['path'], '/');
+                            $path = ltrim($path, '/');
+                            $fileName = $blockImage['file_name'];
+                            $item['image'] = [
+                                'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'path' => $blockImage['path'],
+                                'file_name' => $blockImage['file_name'],
+                            ];
+                        } elseif (isset($blockImage['url']) || isset($blockImage['thumbnail'])) {
+                            // Если уже есть готовые URL
+                            $item['image'] = $blockImage;
+                        }
+                    }
+                    // Проверяем block.images (массив изображений блока)
+                    elseif (isset($item['block']['images']) && is_array($item['block']['images']) && count($item['block']['images']) > 0) {
+                        $firstBlockImage = $item['block']['images'][0];
+                        if (isset($firstBlockImage['path']) && isset($firstBlockImage['file_name'])) {
+                            $path = rtrim($firstBlockImage['path'], '/');
+                            $path = ltrim($path, '/');
+                            $fileName = $firstBlockImage['file_name'];
+                            $item['image'] = [
+                                'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'path' => $firstBlockImage['path'],
+                                'file_name' => $firstBlockImage['file_name'],
+                            ];
+                        } elseif (isset($firstBlockImage['url']) || isset($firstBlockImage['thumbnail'])) {
+                            $item['image'] = $firstBlockImage;
+                        }
+                    }
+                }
+                
                 return $item;
             }, $apartmentsList);
             
