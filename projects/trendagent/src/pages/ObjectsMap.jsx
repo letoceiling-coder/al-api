@@ -278,11 +278,25 @@ const ObjectsMap = () => {
         if (window.ymaps) {
           window.ymaps.ready(() => {
             console.log('ymaps.ready вызван')
+            console.log('Проверка перед initMap:', {
+              hasContainer: !!mapContainerRef.current,
+              objectsCount: objects.length,
+              hasInitMap: typeof initMap === 'function'
+            })
             // Проверяем контейнер еще раз перед инициализацией
             if (mapContainerRef.current && objects.length > 0) {
-              initMap()
+              console.log('Вызываем initMap()...')
+              try {
+                initMap()
+                console.log('initMap() вызван успешно')
+              } catch (error) {
+                console.error('Ошибка при вызове initMap():', error, error.stack)
+              }
             } else {
-              console.error('Контейнер или объекты недоступны после загрузки ymaps')
+              console.error('Контейнер или объекты недоступны после загрузки ymaps', {
+                hasContainer: !!mapContainerRef.current,
+                objectsCount: objects.length
+              })
             }
           })
         } else {
@@ -297,11 +311,25 @@ const ObjectsMap = () => {
       console.log('ymaps уже загружен, вызываем initMap')
       window.ymaps.ready(() => {
         console.log('ymaps.ready вызван (уже загружен)')
+        console.log('Проверка перед initMap:', {
+          hasContainer: !!mapContainerRef.current,
+          objectsCount: objects.length,
+          hasInitMap: typeof initMap === 'function'
+        })
         // Проверяем контейнер еще раз перед инициализацией
         if (mapContainerRef.current && objects.length > 0) {
-          initMap()
+          console.log('Вызываем initMap()...')
+          try {
+            initMap()
+            console.log('initMap() вызван успешно')
+          } catch (error) {
+            console.error('Ошибка при вызове initMap():', error, error.stack)
+          }
         } else {
-          console.error('Контейнер или объекты недоступны после ymaps.ready')
+          console.error('Контейнер или объекты недоступны после ymaps.ready', {
+            hasContainer: !!mapContainerRef.current,
+            objectsCount: objects.length
+          })
         }
       })
     }
@@ -321,6 +349,13 @@ const ObjectsMap = () => {
   }, [objects, loading])
 
   const initMap = () => {
+    console.log('=== initMap вызван ===')
+    console.log('initMap: проверка условий', {
+      hasContainer: !!mapContainerRef.current,
+      hasYmaps: !!window.ymaps,
+      objectsCount: objects.length
+    })
+    
     if (!mapContainerRef.current) {
       console.error('initMap: mapContainerRef отсутствует')
       return
