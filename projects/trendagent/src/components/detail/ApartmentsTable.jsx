@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import './ApartmentsTable.css'
 import { getImageUrl } from '../../utils/imageUtils'
 import HousesPlans from './HousesPlans'
@@ -8,6 +8,12 @@ const ApartmentsTable = ({ apartmentsData, unifiedData, objectType, plansData, b
   const [sortBy, setSortBy] = useState('price') // 'price', 'area', 'deadline'
   const [sortOrder, setSortOrder] = useState('asc') // 'asc', 'desc'
   const [expandedGroups, setExpandedGroups] = useState(new Set())
+  
+  // Состояние для drag scroll
+  const tableWrapperRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   // Извлекаем квартиры из различных структур ответа
   const apartments = useMemo(() => {
@@ -179,6 +185,33 @@ const ApartmentsTable = ({ apartmentsData, unifiedData, objectType, plansData, b
     return 'status-default'
   }
 
+  // Обработчики для drag scroll
+  const handleMouseDown = (e) => {
+    if (!tableWrapperRef.current) return
+    // Не начинаем drag, если клик был на ссылке или кнопке
+    if (e.target.closest('a, button')) return
+    setIsDragging(true)
+    setStartX(e.pageX - tableWrapperRef.current.offsetLeft)
+    setScrollLeft(tableWrapperRef.current.scrollLeft)
+    e.preventDefault()
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !tableWrapperRef.current) return
+    e.preventDefault()
+    const x = e.pageX - tableWrapperRef.current.offsetLeft
+    const walk = (x - startX) * 2 // Скорость прокрутки
+    tableWrapperRef.current.scrollLeft = scrollLeft - walk
+  }
+
   return (
     <div className="apartments-table-container">
       <div className="apartments-controls">
@@ -259,7 +292,15 @@ const ApartmentsTable = ({ apartmentsData, unifiedData, objectType, plansData, b
                   </div>
                   
                   {isExpanded && (
-                    <div className="apartments-table-container-inner">
+                    <div 
+                      className="apartments-table-container-inner"
+                      ref={tableWrapperRef}
+                      onMouseDown={handleMouseDown}
+                      onMouseLeave={handleMouseLeave}
+                      onMouseUp={handleMouseUp}
+                      onMouseMove={handleMouseMove}
+                      style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                    >
                       <table className="apartments-table">
                         <thead>
                           <tr>

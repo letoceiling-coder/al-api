@@ -148,6 +148,8 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f1f5f9;
+  cursor: grab;
+  user-select: none;
 }
 
 .apartments-table-container-inner::-webkit-scrollbar {
@@ -166,6 +168,10 @@
 
 .apartments-table-container-inner::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.apartments-table-container-inner:active {
+  cursor: grabbing;
 }
 
 .apartments-table {
