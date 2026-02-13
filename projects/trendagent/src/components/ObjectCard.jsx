@@ -83,62 +83,6 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
-    // Для квартир: если нет image, проверяем block.image (изображение комплекса)
-    if (objectType === 'apartments') {
-      // Проверяем block.image (объект блока с изображением)
-      if (object.block && typeof object.block === 'object' && object.block.image) {
-        const blockImage = object.block.image
-        if (typeof blockImage === 'object' && blockImage !== null) {
-          // Проверяем готовые URL поля
-          if (blockImage.url) {
-            return blockImage.url
-          }
-          if (blockImage.thumbnail) {
-            return blockImage.thumbnail
-          }
-          if (blockImage.url_full) {
-            return blockImage.url_full
-          }
-          if (blockImage.full) {
-            return blockImage.full
-          }
-        }
-        // Пробуем через imageUtils
-        const blockImageUrl = getImageUrl(blockImage)
-        if (blockImageUrl) return blockImageUrl
-      }
-      
-      // Проверяем block.images (массив изображений блока)
-      if (object.block && typeof object.block === 'object' && object.block.images && Array.isArray(object.block.images) && object.block.images.length > 0) {
-        const firstBlockImage = object.block.images[0]
-        if (firstBlockImage.thumbnail) {
-          return firstBlockImage.thumbnail
-        }
-        if (firstBlockImage.full) {
-          return firstBlockImage.full
-        }
-        if (firstBlockImage.url) {
-          return firstBlockImage.url
-        }
-        const blockImageUrl = getImageUrl(firstBlockImage)
-        if (blockImageUrl) return blockImageUrl
-      }
-      
-      // Проверяем block_image (отдельное поле для изображения блока)
-      if (object.block_image) {
-        if (typeof object.block_image === 'object' && object.block_image !== null) {
-          if (object.block_image.url) {
-            return object.block_image.url
-          }
-          if (object.block_image.thumbnail) {
-            return object.block_image.thumbnail
-          }
-        }
-        const blockImageUrl = getImageUrl(object.block_image)
-        if (blockImageUrl) return blockImageUrl
-      }
-    }
-    
     // Проверяем renderer (для некоторых типов объектов)
     if (object.renderer && Array.isArray(object.renderer) && object.renderer.length > 0) {
       const imageUrl = getImageUrl(object.renderer[0])

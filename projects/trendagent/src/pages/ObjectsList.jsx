@@ -36,7 +36,7 @@ const ObjectsList = () => {
     if (authData && authData.authenticated) {
       loadObjects()
     }
-  }, [selectedObjectType, filters, pagination.offset, authData])
+  }, [selectedObjectType, viewType, filters, pagination.offset, authData])
 
   const authenticate = async () => {
     try {
@@ -74,7 +74,11 @@ const ObjectsList = () => {
       }
 
       let response
-      if (selectedObjectType === 'apartments') {
+      // Если выбран тип "apartments" и viewType "list" (Комплексы), загружаем блоки
+      if (selectedObjectType === 'apartments' && viewType === 'list') {
+        // Загружаем комплексы (блоки) вместо квартир
+        response = await trendAgentAPI.getObjectsList('blocks', params)
+      } else if (selectedObjectType === 'apartments') {
         response = await trendAgentAPI.getApartments(params)
       } else if (selectedObjectType === 'parkings') {
         response = await trendAgentAPI.getParkings(params)
@@ -89,13 +93,28 @@ const ObjectsList = () => {
       }
 
       if (response.success) {
-        const objectsList = response.data?.objects || response.data?.data || []
+        // Для блоков (комплексов) данные могут быть в response.data.data или response.data
+        let objectsList = []
+        if (selectedObjectType === 'apartments' && viewType === 'list') {
+          // Для блоков структура: response.data.data или response.data
+          objectsList = response.data?.data || response.data?.objects || response.data || []
+        } else {
+          objectsList = response.data?.objects || response.data?.data || response.data || []
+        }
+        
         setObjects(objectsList)
-        setTotalCount(response.total_count || objectsList.length)
+        
+        // Для блоков total_count может быть в blocks_count или total
+        let total = response.total_count || response.total
+        if (selectedObjectType === 'apartments' && viewType === 'list') {
+          total = response.blocks_count || response.total_count || response.total || objectsList.length
+        }
+        setTotalCount(total || objectsList.length)
+        
         setPagination(prev => ({
           ...prev,
           hasMore: response.pagination?.has_more || 
-                   (pagination.offset + objectsList.length < (response.total_count || 0)),
+                   (pagination.offset + objectsList.length < (total || 0)),
         }))
       }
     } catch (error) {
@@ -124,7 +143,9 @@ const ObjectsList = () => {
   }
 
   const handleObjectClick = (objectId, objectGuid) => {
-    navigate(`/${selectedObjectType}/${objectId}${objectGuid ? `?guid=${objectGuid}` : ''}`)
+    // Если это комплексы (блоки), переходим на страницу apartments (так как детальная страница блока использует /apartments/:id)
+    const targetType = (selectedObjectType === 'apartments' && viewType === 'list') ? 'apartments' : selectedObjectType
+    navigate(`/${targetType}/${objectId}${objectGuid ? `?guid=${objectGuid}` : ''}`)
   }
 
   if (!authData || !authData.authenticated) {
@@ -207,7 +228,7 @@ const ObjectsList = () => {
               <ObjectCard
                 key={object._id || object.guid || object.id}
                 object={object}
-                objectType={selectedObjectType}
+                objectType={(selectedObjectType === 'apartments' && viewType === 'list') ? 'blocks' : selectedObjectType}
                 onClick={() => handleObjectClick(
                   object._id || object.id,
                   object.guid
