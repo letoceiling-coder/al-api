@@ -78,7 +78,7 @@ const ObjectsMap = () => {
       } catch (error) {
         console.error('Ошибка загрузки блоков для карты:', error)
       }
-      
+
       const response = await trendAgentAPI.getApartments(params)
       if (response.success) {
         const objectsList = response.data?.objects || response.data?.data || []
@@ -287,7 +287,7 @@ const ObjectsMap = () => {
     
     if (objects.length > 0 && (objects[0]._id || objects[0].id) && !objects[0].block_id) {
       blocksWithCoords = objects
-        .map(obj => {
+      .map(obj => {
           try {
             const coord = getCoordinates(obj)
             if (!coord) return null
@@ -331,7 +331,7 @@ const ObjectsMap = () => {
           
           blocksMap.get(blockId).apartments.push(obj)
           
-          const coord = getCoordinates(obj)
+        const coord = getCoordinates(obj)
           if (coord && !blocksMap.get(blockId).coord) {
             blocksMap.get(blockId).coord = coord
           }
@@ -356,7 +356,7 @@ const ObjectsMap = () => {
             ...block,
             apartmentsCount: block.apartments.length
           }
-        })
+      })
         .filter(block => block.coord !== null)
     }
 
@@ -657,18 +657,18 @@ const ObjectsMap = () => {
                           {blockData.apart_count && (
                             <div className="block-card__count">
                               <strong>Квартир:</strong> {blockData.apart_count}
-                            </div>
-                          )}
+                      </div>
+                    )}
                         </div>
                         
                         <div className="block-card__footer">
-                          <a 
+                    <a
                             href={`/trendagent/apartments/${selectedBlock.blockId}${selectedBlock.blockGuid ? `?guid=${selectedBlock.blockGuid}` : ''}`}
                             className="block-card__link"
-                          >
-                            Перейти к объекту
-                          </a>
-                        </div>
+                    >
+                      Перейти к объекту
+                    </a>
+                  </div>
                       </div>
                     )}
                   </>
