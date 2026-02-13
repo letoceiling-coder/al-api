@@ -77,12 +77,9 @@ const ObjectsList = () => {
       // Если выбран тип "apartments" и viewType "list" (Комплексы), загружаем блоки
       if (selectedObjectType === 'apartments' && viewType === 'list') {
         // Загружаем комплексы (блоки) вместо квартир
-        // Для блоков используем пустую строку или не передаем object_type
-        // чтобы использовался getBlocksSearch по умолчанию
-        const blocksParams = { ...params }
-        // Убираем object_type из params, если он там есть
-        delete blocksParams.object_type
-        response = await trendAgentAPI.getObjectsList('', blocksParams)
+        // Явно передаем 'blocks' чтобы контроллер использовал getBlocksSearch
+        const blocksParams = { ...params, object_type: 'blocks' }
+        response = await trendAgentAPI.getObjectsList('blocks', blocksParams)
         console.log('DEBUG: Загружены блоки (комплексы):', {
           success: response.success,
           dataKeys: response.data ? Object.keys(response.data) : [],
@@ -196,7 +193,11 @@ const ObjectsList = () => {
     <div className="container mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">PARSER</h1>
-        <p className="text-muted-foreground">Поиск и просмотр объектов недвижимости TrendAgent</p>
+        <p className="text-muted-foreground">
+          {selectedObjectType === 'apartments' && viewType === 'list' 
+            ? 'Комплексы недвижимости TrendAgent' 
+            : 'Поиск и просмотр объектов недвижимости TrendAgent'}
+        </p>
       </div>
 
       <ObjectTypeFilter
@@ -209,7 +210,10 @@ const ObjectsList = () => {
         <div className="objects-view-tabs">
           <button
             className={`view-tab ${viewType === 'list' ? 'active' : ''}`}
-            onClick={() => setViewType('list')}
+            onClick={() => {
+              setViewType('list')
+              setPagination(prev => ({ ...prev, offset: 0, page: 1 }))
+            }}
           >
             Комплексы
           </button>
@@ -245,13 +249,19 @@ const ObjectsList = () => {
         <div className="card text-center">
           <div className="loading">
             <div className="spinner"></div>
-            <p className="ml-4">Загрузка объектов...</p>
+            <p className="ml-4">
+              {selectedObjectType === 'apartments' && viewType === 'list' 
+                ? 'Загрузка комплексов...' 
+                : 'Загрузка объектов...'}
+            </p>
           </div>
         </div>
       ) : (
         <>
           <div className="mb-4 text-sm text-muted-foreground">
-            Найдено объектов: {totalCount}
+            {selectedObjectType === 'apartments' && viewType === 'list' 
+              ? `Найдено комплексов: ${totalCount}`
+              : `Найдено объектов: ${totalCount}`}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
