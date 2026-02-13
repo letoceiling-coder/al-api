@@ -140,7 +140,7 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     }
     
     // Логируем для отладки, если изображение не найдено
-    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery) {
+    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery && !object.plan) {
       // Собираем все ключи, которые могут содержать изображения
       const imageRelatedKeys = Object.keys(object).filter(key => 
         key.toLowerCase().includes('image') || 
