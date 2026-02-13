@@ -411,7 +411,7 @@ const ApartmentsTable = ({ apartmentsData, unifiedData, objectType, plansData, b
 
       {/* Планировки */}
       {viewType === 'plan' && (
-        <HousesPlans plansData={plansData} apartmentsData={apartmentsData} />
+        <HousesPlans plansData={plansData} apartmentsData={apartmentsData} apartments={apartments} blockId={blockId} blockGuid={blockGuid} />
       )}
     </div>
   )

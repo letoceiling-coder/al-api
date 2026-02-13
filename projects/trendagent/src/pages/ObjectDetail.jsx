@@ -267,11 +267,12 @@ const ObjectDetail = () => {
       <div className="container mx-auto p-6">
         {/* Кнопка назад */}
         <button
-          className="btn-back"
+          type="button"
+          className="btn btn-outline btn-back"
           onClick={() => navigate('/')}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+          <svg className="w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
           Назад к списку
         </button>

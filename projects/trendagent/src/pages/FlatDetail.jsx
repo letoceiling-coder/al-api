@@ -361,9 +361,9 @@ const FlatDetail = () => {
   return (
     <div className="flat-detail-container">
       <div className="breadcrumbs">
-        <button className="btn-back" onClick={() => navigate(-1)}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <button type="button" className="btn btn-outline btn-back" onClick={() => navigate(-1)}>
+          <svg className="w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
           Назад
         </button>

@@ -13,22 +13,8 @@
   color: #666;
 }
 
-.btn-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid #e5e5e5;
-  background: #fff;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-back:hover {
-  border-color: #d0d0d0;
-  background: #f9fafb;
+.breadcrumbs .btn-back {
+  margin-bottom: 0;
 }
 
 .breadcrumb-separator {

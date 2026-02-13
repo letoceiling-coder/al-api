@@ -3,30 +3,6 @@
   background-color: var(--color-bg-secondary);
 }
 
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--color-text-secondary);
-  background: var(--color-bg-primary);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  padding: 0.625rem 1rem;
-  margin-bottom: var(--spacing-lg);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-back:hover {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-  transform: translateX(-2px);
-}
-
 .detail-navigation {
   position: sticky;
   top: 0;

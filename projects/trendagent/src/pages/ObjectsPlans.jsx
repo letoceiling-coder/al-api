@@ -70,8 +70,17 @@ const ObjectsPlans = () => {
 
       if (response.success) {
         const apartmentsList = response.data?.objects || response.data?.data || []
+        const normRooms = (r) => {
+          if (r == null) return null
+          if (typeof r === 'number' && !Number.isNaN(r)) return r
+          if (typeof r === 'object') return r.value ?? r.id ?? r.count ?? null
+          const n = Number(r)
+          return Number.isNaN(n) ? null : n
+        }
         // Преобразуем квартиры в планировки
-        const plansList = apartmentsList.map(apt => ({
+        const plansList = apartmentsList.map(apt => {
+          const rooms = normRooms(apt.rooms || apt.room)
+          return {
           id: apt.id || apt._id,
           apartment_id: apt.id || apt._id,
           name: apt.name || apt.block_name || apt.title,
@@ -79,8 +88,8 @@ const ObjectsPlans = () => {
           area: apt.privArea || apt.area || apt.area_total,
           area_from: apt.privArea || apt.area || apt.area_total,
           area_to: apt.privArea || apt.area || apt.area_total,
-          rooms: apt.rooms || apt.room,
-          room_count: apt.rooms || apt.room,
+          rooms,
+          room_count: rooms,
           // ВАЖНО: Для планировок приоритет - сначала планировка (plan, plan_image), потом фото комплекса
           image: apt.plan || apt.plan_image || apt.image?.url || (apt.images && apt.images.length > 0 ? apt.images[0] : null) || apt.image,
           images: apt.images || [],
@@ -89,7 +98,8 @@ const ObjectsPlans = () => {
           block_id: apt.block_id || apt._id || apt.id,
           block_guid: apt.guid,
           block_name: apt.block_name || apt.name || apt.title,
-        }))
+        }
+        })
         
         setPlans(plansList)
         setTotalCount(response.total_count || plansList.length)
@@ -135,9 +145,9 @@ const ObjectsPlans = () => {
   return (
     <div className="objects-plans-container">
       <div className="objects-plans-header">
-        <button className="btn-back" onClick={() => navigate('/')}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <button type="button" className="btn btn-outline btn-back" onClick={() => navigate('/')}>
+          <svg className="w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
           Назад
         </button>
@@ -194,11 +204,11 @@ const ObjectsPlans = () => {
                   <div className="plan-card-content">
                     <h3 className="plan-card-name">{plan.plan_name || plan.name}</h3>
                     <div className="plan-card-info">
-                      {plan.rooms && (
+                      {(plan.rooms != null && plan.rooms !== '') && (
                         <div className="plan-info-item">
                           <span className="plan-info-label">Комнат:</span>
                           <span className="plan-info-value">
-                            {plan.rooms === 1 ? 'Студия' : `${plan.rooms}-комн.`}
+                            {Number(plan.rooms) === 1 ? 'Студия' : `${plan.rooms}-комн.`}
                           </span>
                         </div>
                       )}

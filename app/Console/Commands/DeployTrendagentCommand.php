@@ -286,14 +286,20 @@ class DeployTrendagentCommand extends Command
     }
 
     /**
-     * Обновление из Git на сервере
+     * Обновление из Git на сервере.
+     * На сервере: fetch + reset --hard origin/main, чтобы гарантированно получить
+     * актуальный код (локальные изменения на сервере будут сброшены).
      */
     private function gitPull(): array
     {
         $basePath = base_path();
-        
-        $result = $this->executeCommand('git pull', $basePath);
-        
+
+        if ($this->isServer) {
+            $result = $this->executeCommand('git fetch origin && git reset --hard origin/main', $basePath);
+        } else {
+            $result = $this->executeCommand('git pull', $basePath);
+        }
+
         if (!$result['success']) {
             return [
                 'success' => false,
@@ -304,7 +310,7 @@ class DeployTrendagentCommand extends Command
 
         return [
             'success' => true,
-            'message' => 'Проект обновлен из git',
+            'message' => $this->isServer ? 'Код на сервере приведён к origin/main' : 'Проект обновлен из git',
             'output' => $result['output']
         ];
     }
