@@ -103,6 +103,18 @@ const ObjectsTable = () => {
   }
 
   const getImageUrlForApartment = (apt) => {
+    // ВАЖНО: Для колонки "План" приоритет - план квартиры, а не фото комплекса
+    // Сначала проверяем план квартиры
+    if (apt.plan) {
+      const planUrl = getImageUrl(apt.plan)
+      if (planUrl) return planUrl
+    }
+    if (apt.plan_image) {
+      const planImageUrl = getImageUrl(apt.plan_image)
+      if (planImageUrl) return planImageUrl
+    }
+    
+    // Если плана нет, используем другие изображения как fallback
     if (apt.image?.url) return getImageUrl(apt.image.url)
     if (apt.images && Array.isArray(apt.images) && apt.images.length > 0) {
       return getImageUrl(apt.images[0])
@@ -110,8 +122,6 @@ const ObjectsTable = () => {
     if (apt.image && typeof apt.image === 'string') {
       return getImageUrl(apt.image)
     }
-    if (apt.plan) return getImageUrl(apt.plan)
-    if (apt.plan_image) return getImageUrl(apt.plan_image)
     return null
   }
 
