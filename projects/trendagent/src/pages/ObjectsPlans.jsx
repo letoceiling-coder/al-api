@@ -81,7 +81,8 @@ const ObjectsPlans = () => {
           area_to: apt.privArea || apt.area || apt.area_total,
           rooms: apt.rooms || apt.room,
           room_count: apt.rooms || apt.room,
-          image: apt.image?.url || (apt.images && apt.images.length > 0 ? apt.images[0] : null) || apt.image || apt.plan || apt.plan_image,
+          // ВАЖНО: Для планировок приоритет - сначала планировка (plan, plan_image), потом фото комплекса
+          image: apt.plan || apt.plan_image || apt.image?.url || (apt.images && apt.images.length > 0 ? apt.images[0] : null) || apt.image,
           images: apt.images || [],
           plan: apt.plan || apt.plan_image,
           plan_image: apt.plan_image || apt.plan,
@@ -177,11 +178,11 @@ const ObjectsPlans = () => {
 
           <div className="plans-grid">
             {plans.map((plan, idx) => {
-              const imageUrl = plan.image 
-                ? getImageUrl(plan.image) 
-                : (plan.plan ? getImageUrl(plan.plan) : null) ||
-                  (plan.plan_image ? getImageUrl(plan.plan_image) : null) ||
-                  (plan.images && plan.images.length > 0 ? getImageUrl(plan.images[0]) : null)
+              // ВАЖНО: Для планировок приоритет - сначала планировка (plan, plan_image), потом фото комплекса
+              const imageUrl = (plan.plan ? getImageUrl(plan.plan) : null) ||
+                               (plan.plan_image ? getImageUrl(plan.plan_image) : null) ||
+                               (plan.image ? getImageUrl(plan.image) : null) ||
+                               (plan.images && plan.images.length > 0 ? getImageUrl(plan.images[0]) : null)
               
               return (
                 <div key={plan.id || idx} className="plan-card">
