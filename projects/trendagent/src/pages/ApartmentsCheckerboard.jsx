@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { trendAgentAPI } from '../services/api'
 import './ApartmentsCheckerboard.css'
 
@@ -347,8 +347,8 @@ const ApartmentsCheckerboard = () => {
   }
 
   return (
-    <div id="chessboard" className="checkerboard-page">
-      <div className="checkboard-container">
+    <div id="chessboard" className="checkerboard-page checkerboard-page_trendagent">
+      <div className="checkerboard-page__container">
         <div className="g-0 flex-nowrap row">
           {/* Левая панель фильтров */}
           <div className="col-auto">
@@ -371,14 +371,17 @@ const ApartmentsCheckerboard = () => {
                                 </svg>
                               </div>
                               <div className="field__element">
-                                <select 
+                                <select
                                   className="field-select"
                                   value=""
                                   onChange={(e) => {
                                     const value = e.target.value
-                                    if (value) {
-                                      setRoomFilter([...roomFilter, parseInt(value)])
+                                    if (!value) return
+                                    const num = parseInt(value, 10)
+                                    if (!roomFilter.includes(num)) {
+                                      setRoomFilter([...roomFilter, num])
                                     }
+                                    e.target.value = ''
                                   }}
                                 >
                                   <option value="">Тип квартиры</option>
@@ -392,9 +395,9 @@ const ApartmentsCheckerboard = () => {
                           </div>
                         </div>
 
-                        {/* Фильтр: Цена от-до */}
+                        {/* Фильтр: Цена от */}
                         <div className="filters-main-form__field">
-                          <div className="field-wrapper field-wrapper_press-effect-animation range-select">
+                          <div className="field-wrapper field-wrapper_press-effect-animation">
                             <div className="field field_md px-4">
                               <div className="field__icon field__icon_before">
                                 <svg className="svg-icon" height="20" width="20" viewBox="0 0 20 20" fill="none">
@@ -402,12 +405,35 @@ const ApartmentsCheckerboard = () => {
                                 </svg>
                               </div>
                               <div className="field__element">
-                                <input 
-                                  type="text" 
-                                  placeholder="Цена от-до, ₽"
+                                <input
+                                  type="number"
+                                  placeholder="Цена от, ₽"
                                   className="field-input"
-                                  value={priceFrom && priceTo ? `${priceFrom} - ${priceTo}` : ''}
-                                  readOnly
+                                  value={priceFrom}
+                                  onChange={(e) => setPriceFrom(e.target.value.replace(/\D/g, ''))}
+                                  min={0}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Фильтр: Цена до */}
+                        <div className="filters-main-form__field">
+                          <div className="field-wrapper field-wrapper_press-effect-animation">
+                            <div className="field field_md px-4">
+                              <div className="field__icon field__icon_before">
+                                <svg className="svg-icon" height="20" width="20" viewBox="0 0 20 20" fill="none">
+                                  <path fillRule="evenodd" clipRule="evenodd" d="M2 2.5C2 2.22386 2.22386 2 2.5 2H10.3241C10.4567 2 10.5839 2.0527 10.6777 2.14649L17.3996 8.87019C17.7842 9.25714 18 9.78057 18 10.3261C18 10.8717 17.7842 11.3951 17.3996 11.7821L11.7889 17.3943C11.5971 17.5863 11.3694 17.7386 11.1187 17.8426C10.8681 17.9465 10.5994 18 10.328 18C10.0566 18 9.78792 17.9465 9.53725 17.8426C9.28665 17.7386 9.05898 17.5864 8.86726 17.3944L2.14661 10.6798C2.05274 10.5861 2 10.4588 2 10.3261V2.5ZM3 3V10.1189L9.57428 16.6872C9.67318 16.7863 9.79102 16.8652 9.92027 16.9188C10.0495 16.9724 10.1881 17 10.328 17C10.4679 17 10.6065 16.9724 10.7357 16.9188C10.865 16.8652 10.9824 16.7867 11.0813 16.6876L16.6903 11.0772C16.8883 10.8776 17 10.6073 17 10.3261C17 10.0449 16.8888 9.77509 16.6908 9.57556L10.1169 3H3Z" fill="#4C4C4C"/>
+                                </svg>
+                              </div>
+                              <div className="field__element">
+                                <input
+                                  type="number"
+                                  placeholder="Цена до, ₽"
+                                  className="field-input"
+                                  value={priceTo}
+                                  onChange={(e) => setPriceTo(e.target.value.replace(/\D/g, ''))}
+                                  min={0}
                                 />
                               </div>
                             </div>
@@ -694,11 +720,14 @@ const ApartmentsCheckerboard = () => {
                                     
                                     const bgColor = isSold ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)'
                                     const textColor = isSold ? 'rgb(255, 255, 255)' : 'rgb(51, 51, 51)'
+                                    const apartmentId = apartment.id || apartment._id
+                                    const flatUrl = `/apartments/${id}/flat/${apartmentId}${guid ? `?block=${id}&guid=${guid}` : `?block=${id}`}`
 
                                     return (
                                       <div key={floor} className="checkerboard__item">
-                                        <div 
-                                          className="checkerboard__item-content"
+                                        <Link
+                                          to={flatUrl}
+                                          className="checkerboard__item-content checkerboard__item-content_link"
                                           style={{ backgroundColor: bgColor, color: textColor }}
                                         >
                                           <div className="checkerboard__item-topinfo">
@@ -727,7 +756,7 @@ const ApartmentsCheckerboard = () => {
                                               {subsection.area} м²
                                             </div>
                                           </div>
-                                        </div>
+                                        </Link>
                                       </div>
                                     )
                                   })}

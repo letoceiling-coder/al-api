@@ -13,7 +13,7 @@ DOMAINS=(
     "insales.siteaccess.ru"
     "neekloai.ru"
     "p-d-a-b.neeklo.ru"
-    "file-to-text.siteaacess.ru"
+    "file-to-text.siteaccess.ru"
 )
 
 # Функция для обновления сертификата
