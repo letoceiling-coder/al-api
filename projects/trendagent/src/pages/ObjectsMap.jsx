@@ -236,12 +236,12 @@ const ObjectsMap = () => {
       }
     }
     
-    // Прямые поля
+    // Прямые поля (приоритет для latitude/longitude, так как они есть в блоках)
     if (obj.latitude && obj.longitude) {
-      return { lat: obj.latitude, lon: obj.longitude }
+      return { lat: parseFloat(obj.latitude), lon: parseFloat(obj.longitude) }
     }
     if (obj.lat && obj.lon) {
-      return { lat: obj.lat, lon: obj.lon }
+      return { lat: parseFloat(obj.lat), lon: parseFloat(obj.lon) }
     }
     
     return null
@@ -255,19 +255,43 @@ const ObjectsMap = () => {
 
   // Инициализация Яндекс.Карт
   useEffect(() => {
-    if (!mapContainerRef.current || objects.length === 0) return
+    if (!mapContainerRef.current || objects.length === 0) {
+      console.log('Инициализация карты: нет контейнера или объектов', {
+        hasContainer: !!mapContainerRef.current,
+        objectsCount: objects.length
+      })
+      return
+    }
+
+    console.log('Начало инициализации карты, объектов:', objects.length)
 
     // Загружаем скрипт Яндекс.Карт, если еще не загружен
     if (!window.ymaps) {
+      console.log('Загрузка скрипта Яндекс.Карт...')
       const script = document.createElement('script')
       script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_MAPS_API_KEY}&lang=ru_RU`
       script.async = true
       script.onload = () => {
-        window.ymaps.ready(() => initMap())
+        console.log('Скрипт Яндекс.Карт загружен')
+        if (window.ymaps) {
+          window.ymaps.ready(() => {
+            console.log('ymaps.ready вызван')
+            initMap()
+          })
+        } else {
+          console.error('window.ymaps не доступен после загрузки скрипта')
+        }
+      }
+      script.onerror = () => {
+        console.error('Ошибка загрузки скрипта Яндекс.Карт')
       }
       document.head.appendChild(script)
     } else {
-      window.ymaps.ready(() => initMap())
+      console.log('ymaps уже загружен, вызываем initMap')
+      window.ymaps.ready(() => {
+        console.log('ymaps.ready вызван (уже загружен)')
+        initMap()
+      })
     }
 
     return () => {
@@ -285,11 +309,13 @@ const ObjectsMap = () => {
   }, [objects])
 
   const initMap = () => {
-    if (!mapContainerRef.current || !window.ymaps) {
-      console.log('initMap: mapContainerRef или ymaps отсутствует', {
-        hasContainer: !!mapContainerRef.current,
-        hasYmaps: !!window.ymaps
-      })
+    if (!mapContainerRef.current) {
+      console.error('initMap: mapContainerRef отсутствует')
+      return
+    }
+    
+    if (!window.ymaps) {
+      console.error('initMap: window.ymaps отсутствует')
       return
     }
 
