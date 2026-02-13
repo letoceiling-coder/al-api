@@ -583,13 +583,25 @@ const ObjectsMap = () => {
           // Убеждаемся, что маркер кликабелен
           const element = this.getParentElement()
           if (element) {
+            // Делаем весь элемент кликабельным и перехватывающим события
             element.style.pointerEvents = 'auto'
             element.style.cursor = 'pointer'
-            // Делаем весь элемент кликабельным
+            element.style.zIndex = '1000'
+            
+            // Делаем все дочерние элементы кликабельными
+            const allElements = element.querySelectorAll('*')
+            allElements.forEach(el => {
+              el.style.pointerEvents = 'auto'
+              el.style.cursor = 'pointer'
+            })
+            
+            // Убеждаемся, что основной контейнер маркера кликабелен
             const htmlElement = element.querySelector && element.querySelector('.marker-with-text')
             if (htmlElement) {
               htmlElement.style.pointerEvents = 'auto'
               htmlElement.style.cursor = 'pointer'
+              htmlElement.style.position = 'relative'
+              htmlElement.style.zIndex = '1001'
             }
           }
         }
@@ -622,31 +634,49 @@ const ObjectsMap = () => {
       marker.events.add('click', (e) => {
         e.stopPropagation()
         e.preventDefault()
+        console.log('Клик по маркеру:', blockName)
         setSelectedBlock(block)
         loadBlockData(blockId)
+        return false
       })
       
       // Обработчик для предотвращения перетаскивания карты при клике на маркер
       marker.events.add('mousedown', (e) => {
         e.stopPropagation()
         e.preventDefault()
+        console.log('mousedown на маркере:', blockName)
+        return false
       })
       
       // Обработчик для предотвращения перетаскивания при движении мыши над маркером
       marker.events.add('mousemove', (e) => {
         e.stopPropagation()
+        return false
+      })
+      
+      // Обработчик для предотвращения начала перетаскивания
+      marker.events.add('dragstart', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        return false
       })
 
       // Обработчик наведения для изменения курсора
       marker.events.add('mouseenter', () => {
         if (mapInstanceRef.current) {
-          mapInstanceRef.current.container.getElement().style.cursor = 'pointer'
+          const mapElement = mapInstanceRef.current.container.getElement()
+          if (mapElement) {
+            mapElement.style.cursor = 'pointer'
+          }
         }
       })
 
       marker.events.add('mouseleave', () => {
         if (mapInstanceRef.current) {
-          mapInstanceRef.current.container.getElement().style.cursor = ''
+          const mapElement = mapInstanceRef.current.container.getElement()
+          if (mapElement) {
+            mapElement.style.cursor = ''
+          }
         }
       })
 
