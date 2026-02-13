@@ -622,11 +622,15 @@ const ObjectsMap = () => {
         },
         {
           iconLayout: customIconLayout,
-          iconImageSize: [90, 36],  // Точный размер маркера: блок (28px) + стрелка (8px) = 36px
-          iconImageOffset: [-45, -36],  // Смещение для центрирования по высоте маркера
+          // Точные размеры маркера: ширина 90px, высота 36px (блок 28px + стрелка 8px)
+          iconImageSize: [90, 36],
+          // Смещение: центр по X (-45 = половина ширины), верх по Y (-36 = полная высота)
+          iconImageOffset: [-45, -36],
+          // Область клика строго в пределах визуального маркера
+          // X: от -45 до 45 (ширина 90px), Y: от -36 до 0 (высота 36px)
           iconShape: {
             type: 'Rectangle',
-            coordinates: [[-45, -36], [45, 0]]  // Точная область клика соответствует визуальному маркеру
+            coordinates: [[-45, -36], [45, 0]]
           },
           // Увеличиваем область клика
           iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCA5MCA0NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=',
