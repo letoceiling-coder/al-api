@@ -283,6 +283,18 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   // Если есть и ID и GUID, используем ID в пути, а GUID в query параметрах
   // ВАЖНО: Для блоков (комплексов) используем /apartments/ вместо /blocks/, так как детальная страница блока использует /apartments/:id
   const routeType = objectType === 'blocks' ? 'apartments' : objectType
+  
+  // Логирование для отладки
+  if (objectType === 'blocks') {
+    console.log('ObjectCard DEBUG: блок (комплекс) - формируем ссылку', {
+      objectType,
+      routeType,
+      objectId,
+      objectGuid,
+      finalLink: `/${routeType}/${objectId || objectGuid}${objectId && objectGuid ? `?guid=${objectGuid}` : ''}`
+    })
+  }
+  
   const identifier = objectId || objectGuid
   const linkTo = identifier ? `/${routeType}/${identifier}${objectId && objectGuid ? `?guid=${objectGuid}` : ''}` : '#'
 
