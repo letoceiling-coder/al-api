@@ -615,11 +615,11 @@ const ObjectsMap = () => {
         },
         {
           iconLayout: customIconLayout,
-          iconImageSize: [90, 36],
-          iconImageOffset: [-45, -36],
+          iconImageSize: [90, 44],  // Размер включает стрелку
+          iconImageOffset: [-45, -44],  // Смещение для центрирования
           iconShape: {
             type: 'Rectangle',
-            coordinates: [[-45, -44], [45, 0]]  // Расширяем область клика, включая стрелку внизу
+            coordinates: [[-50, -50], [50, 10]]  // Расширяем область клика больше визуальной области
           },
           // Увеличиваем область клика
           iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCA5MCA0NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=',
