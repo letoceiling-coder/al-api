@@ -1043,7 +1043,33 @@ class TrendSsoApiAuth
             $results = $data['data']['results'] ?? [];
             $blocksCount = $data['data']['blocksCount'] ?? 0; // Сохраняем blocksCount из API
             $processedResults = array_map(function($item) {
-                // Обрабатываем изображение, если оно есть
+                // Обрабатываем массив images (приоритет)
+                if (isset($item['images']) && is_array($item['images']) && count($item['images']) > 0) {
+                    $processedImages = [];
+                    foreach ($item['images'] as $img) {
+                        if (isset($img['path']) && isset($img['file_name'])) {
+                            $path = rtrim($img['path'], '/');
+                            $path = ltrim($path, '/');
+                            $fileName = $img['file_name'];
+                            $processedImages[] = [
+                                'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'path' => $img['path'],
+                                'file_name' => $img['file_name'],
+                            ];
+                        } elseif (isset($img['url']) || isset($img['thumbnail']) || isset($img['full'])) {
+                            // Если уже есть URL, сохраняем как есть
+                            $processedImages[] = $img;
+                        }
+                    }
+                    if (!empty($processedImages)) {
+                        $item['images'] = $processedImages;
+                    }
+                }
+                
+                // Обрабатываем одиночное поле image
                 if (isset($item['image']) && is_array($item['image'])) {
                     $image = $item['image'];
                     if (isset($image['path']) && isset($image['file_name'])) {
@@ -1059,6 +1085,9 @@ class TrendSsoApiAuth
                         $item['image']['url'] = "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}";
                         // Полный размер изображения (без префикса "m_")
                         $item['image']['url_full'] = "https://selcdn.trendagent.ru/images/{$path}/{$fileName}";
+                        // Добавляем thumbnail и full для совместимости
+                        $item['image']['thumbnail'] = $item['image']['url'];
+                        $item['image']['full'] = $item['image']['url_full'];
                         
                         Log::debug('Сформирован URL изображения', [
                             'path' => $path,
@@ -6436,15 +6465,59 @@ class TrendSsoApiAuth
             $apartmentsList = $data['data']['list'] ?? [];
             $apartmentsCount = $data['data']['apartmentsCount'] ?? 0;
             
+            // Обрабатываем изображения для каждого объекта в списке
+            $processedList = array_map(function($item) {
+                // Обрабатываем массив images (приоритет)
+                if (isset($item['images']) && is_array($item['images']) && count($item['images']) > 0) {
+                    $processedImages = [];
+                    foreach ($item['images'] as $img) {
+                        if (isset($img['path']) && isset($img['file_name'])) {
+                            $path = rtrim($img['path'], '/');
+                            $path = ltrim($path, '/');
+                            $fileName = $img['file_name'];
+                            $processedImages[] = [
+                                'thumbnail' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'url' => "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}",
+                                'url_full' => "https://selcdn.trendagent.ru/images/{$path}/{$fileName}",
+                                'path' => $img['path'],
+                                'file_name' => $img['file_name'],
+                            ];
+                        } elseif (isset($img['url']) || isset($img['thumbnail']) || isset($img['full'])) {
+                            $processedImages[] = $img;
+                        }
+                    }
+                    if (!empty($processedImages)) {
+                        $item['images'] = $processedImages;
+                    }
+                }
+                
+                // Обрабатываем одиночное поле image
+                if (isset($item['image']) && is_array($item['image'])) {
+                    $image = $item['image'];
+                    if (isset($image['path']) && isset($image['file_name'])) {
+                        $path = rtrim($image['path'], '/');
+                        $path = ltrim($path, '/');
+                        $fileName = $image['file_name'];
+                        $item['image']['url'] = "https://selcdn.trendagent.ru/images/{$path}/m_{$fileName}";
+                        $item['image']['url_full'] = "https://selcdn.trendagent.ru/images/{$path}/{$fileName}";
+                        $item['image']['thumbnail'] = $item['image']['url'];
+                        $item['image']['full'] = $item['image']['url_full'];
+                    }
+                }
+                
+                return $item;
+            }, $apartmentsList);
+            
             Log::info('Данные получены через API apartments/search', [
-                'results_count' => count($apartmentsList),
+                'results_count' => count($processedList),
                 'apartmentsCount' => $apartmentsCount,
                 'blocksCount' => $data['data']['blocksCount'] ?? 0,
             ]);
 
             return [
                 'success' => true,
-                'data' => $apartmentsList,
+                'data' => $processedList,
                 'total' => $apartmentsCount,
                 'blocks_count' => $data['data']['blocksCount'] ?? 0,
                 'source' => 'api',
