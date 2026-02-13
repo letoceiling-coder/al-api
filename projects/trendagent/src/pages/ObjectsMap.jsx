@@ -585,6 +585,12 @@ const ObjectsMap = () => {
           if (element) {
             element.style.pointerEvents = 'auto'
             element.style.cursor = 'pointer'
+            // Делаем весь элемент кликабельным
+            const htmlElement = element.querySelector && element.querySelector('.marker-with-text')
+            if (htmlElement) {
+              htmlElement.style.pointerEvents = 'auto'
+              htmlElement.style.cursor = 'pointer'
+            }
           }
         }
       })
@@ -601,8 +607,12 @@ const ObjectsMap = () => {
           iconImageOffset: [-45, -36],
           iconShape: {
             type: 'Rectangle',
-            coordinates: [[-45, -36], [45, 0]]
+            coordinates: [[-45, -44], [45, 0]]  // Расширяем область клика, включая стрелку внизу
           },
+          // Увеличиваем область клика
+          iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCA5MCA0NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=',
+          // Отключаем перетаскивание карты при взаимодействии с маркером
+          cursor: 'pointer',
           // Отключаем перетаскивание карты при клике на маркер
           draggable: false,
         }
@@ -618,6 +628,12 @@ const ObjectsMap = () => {
       
       // Обработчик для предотвращения перетаскивания карты при клике на маркер
       marker.events.add('mousedown', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+      })
+      
+      // Обработчик для предотвращения перетаскивания при движении мыши над маркером
+      marker.events.add('mousemove', (e) => {
         e.stopPropagation()
       })
 
@@ -780,9 +796,18 @@ const ObjectsMap = () => {
                         {blockGallery && blockGallery.length > 0 && (
                           <div className="block-card__images">
                             <img 
-                              src={blockGallery[0]?.url || blockGallery[0]?.path || ''} 
+                              src={blockGallery[0]?.url || blockGallery[0]?.path || blockGallery[0]?.image?.url || blockGallery[0]?.image?.path || blockGallery[0]?.src || ''} 
                               alt={selectedBlock.blockName}
                               className="block-card__image"
+                              onError={(e) => {
+                                // Если первое изображение не загрузилось, пробуем следующее
+                                const nextImage = blockGallery.find((img, idx) => idx > 0 && (img.url || img.path || img.image?.url || img.image?.path || img.src))
+                                if (nextImage) {
+                                  e.target.src = nextImage.url || nextImage.path || nextImage.image?.url || nextImage.image?.path || nextImage.src
+                                } else {
+                                  e.target.style.display = 'none'
+                                }
+                              }}
                             />
                           </div>
                         )}
