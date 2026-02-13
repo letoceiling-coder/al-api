@@ -1,0 +1,11 @@
+{
+  "name": "capture-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture-checkerboard.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}

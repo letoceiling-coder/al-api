@@ -22,6 +22,7 @@ const ApartmentsCheckerboard = () => {
   const [priceTo, setPriceTo] = useState('')
   const [deadlineFilter, setDeadlineFilter] = useState('')
   const [showBookings, setShowBookings] = useState(false)
+  const [showOnRequest, setShowOnRequest] = useState(false) // Показать квартиры под запрос (чип как на spb.trendagent.ru)
   
   // Чекбоксы скрытия
   const [hideFiltered, setHideFiltered] = useState(false)
@@ -86,7 +87,8 @@ const ApartmentsCheckerboard = () => {
         }
         
         if (buildingsData.length > 0 && !selectedBuilding) {
-          const firstBuildingId = buildingsData[0].id || buildingsData[0]._id || buildingsData[0].building_id
+          const first = buildingsData[0]
+          const firstBuildingId = first.id || first._id || first.building_id
           setSelectedBuilding(firstBuildingId)
         }
       } else {
@@ -181,146 +183,125 @@ const ApartmentsCheckerboard = () => {
     }).format(price)
   }
 
-  // Обработка данных для шахматки
+  // Статус: код API -> подпись (как на spb.trendagent.ru)
+  const getStatusLabel = (apt) => {
+    const code = apt.status
+    const name = apt.status_name || apt.status?.name
+    if (typeof name === 'string' && name) return name
+    const codeMap = { 4: 'Продано', 23: 'Под запрос', 22: 'Забронировано', 1: 'Свободная', 2: 'Свободная' }
+    return codeMap[code] || 'Свободная'
+  }
+
+  const isStatusOnRequest = (apt) => {
+    const label = getStatusLabel(apt).toLowerCase()
+    return label.includes('под запрос') || label.includes('on request')
+  }
+
+  const isStatusSold = (apt) => {
+    const label = getStatusLabel(apt).toLowerCase()
+    return label.includes('продан') || label.includes('sold')
+  }
+
+  const isStatusBooked = (apt) => {
+    const label = getStatusLabel(apt).toLowerCase()
+    return label.includes('забронирован') || label.includes('booked')
+  }
+
+  // Цвета ячейки как на оригинале: Под запрос = rgb(255,249,224), Продано = #000/#fff
+  const getItemStyle = (apt) => {
+    if (isStatusSold(apt)) return { backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' }
+    if (isStatusOnRequest(apt)) return { backgroundColor: 'rgb(255, 249, 224)', color: 'rgb(51, 51, 51)' }
+    return { backgroundColor: 'rgb(255, 255, 255)', color: 'rgb(51, 51, 51)' }
+  }
+
+  // Тип квартиры: 1,2,3,4 -> N-к.кв; коды 23,24,25,5 -> 3Е-к.кв и т.д.
+  const formatRoomType = (room) => {
+    if (room == null || room === '') return ''
+    const n = Number(room)
+    if (n >= 1 && n <= 4) return `${n}-к.кв`
+    if (n === 23) return '3Е-к.кв'
+    if (n === 24) return '4Е-к.кв'
+    if (n === 25) return '1Е-к.кв'
+    if (n === 5) return '4Е-к.кв'
+    return `${n}-к.кв`
+  }
+
+  // Обработка данных для шахматки: группировка по section -> sub_section (как на spb.trendagent.ru)
   const processedData = useMemo(() => {
     if (!apartments || !Array.isArray(apartments) || apartments.length === 0) {
       return { sections: [], allFloors: [] }
     }
 
-    // Применяем фильтры
     let filteredApartments = apartments.filter(apt => {
-      // Фильтр по комнатам
       if (roomFilter.length > 0) {
-        const aptRooms = apt.rooms || apt.room || 0
-        if (!roomFilter.includes(aptRooms)) return false
+        const aptRooms = apt.rooms ?? apt.room
+        if (aptRooms == null || !roomFilter.includes(Number(aptRooms))) return false
       }
-
-      // Фильтр по цене
-      const price = apt.price || apt.base_price || 0
-      if (priceFrom && price < parseFloat(priceFrom)) return false
-      if (priceTo && price > parseFloat(priceTo)) return false
-
-      // Фильтр по сроку сдачи
+      const price = apt.price ?? apt.base_price ?? 0
+      if (priceFrom && Number(price) < parseFloat(priceFrom)) return false
+      if (priceTo && Number(price) > parseFloat(priceTo)) return false
       if (deadlineFilter) {
         const deadline = apt.deadline || apt.deadline_name || ''
         if (deadline !== deadlineFilter) return false
       }
-
-      // Фильтр по статусу
-      const statusRaw = apt.status?.name || apt.status || apt.booking_status || 'Свободная'
-      const status = typeof statusRaw === 'string' ? statusRaw : String(statusRaw || 'Свободная')
-      const statusLower = status.toLowerCase()
-      const isSold = statusLower.includes('продан') || statusLower.includes('sold')
-      const isBooked = statusLower.includes('забронирован') || statusLower.includes('booked')
-      
-      if (hideSold && isSold) return false
-      if (hideBooked && isBooked) return false
-
+      if (hideSold && isStatusSold(apt)) return false
+      if (hideBooked && isStatusBooked(apt)) return false
+      if (!showOnRequest && isStatusOnRequest(apt)) return false
       return true
     })
 
-    // Собираем все уникальные этажи для синхронизации
     const allFloorsSet = new Set()
     filteredApartments.forEach(apt => {
-      const floor = apt.floor || 0
-      allFloorsSet.add(floor)
+      allFloorsSet.add(Number(apt.floor) || 0)
     })
     const allFloors = Array.from(allFloorsSet).sort((a, b) => b - a)
 
-    // Группируем по секциям
-    const sectionsMap = new Map()
-    
+    // Группировка: section (id) -> sub_section (id) -> список квартир
+    const sectionMap = new Map()
     filteredApartments.forEach(apt => {
-      const sectionName = apt.section_name || apt.section || 'Без секции'
-      const deadline = apt.deadline || apt.deadline_name || '—'
-      const sectionKey = `${sectionName}_${deadline}`
-      
-      if (!sectionsMap.has(sectionKey)) {
-        sectionsMap.set(sectionKey, {
-          name: sectionName,
-          deadline,
+      const sectionId = apt.section || apt.section_id || 'default'
+      const subId = apt.sub_section || apt.subsection_id || apt.section
+      if (!sectionMap.has(sectionId)) {
+        sectionMap.set(sectionId, {
+          id: sectionId,
+          name: apt.section_name || `Секция ${sectionMap.size + 1}`,
+          deadline: apt.deadline || apt.deadline_name || '—',
+          subsectionsMap: new Map()
+        })
+      }
+      const sec = sectionMap.get(sectionId)
+      if (!sec.subsectionsMap.has(subId)) {
+        sec.subsectionsMap.set(subId, {
+          id: subId,
+          name: apt.sub_section_name || `Подсекция ${sec.subsectionsMap.size + 1}`,
           apartments: []
         })
       }
-      
-      sectionsMap.get(sectionKey).apartments.push(apt)
+      sec.subsectionsMap.get(subId).apartments.push(apt)
     })
 
-    // Обрабатываем секции и создаем подсекции (колонки) по типам квартир
-    const sections = Array.from(sectionsMap.values()).map(section => {
-      // Собираем все уникальные комбинации типов квартир (комнаты + отделка + площадь)
-      const apartmentTypesMap = new Map()
-      
-      section.apartments.forEach(apt => {
-        const rooms = apt.rooms || apt.room || 0
-        const finishing = apt.finishing_name || apt.finishing || apt.finishingType?.name || 'Без отделки'
-        const area = apt.privArea || apt.area || apt.area_total || 0
-        
-        // Создаем ключ типа квартиры
-        const typeKey = `${rooms}_${finishing}_${area}`
-        
-        if (!apartmentTypesMap.has(typeKey)) {
-          // Определяем label для подсекции (В = Чистовая, З = Без отделки, В,З = Подчистовая)
-          let label = 'З'
-          if (finishing === 'Чистовая' || finishing === 'Чистовая отделка') {
-            label = 'В'
-          } else if (finishing === 'Подчистовая' || finishing === 'Подчистовая отделка') {
-            label = 'В, З'
-          } else if (finishing && finishing !== 'Без отделки') {
-            label = 'В, З'
-          }
-          
-          apartmentTypesMap.set(typeKey, {
-            id: `type_${typeKey}`,
-            label,
-            rooms,
-            finishing,
-            area,
-            apartments: []
-          })
-        }
-        
-        apartmentTypesMap.get(typeKey).apartments.push(apt)
-      })
-
-      // Преобразуем в массив и сортируем подсекции
-      const subsections = Array.from(apartmentTypesMap.values())
-        .sort((a, b) => {
-          // Сортируем: сначала по комнатам, потом по отделке, потом по площади
-          if (a.rooms !== b.rooms) return a.rooms - b.rooms
-          const finishingA = typeof a.finishing === 'string' ? a.finishing : String(a.finishing || '')
-          const finishingB = typeof b.finishing === 'string' ? b.finishing : String(b.finishing || '')
-          if (finishingA !== finishingB) return finishingA.localeCompare(finishingB)
-          return a.area - b.area
-        })
-
-      // Группируем квартиры по этажам для каждой подсекции
-      subsections.forEach(subsection => {
+    const sections = Array.from(sectionMap.values()).map((sec, secIdx) => {
+      const subsections = Array.from(sec.subsectionsMap.values()).map((sub) => {
         const floorsMap = new Map()
-        
-        subsection.apartments.forEach(apt => {
-          const floor = apt.floor || 0
-          if (!floorsMap.has(floor)) {
-            floorsMap.set(floor, [])
-          }
+        sub.apartments.forEach(apt => {
+          const floor = Number(apt.floor) || 0
+          if (!floorsMap.has(floor)) floorsMap.set(floor, [])
           floorsMap.get(floor).push(apt)
         })
-
-        // Создаем массив этажей с квартирами, заполняя пустые этажи
-        subsection.floors = allFloors.map(floor => {
-          const floorApartments = floorsMap.get(floor) || []
-          return [floor, floorApartments]
-        })
+        const floors = allFloors.map(floor => [floor, floorsMap.get(floor) || []])
+        return { ...sub, floors }
       })
-
-      return {
-        ...section,
-        subsections
-      }
+      const displayName = sec.name && !sec.name.startsWith('Секция ') ? sec.name : `секция ${secIdx + 1}`
+      return { ...sec, name: displayName, deadline: sec.deadline, subsections }
     })
 
     return { sections, allFloors }
-  }, [apartments, roomFilter, priceFrom, priceTo, deadlineFilter, hideSold, hideBooked])
+  }, [apartments, roomFilter, priceFrom, priceTo, deadlineFilter, hideSold, hideBooked, showOnRequest])
+
+  const finishingLabel = (apt) =>
+    apt.finishing_name || apt.finishingType?.name || (typeof apt.finishing === 'string' ? apt.finishing : 'Без отделки')
+  const areaValue = (apt) =>
+    apt.area_given ?? apt.area ?? apt.privArea ?? apt.area_total ?? 0
 
   if (loading && !apartments) {
     return (
@@ -348,7 +329,8 @@ const ApartmentsCheckerboard = () => {
 
   return (
     <div id="chessboard" className="checkerboard-page checkerboard-page_trendagent">
-      <div className="checkerboard-page__container">
+      <div className="checkboard-container">
+        <div className="checkerboard-page__container">
         <div className="g-0 flex-nowrap row">
           {/* Левая панель фильтров */}
           <div className="col-auto">
@@ -483,30 +465,43 @@ const ApartmentsCheckerboard = () => {
                   <div className="apartments-filter__results">
                     <div className="apartments-filter__tags">
                       <div className="chips">
-                        {showBookings && (
+                        {showOnRequest && (
                           <div className="chips__item chips__item_secondary">
                             <div className="chips__tag ps-2 pe-1 py-1">
-                              <span className="btn">Показать брони</span>
-                              <button 
-                                className="chips__delete"
-                                onClick={() => setShowBookings(false)}
+                              <span className="btn">Показать квартиры под запрос</span>
+                              <button
+                                type="button"
+                                className="chips__delete btn btn_white btn_onlyicon"
+                                onClick={() => setShowOnRequest(false)}
+                                aria-label="Убрать"
                               >
-                                <svg className="svg-icon" height="20" width="20" viewBox="0 0 20 20" fill="none">
-                                  <path fillRule="evenodd" clipRule="evenodd" d="M13.8536 6.14645C14.0488 6.34171 14.0488 6.65829 13.8536 6.85355L10.707 10.0001L13.8536 13.1467C14.0488 13.342 14.0488 13.6585 13.8536 13.8538C13.6583 14.0491 13.3417 14.0491 13.1464 13.8538L9.99988 10.7072L6.85355 13.8536C6.65829 14.0488 6.34171 14.0488 6.14645 13.8536C5.95118 13.6583 5.95118 13.3417 6.14645 13.1464L9.29277 10.0001L6.14645 6.8538C5.95118 6.65854 5.95118 6.34195 6.14645 6.14669C6.34171 5.95143 6.65829 5.95143 6.85355 6.14669L9.99988 9.29302L13.1465 6.14645C13.3417 5.95118 13.6583 5.95118 13.8536 6.14645Z" fill="#4C4C4C"/>
-                                </svg>
+                                <span className="btn__content justify-content-center">
+                                  <svg className="svg-icon" height="20" width="20" viewBox="0 0 20 20" fill="none">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M13.8536 6.14645C14.0488 6.34171 14.0488 6.65829 13.8536 6.85355L10.707 10.0001L13.8536 13.1467C14.0488 13.342 14.0488 13.6585 13.8536 13.8538C13.6583 14.0491 13.3417 14.0491 13.1464 13.8538L9.99988 10.7072L6.85355 13.8536C6.65829 14.0488 6.34171 14.0488 6.14645 13.8536C5.95118 13.6583 5.95118 13.3417 6.14645 13.1464L9.29277 10.0001L6.14645 6.8538C5.95118 6.65854 5.95118 6.34195 6.14645 6.14669C6.34171 5.95143 6.65829 5.95143 6.85355 6.14669L9.99988 9.29302L13.1465 6.14645C13.3417 5.95118 13.6583 5.95118 13.8536 6.14645Z" fill="#4C4C4C"/>
+                                  </svg>
+                                </span>
                               </button>
                             </div>
                           </div>
                         )}
-                        {(roomFilter.length > 0 || priceFrom || priceTo || deadlineFilter) && (
+                        {!showOnRequest && apartments?.some(isStatusOnRequest) && (
                           <div className="chips__item">
-                            <button 
+                            <button type="button" className="btn btn_secondary px-2" onClick={() => setShowOnRequest(true)}>
+                              <span className="btn__content justify-content-center"><span>Показать квартиры под запрос</span></span>
+                            </button>
+                          </div>
+                        )}
+                        {(roomFilter.length > 0 || priceFrom || priceTo || deadlineFilter || !showOnRequest) && (
+                          <div className="chips__item">
+                            <button
+                              type="button"
                               className="btn btn_secondary px-2"
                               onClick={() => {
                                 setRoomFilter([])
                                 setPriceFrom('')
                                 setPriceTo('')
                                 setDeadlineFilter('')
+                                setShowOnRequest(true)
                               }}
                             >
                               <span className="btn__content justify-content-center">
@@ -532,7 +527,7 @@ const ApartmentsCheckerboard = () => {
                 <div className="checkerboard-toppanel__nav-list">
                   {buildings.map((building) => {
                     const buildingId = building.id || building._id || building.building_id
-                    const apartmentsCount = building.apartments_count || building.count || 0
+                    const apartmentsCount = building.apartments_count ?? building.count ?? (Array.isArray(building.apartments) ? building.apartments.length : 0)
                     const isActive = selectedBuilding === buildingId
                     
                     return (
@@ -542,7 +537,7 @@ const ApartmentsCheckerboard = () => {
                         onClick={() => setSelectedBuilding(buildingId)}
                       >
                         Корп. {buildings.indexOf(building) + 1}
-                        <div className="badge" style={{ marginLeft: '5px' }}>
+                        <div className="badge" style={{ marginLeft: '5px', borderRadius: '9px', fontSize: '11px', height: '18px', lineHeight: '18px', minWidth: '18px' }}>
                           {apartmentsCount}
                         </div>
                       </button>
@@ -650,16 +645,16 @@ const ApartmentsCheckerboard = () => {
                         {processedData.sections.map((section, sectionIdx) => (
                           <div key={sectionIdx} className="checkerboard-container__sections__item">
                             <div className="checkerboard-container__sections__name">
-                              секция {section.name} - {section.deadline}
+                              {section.name} - {section.deadline}
                             </div>
                             <div className="checkerboard-container__subsections">
                               {section.subsections.map((subsection, subIdx) => (
-                                <div 
-                                  key={subIdx} 
+                                <div
+                                  key={subIdx}
                                   id={subsection.id}
                                   className="checkerboard-container__subsections__item"
                                 >
-                                  {subsection.label}
+                                  {subsection.name}
                                 </div>
                               ))}
                             </div>
@@ -696,52 +691,39 @@ const ApartmentsCheckerboard = () => {
                               {section.subsections.map((subsection, subIdx) => (
                                 <div key={subIdx} className="checkerboard__apartments-col">
                                   {subsection.floors.map(([floor, floorApartments]) => {
-                                    // Находим квартиру этого типа на этом этаже
-                                    const apartment = floorApartments.find(apt => {
-                                      const aptRooms = apt.rooms || apt.room || 0
-                                      const aptFinishing = apt.finishing_name || apt.finishing || apt.finishingType?.name || 'Без отделки'
-                                      const aptArea = apt.privArea || apt.area || apt.area_total || 0
-                                      return aptRooms === subsection.rooms && 
-                                             aptFinishing === subsection.finishing && 
-                                             aptArea === subsection.area
-                                    }) || floorApartments[0] // Fallback на первую квартиру этажа
-                                    
-                                    if (!apartment || floorApartments.length === 0) {
+                                    const apartment = floorApartments[0]
+                                    if (!apartment) {
                                       return (
                                         <div key={floor} className="checkerboard__item checkerboard__item_empty"></div>
                                       )
                                     }
-
-                                    const statusRaw = apartment.status?.name || apartment.status || apartment.booking_status || 'Свободная'
-                                    const status = typeof statusRaw === 'string' ? statusRaw : String(statusRaw || 'Свободная')
-                                    const statusLower = status.toLowerCase()
-                                    const isSold = statusLower.includes('продан') || statusLower.includes('sold')
-                                    const isBooked = statusLower.includes('забронирован') || statusLower.includes('booked')
-                                    
-                                    const bgColor = isSold ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)'
-                                    const textColor = isSold ? 'rgb(255, 255, 255)' : 'rgb(51, 51, 51)'
+                                    const status = getStatusLabel(apartment)
                                     const apartmentId = apartment.id || apartment._id
                                     const flatUrl = `/apartments/${id}/flat/${apartmentId}${guid ? `?block=${id}&guid=${guid}` : `?block=${id}`}`
+                                    const areaNum = areaValue(apartment)
+                                    const finishing = finishingLabel(apartment)
+                                    const priceStr = formatPrice(apartment.price ?? apartment.base_price ?? 0)
+                                    const isOnReq = isStatusOnRequest(apartment)
 
                                     return (
                                       <div key={floor} className="checkerboard__item">
                                         <Link
                                           to={flatUrl}
                                           className="checkerboard__item-content checkerboard__item-content_link"
-                                          style={{ backgroundColor: bgColor, color: textColor }}
+                                          style={getItemStyle(apartment)}
                                         >
                                           <div className="checkerboard__item-topinfo">
-                                            <div className="checkerboard__item-type" title={`${subsection.rooms}-к.кв`}>
-                                              {subsection.rooms > 0 ? `${subsection.rooms}-к.кв` : ''}
+                                            <div className="checkerboard__item-type" title={formatRoomType(apartment.room ?? apartment.rooms)}>
+                                              {formatRoomType(apartment.room ?? apartment.rooms)}
                                             </div>
                                             <div className="checkerboard__item-number" title={`№ ${apartment.number || apartment.apartment_number || ''}`}>
-                                              № {apartment.number || apartment.apartment_number || '—'}
+                                              № {apartment.number || apartment.apartment_number || apartment.crm_id || '—'}
                                             </div>
                                           </div>
                                           <div className="checkerboard__item-middleinfo">
                                             <div className="checkerboard__item-row">
                                               <div className="checkerboard__item-price">
-                                                <span>{formatPrice(apartment.price || apartment.base_price || 0)}</span> ₽
+                                                {isOnReq ? '≈ ' : ''}<span>{priceStr}</span> ₽
                                               </div>
                                             </div>
                                             <div className="checkerboard__item-status" title={status}>
@@ -749,11 +731,11 @@ const ApartmentsCheckerboard = () => {
                                             </div>
                                           </div>
                                           <div className="checkerboard__item-bottominfo">
-                                            <div className={`checkerboard__item-finishing ${subsection.finishing === 'Чистовая' ? 'checkerboard__item-finishing_finishing_additional' : ''}`}>
-                                              {subsection.finishing}
+                                            <div className={`checkerboard__item-finishing ${finishing === 'Чистовая' ? 'checkerboard__item-finishing_finishing_additional' : ''}`}>
+                                              {finishing}
                                             </div>
-                                            <div className="checkerboard__item-area" title={`${subsection.area} м²`}>
-                                              {subsection.area} м²
+                                            <div className="checkerboard__item-area" title={`${areaNum} м²`}>
+                                              {areaNum} м²
                                             </div>
                                           </div>
                                         </Link>
@@ -773,6 +755,7 @@ const ApartmentsCheckerboard = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
