@@ -62,23 +62,6 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     
     // Затем проверяем одиночное поле image (для квартир и других типов)
     if (object.image) {
-      // Если image - это объект с уже готовым URL
-      if (typeof object.image === 'object' && object.image !== null) {
-        // Проверяем готовые URL поля (для комплексов)
-        if (object.image.url) {
-          return object.image.url
-        }
-        if (object.image.thumbnail) {
-          return object.image.thumbnail
-        }
-        if (object.image.url_full) {
-          return object.image.url_full
-        }
-        if (object.image.full) {
-          return object.image.full
-        }
-      }
-      // Пробуем через imageUtils
       const imageUrl = getImageUrl(object.image)
       if (imageUrl) return imageUrl
     }
@@ -133,15 +116,8 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
-    // Для квартир в конце проверяем plan (планировка) как fallback
-    if (objectType === 'apartments' && object.plan) {
-      const planUrl = getImageUrl(object.plan)
-      if (planUrl) return planUrl
-    }
-    
     // Логируем для отладки, если изображение не найдено
-    const hasAnyImage = !!(object.images || object.image || object.renderer || object.photo || object.photo_url || object.image_url || object.gallery || object.plan || (objectType === 'apartments' && (object.block_image || (object.block && object.block.image))))
-    if (!hasAnyImage) {
+    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery) {
       // Собираем все ключи, которые могут содержать изображения
       const imageRelatedKeys = Object.keys(object).filter(key => 
         key.toLowerCase().includes('image') || 
