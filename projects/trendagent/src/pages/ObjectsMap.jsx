@@ -429,10 +429,17 @@ const ObjectsMap = () => {
     console.log('Центр карты:', avgLat, avgLon)
 
     // Создаем карту
-    mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
-      center: [avgLat, avgLon],
-      zoom: 11,
-    })
+    try {
+      console.log('Создание карты с центром:', avgLat, avgLon)
+      mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
+        center: [avgLat, avgLon],
+        zoom: 11,
+      })
+      console.log('Карта создана успешно')
+    } catch (error) {
+      console.error('Ошибка при создании карты:', error)
+      return
+    }
 
     // Создаем кластеризатор для группировки маркеров
     const clusterer = new window.ymaps.Clusterer({
