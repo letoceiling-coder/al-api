@@ -106,14 +106,22 @@ const ObjectsList = () => {
       }
 
       if (response.success) {
-        // Для блоков (комплексов) данные могут быть в response.data.objects или response.data.data
+        // Для блоков (комплексов) данные находятся в response.data.objects
         let objectsList = []
         if (selectedObjectType === 'apartments' && viewType === 'list') {
-          // Для блоков структура из getObjectsList: response.data.objects
-          // Или из getBlocksSearch: response.data (массив)
-          objectsList = response.data?.objects || response.data?.data || (Array.isArray(response.data) ? response.data : [])
+          // Для блоков структура из getObjectsList: response.data.objects (из TrendSsoController)
+          // Контроллер оборачивает данные в { data: { objects: [...], blocks_count: ... } }
+          objectsList = response.data?.objects || []
+          
+          if (objectsList.length === 0) {
+            // Fallback: возможно данные в другом формате
+            objectsList = response.data?.data || (Array.isArray(response.data) ? response.data : [])
+          }
+          
           console.log('DEBUG: Извлеченные блоки:', {
             count: objectsList.length,
+            fromObjects: response.data?.objects?.length || 0,
+            fromData: Array.isArray(response.data?.data) ? response.data.data.length : 0,
             firstBlock: objectsList[0] ? {
               id: objectsList[0]._id || objectsList[0].id,
               name: objectsList[0].name,
@@ -129,7 +137,8 @@ const ObjectsList = () => {
         // Для блоков total_count может быть в blocks_count или total
         let total = response.total_count || response.total
         if (selectedObjectType === 'apartments' && viewType === 'list') {
-          total = response.blocks_count || response.data?.blocks_count || response.total_count || response.total || objectsList.length
+          // Для блоков используем blocks_count из response.data или response
+          total = response.data?.blocks_count || response.blocks_count || response.total_count || response.total || objectsList.length
         }
         setTotalCount(total || objectsList.length)
         
