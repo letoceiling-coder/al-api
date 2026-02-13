@@ -133,6 +133,12 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
+    // Для квартир в конце проверяем plan (планировка) как fallback
+    if (objectType === 'apartments' && object.plan) {
+      const planUrl = getImageUrl(object.plan)
+      if (planUrl) return planUrl
+    }
+    
     // Логируем для отладки, если изображение не найдено
     const hasAnyImage = !!(object.images || object.image || object.renderer || object.photo || object.photo_url || object.image_url || object.gallery || object.plan || (objectType === 'apartments' && (object.block_image || (object.block && object.block.image))))
     if (!hasAnyImage) {
