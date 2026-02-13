@@ -272,6 +272,10 @@ const ObjectsMap = () => {
 
     return () => {
       // Очищаем карту при размонтировании
+      if (clustererRef.current) {
+        clustererRef.current.removeAll()
+        clustererRef.current = null
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy()
         mapInstanceRef.current = null
@@ -292,6 +296,10 @@ const ObjectsMap = () => {
     console.log('Инициализация карты, объектов:', objects.length)
 
     // Уничтожаем предыдущую карту, если есть
+    if (clustererRef.current) {
+      clustererRef.current.removeAll()
+      clustererRef.current = null
+    }
     if (mapInstanceRef.current) {
       mapInstanceRef.current.destroy()
       markersRef.current = []
@@ -400,6 +408,30 @@ const ObjectsMap = () => {
       zoom: 11,
     })
 
+    // Создаем кластеризатор для группировки маркеров
+    const clusterer = new window.ymaps.Clusterer({
+      clusterDisableClickZoom: true,
+      clusterOpenBalloonOnClick: false, // Отключаем автоматическое открытие балуна
+      clusterBalloonContentLayout: 'cluster#balloonCarousel',
+      clusterBalloonItemContentLayout: 'cluster#balloonCarouselItem',
+      clusterBalloonPanelMaxMapArea: 0,
+      clusterBalloonContentLayoutWidth: 200,
+      clusterBalloonContentLayoutHeight: 130,
+      clusterBalloonPagerSize: 5,
+      clusterBalloonPagerType: 'marker',
+      clusterHideIconOnBalloonOpen: false,
+      geoObjectHideIconOnBalloonOpen: false,
+      zoomOnClick: true, // Разрешаем зум при клике на кластер
+      // Настройки кластеризации
+      gridSize: 64, // Размер сетки для кластеризации
+      groupByCoordinates: false, // Не группировать по координатам
+    })
+    
+    clustererRef.current = clusterer
+
+    // Создаем коллекцию маркеров
+    const markersCollection = []
+
     // Добавляем метки для всех блоков с кастомным HTML
     blocksWithCoords.forEach((block) => {
       const { coord, blockId, blockGuid, blockName, priceText, apartmentsCount } = block
@@ -411,6 +443,7 @@ const ObjectsMap = () => {
           flex-direction: column;
           align-items: center;
           cursor: pointer;
+          pointer-events: auto;
         ">
           <div class="marker-with-text__content-wrapper" style="
             background: white;
@@ -424,20 +457,31 @@ const ObjectsMap = () => {
             font-weight: 500;
             color: #1a1a1a;
             white-space: nowrap;
+            pointer-events: auto;
           ">
-            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; pointer-events: none;">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M1.079 4.109c0-.569.347-1.08.876-1.288L7.463.79c.909-.36 1.716.413 1.716 1.39V12.4h.9V5.402c0-.54.66-.873 1.122-.59l1.815.982c.412.251.663.699.663 1.181V12.4h.431c.259 0 .469.173.469.431 0 .26-.21.47-.469.47H.647a.469.469 0 0 1-.468-.47c0-.258.21-.43.468-.43h.432V4.108Z" fill="red"/>
             </svg>
             ${priceText || '—'}
           </div>
-          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px;">
+          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px; pointer-events: none;">
             <path d="M0 0h16a8.073 8.073 0 0 0-7.884 6.945l-.038.267c-.018.128-.203.128-.221 0l-.046-.324A7.998 7.998 0 0 0 0 0Z" fill="#FAFAFA"/>
           </svg>
         </div>
       `
 
-      // Создаем кастомную иконку через templateLayoutFactory
-      const customIconLayout = window.ymaps.templateLayoutFactory.createClass(markerHtml)
+      // Создаем кастомную иконку через templateLayoutFactory с правильной обработкой событий
+      const customIconLayout = window.ymaps.templateLayoutFactory.createClass(markerHtml, {
+        build: function() {
+          customIconLayout.superclass.build.call(this)
+          // Убеждаемся, что маркер кликабелен
+          const element = this.getParentElement()
+          if (element) {
+            element.style.pointerEvents = 'auto'
+            element.style.cursor = 'pointer'
+          }
+        }
+      })
 
       const marker = new window.ymaps.Placemark(
         [coord.lat, coord.lon],
@@ -449,25 +493,69 @@ const ObjectsMap = () => {
           iconLayout: customIconLayout,
           iconImageSize: [90, 36],
           iconImageOffset: [-45, -36],
+          iconShape: {
+            type: 'Rectangle',
+            coordinates: [[-45, -36], [45, 0]]
+          },
+          // Отключаем перетаскивание карты при клике на маркер
+          draggable: false,
         }
       )
 
-      // Обработчик клика на маркер
-      marker.events.add('click', () => {
+      // Обработчик клика на маркер - используем stopPropagation для предотвращения перетаскивания карты
+      marker.events.add('click', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
         setSelectedBlock(block)
         loadBlockData(blockId)
       })
+      
+      // Обработчик для предотвращения перетаскивания карты при клике на маркер
+      marker.events.add('mousedown', (e) => {
+        e.stopPropagation()
+      })
 
-      mapInstanceRef.current.geoObjects.add(marker)
+      // Обработчик наведения для изменения курсора
+      marker.events.add('mouseenter', () => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.container.getElement().style.cursor = 'pointer'
+        }
+      })
+
+      marker.events.add('mouseleave', () => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.container.getElement().style.cursor = ''
+        }
+      })
+
+      markersCollection.push(marker)
       markersRef.current.push(marker)
+    })
+
+    // Добавляем все маркеры в кластеризатор
+    clusterer.add(markersCollection)
+    
+    // Добавляем кластеризатор на карту
+    mapInstanceRef.current.geoObjects.add(clusterer)
+
+    // Обработчик клика на кластер
+    clusterer.events.add('click', (e) => {
+      const target = e.get('target')
+      if (target instanceof window.ymaps.ClusterPlacemark) {
+        // При клике на кластер увеличиваем зум
+        const clusterCenter = target.geometry.getCoordinates()
+        mapInstanceRef.current.setCenter(clusterCenter, mapInstanceRef.current.getZoom() + 2, {
+          duration: 300
+        })
+      }
     })
 
     console.log('Добавлено меток:', markersRef.current.length)
 
     // Автоматически подгоняем границы карты под все метки
-    if (coords.length > 1) {
+    if (blocksWithCoords.length > 1) {
       mapInstanceRef.current.setBounds(
-        mapInstanceRef.current.geoObjects.getBounds(),
+        clusterer.getBounds(),
         {
           checkZoomRange: true,
           duration: 300,
