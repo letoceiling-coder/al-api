@@ -184,7 +184,9 @@ class TrendSsoController extends Controller
             }
             
             // Тип объекта (для удобства)
-            $objectType = $request->input('object_type', 'apartments'); // apartments, parking, houses, plots, commercial
+            // ВАЖНО: Если object_type пустая строка или не передан, это означает БЛОКИ (комплексы)
+            $objectTypeInput = $request->input('object_type');
+            $objectType = ($objectTypeInput === '' || $objectTypeInput === null) ? 'blocks' : ($objectTypeInput ?: 'apartments');
             
             // Маппинг типов объектов на коды room
             $roomTypeMap = [
@@ -193,6 +195,7 @@ class TrendSsoController extends Controller
                 'houses' => [30, 40], // Дома с участками: 30=Коттеджи, 40=Таунхаусы
                 'plots' => [], // Участки (нужно уточнить код)
                 'commercial' => [], // Коммерция (нужно уточнить код)
+                'blocks' => [], // Блоки (комплексы) - без фильтра room
             ];
             
             // Если передан object_type и не передан room, используем маппинг
@@ -251,8 +254,11 @@ class TrendSsoController extends Controller
             } elseif ($objectType === 'contractors') {
                 // Для подрядчиков используем отдельный API
                 $apiData = $apiAuth->getContractorsSearch($apiParams);
+            } elseif ($objectType === 'apartments') {
+                // Для квартир используем getApartmentsSearch
+                $apiData = $apiAuth->getApartmentsSearch($apiParams);
             } else {
-                // Для остальных типов используем стандартный API
+                // Для блоков (blocks) и остальных типов используем getBlocksSearch
                 $apiData = $apiAuth->getBlocksSearch($apiParams);
             }
             
