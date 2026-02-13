@@ -83,19 +83,6 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
-    // Для отладки: логируем структуру объекта квартиры, если нет изображения
-    if (objectType === 'apartments' && !getImage()) {
-      console.log('ObjectCard apartments DEBUG - нет изображения:', {
-        id: object._id || object.id,
-        has_image: !!object.image,
-        image_structure: object.image,
-        has_images: !!object.images,
-        images_count: object.images ? object.images.length : 0,
-        first_image: object.images && object.images.length > 0 ? object.images[0] : null,
-        all_keys: Object.keys(object),
-      })
-    }
-    
     // Проверяем renderer (для некоторых типов объектов)
     if (object.renderer && Array.isArray(object.renderer) && object.renderer.length > 0) {
       const imageUrl = getImageUrl(object.renderer[0])
@@ -146,55 +133,17 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
-    // Логируем для отладки, если изображение не найдено
-    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery) {
-      // Собираем все ключи, которые могут содержать изображения
-      const imageRelatedKeys = Object.keys(object).filter(key => 
-        key.toLowerCase().includes('image') || 
-        key.toLowerCase().includes('photo') || 
-        key.toLowerCase().includes('picture') || 
-        key.toLowerCase().includes('plan') ||
-        key.toLowerCase().includes('gallery') ||
-        key.toLowerCase().includes('media') ||
-        key.toLowerCase().includes('renderer') ||
-        key.toLowerCase().includes('preview') ||
-        key.toLowerCase().includes('cover') ||
-        key.toLowerCase().includes('thumbnail')
-      )
-      
-      console.log('ObjectCard: изображение не найдено для объекта:', {
+    // Логируем для отладки, если изображение не найдено (упрощенная версия без циклических ссылок)
+    const hasAnyImage = !!(object.images || object.image || object.renderer || object.photo || object.photo_url || object.image_url || object.gallery)
+    if (!hasAnyImage && objectType === 'apartments') {
+      // Для квартир выводим краткую информацию без глубоких объектов
+      console.log('ObjectCard apartments DEBUG - нет изображения:', {
         id: object._id || object.id,
-        name: object.name || object.title || object.block_name,
-        allKeys: Object.keys(object),
-        imageRelatedKeys: imageRelatedKeys,
-        objectType,
-        // Выводим все поля, которые могут содержать изображения
-        has_images: !!object.images,
         has_image: !!object.image,
-        has_renderer: !!object.renderer,
-        has_photo: !!object.photo,
-        has_photo_url: !!object.photo_url,
-        has_image_url: !!object.image_url,
-        has_gallery: !!object.gallery,
-        has_media: !!object.media,
-        has_preview_image: !!object.preview_image,
-        has_cover_image: !!object.cover_image,
-        has_main_image: !!object.main_image,
-        has_plan: !!object.plan,
-        has_block_image: !!object.block_image,
+        has_images: !!object.images,
         has_block: !!object.block,
-        has_block_image_nested: !!(object.block && object.block.image),
-        // Выводим структуру image, если есть
-        image_structure: object.image || null,
-        // Выводим первый элемент images, если есть
-        first_image_structure: (object.images && Array.isArray(object.images) && object.images.length > 0) ? object.images[0] : null,
-        // Выводим plan, если есть (для квартир)
-        plan_structure: object.plan || null,
-        // Выводим значения всех ключей, связанных с изображениями
-        imageRelatedValues: imageRelatedKeys.reduce((acc, key) => {
-          acc[key] = object[key]
-          return acc
-        }, {}),
+        has_block_image: !!(object.block && object.block.image),
+        block_id: object.block_id || (object.block && object.block._id) || null,
       })
     }
     
@@ -339,19 +288,22 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     <Link to={linkTo} className="object-card" onClick={onClick}>
       {/* Изображение */}
       <div className="object-card-image">
-        {getImage() ? (
-          <img
-            src={getImage()}
-            alt={getName()}
-            onError={handleImageError}
-          />
-        ) : (
-          <div className="object-card-image-placeholder">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
+        {(() => {
+          const imageUrl = getImage()
+          return imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={getName()}
+              onError={handleImageError}
+            />
+          ) : (
+            <div className="object-card-image-placeholder">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          )
+        })()}
       </div>
 
       {/* Контент */}
