@@ -550,6 +550,9 @@ const ObjectsMap = () => {
           align-items: center;
           cursor: pointer;
           pointer-events: auto;
+          width: 90px;
+          height: 36px;
+          position: relative;
         ">
           <div class="marker-with-text__content-wrapper" style="
             background: white;
@@ -588,11 +591,15 @@ const ObjectsMap = () => {
             element.style.cursor = 'pointer'
             element.style.zIndex = '1000'
             
-            // Делаем все дочерние элементы кликабельными
+            // Делаем все дочерние элементы кликабельными, но только в пределах маркера
             const allElements = element.querySelectorAll('*')
             allElements.forEach(el => {
               el.style.pointerEvents = 'auto'
               el.style.cursor = 'pointer'
+              // Ограничиваем область клика размерами маркера
+              if (el.classList && el.classList.contains('marker-with-text')) {
+                el.style.overflow = 'visible'
+              }
             })
             
             // Убеждаемся, что основной контейнер маркера кликабелен
@@ -615,11 +622,11 @@ const ObjectsMap = () => {
         },
         {
           iconLayout: customIconLayout,
-          iconImageSize: [90, 44],  // Размер включает стрелку
-          iconImageOffset: [-45, -44],  // Смещение для центрирования
+          iconImageSize: [90, 36],  // Точный размер маркера: блок (28px) + стрелка (8px) = 36px
+          iconImageOffset: [-45, -36],  // Смещение для центрирования по высоте маркера
           iconShape: {
             type: 'Rectangle',
-            coordinates: [[-50, -50], [50, 10]]  // Расширяем область клика больше визуальной области
+            coordinates: [[-45, -36], [45, 0]]  // Точная область клика соответствует визуальному маркеру
           },
           // Увеличиваем область клика
           iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCA5MCA0NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=',
