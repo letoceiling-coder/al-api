@@ -56,17 +56,40 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       }
       
       // Пробуем через imageUtils
-      return getImageUrl(firstImage)
+      const imageUrl = getImageUrl(firstImage)
+      if (imageUrl) return imageUrl
     }
     
     // Затем проверяем одиночное поле image (для квартир и других типов)
     if (object.image) {
-      return getImageUrl(object.image)
+      const imageUrl = getImageUrl(object.image)
+      if (imageUrl) return imageUrl
     }
     
     // Проверяем renderer (для некоторых типов объектов)
     if (object.renderer && Array.isArray(object.renderer) && object.renderer.length > 0) {
-      return getImageUrl(object.renderer[0])
+      const imageUrl = getImageUrl(object.renderer[0])
+      if (imageUrl) return imageUrl
+    }
+    
+    // Проверяем дополнительные поля для изображений
+    if (object.photo) {
+      const imageUrl = getImageUrl(object.photo)
+      if (imageUrl) return imageUrl
+    }
+    
+    if (object.photo_url) {
+      return object.photo_url
+    }
+    
+    if (object.image_url) {
+      return object.image_url
+    }
+    
+    // Проверяем gallery (для блоков/комплексов)
+    if (object.gallery && Array.isArray(object.gallery) && object.gallery.length > 0) {
+      const imageUrl = getImageUrl(object.gallery[0])
+      if (imageUrl) return imageUrl
     }
     
     return null
