@@ -591,15 +591,16 @@ const ObjectsMap = () => {
             element.style.cursor = 'pointer'
             element.style.zIndex = '1000'
             
-            // Ограничиваем область клика строго размерами маркера
+            // Устанавливаем точные размеры элемента маркера
+            // Эти размеры должны точно соответствовать iconImageSize [90, 36]
             element.style.width = '90px'
             element.style.height = '36px'
-            element.style.overflow = 'hidden'  // Скрываем все, что выходит за границы
-            element.style.boxSizing = 'border-box'
             element.style.margin = '0'
             element.style.padding = '0'
+            element.style.boxSizing = 'border-box'
+            element.style.position = 'relative'
             
-            // Убеждаемся, что основной контейнер маркера кликабелен в строгих границах
+            // Убеждаемся, что основной контейнер маркера кликабелен
             const htmlElement = element.querySelector && element.querySelector('.marker-with-text')
             if (htmlElement) {
               htmlElement.style.pointerEvents = 'auto'
@@ -610,7 +611,6 @@ const ObjectsMap = () => {
               htmlElement.style.margin = '0'
               htmlElement.style.padding = '0'
               htmlElement.style.boxSizing = 'border-box'
-              htmlElement.style.overflow = 'hidden'
             }
           }
         }
@@ -627,15 +627,15 @@ const ObjectsMap = () => {
           // Размеры маркера: ширина 90px, высота 36px
           iconImageSize: [90, 36],
           // iconImageOffset: смещение точки привязки от ЛЕВОГО ВЕРХНЕГО УГЛА иконки
-          // Для маркера высотой 36px точка привязки должна быть внизу по центру (где стрелка)
-          // Ширина 90px, высота 36px
-          // Точка привязки: центр по X (45px), внизу по Y (36px)
-          // Смещение от левого верхнего угла: [45, 36]
+          // Маркер: 90px ширина, 36px высота
+          // Точка привязки должна быть внизу по центру (где стрелка указывает на координаты)
+          // От левого верхнего угла [0, 0] до точки привязки: центр по X (45px), внизу по Y (36px)
           iconImageOffset: [45, 36],
-          // iconShape: область клика относительно точки привязки
-          // Точка привязки внизу маркера [0, 0], маркер высотой 36px
-          // Область клика: от [-45, -36] до [45, 0] относительно точки привязки
-          // Это означает: ширина 90px (от -45 до 45), высота 36px (от -36 до 0)
+          // iconShape: область клика относительно точки привязки [0, 0]
+          // Точка привязки находится внизу маркера по центру
+          // Чтобы область клика покрывала весь маркер (90x36px):
+          // От точки привязки вверх на 36px и влево/вправо на 45px
+          // Координаты: от [-45, -36] (левый верхний угол маркера) до [45, 0] (правый нижний угол маркера)
           iconShape: {
             type: 'Rectangle',
             coordinates: [[-45, -36], [45, 0]]
