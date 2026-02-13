@@ -400,7 +400,7 @@ const ObjectsMap = () => {
     if (objects.length > 0 && (objects[0]._id || objects[0].id) && !objects[0].block_id) {
         // Это блоки (комплексы), используем их напрямую
         blocksWithCoords = objects
-          .map(obj => {
+      .map(obj => {
             try {
               const coord = getCoordinates(obj)
               if (!coord) return null
@@ -448,7 +448,7 @@ const ObjectsMap = () => {
             blocksMap.get(blockId).apartments.push(obj)
             
             // Если координаты есть в объекте, сохраняем их
-            const coord = getCoordinates(obj)
+        const coord = getCoordinates(obj)
             if (coord && !blocksMap.get(blockId).coord) {
               blocksMap.get(blockId).coord = coord
             }
@@ -573,7 +573,7 @@ const ObjectsMap = () => {
             </svg>
             ${priceText || '—'}
           </div>
-          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px; pointer-events: none;">
+          <svg class="pin-smooth-arrow" width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: -1px; pointer-events: none; display: block; flex-shrink: 0;">
             <path d="M0 0h16a8.073 8.073 0 0 0-7.884 6.945l-.038.267c-.018.128-.203.128-.221 0l-.046-.324A7.998 7.998 0 0 0 0 0Z" fill="#FAFAFA"/>
           </svg>
         </div>
@@ -591,24 +591,26 @@ const ObjectsMap = () => {
             element.style.cursor = 'pointer'
             element.style.zIndex = '1000'
             
-            // Делаем все дочерние элементы кликабельными, но только в пределах маркера
-            const allElements = element.querySelectorAll('*')
-            allElements.forEach(el => {
-              el.style.pointerEvents = 'auto'
-              el.style.cursor = 'pointer'
-              // Ограничиваем область клика размерами маркера
-              if (el.classList && el.classList.contains('marker-with-text')) {
-                el.style.overflow = 'visible'
-              }
-            })
+            // Ограничиваем область клика строго размерами маркера
+            element.style.width = '90px'
+            element.style.height = '36px'
+            element.style.overflow = 'hidden'  // Скрываем все, что выходит за границы
+            element.style.boxSizing = 'border-box'
+            element.style.margin = '0'
+            element.style.padding = '0'
             
-            // Убеждаемся, что основной контейнер маркера кликабелен
+            // Убеждаемся, что основной контейнер маркера кликабелен в строгих границах
             const htmlElement = element.querySelector && element.querySelector('.marker-with-text')
             if (htmlElement) {
               htmlElement.style.pointerEvents = 'auto'
               htmlElement.style.cursor = 'pointer'
               htmlElement.style.position = 'relative'
-              htmlElement.style.zIndex = '1001'
+              htmlElement.style.width = '90px'
+              htmlElement.style.height = '36px'
+              htmlElement.style.margin = '0'
+              htmlElement.style.padding = '0'
+              htmlElement.style.boxSizing = 'border-box'
+              htmlElement.style.overflow = 'hidden'
             }
           }
         }
