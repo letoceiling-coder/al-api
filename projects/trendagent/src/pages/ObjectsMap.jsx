@@ -362,56 +362,67 @@ const ObjectsMap = () => {
     let blocksWithCoords = []
     
     if (objects.length > 0 && (objects[0]._id || objects[0].id) && !objects[0].block_id) {
-      // Это блоки (комплексы), используем их напрямую
-      blocksWithCoords = objects
-        .map(obj => {
-          const coord = getCoordinates(obj)
-          if (!coord) return null
-          
-          const minPrice = getMinPrice(obj)
-          const priceText = formatPriceForMarker(minPrice)
-          
-          return {
-            blockId: obj._id || obj.id,
-            blockGuid: obj.guid,
-            blockName: obj.name || obj.title || 'Без названия',
-            coord,
-            apartmentsCount: obj.places_count || obj.apartments_count || 0,
-            minPrice,
-            priceText,
-            blockData: obj // Сохраняем исходные данные блока
+        // Это блоки (комплексы), используем их напрямую
+        blocksWithCoords = objects
+          .map(obj => {
+            try {
+              const coord = getCoordinates(obj)
+              if (!coord) return null
+              
+              const minPrice = getMinPrice(obj)
+              const priceText = formatPriceForMarker(minPrice)
+              
+              return {
+                blockId: obj._id || obj.id,
+                blockGuid: obj.guid,
+                blockName: obj.name || obj.title || 'Без названия',
+                coord,
+                apartmentsCount: obj.places_count || obj.apartments_count || obj.apart_count || 0,
+                minPrice,
+                priceText,
+                blockData: obj // Сохраняем исходные данные блока
+              }
+            } catch (e) {
+              console.warn('Ошибка при обработке блока:', e, obj)
+              return null
+            }
+          })
+          .filter(Boolean)
+        console.log('Шаг 4: Обработано блоков:', blocksWithCoords.length)
+      } else {
+        console.log('Шаг 3: Обработка квартир (группировка по блокам)')
+        // Это квартиры, группируем по блокам
+        const blocksMap = new Map()
+        
+        objects.forEach(obj => {
+          try {
+            const blockId = obj.block_id || obj._id || obj.id
+            if (!blockId) return
+            
+            if (!blocksMap.has(blockId)) {
+              blocksMap.set(blockId, {
+                blockId,
+                blockGuid: obj.guid || obj.block_guid,
+                blockName: obj.block_name || obj.name || obj.title || 'Без названия',
+                apartments: [],
+                coord: null
+              })
+            }
+            
+            blocksMap.get(blockId).apartments.push(obj)
+            
+            // Если координаты есть в объекте, сохраняем их
+            const coord = getCoordinates(obj)
+            if (coord && !blocksMap.get(blockId).coord) {
+              blocksMap.get(blockId).coord = coord
+            }
+          } catch (e) {
+            console.warn('Ошибка при обработке квартиры:', e, obj)
           }
         })
-        .filter(Boolean)
-    } else {
-      // Это квартиры, группируем по блокам
-      const blocksMap = new Map()
-      
-      objects.forEach(obj => {
-        const blockId = obj.block_id || obj._id || obj.id
-        if (!blockId) return
-        
-        if (!blocksMap.has(blockId)) {
-          blocksMap.set(blockId, {
-            blockId,
-            blockGuid: obj.guid || obj.block_guid,
-            blockName: obj.block_name || obj.name || obj.title || 'Без названия',
-            apartments: [],
-            coord: null
-          })
-        }
-        
-        blocksMap.get(blockId).apartments.push(obj)
-        
-        // Если координаты есть в объекте, сохраняем их
-        const coord = getCoordinates(obj)
-        if (coord && !blocksMap.get(blockId).coord) {
-          blocksMap.get(blockId).coord = coord
-        }
-      })
 
-      // Получаем координаты для каждого блока
-      blocksWithCoords = Array.from(blocksMap.values())
+        // Получаем координаты для каждого блока
+        blocksWithCoords = Array.from(blocksMap.values())
         .map(block => {
           // Если координаты не найдены в квартирах, проверяем другие поля блока
           if (!block.coord) {
