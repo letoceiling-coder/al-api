@@ -36,21 +36,6 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getImage = () => {
-    // Для квартир НЕ используем plan (планировка) - это только для детальной страницы
-    // В списке должны показываться фотографии комплекса/блока
-    
-    // Для квартир сначала проверяем block.image (изображение комплекса из вложенного объекта block)
-    if (objectType === 'apartments' && object.block && object.block.image) {
-      const blockImageUrl = getImageUrl(object.block.image)
-      if (blockImageUrl) return blockImageUrl
-    }
-    
-    // Для квартир проверяем block_image (изображение комплекса)
-    if (objectType === 'apartments' && object.block_image) {
-      const blockImageUrl = getImageUrl(object.block_image)
-      if (blockImageUrl) return blockImageUrl
-    }
-    
     // Сначала проверяем массив images (для паркингов, домов, участков, коммерции)
     if (object.images && Array.isArray(object.images) && object.images.length > 0) {
       const firstImage = object.images[0]
