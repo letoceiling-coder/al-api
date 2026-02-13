@@ -1,58 +1,74 @@
 .object-detail {
   min-height: 100vh;
-  background-color: #f4f7f6;
+  background-color: var(--color-bg-secondary);
 }
 
 .btn-back {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #6b7280;
-  background: none;
-  border: none;
+  gap: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-primary);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  padding: 0.5rem 0;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  transition: color 0.2s;
+  padding: 0.625rem 1rem;
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-back:hover {
-  color: #111827;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: translateX(-2px);
 }
 
 .detail-navigation {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-tabs {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-xs);
   overflow-x: auto;
-  padding: 0.75rem 0;
+  padding: var(--spacing-md) var(--spacing-lg);
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-tab {
   white-space: nowrap;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-decoration: none;
   border-bottom: 2px solid transparent;
-  transition: all 0.2s;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: all var(--transition-base);
+  position: relative;
 }
 
 .nav-tab:hover {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.nav-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
 }
 
 .detail-sections {

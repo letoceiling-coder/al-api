@@ -1,38 +1,54 @@
 .object-type-filter {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .filter-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
+  background: var(--color-bg-primary);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .filter-tab {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: white;
+  gap: var(--spacing-sm);
+  padding: 0.75rem 1.25rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
   font-weight: 500;
-  color: #6b7280;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
 .filter-tab:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #047857 100%);
   color: white;
   border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+.filter-tab.active:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .filter-icon {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1;
 }
