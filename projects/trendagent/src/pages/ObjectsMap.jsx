@@ -255,15 +255,17 @@ const ObjectsMap = () => {
 
   // Инициализация Яндекс.Карт
   useEffect(() => {
-    if (!mapContainerRef.current || objects.length === 0) {
-      console.log('Инициализация карты: нет контейнера или объектов', {
+    // Ждем, пока загрузка завершится и контейнер будет готов
+    if (loading || !mapContainerRef.current || objects.length === 0) {
+      console.log('Инициализация карты: ожидание готовности', {
+        loading,
         hasContainer: !!mapContainerRef.current,
         objectsCount: objects.length
       })
       return
     }
 
-    console.log('Начало инициализации карты, объектов:', objects.length)
+    console.log('Начало инициализации карты, объектов:', objects.length, 'контейнер:', mapContainerRef.current)
 
     // Загружаем скрипт Яндекс.Карт, если еще не загружен
     if (!window.ymaps) {
@@ -276,7 +278,12 @@ const ObjectsMap = () => {
         if (window.ymaps) {
           window.ymaps.ready(() => {
             console.log('ymaps.ready вызван')
-            initMap()
+            // Проверяем контейнер еще раз перед инициализацией
+            if (mapContainerRef.current && objects.length > 0) {
+              initMap()
+            } else {
+              console.error('Контейнер или объекты недоступны после загрузки ymaps')
+            }
           })
         } else {
           console.error('window.ymaps не доступен после загрузки скрипта')
@@ -290,7 +297,12 @@ const ObjectsMap = () => {
       console.log('ymaps уже загружен, вызываем initMap')
       window.ymaps.ready(() => {
         console.log('ymaps.ready вызван (уже загружен)')
-        initMap()
+        // Проверяем контейнер еще раз перед инициализацией
+        if (mapContainerRef.current && objects.length > 0) {
+          initMap()
+        } else {
+          console.error('Контейнер или объекты недоступны после ymaps.ready')
+        }
       })
     }
 
@@ -306,7 +318,7 @@ const ObjectsMap = () => {
       }
       markersRef.current = []
     }
-  }, [objects])
+  }, [objects, loading])
 
   const initMap = () => {
     if (!mapContainerRef.current) {
@@ -319,7 +331,7 @@ const ObjectsMap = () => {
       return
     }
 
-    console.log('Инициализация карты, объектов:', objects.length)
+    console.log('Инициализация карты, объектов:', objects.length, 'контейнер готов:', !!mapContainerRef.current)
 
     // Уничтожаем предыдущую карту, если есть
     if (clustererRef.current) {
