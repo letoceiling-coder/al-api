@@ -6542,11 +6542,27 @@ class TrendSsoApiAuth
                 return $item;
             }, $apartmentsList);
             
-            Log::info('Данные получены через API apartments/search', [
-                'results_count' => count($processedList),
-                'apartmentsCount' => $apartmentsCount,
-                'blocksCount' => $data['data']['blocksCount'] ?? 0,
-            ]);
+            // Логируем структуру первого объекта для отладки
+            if (!empty($processedList)) {
+                $firstApartment = $processedList[0];
+                Log::info('Данные получены через API apartments/search', [
+                    'results_count' => count($processedList),
+                    'apartmentsCount' => $apartmentsCount,
+                    'blocksCount' => $data['data']['blocksCount'] ?? 0,
+                    'first_apartment_id' => $firstApartment['_id'] ?? $firstApartment['id'] ?? null,
+                    'first_apartment_has_image' => isset($firstApartment['image']),
+                    'first_apartment_image_structure' => $firstApartment['image'] ?? null,
+                    'first_apartment_has_images' => isset($firstApartment['images']) && is_array($firstApartment['images']),
+                    'first_apartment_images_count' => isset($firstApartment['images']) && is_array($firstApartment['images']) ? count($firstApartment['images']) : 0,
+                    'first_apartment_keys' => array_keys($firstApartment),
+                ]);
+            } else {
+                Log::info('Данные получены через API apartments/search', [
+                    'results_count' => 0,
+                    'apartmentsCount' => $apartmentsCount,
+                    'blocksCount' => $data['data']['blocksCount'] ?? 0,
+                ]);
+            }
 
             return [
                 'success' => true,

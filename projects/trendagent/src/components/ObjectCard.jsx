@@ -83,6 +83,19 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
+    // Для отладки: логируем структуру объекта квартиры, если нет изображения
+    if (objectType === 'apartments' && !getImage()) {
+      console.log('ObjectCard apartments DEBUG - нет изображения:', {
+        id: object._id || object.id,
+        has_image: !!object.image,
+        image_structure: object.image,
+        has_images: !!object.images,
+        images_count: object.images ? object.images.length : 0,
+        first_image: object.images && object.images.length > 0 ? object.images[0] : null,
+        all_keys: Object.keys(object),
+      })
+    }
+    
     // Проверяем renderer (для некоторых типов объектов)
     if (object.renderer && Array.isArray(object.renderer) && object.renderer.length > 0) {
       const imageUrl = getImageUrl(object.renderer[0])
