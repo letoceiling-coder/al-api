@@ -92,6 +92,40 @@ const ObjectCard = ({ object, objectType, onClick }) => {
       if (imageUrl) return imageUrl
     }
     
+    // Проверяем медиа-поля (для блоков)
+    if (object.media && Array.isArray(object.media) && object.media.length > 0) {
+      const imageUrl = getImageUrl(object.media[0])
+      if (imageUrl) return imageUrl
+    }
+    
+    // Проверяем preview_image
+    if (object.preview_image) {
+      const imageUrl = getImageUrl(object.preview_image)
+      if (imageUrl) return imageUrl
+    }
+    
+    // Проверяем cover_image
+    if (object.cover_image) {
+      const imageUrl = getImageUrl(object.cover_image)
+      if (imageUrl) return imageUrl
+    }
+    
+    // Проверяем main_image
+    if (object.main_image) {
+      const imageUrl = getImageUrl(object.main_image)
+      if (imageUrl) return imageUrl
+    }
+    
+    // Логируем для отладки, если изображение не найдено
+    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery) {
+      console.log('ObjectCard: изображение не найдено для объекта:', {
+        id: object._id || object.id,
+        name: object.name || object.title,
+        keys: Object.keys(object),
+        objectType
+      })
+    }
+    
     return null
   }
 

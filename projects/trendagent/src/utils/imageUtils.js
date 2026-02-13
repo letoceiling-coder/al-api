@@ -22,9 +22,16 @@ export const getImageUrl = (img) => {
   
   // Если это объект
   if (typeof img === 'object' && img !== null) {
+    // Если это массив, берем первый элемент
+    if (Array.isArray(img) && img.length > 0) {
+      return getImageUrl(img[0])
+    }
+    
     // Извлекаем URL из различных полей объекта
     const url = img.url || 
                 img.url_full || 
+                img.url_medium ||
+                img.url_small ||
                 img.src || 
                 img.image || 
                 img.large || 
@@ -34,10 +41,21 @@ export const getImageUrl = (img) => {
                 img.original || 
                 img.plan ||
                 img.thumbnail ||
-                img.full
+                img.full ||
+                img.preview ||
+                img.cover
     
     if (url && typeof url === 'string') {
-      return url
+      // Если это уже полный URL, возвращаем
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url
+      }
+      // Если это путь, формируем URL
+      if (url.startsWith('/')) {
+        return `https://selcdn.trendagent.ru${url}`
+      }
+      // Если это просто имя файла, формируем базовый URL
+      return `https://selcdn.trendagent.ru/images/${url}`
     }
     
     // Формируем URL из path и file_name
@@ -48,9 +66,9 @@ export const getImageUrl = (img) => {
       return `https://selcdn.trendagent.ru/images/${path}/m_${fileName}`
     }
     
-    // Если это массив, берем первый элемент
-    if (Array.isArray(img) && img.length > 0) {
-      return getImageUrl(img[0])
+    // Проверяем, есть ли вложенный объект image
+    if (img.image && typeof img.image === 'object') {
+      return getImageUrl(img.image)
     }
   }
   
