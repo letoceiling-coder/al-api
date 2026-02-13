@@ -479,25 +479,25 @@ const ObjectsMap = () => {
     }
 
     // Создаем кластеризатор для группировки маркеров
-    const clusterer = new window.ymaps.Clusterer({
-      clusterDisableClickZoom: true,
-      clusterOpenBalloonOnClick: false, // Отключаем автоматическое открытие балуна
-      clusterBalloonContentLayout: 'cluster#balloonCarousel',
-      clusterBalloonItemContentLayout: 'cluster#balloonCarouselItem',
-      clusterBalloonPanelMaxMapArea: 0,
-      clusterBalloonContentLayoutWidth: 200,
-      clusterBalloonContentLayoutHeight: 130,
-      clusterBalloonPagerSize: 5,
-      clusterBalloonPagerType: 'marker',
-      clusterHideIconOnBalloonOpen: false,
-      geoObjectHideIconOnBalloonOpen: false,
-      zoomOnClick: true, // Разрешаем зум при клике на кластер
-      // Настройки кластеризации
-      gridSize: 64, // Размер сетки для кластеризации
-      groupByCoordinates: false, // Не группировать по координатам
-    })
-    
-    clustererRef.current = clusterer
+    console.log('Шаг 9: Создание кластеризатора')
+    let clusterer
+    try {
+      clusterer = new window.ymaps.Clusterer({
+        clusterDisableClickZoom: true,
+        clusterOpenBalloonOnClick: false, // Отключаем автоматическое открытие балуна
+        zoomOnClick: true, // Разрешаем зум при клике на кластер
+        // Настройки кластеризации
+        gridSize: 64, // Размер сетки для кластеризации
+        groupByCoordinates: false, // Не группировать по координатам
+      })
+      clustererRef.current = clusterer
+      console.log('Шаг 10: Кластеризатор создан успешно')
+    } catch (error) {
+      console.error('Ошибка при создании кластеризатора:', error, error.stack)
+      // Продолжаем без кластеризатора
+      clusterer = null
+      clustererRef.current = null
+    }
 
     // Создаем коллекцию маркеров
     const markersCollection = []
@@ -623,15 +623,32 @@ const ObjectsMap = () => {
     console.log('Добавлено меток:', markersRef.current.length)
 
     // Автоматически подгоняем границы карты под все метки
+    console.log('Шаг 14: Установка границ карты')
     if (blocksWithCoords.length > 1) {
-      mapInstanceRef.current.setBounds(
-        clusterer.getBounds(),
-        {
-          checkZoomRange: true,
-          duration: 300,
+      try {
+        let bounds
+        if (clusterer) {
+          bounds = clusterer.getBounds()
+        } else {
+          // Получаем границы из коллекции маркеров
+          bounds = mapInstanceRef.current.geoObjects.getBounds()
         }
-      )
+        
+        if (bounds) {
+          mapInstanceRef.current.setBounds(bounds, {
+            checkZoomRange: true,
+            duration: 300,
+          })
+          console.log('Границы карты установлены')
+        } else {
+          console.warn('Не удалось получить границы для карты')
+        }
+      } catch (error) {
+        console.warn('Ошибка при установке границ карты:', error)
+      }
     }
+    
+    console.log('Шаг 15: Инициализация карты завершена успешно')
   }
 
   if (!authData || !authData.authenticated) {
