@@ -78,6 +78,16 @@ class TrendSsoController extends Controller
      */
     public function getObjectsList(Request $request)
     {
+        // Логирование всех входящих данных для отладки
+        \Log::info('TrendSsoController getObjectsList - входящий запрос', [
+            'all_input' => $request->all(),
+            'object_type_from_input' => $request->input('object_type'),
+            'object_type_type' => gettype($request->input('object_type')),
+            'has_object_type' => $request->has('object_type'),
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+        ]);
+        
         $request->validate([
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -188,6 +198,15 @@ class TrendSsoController extends Controller
             $objectTypeInput = $request->input('object_type');
             $objectType = ($objectTypeInput === '' || $objectTypeInput === null) ? 'blocks' : ($objectTypeInput ?: 'apartments');
             
+            // Логирование для отладки
+            \Log::info('TrendSsoController getObjectsList - определение типа объекта', [
+                'object_type_input' => $objectTypeInput,
+                'object_type_determined' => $objectType,
+                'is_empty_string' => $objectTypeInput === '',
+                'is_null' => $objectTypeInput === null,
+                'all_request_inputs' => array_keys($request->all()),
+            ]);
+            
             // Маппинг типов объектов на коды room
             $roomTypeMap = [
                 'apartments' => [], // Квартиры - без фильтра room
@@ -256,9 +275,17 @@ class TrendSsoController extends Controller
                 $apiData = $apiAuth->getContractorsSearch($apiParams);
             } elseif ($objectType === 'apartments') {
                 // Для квартир используем getApartmentsSearch
+                \Log::info('TrendSsoController getObjectsList - вызываем getApartmentsSearch (КВАРТИРЫ)', [
+                    'object_type' => $objectType,
+                    'params_count' => count($apiParams),
+                ]);
                 $apiData = $apiAuth->getApartmentsSearch($apiParams);
             } else {
                 // Для блоков (blocks) и остальных типов используем getBlocksSearch
+                \Log::info('TrendSsoController getObjectsList - вызываем getBlocksSearch (КОМПЛЕКСЫ)', [
+                    'object_type' => $objectType,
+                    'params_count' => count($apiParams),
+                ]);
                 $apiData = $apiAuth->getBlocksSearch($apiParams);
             }
             

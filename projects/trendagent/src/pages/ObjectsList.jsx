@@ -73,23 +73,20 @@ const ObjectsList = () => {
         ...filters,
       }
 
-      // ВАЖНО: Принудительно загружаем БЛОКИ (комплексы) для главной страницы
-      // Если selectedObjectType === 'apartments' и viewType === 'list', это означает КОМПЛЕКСЫ
-      const shouldLoadBlocks = selectedObjectType === 'apartments' && viewType === 'list'
-      
-      console.log('DEBUG loadObjects:', {
-        selectedObjectType,
-        viewType,
-        shouldLoadBlocks,
-        condition: `${selectedObjectType} === 'apartments' && ${viewType} === 'list'`
-      })
-
       let response
-      if (shouldLoadBlocks) {
+      // Если выбран тип "apartments" и viewType "list" (Комплексы), загружаем блоки
+      if (selectedObjectType === 'apartments' && viewType === 'list') {
         // Загружаем комплексы (блоки) вместо квартир
         // Явно передаем 'blocks' чтобы контроллер использовал getBlocksSearch
-        const blocksParams = { ...params, object_type: 'blocks' }
-        console.log('DEBUG: Загружаем БЛОКИ (комплексы) с параметрами:', blocksParams)
+        const blocksParams = { ...params }
+        // Убеждаемся, что object_type установлен в 'blocks'
+        blocksParams.object_type = 'blocks'
+        console.log('DEBUG: Загружаем БЛОКИ (комплексы), параметры:', {
+          selectedObjectType,
+          viewType,
+          object_type_in_params: blocksParams.object_type,
+          all_params_keys: Object.keys(blocksParams)
+        })
         response = await trendAgentAPI.getObjectsList('blocks', blocksParams)
         console.log('DEBUG: Загружены блоки (комплексы):', {
           success: response.success,
@@ -97,11 +94,9 @@ const ObjectsList = () => {
           objectsLength: response.data?.objects?.length || 0,
           dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 0,
           blocksCount: response.data?.blocks_count || response.blocks_count,
-          firstObject: response.data?.objects?.[0] || (Array.isArray(response.data?.data) ? response.data.data[0] : null),
-          fullResponse: response
+          firstObject: response.data?.objects?.[0] || (Array.isArray(response.data?.data) ? response.data.data[0] : null)
         })
       } else if (selectedObjectType === 'apartments') {
-        console.log('DEBUG: Загружаем КВАРТИРЫ (не блоки!)')
         response = await trendAgentAPI.getApartments(params)
       } else if (selectedObjectType === 'parkings') {
         response = await trendAgentAPI.getParkings(params)
