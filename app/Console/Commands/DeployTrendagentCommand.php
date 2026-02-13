@@ -267,13 +267,14 @@ class DeployTrendagentCommand extends Command
             }
         }
 
-        // Отправляем в репозиторий
-        $pushResult = $this->executeCommand('git push', $basePath);
+        // Отправляем в репозиторий (явно origin и текущую ветку для совместимости с Windows)
+        $pushResult = $this->executeCommand('git push origin HEAD', $basePath);
         if (!$pushResult['success']) {
+            $fullError = trim($pushResult['output'] . "\n" . $pushResult['error']);
             return [
                 'success' => false,
-                'message' => 'Ошибка при отправке в git',
-                'output' => $pushResult['output'] . $pushResult['error']
+                'message' => 'Ошибка при отправке в git. ' . (str_contains($fullError, 'not found') ? 'Репозиторий не найден на GitHub — проверьте URL и доступ.' : 'Проверьте вывод ниже.'),
+                'output' => $fullError
             ];
         }
 
@@ -571,6 +572,9 @@ class DeployTrendagentCommand extends Command
                 case 'error':
                     $this->error("❌ {$step}");
                     $this->line("   {$message}");
+                    if (!empty($item['output'])) {
+                        $this->line("   <fg=red>" . trim(substr($item['output'], 0, 500)) . (strlen($item['output']) > 500 ? '…' : '') . "</>");
+                    }
                     $errorCount++;
                     break;
                 case 'skipped':
@@ -580,7 +584,7 @@ class DeployTrendagentCommand extends Command
                     break;
             }
 
-            if (!empty($item['output']) && $this->option('verbose')) {
+            if (!empty($item['output']) && $this->option('verbose') && $item['status'] !== 'error') {
                 $this->line("   <fg=gray>" . substr($item['output'], 0, 200) . "...</>");
             }
 

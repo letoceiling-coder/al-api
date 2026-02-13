@@ -637,36 +637,7 @@ const ApartmentsCheckerboard = () => {
                   </button>
                 </div>
 
-                {/* Заголовки секций и подсекций */}
-                <div className="g-0 row">
-                  <div className="col-12">
-                    <div className="checkerboard-container__sections-container">
-                      <div className="checkerboard-container__sections">
-                        {processedData.sections.map((section, sectionIdx) => (
-                          <div key={sectionIdx} className="checkerboard-container__sections__item">
-                            <div className="checkerboard-container__sections__name">
-                              {section.name} - {section.deadline}
-                            </div>
-                            <div className="checkerboard-container__subsections">
-                              {section.subsections.map((subsection, subIdx) => (
-                                <div
-                                  key={subIdx}
-                                  id={subsection.id}
-                                  className="checkerboard-container__subsections__item"
-                                >
-                                  {subsection.name}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                        <div className="checkerboard-container__sections__item--last"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Основная область с этажами и квартирами */}
+                {/* Основная область с этажами и квартирами (без блока заголовков секций — как на spb.trendagent.ru) */}
                 <div className="g-0 row">
                   {/* Номера этажей слева */}
                   <div className="col-auto">
