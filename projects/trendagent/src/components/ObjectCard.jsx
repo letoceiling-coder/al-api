@@ -149,7 +149,8 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     }
     
     // Логируем для отладки, если изображение не найдено
-    if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery && !object.plan) {
+    const hasAnyImage = !!(object.images || object.image || object.renderer || object.photo || object.photo_url || object.image_url || object.gallery || object.plan || (objectType === 'apartments' && (object.block_image || (object.block && object.block.image))))
+    if (!hasAnyImage) {
       // Собираем все ключи, которые могут содержать изображения
       const imageRelatedKeys = Object.keys(object).filter(key => 
         key.toLowerCase().includes('image') || 
