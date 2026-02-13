@@ -335,13 +335,27 @@ const ObjectsMap = () => {
 
     // Уничтожаем предыдущую карту, если есть
     if (clustererRef.current) {
-      clustererRef.current.removeAll()
+      try {
+        if (mapInstanceRef.current && mapInstanceRef.current.geoObjects) {
+          mapInstanceRef.current.geoObjects.remove(clustererRef.current)
+        }
+        clustererRef.current.removeAll()
+      } catch (e) {
+        console.warn('Ошибка при очистке кластеризатора:', e)
+      }
       clustererRef.current = null
     }
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.destroy()
+      try {
+        mapInstanceRef.current.destroy()
+      } catch (e) {
+        console.warn('Ошибка при уничтожении карты:', e)
+      }
+      mapInstanceRef.current = null
       markersRef.current = []
     }
+    
+    console.log('Предыдущая карта очищена, начинаем обработку блоков')
 
     // Если объекты - это уже блоки (комплексы), используем их напрямую
     // Если объекты - это квартиры, группируем по блокам
