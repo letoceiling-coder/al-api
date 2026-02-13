@@ -300,21 +300,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid #e5e5e5;
-  background: #fff;
-  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #666;
+  transition: all var(--transition-base);
+  color: var(--color-text-secondary);
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .flat-link:hover {
-  border-color: #059669;
-  color: #059669;
-  background: #f0fdf4;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .pagination {
