@@ -287,7 +287,7 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   const linkTo = identifier ? `/${routeType}/${identifier}${objectId && objectGuid ? `?guid=${objectGuid}` : ''}` : '#'
 
   return (
-    <Link to={linkTo} className="object-card" onClick={onClick}>
+    <Link to={linkTo} className="object-card">
       {/* Изображение */}
       <div className="object-card-image">
         {(() => {

@@ -278,10 +278,7 @@ const ObjectsList = () => {
                 key={object._id || object.guid || object.id}
                 object={object}
                 objectType={(selectedObjectType === 'apartments' && viewType === 'list') ? 'blocks' : selectedObjectType}
-                onClick={() => handleObjectClick(
-                  object._id || object.id,
-                  object.guid
-                )}
+                // Не передаем onClick - используем только Link с правильным to
               />
             ))}
           </div>
