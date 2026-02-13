@@ -252,6 +252,7 @@ const ObjectsMap = () => {
   const mapContainerRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef = useRef([])
+  const clustererRef = useRef(null)
 
   // Инициализация Яндекс.Карт
   useEffect(() => {
@@ -348,7 +349,7 @@ const ObjectsMap = () => {
     }
   }, [objects, loading])
 
-  const initMap = () => {
+  // initMap теперь определена выше через useCallback
     console.log('=== initMap вызван ===')
     console.log('initMap: проверка условий', {
       hasContainer: !!mapContainerRef.current,
