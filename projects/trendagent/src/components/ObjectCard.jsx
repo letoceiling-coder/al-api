@@ -36,6 +36,12 @@ const ObjectCard = ({ object, objectType, onClick }) => {
   }
 
   const getImage = () => {
+    // Для квартир сначала проверяем plan (планировка квартиры)
+    if (objectType === 'apartments' && object.plan) {
+      const planUrl = getImageUrl(object.plan)
+      if (planUrl) return planUrl
+    }
+    
     // Сначала проверяем массив images (для паркингов, домов, участков, коммерции)
     if (object.images && Array.isArray(object.images) && object.images.length > 0) {
       const firstImage = object.images[0]
@@ -135,10 +141,25 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     
     // Логируем для отладки, если изображение не найдено
     if (!object.images && !object.image && !object.renderer && !object.photo && !object.photo_url && !object.image_url && !object.gallery) {
+      // Собираем все ключи, которые могут содержать изображения
+      const imageRelatedKeys = Object.keys(object).filter(key => 
+        key.toLowerCase().includes('image') || 
+        key.toLowerCase().includes('photo') || 
+        key.toLowerCase().includes('picture') || 
+        key.toLowerCase().includes('plan') ||
+        key.toLowerCase().includes('gallery') ||
+        key.toLowerCase().includes('media') ||
+        key.toLowerCase().includes('renderer') ||
+        key.toLowerCase().includes('preview') ||
+        key.toLowerCase().includes('cover') ||
+        key.toLowerCase().includes('thumbnail')
+      )
+      
       console.log('ObjectCard: изображение не найдено для объекта:', {
         id: object._id || object.id,
-        name: object.name || object.title,
-        keys: Object.keys(object),
+        name: object.name || object.title || object.block_name,
+        allKeys: Object.keys(object),
+        imageRelatedKeys: imageRelatedKeys,
         objectType,
         // Выводим все поля, которые могут содержать изображения
         has_images: !!object.images,
@@ -152,10 +173,19 @@ const ObjectCard = ({ object, objectType, onClick }) => {
         has_preview_image: !!object.preview_image,
         has_cover_image: !!object.cover_image,
         has_main_image: !!object.main_image,
+        has_plan: !!object.plan,
+        has_block_image: !!object.block_image,
         // Выводим структуру image, если есть
         image_structure: object.image || null,
         // Выводим первый элемент images, если есть
         first_image_structure: (object.images && Array.isArray(object.images) && object.images.length > 0) ? object.images[0] : null,
+        // Выводим plan, если есть (для квартир)
+        plan_structure: object.plan || null,
+        // Выводим значения всех ключей, связанных с изображениями
+        imageRelatedValues: imageRelatedKeys.reduce((acc, key) => {
+          acc[key] = object[key]
+          return acc
+        }, {}),
       })
     }
     
