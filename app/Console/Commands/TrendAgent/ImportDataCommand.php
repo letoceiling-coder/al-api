@@ -1130,6 +1130,7 @@ class ImportDataCommand extends Command
             return;
         }
 
+        $now = now();
         $project = ContractorProject::updateOrCreate(
             ['external_id' => $externalId],
             array_merge($projectData, [
