@@ -62,6 +62,23 @@ const ObjectCard = ({ object, objectType, onClick }) => {
     
     // Затем проверяем одиночное поле image (для квартир и других типов)
     if (object.image) {
+      // Если image - это объект с уже готовыми URL полями (обработанными в getApartmentsSearch)
+      if (typeof object.image === 'object' && object.image !== null) {
+        // Проверяем готовые URL поля в порядке приоритета
+        if (object.image.url) {
+          return object.image.url
+        }
+        if (object.image.thumbnail) {
+          return object.image.thumbnail
+        }
+        if (object.image.url_full) {
+          return object.image.url_full
+        }
+        if (object.image.full) {
+          return object.image.full
+        }
+      }
+      // Пробуем через imageUtils для других форматов
       const imageUrl = getImageUrl(object.image)
       if (imageUrl) return imageUrl
     }
