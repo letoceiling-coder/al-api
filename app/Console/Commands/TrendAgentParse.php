@@ -118,7 +118,7 @@ class TrendAgentParse extends Command
         $regions = [];
 
         if (empty($regionOption)) {
-            if ($noDb) {
+            if ($this->noDb) {
                 $regions = ['spb', 'msk'];
                 $this->info("🌍 Режим --no-db: парсинг только spb, msk (укажите --region=spb для одного региона)");
             } else {
