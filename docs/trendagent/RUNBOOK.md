@@ -94,6 +94,25 @@ php artisan trendagent:contract-check --internal
 
 ---
 
+## Реактивация при пустом UI (Найдено комплексов: 0)
+
+Если UI показывает "Объекты не найдены" при наличии данных в БД — вероятно записи помечены `is_active=false` (deactivate-missing). Реактивировать:
+
+```bash
+# Сначала dry-run
+php artisan trendagent:reactivate-inactive --dry-run
+
+# Реактивировать complexes, apartments, parkings
+php artisan trendagent:reactivate-inactive
+
+# Только комплексы
+php artisan trendagent:reactivate-inactive --tables=complexes
+```
+
+После реактивации обновить кеш: `php artisan config:cache`
+
+---
+
 ## Emergency rollback procedure
 
 При критической регрессии после деплоя:
