@@ -297,6 +297,50 @@ class ImageDownloader
     }
 
     /**
+     * Извлечь URL изображений из данных объекта (complex, apartment и т.д.)
+     *
+     * @param array $data Данные объекта из API
+     * @return array ['gallery' => [], 'plans' => [], 'views' => []]
+     */
+    public function extractImageUrls(array $data): array
+    {
+        $result = ['gallery' => [], 'plans' => [], 'views' => []];
+        $data = $data['data'] ?? $data;
+
+        $extractUrl = function ($item): ?string {
+            if (is_string($item)) {
+                return $item;
+            }
+            if (is_array($item)) {
+                if (!empty($item['url'])) {
+                    return $item['url'];
+                }
+                if (!empty($item['path']) && !empty($item['file_name'])) {
+                    return 'https://selcdn.trendagent.ru/images/' . $item['path'] . '/' . $item['file_name'];
+                }
+            }
+            return null;
+        };
+
+        foreach (['renderer', 'images', 'gallery_images', 'plan'] as $key) {
+            if (empty($data[$key])) {
+                continue;
+            }
+            $items = is_array($data[$key]) ? $data[$key] : [$data[$key]];
+            foreach ($items as $item) {
+                $url = $extractUrl($item);
+                if ($url) {
+                    $result['gallery'][] = $url;
+                }
+            }
+        }
+        if (!empty($data['plan']['url'] ?? $data['plan_image']['url'] ?? null)) {
+            $result['plans'][] = $data['plan']['url'] ?? $data['plan_image']['url'];
+        }
+        return $result;
+    }
+
+    /**
      * Обработать массив изображений
      * 
      * @param array $imageUrls Массив URL изображений
