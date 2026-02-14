@@ -16,6 +16,21 @@ class ApartmentListResource extends JsonResource
         $complex = $this->whenLoaded('complex');
         $planUrl = $this->plan_image_url;
 
+        $raw = $this->raw_data ?? [];
+        $buildingName = $this->relationLoaded('building') && $this->building
+            ? $this->building->name
+            : ($raw['building_name'] ?? $complex?->name ?? null);
+        $sectionName = $this->relationLoaded('section') && $this->section
+            ? $this->section->name
+            : ($raw['section_name'] ?? $raw['section']['name'] ?? null);
+        $finishingName = $raw['finishing_name'] ?? $raw['finishing'] ?? null;
+        if (is_array($finishingName)) {
+            $finishingName = $finishingName['name'] ?? implode(', ', array_filter($finishingName));
+        }
+        $statusVal = $this->relationLoaded('status') && $this->status
+            ? $this->status->name
+            : ($raw['status_name'] ?? $raw['status']['name'] ?? $raw['status'] ?? null);
+
         return [
             '_id' => $this->external_id,
             'id' => (string) $this->id,
@@ -29,13 +44,16 @@ class ApartmentListResource extends JsonResource
             'base_price' => $this->price_base,
             'price' => $this->price_base,
             'price_base' => $this->price_base,
+            'full_price' => $this->price_full,
             'plan_image_url' => $planUrl,
             'plan_image' => $planUrl ? ['url' => $planUrl] : null,
             'plan' => $planUrl ? ['url' => $planUrl] : null,
-            'building_name' => $complex?->name ?? null,
-            'section_name' => null,
-            'queue' => null,
-            'deadline' => $complex?->deadline ?? null,
+            'building_name' => $buildingName,
+            'section_name' => $sectionName,
+            'finishing_name' => $finishingName,
+            'status' => $statusVal,
+            'queue' => $raw['queue'] ?? $raw['queue_name'] ?? null,
+            'deadline' => $complex?->deadline ?? $raw['deadline'] ?? null,
             'block_id' => $complex?->external_id ?? null,
             'block_guid' => $complex?->guid ?? null,
             'complex_id' => $this->complex_id,

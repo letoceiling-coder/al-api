@@ -249,15 +249,25 @@ class TrendAgentApiClient
             
             $allApartments = [];
             $buildingsList = $buildings['buildings'] ?? $buildings['data'] ?? [];
-            
-            // Для каждого здания получаем квартиры
+            if (is_array($buildingsList) && isset($buildingsList['results'])) {
+                $buildingsList = $buildingsList['results'];
+            }
+
             foreach ($buildingsList as $building) {
                 $buildingId = $building['_id'] ?? $building['id'] ?? null;
+                $buildingName = $building['name'] ?? $building['number'] ?? $building['block_name'] ?? null;
                 if ($buildingId) {
                     try {
                         $apartmentsData = $this->auth->getCheckerboardApartments($id, $buildingId, $params);
                         $apartments = $apartmentsData['apartments'] ?? $apartmentsData['data'] ?? [];
-                        $allApartments = array_merge($allApartments, $apartments);
+                        if (is_array($apartments) && isset($apartments['results'])) {
+                            $apartments = $apartments['results'];
+                        }
+                        foreach ($apartments as $apt) {
+                            $apt['building_id'] = $apt['building_id'] ?? $buildingId;
+                            $apt['building_name'] = $apt['building_name'] ?? $buildingName;
+                            $allApartments[] = $apt;
+                        }
                     } catch (Exception $e) {
                         Log::warning("TrendAgentApiClient: Ошибка получения квартир для здания {$buildingId}", [
                             'error' => $e->getMessage(),

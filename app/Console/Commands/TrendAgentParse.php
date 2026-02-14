@@ -354,6 +354,11 @@ class TrendAgentParse extends Command
         try {
             $details = $this->fetchComplexDetails($complexId);
 
+            // Сохраняем комплекс в БД сразу, чтобы он существовал при сохранении квартир шахматки
+            if ($this->shouldSaveToDb && $details && (isset($details['success']) ? $details['success'] : true)) {
+                $this->saveComplexToDb($details, $complexId);
+            }
+
             // Краткие списки: какие квартиры, паркинги, коммерция содержатся в ЖК
             $apiClient = new \App\Services\TrendAgent\TrendAgentApiClient();
             $apiClient->authenticate();
@@ -366,6 +371,14 @@ class TrendAgentParse extends Command
                 if (!empty($cb['data'])) {
                     foreach ($cb['data'] as $a) {
                         $apartmentsBrief[] = ['id' => $a['_id'] ?? $a['id'] ?? null, 'number' => $a['number'] ?? $a['flat_number'] ?? null];
+                        // Сохраняем квартиры шахматки в БД (для таблицы и планировок на странице комплекса)
+                        if ($this->shouldSaveToDb) {
+                            $aptId = $a['_id'] ?? $a['id'] ?? null;
+                            if ($aptId) {
+                                $itemWithBlock = array_merge($a, ['block_id' => $complexId]);
+                                $this->saveApartmentToDb([], (string) $aptId, $itemWithBlock);
+                            }
+                        }
                     }
                 }
             } catch (\Throwable $e) {
@@ -401,27 +414,24 @@ class TrendAgentParse extends Command
                 $complexData['commercial_brief'] = array_slice($commercialBrief, 0, 500);
                 $details = array_merge($details, ['data' => $complexData]);
             }
-            
+
             // Сохраняем детальные данные
             if ($this->option('details')) {
                 if ($details && isset($details['success']) && $details['success']) {
                     $this->saveDetailsData('complexes', "{$complexId}.json", $details);
-                    // Сохраняем в БД
                     if ($this->shouldSaveToDb) {
-                        $this->saveComplexToDb($details, $complexId);
+                        $this->saveComplexToDb($details, $complexId); // обновляем raw_data с apartments_brief
                     }
                 } else {
                     // Сохраняем хотя бы данные из списка, если детали не получены
                     $this->saveDetailsData('complexes', "{$complexId}.json", ['data' => $listItem, 'source' => 'list']);
-                    // Пытаемся сохранить в БД из данных списка
                     if ($this->shouldSaveToDb) {
                         $this->saveComplexToDb(['data' => $listItem], $complexId);
                     }
                     $this->statistics['complexes']['errors']++;
                 }
             } elseif ($this->shouldSaveToDb) {
-                // Если детали не парсим, все равно сохраняем в БД из данных списка
-                $this->saveComplexToDb(['data' => $listItem], $complexId);
+                $this->saveComplexToDb($details ?: ['data' => $listItem], $complexId);
             }
             
             // Скачиваем изображения (только если детали получены)
@@ -1982,10 +1992,23 @@ class TrendAgentParse extends Command
                 $pricePerSqm = (int)$pricePerSqm;
             }
             
+            // plan_image_url — несколько форматов API
+            $planImageUrl = $apartmentData['plan_image']['url'] ?? $apartmentData['plan_image_url'] ?? null;
+            if (!$planImageUrl && isset($apartmentData['plan'])) {
+                $planImageUrl = is_array($apartmentData['plan']) ? ($apartmentData['plan']['url'] ?? null) : (is_string($apartmentData['plan']) ? $apartmentData['plan'] : null);
+            }
+            if (!$planImageUrl && !empty($images)) {
+                $firstImg = $images[0];
+                $planImageUrl = is_string($firstImg) ? $firstImg : ($firstImg['url'] ?? $firstImg['image_url'] ?? null);
+            }
+
+            $regionId = $this->regionModel?->id ?? null;
+
             $dbData = [
                 'complex_id' => $complexId,
+                'region_id' => $regionId,
                 'external_id' => $externalId,
-                'number' => $apartmentData['number'] ?? null,
+                'number' => $apartmentData['number'] ?? $apartmentData['flat_number'] ?? null,
                 'rooms' => $rooms,
                 'area_total' => $areaTotal,
                 'area_living' => $areaLiving,
@@ -1997,7 +2020,7 @@ class TrendAgentParse extends Command
                 'is_exclusive' => (bool)($apartmentData['is_exclusive'] ?? false),
                 'is_booked' => (bool)($apartmentData['is_booked'] ?? false),
                 'is_on_request' => (bool)($apartmentData['is_on_request'] ?? false),
-                'plan_image_url' => $apartmentData['plan_image']['url'] ?? $apartmentData['plan_image_url'] ?? null,
+                'plan_image_url' => $planImageUrl,
             ];
 
             // Используем модель для правильной обработки casts
