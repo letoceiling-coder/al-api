@@ -61,8 +61,8 @@ class AuthTokenManager
             Log::info('AuthTokenManager: Обновление токена');
 
             // Использовать существующий TrendSsoApiAuth
-            $phone = env('TRENDAGENT_PHONE', '+79045393434');
-            $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+            $phone = config('trendagent.phone') ?: env('TRENDAGENT_PHONE', '+79045393434');
+            $password = config('trendagent.password') ?: env('TRENDAGENT_PASSWORD', 'nwBvh4q');
 
             $authData = $this->ssoAuth->authenticate($phone, $password);
 

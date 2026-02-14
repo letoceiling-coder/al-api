@@ -24,8 +24,8 @@ class TestApiEndpoints extends Command
         $this->info("🔐 Авторизация...");
         $this->auth = new TrendSsoApiAuth();
         
-        $phone = env('TRENDAGENT_PHONE', '+79045393434');
-        $password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+        $phone = config('trendagent.phone') ?: env('TRENDAGENT_PHONE', '+79045393434');
+        $password = config('trendagent.password') ?: env('TRENDAGENT_PASSWORD', 'nwBvh4q');
         
         try {
             $this->auth->authenticate($phone, $password);

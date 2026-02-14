@@ -19,9 +19,8 @@ class TrendAgentApiClient
 
     public function __construct()
     {
-        // Получаем данные из .env или конфигурации
-        $this->phone = env('TRENDAGENT_PHONE', '+79045393434');
-        $this->password = env('TRENDAGENT_PASSWORD', 'nwBvh4q');
+        $this->phone = config('trendagent.phone') ?: env('TRENDAGENT_PHONE', '+79045393434');
+        $this->password = config('trendagent.password') ?: env('TRENDAGENT_PASSWORD', 'nwBvh4q');
         $this->auth = new TrendSsoApiAuth();
     }
 
