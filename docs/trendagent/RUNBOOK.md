@@ -76,8 +76,11 @@ php artisan trendagent:contract-check --internal
 
 ```bash
 # Crontab (crontab -e)
-# Import каждые 6 часов
-0 */6 * * * cd /var/www/AL && php artisan trendagent:import-data --region=spb --type=all --download-images=0 --deactivate-missing=1 --missing-days=7 >> storage/logs/trendagent_cron.log 2>&1
+# Парсер: все регионы, все объекты — раз в сутки в полночь
+0 0 * * * cd /var/www/AL && bash scripts/trendagent_parse_full.sh
+
+# Import каждые 6 часов (из файлов парсера)
+0 */6 * * * cd /var/www/AL && php artisan trendagent:import-data --region=spb --type=all --download-images=0 --deactivate-missing=0 >> storage/logs/trendagent_cron.log 2>&1
 
 # Images GC раз в неделю (воскресенье 3:00)
 0 3 * * 0 cd /var/www/AL && php artisan trendagent:images:gc --days=30 >> storage/logs/trendagent_gc.log 2>&1
@@ -88,9 +91,27 @@ php artisan trendagent:contract-check --internal
 
 ### Логи
 
+- `storage/logs/trendagent_parse.log` — вывод парсера (все регионы)
+- `storage/logs/trendagent_parse_timing.json` — замеры длительности парсинга
 - `storage/logs/trendagent_cron.log` — вывод import
 - `storage/logs/trendagent_gc.log` — вывод images:gc
 - `storage/logs/trendagent_health_alert.log` — сбои health check
+
+### Контролируемый запуск парсера (вручную с замерами)
+
+```bash
+cd /var/www/AL
+bash scripts/trendagent_parse_full.sh
+```
+
+Скрипт:
+- парсит все регионы, все типы, с деталями
+- сохраняет в файлы и БД (--save-raw=true --save-db=true)
+- без скачивания изображений (--images=false) для скорости
+- пишет логи в `storage/logs/trendagent_parse.log`
+- сохраняет замеры в `storage/logs/trendagent_parse_timing.json` (started_at, finished_at, duration_seconds)
+
+Для парсинга с изображениями отредактируйте скрипт: `--images=true`
 
 ---
 

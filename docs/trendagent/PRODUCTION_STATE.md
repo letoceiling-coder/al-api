@@ -44,6 +44,7 @@ git push origin v1.0-trendagent-db-stable
 
 | Задача | Расписание | Лог |
 |--------|------------|-----|
+| Parse (все регионы) | `0 0 * * *` (ежедневно в 0:00) | trendagent_parse.log |
 | Import | `0 */6 * * *` (каждые 6 ч) | trendagent_cron.log |
 | Images GC | `0 3 * * 0` (Вс 3:00) | trendagent_gc.log |
 | Health check | `*/10 * * * *` | trendagent_health_alert.log (при fail) |
@@ -57,6 +58,8 @@ git push origin v1.0-trendagent-db-stable
 
 ## Logs
 
+- storage/logs/trendagent_parse.log — парсер (все регионы)
+- storage/logs/trendagent_parse_timing.json — замеры длительности парсинга
 - storage/logs/trendagent_cron.log
 - storage/logs/trendagent_gc.log
 - storage/logs/trendagent_health_alert.log
