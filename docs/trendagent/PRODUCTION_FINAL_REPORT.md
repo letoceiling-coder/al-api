@@ -9,7 +9,7 @@
 | Параметр | Значение |
 |----------|----------|
 | **Production Tag** | v1.0-trendagent-db-stable |
-| **Commit** | _(заполнить: `git rev-parse HEAD`)_ |
+| **Commit** | 625c47e |
 | **Ветка** | main |
 
 ---
@@ -47,9 +47,7 @@
 
 ## Вердикт
 
-**STABLE** / **READY** / **NEEDS ATTENTION**
-
-_(Заполнить после финальной проверки)_
+**STABLE** — Production ready. Tag v1.0-trendagent-db-stable зафиксирован.
 
 ---
 

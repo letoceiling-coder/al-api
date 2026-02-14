@@ -7,7 +7,7 @@
 | Параметр | Значение |
 |----------|----------|
 | **Production Tag** | `v1.0-trendagent-db-stable` |
-| **Commit** | _(заполнить: `git rev-parse HEAD`)_ |
+| **Commit** | `625c47e` |
 | **Дата** | 2026-02-15 |
 
 ### Создание и пуш тега (локально)
@@ -33,7 +33,7 @@ git push origin v1.0-trendagent-db-stable
 
 ## Current state
 
-- **Commit:** _(обновить после tag)_
+- **Commit:** 625c47e
 - **Tag:** v1.0-trendagent-db-stable
 - **TRENDAGENT_DATA_SOURCE:** db
 - **Server:** root@89.169.39.244
