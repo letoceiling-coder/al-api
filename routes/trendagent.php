@@ -7,6 +7,7 @@ use App\Http\Controllers\TrendAgent\TrendSsoController;
 use App\Http\Controllers\TrendAgent\HousesController;
 use App\Http\Controllers\TrendAgent\PlotsController;
 use App\Http\Controllers\TrendAgent\CommercialController;
+use App\Http\Controllers\TrendAgent\HealthController;
 use App\Http\Controllers\TrendAgent\ParserController;
 
 /*
@@ -79,6 +80,11 @@ Route::get('trendagent/v1/swagger.json', function () {
 })->name('trendagent.swagger.json');
 
 // ============================================
+// Health (без авторизации)
+// ============================================
+Route::get('trendagent/v1/health', [HealthController::class, 'index'])->name('trendagent.health');
+
+// ============================================
 // Parser Management API (без middleware)
 // ============================================
 Route::prefix('trendagent/parser')->name('trendagent.parser.')->group(function () {
@@ -90,7 +96,7 @@ Route::prefix('trendagent/parser')->name('trendagent.parser.')->group(function (
     Route::get('/statistics', [ParserController::class, 'statistics'])->name('statistics');
 });
 
-Route::prefix('trendagent/v1')->middleware(['trendagent.auth'])->group(function () {
+Route::prefix('trendagent/v1')->middleware(['throttle:60,1', 'trendagent.auth', 'trendagent.debug_query'])->group(function () {
     
     // ============================================
     // SSO Authentication & Cities

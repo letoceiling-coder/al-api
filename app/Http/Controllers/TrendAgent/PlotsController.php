@@ -17,6 +17,10 @@ class PlotsController
      */
     public function index(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\PlotsDbController::class)->index($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -345,6 +349,10 @@ class PlotsController
      */
     public function plotDetail(Request $request, string $id, string $plotId)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\PlotsDbController::class)->plotDetail($request, $id, $plotId);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',

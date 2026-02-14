@@ -26,6 +26,8 @@ class Plot extends Model
         'raw_data' => 'array',
         'area' => 'decimal:2',
         'price_base' => 'integer',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     /**

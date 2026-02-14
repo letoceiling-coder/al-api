@@ -17,6 +17,10 @@ class HousesController
      */
     public function index(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\HousesDbController::class)->index($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -159,6 +163,10 @@ class HousesController
      */
     public function show(Request $request, string $id)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\HousesDbController::class)->show($request, $id);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',

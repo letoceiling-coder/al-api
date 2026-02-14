@@ -17,6 +17,10 @@ class ParkingsController
      */
     public function index(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ParkingsDbController::class)->index($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -335,6 +339,10 @@ class ParkingsController
      */
     public function places(Request $request, string $id)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ParkingsDbController::class)->places($request, $id);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',

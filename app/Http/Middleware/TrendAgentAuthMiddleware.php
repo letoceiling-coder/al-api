@@ -19,6 +19,10 @@ class TrendAgentAuthMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (config('trendagent.data_source') === 'db') {
+            return $next($request);
+        }
+
         $token = $request->bearerToken() ?? $request->header('Authorization');
         
         // Убираем префикс "Bearer " если есть

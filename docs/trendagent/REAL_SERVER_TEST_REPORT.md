@@ -2,7 +2,23 @@
 
 **Сервер:** root@89.169.39.244  
 **Проект:** /var/www/AL  
+**Prod API:** https://api.siteaccess.ru/api  
+**Base path:** /api/trendagent/v1  
 **Дата:** 2026-02-13
+
+---
+
+## Скрипт для прогона
+
+```bash
+ssh root@89.169.39.244
+cd /var/www/AL
+git fetch origin && git reset --hard origin/main
+composer install --no-dev --optimize-autoloader
+bash scripts/trendagent_real_server_test.sh
+```
+
+Артефакты: `storage/logs/trendagent_real_test/YYYYMMDD_HHMMSS/`
 
 ---
 
@@ -92,6 +108,19 @@ php artisan config:cache
 
 ---
 
+## Минимальный smoke (копипаста)
+
+```bash
+curl -sS https://api.siteaccess.ru/api/trendagent/v1/health | jq
+curl -sS -X GET https://api.siteaccess.ru/api/trendagent/v1/cities | jq
+curl -sS -X POST https://api.siteaccess.ru/api/trendagent/v1/apartments \
+  -H "Content-Type: application/json" \
+  -d '{"city":"58c665588b6aa52311afa01b","count":5,"page":1}' | jq
+curl -sS -X POST https://api.siteaccess.ru/api/trendagent/v1/objects/list \
+  -H "Content-Type: application/json" \
+  -d '{"object_type":"blocks","city":"58c665588b6aa52311afa01b","count":5}' | jq
+```
+
 ## Заключение
 
-Система готова к использованию `TRENDAGENT_DATA_SOURCE=db`. Health endpoint работает, Sync runs записываются, команды и миграции на месте. Перед регулярным импортом apartments стоит устранить ошибку "Array to string conversion".
+Система готова к использованию `TRENDAGENT_DATA_SOURCE=db`. Health endpoint работает, Sync runs записываются, команды и миграции на месте. Документация API: `docs/trendagent/API_USAGE.md`, OpenAPI: `docs/trendagent/openapi.yaml`.

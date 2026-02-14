@@ -2,6 +2,7 @@
 
 namespace App\Models\TrendAgent;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,7 @@ class Parking extends Model
 
     protected $fillable = [
         'complex_id',
+        'region_id',
         'external_id',
         'name',
         'parking_type_id',
@@ -30,7 +32,17 @@ class Parking extends Model
         'available_places' => 'integer',
         'price_base' => 'integer',
         'price_per_month' => 'integer',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
+
+    /**
+     * Регион
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
+    }
 
     /**
      * Комплекс
@@ -46,5 +58,13 @@ class Parking extends Model
     public function places(): HasMany
     {
         return $this->hasMany(ParkingPlace::class, 'parking_id');
+    }
+
+    public function scopeRegion(Builder $query, int|string $region): Builder
+    {
+        if (is_numeric($region)) {
+            return $query->where('region_id', $region);
+        }
+        return $query->whereHas('region', fn (Builder $q) => $q->where('code', $region));
     }
 }

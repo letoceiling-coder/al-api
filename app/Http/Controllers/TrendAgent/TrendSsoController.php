@@ -16,6 +16,10 @@ class TrendSsoController extends Controller
      */
     public function authenticate(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\AuthenticateDbController::class)->authenticate($request);
+        }
+
         $request->validate([
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -78,6 +82,10 @@ class TrendSsoController extends Controller
      */
     public function getObjectsList(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ObjectsDbController::class)->list($request);
+        }
+
         // Логирование всех входящих данных для отладки
         \Log::info('TrendSsoController getObjectsList - входящий запрос', [
             'all_input' => $request->all(),
@@ -432,6 +440,18 @@ class TrendSsoController extends Controller
      */
     public function getBlockDetails(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            $id = $request->route('id') ?? $request->input('block_id') ?? $request->input('block_guid') ?? $request->input('id');
+            if (!$id) {
+                return response()->json(['success' => false, 'message' => 'Необходимо указать block_id или block_guid'], 422);
+            }
+            $objectType = $request->input('object_type');
+            if ($objectType === 'contractors' || str_contains($request->path(), 'houseprojects')) {
+                return app(\App\Http\Controllers\TrendAgent\Db\ContractorsDbController::class)->show($request, $id);
+            }
+            return app(\App\Http\Controllers\TrendAgent\Db\ApartmentsDbController::class)->show($request, $id);
+        }
+
         $request->validate([
             'phone' => 'required|string',
             'password' => 'required|string',

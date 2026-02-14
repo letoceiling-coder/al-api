@@ -1,0 +1,100 @@
+name: TrendAgent CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'app/**'
+      - 'config/trendagent.php'
+      - 'routes/trendagent.php'
+      - 'database/migrations/*trendagent*'
+      - 'docs/trendagent/**'
+      - 'tests/**TrendAgent*'
+      - 'resources/**'
+      - 'vite.config.*'
+      - 'package.json'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'app/**'
+      - 'config/trendagent.php'
+      - 'routes/trendagent.php'
+      - 'database/migrations/*trendagent*'
+      - 'docs/trendagent/**'
+      - 'tests/**TrendAgent*'
+      - 'resources/**'
+      - 'vite.config.*'
+      - 'package.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Prepare Laravel
+        run: |
+          cp .env.example .env || true
+          php artisan key:generate --no-interaction
+          php artisan config:clear
+
+      - name: Run migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+
+      - name: Run tests
+        run: php artisan test --parallel
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          TRENDAGENT_DATA_SOURCE: db
+
+      - name: TrendAgent Contract Check
+        run: php artisan trendagent:contract-check --internal
+        continue-on-error: true
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          TRENDAGENT_DATA_SOURCE: db
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build

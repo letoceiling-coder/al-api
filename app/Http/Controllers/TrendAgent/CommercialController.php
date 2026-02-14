@@ -17,6 +17,10 @@ class CommercialController
      */
     public function index(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\CommercialDbController::class)->index($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -163,6 +167,10 @@ class CommercialController
      */
     public function show(Request $request, string $id)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\CommercialDbController::class)->show($request, $id);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',

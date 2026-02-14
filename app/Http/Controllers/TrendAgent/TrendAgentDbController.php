@@ -45,7 +45,6 @@ class TrendAgentDbController extends Controller
                 'is_on_request' => $apartment->is_on_request,
                 'plan_image_url' => $apartment->plan_image_url,
                 'images' => $apartment->images ?? [],
-                'raw_data' => $apartment->raw_data ?? [],
                 'complex' => $apartment->complex ? [
                     'id' => $apartment->complex->id,
                     'name' => $apartment->complex->name,

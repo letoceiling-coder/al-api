@@ -2,9 +2,11 @@
 
 namespace App\Models\TrendAgent;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Complex extends Model
 {
@@ -30,6 +32,8 @@ class Complex extends Model
         'videos',
         'files',
         'raw_data',
+        'last_seen_at',
+        'is_active',
     ];
 
     protected $casts = [
@@ -42,6 +46,8 @@ class Complex extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'min_price' => 'integer',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -98,5 +104,37 @@ class Complex extends Model
     public function floorPlans(): HasMany
     {
         return $this->hasMany(FloorPlan::class, 'complex_id');
+    }
+
+    /**
+     * Изображения (полиморфная связь через object_type/object_id).
+     */
+    public function images(): MorphMany
+    {
+        return $this->morphMany(TrendAgentImage::class, 'imageable');
+    }
+
+    /**
+     * Фильтр по региону (region_id или code).
+     */
+    public function scopeRegion(Builder $query, int|string $region): Builder
+    {
+        if (is_numeric($region)) {
+            return $query->where('region_id', $region);
+        }
+        return $query->whereHas('region', fn (Builder $q) => $q->where('code', $region));
+    }
+
+    /**
+     * Сортировка (sort: price|deadline|name).
+     */
+    public function scopeSort(Builder $query, string $sort = 'price', string $order = 'asc'): Builder
+    {
+        $column = match ($sort) {
+            'deadline' => 'deadline',
+            'name' => 'name',
+            default => 'min_price',
+        };
+        return $query->orderBy($column, strtolower($order) === 'desc' ? 'desc' : 'asc');
     }
 }

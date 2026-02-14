@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api-version' => \App\Http\Middleware\ApiVersionMiddleware::class,
             'deprecation-warning' => \App\Http\Middleware\DeprecationWarningMiddleware::class,
             'trendagent.auth' => \App\Http\Middleware\TrendAgentAuthMiddleware::class,
+            'trendagent.debug_query' => \App\Http\Middleware\TrendAgentDebugQueryMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

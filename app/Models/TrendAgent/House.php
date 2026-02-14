@@ -2,6 +2,7 @@
 
 namespace App\Models\TrendAgent;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,6 +33,8 @@ class House extends Model
         'floors_count' => 'integer',
         'rooms_count' => 'integer',
         'price_base' => 'integer',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -40,5 +43,13 @@ class House extends Model
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class, 'region_id');
+    }
+
+    public function scopeRegion(Builder $query, int|string $region): Builder
+    {
+        if (is_numeric($region)) {
+            return $query->where('region_id', $region);
+        }
+        return $query->whereHas('region', fn (Builder $q) => $q->where('code', $region));
     }
 }

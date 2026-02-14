@@ -26,55 +26,55 @@ return new class extends Migration
             }
         }
 
-        // Добавляем индексы для других часто используемых полей
+        // Добавляем индексы (уникальные имена для SQLite)
         Schema::table('trendagent_apartments', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_apartments', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_apt_created_at');
             }
         });
 
         Schema::table('trendagent_complexes', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_complexes', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_cplx_created_at');
             }
             if (!Schema::hasColumn('trendagent_complexes', 'region_id_index')) {
-                $table->index('region_id', 'idx_region_id');
+                $table->index('region_id', 'idx_ta_cplx_region_id');
             }
         });
 
         Schema::table('trendagent_parkings', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_parkings', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_park_created_at');
             }
             if (!Schema::hasColumn('trendagent_parkings', 'complex_id_index')) {
-                $table->index('complex_id', 'idx_complex_id');
+                $table->index('complex_id', 'idx_ta_park_complex_id');
             }
         });
 
         Schema::table('trendagent_houses', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_houses', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_house_created_at');
             }
             if (!Schema::hasColumn('trendagent_houses', 'region_id_index')) {
-                $table->index('region_id', 'idx_region_id');
+                $table->index('region_id', 'idx_ta_house_region_id');
             }
         });
 
         Schema::table('trendagent_plots', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_plots', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_plot_created_at');
             }
             if (!Schema::hasColumn('trendagent_plots', 'region_id_index')) {
-                $table->index('region_id', 'idx_region_id');
+                $table->index('region_id', 'idx_ta_plot_region_id');
             }
         });
 
         Schema::table('trendagent_commercial', function (Blueprint $table) {
             if (!Schema::hasColumn('trendagent_commercial', 'created_at_index')) {
-                $table->index('created_at', 'idx_created_at');
+                $table->index('created_at', 'idx_ta_comm_created_at');
             }
             if (!Schema::hasColumn('trendagent_commercial', 'complex_id_index')) {
-                $table->index('complex_id', 'idx_complex_id');
+                $table->index('complex_id', 'idx_ta_comm_complex_id');
             }
         });
     }
@@ -92,32 +92,32 @@ return new class extends Migration
         }
 
         Schema::table('trendagent_apartments', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
+            $table->dropIndex('idx_ta_apt_created_at');
         });
 
         Schema::table('trendagent_complexes', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
-            $table->dropIndex('idx_region_id');
+            $table->dropIndex('idx_ta_cplx_created_at');
+            $table->dropIndex('idx_ta_cplx_region_id');
         });
 
         Schema::table('trendagent_parkings', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
-            $table->dropIndex('idx_complex_id');
+            $table->dropIndex('idx_ta_park_created_at');
+            $table->dropIndex('idx_ta_park_complex_id');
         });
 
         Schema::table('trendagent_houses', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
-            $table->dropIndex('idx_region_id');
+            $table->dropIndex('idx_ta_house_created_at');
+            $table->dropIndex('idx_ta_house_region_id');
         });
 
         Schema::table('trendagent_plots', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
-            $table->dropIndex('idx_region_id');
+            $table->dropIndex('idx_ta_plot_created_at');
+            $table->dropIndex('idx_ta_plot_region_id');
         });
 
         Schema::table('trendagent_commercial', function (Blueprint $table) {
-            $table->dropIndex('idx_created_at');
-            $table->dropIndex('idx_complex_id');
+            $table->dropIndex('idx_ta_comm_created_at');
+            $table->dropIndex('idx_ta_comm_complex_id');
         });
     }
 };

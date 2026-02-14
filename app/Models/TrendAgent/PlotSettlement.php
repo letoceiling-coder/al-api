@@ -21,6 +21,8 @@ class PlotSettlement extends Model
         'longitude',
         'images',
         'raw_data',
+        'last_seen_at',
+        'is_active',
     ];
 
     protected $casts = [
@@ -28,6 +30,8 @@ class PlotSettlement extends Model
         'raw_data' => 'array',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -44,5 +48,13 @@ class PlotSettlement extends Model
     public function plots(): HasMany
     {
         return $this->hasMany(Plot::class, 'settlement_id');
+    }
+
+    public function scopeRegion(Builder $query, int|string $region): Builder
+    {
+        if (is_numeric($region)) {
+            return $query->where('region_id', $region);
+        }
+        return $query->whereHas('region', fn (Builder $q) => $q->where('code', $region));
     }
 }

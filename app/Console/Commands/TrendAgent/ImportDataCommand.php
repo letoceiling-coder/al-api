@@ -23,6 +23,7 @@ use App\Models\TrendAgent\FinishingType;
 use App\Models\TrendAgent\Status;
 use App\Models\TrendAgent\SyncRun;
 use App\Services\TrendAgent\TrendAgentImageStoreService;
+use App\Services\TrendAgent\ImportNormalizers;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -747,6 +748,8 @@ class ImportDataCommand extends Command
             'complex_id' => $complexId,
             'region_id' => $region->id,
             'external_id' => $externalId,
+            'last_seen_at' => now(),
+            'is_active' => true,
             'number' => $data['number'] ?? null,
             'rooms' => $data['rooms'] ?? $data['room'] ?? null,
             'area_total' => $data['area_total'] ?? $data['area'] ?? $data['privArea'] ?? null,
@@ -793,10 +796,7 @@ class ImportDataCommand extends Command
     private function resolveFinishingType(array $data): ?int
     {
         $raw = $data['finishing']['name'] ?? $data['finishing_name'] ?? $data['finishing'] ?? null;
-        if (is_array($raw)) {
-            $raw = $raw['name'] ?? $raw['value'] ?? null;
-        }
-        $name = is_string($raw) ? $raw : null;
+        $name = ImportNormalizers::finishingName($raw);
         if (!$name) {
             return null;
         }
@@ -807,11 +807,8 @@ class ImportDataCommand extends Command
 
     private function resolveStatus(array $data, string $entityType = 'apartment'): ?int
     {
-        $name = $data['status']['name'] ?? $data['status']['label'] ?? $data['status_name'] ?? $data['status'] ?? null;
-        if (is_array($name)) {
-            $name = $name['name'] ?? $name['label'] ?? $name['value'] ?? json_encode($name);
-        }
-        $name = is_string($name) ? $name : null;
+        $raw = $data['status']['name'] ?? $data['status']['label'] ?? $data['status_name'] ?? $data['status'] ?? null;
+        $name = ImportNormalizers::statusName($raw);
         if (!$name) {
             return null;
         }
@@ -1091,6 +1088,7 @@ class ImportDataCommand extends Command
      */
     private function importContractor(array $data, Region $region): void
     {
+        $now = now();
         $externalId = $data['id'] ?? $data['_id'] ?? $data['_raw']['_id'] ?? null;
         if (!$externalId) {
             return;

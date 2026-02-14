@@ -17,6 +17,10 @@ class ApartmentsController
      */
     public function index(Request $request)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ApartmentsDbController::class)->index($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -198,6 +202,10 @@ class ApartmentsController
      */
     public function show(Request $request, string $id)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ApartmentsDbController::class)->show($request, $id);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -463,6 +471,10 @@ class ApartmentsController
      */
     public function flatDetail(Request $request, string $id, string $apartmentId)
     {
+        if (config('trendagent.data_source') === 'db') {
+            return app(\App\Http\Controllers\TrendAgent\Db\ApartmentsDbController::class)->flatDetail($request, $id, $apartmentId);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',

@@ -30,6 +30,8 @@ class ContractorProject extends Model
         'area_total' => 'decimal:2',
         'area_living' => 'decimal:2',
         'min_price' => 'integer',
+        'last_seen_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     /**

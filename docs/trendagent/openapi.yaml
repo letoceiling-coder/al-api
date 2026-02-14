@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: TrendAgent API
+  version: 1.0.0
+  description: API для получения данных о недвижимости (db-режим: TRENDAGENT_DATA_SOURCE=db)
+
+servers:
+  - url: https://api.siteaccess.ru/api/trendagent/v1
+    description: Production
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: health
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /cities:
+    get:
+      summary: Список городов
+      operationId: getCities
+      tags: [Common]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CitiesResponse'
+  /authenticate:
+    post:
+      summary: Авторизация (в db — заглушка)
+      operationId: authenticate
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticateResponse'
+  /objects/list:
+    post:
+      summary: Универсальный список
+      operationId: objectsList
+      tags: [Objects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectsListRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+  /apartments:
+    post:
+      summary: Список квартир
+      operationId: apartmentsList
+      tags: [Apartments]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApartmentsListRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApartmentsListResponse'
+  /apartments/{id}:
+    post:
+      summary: Детали комплекса
+      operationId: apartmentsShow
+      tags: [Apartments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+  /apartments/{id}/flat/{apartmentId}:
+    post:
+      summary: Детали квартиры
+      operationId: apartmentFlatDetail
+      tags: [Apartments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: apartmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+  /parkings:
+    post:
+      summary: Список паркингов
+      operationId: parkingsList
+      tags: [Parkings]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommonListRequest'
+      responses:
+        '200':
+          description: OK
+  /parkings/{id}:
+    post:
+      summary: Детали паркинга
+      operationId: parkingsShow
+      tags: [Parkings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /houses:
+    post:
+      summary: Список домов
+      operationId: housesList
+      tags: [Houses]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommonListRequest'
+      responses:
+        '200':
+          description: OK
+  /plots:
+    post:
+      summary: Список участков
+      operationId: plotsList
+      tags: [Plots]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommonListRequest'
+      responses:
+        '200':
+          description: OK
+  /commercial:
+    post:
+      summary: Список коммерческой недвижимости
+      operationId: commercialList
+      tags: [Commercial]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommonListRequest'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    Health:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        last_sync_runs:
+          type: array
+          items:
+            type: object
+            properties:
+              region:
+                type: string
+              type:
+                type: string
+              started_at:
+                type: string
+                format: date-time
+              status:
+                type: string
+              created_count:
+                type: integer
+        counts:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              active:
+                type: integer
+              total:
+                type: integer
+        version:
+          type: string
+    CitiesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+    AuthenticateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            authenticated:
+              type: boolean
+    ObjectsListRequest:
+      type: object
+      properties:
+        object_type:
+          type: string
+          enum: [blocks, apartments, parkings, houses, plots, commercial, contractors]
+        city:
+          type: string
+        count:
+          type: integer
+          minimum: 1
+          maximum: 100
+        page:
+          type: integer
+          minimum: 1
+        sort:
+          type: string
+          enum: [price, deadline, name]
+        sort_order:
+          type: string
+          enum: [asc, desc]
+    CommonListRequest:
+      type: object
+      properties:
+        city:
+          type: string
+        count:
+          type: integer
+        page:
+          type: integer
+        sort:
+          type: string
+        sort_order:
+          type: string
+    ApartmentsListRequest:
+      allOf:
+        - $ref: '#/components/schemas/CommonListRequest'
+        - type: object
+          properties:
+            room:
+              type: array
+              items:
+                type: integer
+            price_from:
+              type: integer
+            price_to:
+              type: integer
+            area_from:
+              type: number
+            area_to:
+              type: number
+            text:
+              type: string
+            include_inactive:
+              type: integer
+              description: 1 — включить неактивные
+    ApartmentsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        total_count:
+          type: integer
+        data:
+          type: object
+          properties:
+            objects:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  id:
+                    type: string
+                  number:
+                    type: string
+                  rooms:
+                    type: integer
+                  area_total:
+                    type: number
+                  floor:
+                    type: integer
+                  base_price:
+                    type: integer
+                  plan_image_url:
+                    type: string
+                  block_id:
+                    type: string
+            apartments_count:
+              type: integer
+            objects_count:
+              type: integer
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            count:
+              type: integer
+            per_page:
+              type: integer
+            has_more:
+              type: boolean
+    ListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        total_count:
+          type: integer
+        data:
+          type: object
+        pagination:
+          type: object
